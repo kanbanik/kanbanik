@@ -1,0 +1,364 @@
+.centered-label {
+	text-align: center;
+}
+
+h1 {
+	font-size: 2em;
+	font-weight: bold;
+	color: #777777;
+	margin: 40px 0px 70px;
+	text-align: center;
+}
+
+table {
+	height: 100%;
+	vertical-align: top;
+	width: 0px;
+}
+
+tr {
+	height: 100%;
+	vertical-align: top;
+	width: 0px;
+}
+
+td {
+	height: 100%;
+	width: 0px;
+	vertical-align: top;
+}
+
+body {
+	background-color: #e1e1e1;
+}
+
+.gwt-TabBarItem {
+	width: 130px;
+}
+
+.gwt-TabBarItem-wrapper {
+	width: 130px;
+}
+
+.gwt-TabBarFirst-wrapper {
+	width: 10px;
+}
+
+.gwt-TabBarRest-wrapper {
+	width: 100%;	
+}
+
+.workflowitem-palette-style {
+	width: 100%;
+}
+
+.workflowitem-palette-style>tbody>tr>td {
+	text-align: center;
+}
+
+.imageButtonStyle {
+	width: 10p;
+	height: 10px;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 2px;
+}
+
+.project-gui {
+	border-style: solid;
+	border-width: 1px;
+	text-align: left;
+	width: 1200px;
+	background-color: d0e4f6;
+}
+
+.panel-with-draggable-panels-style {
+	text-align: center;
+	font-weight: bold;
+	border-style: solid;
+	border-width: 1px;	
+}
+
+td .project-gui {
+	width: 0px;
+	vertical-align: top;
+}
+
+.panel-with-draggables {
+	background-color: navy;
+}
+
+.horizontal-panel-with-draggables {
+	background-color: olive;
+}
+
+.board-gui {
+	background-color: #f2f4f9;
+}
+
+.boards-gui {
+	margin-left: 5px;
+}
+
+.edit-workflow-workflow-holder {
+	border-bottom: 1px solid black;
+	height: 210px;
+	width: 100%;
+	vertical-align: top;
+	background-color: #f2f4f9;
+}
+
+.workflow-item-header {
+	text-align: center;
+}
+
+.workflowedit-projects-header {
+	border: 1px solid black;
+	widows: 50px;
+}
+
+.edit-workflow-module {
+	margin-top: 10px
+}
+
+.edit-workflow-module>tbody>tr>td {
+	width: 1%;
+}
+
+.edit-workflow-module>tbody>tr>td:last-of-type {
+	width: 100%;
+}
+
+.project-to-board-adding {
+	width: 100%;
+}
+
+.workflowedit-project {
+	border: 1px solid black;
+	background-color: #d0e4f6;
+}
+
+.draggable-editable-workflow-item {
+	background-color: #d0e4f6;
+	margin-left: 5px;
+	width: 220px;
+	border-style: solid;
+	border-width: 1px;
+}
+
+.task-toolbar {
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	padding-bottom: 7px;
+	margin-bottom: 4px;
+	margin-top: 2px;
+	margin-right: 2px;
+	width: 100%;
+	text-align: right;
+}
+
+.task-editor-window {
+	width: 500px;
+}
+
+.taskMainBox {
+	border-style: solid;
+	border-width: 1px;
+	width: 100%;
+}
+
+.task-class-of-service-EXPEDITE {
+	width: 100%;
+	min-height: 50%;
+	background-color: #f80070;
+}
+
+.task-class-of-service-FIXED_DELIVERY_DATE {
+	width: 100%;
+	min-height: 50%;
+	background-color: #ffeb00;
+}
+
+.task-class-of-service-STANDARD {
+	width: 100%;
+	min-height: 50%;
+	background-color: #83ff00;
+}
+
+.task-class-of-service-INTANGIBLE {
+	width: 100%;
+	min-height: 70%;
+	background-color: #65b1f8;
+}
+
+.task-main-style {
+	border: 1px solid black;
+	width: 100%;
+	padding-bottom: 2px;
+}
+
+.board-title {
+	margin-top: 10px;
+	text-align: center;
+	font-size: large;
+	background-color: #d0e4f6;
+}
+
+.board-header {
+	width: 220px;
+	min-height: 100%;
+	background-color: d0e4f6;
+	text-align: center;
+	font-weight: bold;
+}
+
+.project-name-label {
+	text-align: center;
+	width: 100%;
+}
+
+.board-subheader {
+	width: 220px;
+}
+
+.project-name {
+	width: 100px;
+	min-width: 100px;
+	max-width: 100px;
+	background-color: e863f5;
+	vertical-align: top;
+	font-weight: bold;
+	height: 0px;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+}
+
+.board-name {
+	width: 100px;
+	min-width: 100px;
+	max-width: 100px;
+	background-color: e863f5;
+	font-weight: bold;
+}
+
+.task-holder>tbody>tr>td,.task-holder>tbody>tr,.sub-task-holder>tbody>tr>td,.sub-task-holder>tbody>tr {
+	height: 100px;
+}
+
+.task-holder>tbody>tr:last-of-type,.task-holder>tbody>tr:last-of-type>td,.sub-task-holder>tbody>tr:last-of-type,.sub-task-holder>tbody>tr:last-of-type>td {
+	height: 100%;
+}
+
+.task-holder {
+	border-left: 1px solid black;
+	width: 220px;
+	height: 100px;
+	vertical-align: top;
+	background-color: #f2f4f9;
+	border-bottom-width: 0px;
+	border-top-width: 2px;
+}
+
+.sub-task-holder {
+	border-left: 1px solid black;
+	width: 110px;
+	height: 100px;
+	vertical-align: top;
+	background-color: #f2f4f9;
+	border-bottom-width: 0px;
+	border-top-width: 2px;
+}
+
+textarea {
+	resize: none;
+}
+
+.boards-padding-panel {
+	height: 5px;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+	width: 800px;
+}
+
+.dialogVPanel {
+	margin: 5px;
+}
+
+.serverResponseLabelError {
+	color: red;
+}
+
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+	margin: 15px 6px 6px;
+}
+
+/** RICH TEXT TOOLBAR */
+.RichTextToolbar {
+	background: #E2E2E2;
+	padding: 5px;
+	margin: 0px;
+	/*border: red 1px solid;*/
+}
+
+.RichTextToolbar .gwt-ToggleButton {
+	background: #F4F4F4;
+	border: 1px outset #ccc;
+}
+
+.RichTextToolbar .gwt-PushButton {
+	background: #F4F4F4;
+	border: 1px outset #ccc;
+}
+
+.RichTextToolbar .gwt-ToggleButton-up-hovering {
+	background: #F4F4F4;
+	border-color: #9cf #69e #69e #7af;
+}
+
+.RichTextToolbar .gwt-PushButton-up-hovering {
+	background: #F4F4F4;
+	border-color: #9cf #69e #69e #7af;
+}
+
+.RichTextToolbar .gwt-ToggleButton-down {
+	background: #D5D5D5;
+	border-color: #777777 #777777 #777777 #777777;
+}
+
+.RichTextToolbar .gwt-PushButton-down {
+	background: #D5D5D5;
+	border-color: #777777 #777777 #777777 #777777;
+}
+
+.RichTextToolbar .gwt-ToggleButton-down-hovering {
+	background: #D5D5D5;
+	border-color: #9cf #69e #69e #7af;
+}
+
+.RichTextToolbar .gwt-PushButton-down-hovering {
+	background: #D5D5D5;
+	border-color: #9cf #69e #69e #7af;
+}
+
+.RichTextToolbar .gwt-PushButton-up-disabled {
+	background: #717171;
+	border-color: #B9968F #B9968F #B9968F #B9968F;
+}
+
+.RichTextToolbar .gwt-PushButton-down-disabled {
+	background: #717171;
+	border-color: #B9968F #B9968F #B9968F #B9968F;
+}
+
+.RichTextToolbar .gwt-ToggleButton-up-disabled {
+	background: #717171;
+	border-color: #B9968F #B9968F #B9968F #B9968F;
+}
+
+.RichTextToolbar .gwt-ToggleButton-down-disabled {
+	background: #717171;
+	border-color: #B9968F #B9968F #B9968F #B9968F;
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='kanbanik'>
+
+	<inherits name='com.google.gwt.user.User' />
+
+	<inherits name='com.google.gwt.user.theme.standard.Standard' />
+
+	<inherits name='com.allen_sauer.gwt.dnd.gwt-dnd' />
+	
+	<inherits name="com.google.gwt.resources.Resources" />
+
+	<entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
+	
+
+	<source path='client.components' />
+	<source path='client.editworkflow' />
+	<source path='client.editworkflow.projects' />
+	<source path='client.editworkflow.workflow' />
+	<source path='client.model' />
+	<source path='client.modules' />
+	<source path='client.modules.lifecyclelisteners' />
+	<source path='client.modules.editworkflow' />
+	<source path='client.modules.editworkflow.boards' />
+	<source path='client.modules.editworkflow.projects' />
+	<source path='client.messaging'/>
+	<source path="client.services"></source>
+	<source path='client' />
+	<source path='shared' />
+	
+</module>

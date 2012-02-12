@@ -1,0 +1,45 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.project-toolbar {
+			padding-bottom: 7px;
+			margin-bottom: 4px;
+			margin-top: 2px;
+			margin-right: 2px;
+			width: 100%;
+			text-align: right;
+		}
+		
+		.project-header {
+			background-color: #d0e4f6;
+			border-bottom-style: solid;
+			border-bottom-width: 1px;
+			width: 100%;
+			text-align: center;
+		}
+		
+		.project-name {
+			font-weight: bold;
+		}
+	</ui:style>
+
+	<g:HTMLPanel>
+		<div
+			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;"
+			ui:field="mainDiv">
+			<g:FocusPanel styleName="{style.project-header}"
+				ui:field="header">
+				<g:Label styleName="{style.project-name}" ui:field="projectName" />
+			</g:FocusPanel>
+
+			<g:HorizontalPanel styleName="{style.project-toolbar}">
+				<g:PushButton styleName="imageButtonStyle" ui:field="editButton"
+					text="Edit" title="Edit" />
+				<g:PushButton styleName="imageButtonStyle" ui:field="deleteButton"
+					text="Delete" title="Delete" />
+			</g:HorizontalPanel>
+		</div>
+
+	</g:HTMLPanel>
+</ui:UiBinder>

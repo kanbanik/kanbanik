@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<import resource="classpath:dataSource.xml"/>
+	<import resource="classpath:entitymanager.xml"/>
+	
+	<bean id="taskBuilder" class="com.googlecode.kanbanik.server.TaskBuilder">
+		<property name="kanbanik" ref="kanbanik"/>
+	</bean>
+	
+	<bean id="returnObjectDtoBuilder" class="com.googlecode.kanbanik.server.ReturnObjectDtoBuilder" />
+	
+	<bean id="workflowItemDTOBuilder" class="com.googlecode.kanbanik.server.WorkflowItemDTOBuilder" />
+	<bean id="projectBuilder" class="com.googlecode.kanbanik.server.ProjectBuilder">
+		<property name="taskBuilder" ref="taskBuilder"/>
+	</bean>
+	
+	<bean id="boardBuilder" class="com.googlecode.kanbanik.server.BoardBuilder">
+		<property name="workflowItemBuilder" ref="workflowItemDTOBuilder"/>
+		<property name="projectBuilder" ref="projectBuilder"/>
+	</bean>
+	
+	<bean id="workflowItemBuilder" class="com.googlecode.kanbanik.server.WorkflowItemBuilder"/>
+	
+	<bean id="kanbanikServiceWorker" class="com.googlecode.kanbanik.server.KanbanikServiceWorker" scope="prototype">
+		<property name="kanbanik" ref="kanbanik"/>
+		<property name="boardBuilder" ref="boardBuilder"/>
+		<property name="taskBuilder" ref="taskBuilder"/>
+	</bean>
+	
+	<bean id="configureServiceWorker" class="com.googlecode.kanbanik.server.ConfigureWorkflowServiceWorker" scope="prototype">
+		<property name="kanbanik" ref="kanbanik"/>
+		<property name="boardBuilder" ref="boardBuilder"/>
+		<property name="workflowItemBuilder" ref="workflowItemBuilder"/>
+		<property name="workflowItemDTOBuilder" ref="workflowItemDTOBuilder"/>
+		<property name="returnObjectDtoBuilder" ref="returnObjectDtoBuilder"/>
+	</bean>
+</beans>

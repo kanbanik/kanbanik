@@ -1,0 +1,53 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.header-label {
+			border-bottom-style: solid;
+			border-bottom-width: 1px;
+		}
+		
+		.workflowedit-projects {
+			height: 100%;
+		}
+		
+		.workflowedit-projects-part {
+			height: 100%;
+			width: 100px;
+			min-height: 100px;
+			min-width: 100px;
+			vertical-align: top;
+			background-color: #f2f4f9;
+		}
+		
+		.workflowedit-projects-part-left {
+			border-right-style: solid;
+			border-right-width: 1px;
+			height: 100%;
+		}
+	</ui:style>
+
+	<g:HTMLPanel>
+		<div
+			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;">
+
+			<g:AbsolutePanel ui:field="panelWithDraggablePanels">
+				<g:HorizontalPanel styleName="{style.workflowedit-projects}">
+					<g:FlowPanel styleName="{style.workflowedit-projects-part-left}">
+						<g:Label styleName="{style.header-label}" text="All Projects" />
+						<g:FlowPanel styleName="{style.workflowedit-projects-part}"
+							ui:field="toBeAdded" />
+					</g:FlowPanel>
+
+					<g:FlowPanel styleName="{style.workflowedit-projects-part}">
+						<g:Label styleName="{style.header-label}" text="On Board" />
+						<g:FlowPanel styleName="{style.workflowedit-projects-part}"
+							ui:field="projectsOfBoard" />
+					</g:FlowPanel>
+				</g:HorizontalPanel>
+			</g:AbsolutePanel>
+		</div>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

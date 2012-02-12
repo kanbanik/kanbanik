@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:spring-context.xml
+  		</param-value>
+	</context-param>
+
+
+	<servlet>
+		<servlet-name>kanbanikServlet</servlet-name>
+		<servlet-class>com.googlecode.kanbanik.server.KanbanikServiceImpl</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>configureWorkflowServlet</servlet-name>
+		<servlet-class>com.googlecode.kanbanik.server.ConfigureWorkflowServiceImpl</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>configureWorkflowServlet</servlet-name>
+		<url-pattern>/kanbanik/configureWorkflow</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>kanbanikServlet</servlet-name>
+		<url-pattern>/kanbanik/kanbanik</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>kanbanik.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>
