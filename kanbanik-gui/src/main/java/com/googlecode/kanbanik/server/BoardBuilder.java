@@ -1,7 +1,6 @@
 package com.googlecode.kanbanik.server;
 
 import com.googlecode.kanbanik.Board;
-import com.googlecode.kanbanik.HelloWorld;
 import com.googlecode.kanbanik.Project;
 import com.googlecode.kanbanik.Workflowitem;
 import com.googlecode.kanbanik.shared.BoardDTO;
@@ -33,8 +32,7 @@ public class BoardBuilder {
 		}
 		
 		boardDTO.setId(board.getId());
-		HelloWorld hello = new HelloWorld();
-		boardDTO.setName(hello.enrichName(board.getName()));
+		boardDTO.setName(board.getName());
 		return boardDTO;
 	}
 

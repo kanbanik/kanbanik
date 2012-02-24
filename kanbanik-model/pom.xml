@@ -41,6 +41,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.9.1</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.mongodb.casbah</groupId>
 			<artifactId>casbah_2.9.0-1</artifactId>
 			<version>2.1.5.0</version>
@@ -168,6 +174,7 @@
 						<configuration>
 							<sources>
 								<source>src/main/scala</source>
+								<source>src/test/scala</source>
 								<source>src/main/java</source>
 							</sources>
 						</configuration>
