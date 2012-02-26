@@ -28,7 +28,20 @@ class WorkflowitemScala(
     WorkflowitemScala.byId(idToUpdate)
   }
 
-  def move(idToUpdate: ObjectId) {
+  def delete {
+    val toDelete = WorkflowitemScala.byId(id.getOrElse(throw new IllegalStateException("Can not delete item which does not exist!")))
+    toDelete.nextItemId = None
+    toDelete.store
+    val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id))
+    if (newPrev.isDefined) {
+      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
+        $set("nextItemId" -> null))
+    }
+
+    coll(Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
+  }
+
+  private def move(idToUpdate: ObjectId) {
     // a->b->c->d->e->f
     // the e moves before b
     // so, the result:
@@ -61,8 +74,8 @@ class WorkflowitemScala(
         $set("nextItemId" -> e.id))
     }
 
-      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> e.id),
-        $set("nextItemId" -> findId(b)))
+    coll(Coll.Workflowitems).update(MongoDBObject("_id" -> e.id),
+      $set("nextItemId" -> findId(b)))
 
     if (d != null) {
       coll(Coll.Workflowitems).update(MongoDBObject("_id" -> findId(d)),
@@ -74,12 +87,12 @@ class WorkflowitemScala(
         $set("nextItemId" -> e.id))
     }
   }
-  
-  private def findId(dbObject: DBObject) : ObjectId = {
+
+  private def findId(dbObject: DBObject): ObjectId = {
     if (dbObject == null) {
       return null;
     }
-    
+
     WorkflowitemScala.asEntity(dbObject).id.getOrElse(null)
   }
 
@@ -123,7 +136,7 @@ object WorkflowitemScala extends KanbanikEntity {
       "boardId" -> entity.boardId)
   }
 
-  def translateChildren(children: BasicDBList): Option[List[WorkflowitemScala]] = {
+  private def translateChildren(children: BasicDBList): Option[List[WorkflowitemScala]] = {
     if (children == null) {
       None
     } else {
@@ -132,7 +145,7 @@ object WorkflowitemScala extends KanbanikEntity {
 
   }
 
-  def translateChildren(children: Option[List[WorkflowitemScala]]): List[DBObject] = {
+  private def translateChildren(children: Option[List[WorkflowitemScala]]): List[DBObject] = {
     if (!children.isDefined) {
       null
     } else {

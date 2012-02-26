@@ -73,7 +73,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("3f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("1f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to move the workflowitem from end to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9"))
       loaded.nextItemId = Some(new ObjectId("1f48e10644ae3742baa2d0d9"))
@@ -83,7 +83,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("2f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to move the workflowitem from middle to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
       loaded.nextItemId = Some(new ObjectId("1f48e10644ae3742baa2d0d9"))
@@ -93,7 +93,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to move the workflowitem from middle to end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
       loaded.nextItemId = None
@@ -103,7 +103,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("3f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("2f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to stay at the end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9"))
       loaded.nextItemId = None
@@ -113,7 +113,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("2f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to stay where you are") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
       loaded.nextItemId = Some(new ObjectId("3f48e10644ae3742baa2d0d9"))
@@ -136,7 +136,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("4a48e10644ae3742baa2d0d9")),
         Some(new ObjectId("6a48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to move in two elemnts board from beginning to end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1b48e10644ae3742baa2d0d9"))
       loaded.nextItemId = None
@@ -145,7 +145,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("2b48e10644ae3742baa2d0d9")),
         Some(new ObjectId("1b48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to move in two elemnts board from end to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2b48e10644ae3742baa2d0d9"))
       loaded.nextItemId = Some(new ObjectId("1b48e10644ae3742baa2d0d9"))
@@ -154,7 +154,31 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("2b48e10644ae3742baa2d0d9")),
         Some(new ObjectId("1b48e10644ae3742baa2d0d9"))))
     }
-    
+
+    it("should be possible to delete the first element") {
+      val loaded = WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0d9"))
+      loaded.delete
+      assertItemsInOrder(List(
+        Some(new ObjectId("2f48e10644ae3742baa2d0d9")),
+        Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
+    }
+
+    it("should be possible to delete the last element") {
+      val loaded = WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9"))
+      loaded.delete
+      assertItemsInOrder(List(
+        Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
+        Some(new ObjectId("2f48e10644ae3742baa2d0d9"))))
+    }
+
+    it("should be possible to delete the middle element") {
+      val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
+      loaded.delete
+      assertItemsInOrder(List(
+        Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
+        Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
+    }
+
     def assertItemsInOrder(ids: List[Option[ObjectId]]) {
       ids.foldLeft(ids.head) {
         (actual, expected) =>
