@@ -25,11 +25,17 @@ class WorkflowitemScala(
     val idObject = MongoDBObject("_id" -> idToUpdate)
     coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit))
     move(idToUpdate)
+    
+    coll(Coll.Workflowitems).update(idObject, $set("children" -> WorkflowitemScala.translateChildren(children)))
+    
     WorkflowitemScala.byId(idToUpdate)
   }
-
+  
   def delete {
     val toDelete = WorkflowitemScala.byId(id.getOrElse(throw new IllegalStateException("Can not delete item which does not exist!")))
+
+    unregisterFromBoard()
+    
     toDelete.nextItemId = None
     toDelete.store
     val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id))
@@ -40,7 +46,19 @@ class WorkflowitemScala(
 
     coll(Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
   }
-
+  
+  def unregisterFromBoard() {
+    val board = BoardScala.byId(boardId)
+    val newReferences = board.workflowitems.getOrElse(null).filter(!_.id.equals(id))
+    if (newReferences != null && newReferences.size > 0) {
+    	board.workflowitems = Some(newReferences)
+    } else {
+      board.workflowitems = None
+    }
+    board.store
+    
+  }
+  
   private def move(idToUpdate: ObjectId) {
     // a->b->c->d->e->f
     // the e moves before b

@@ -20,6 +20,10 @@ class BoardScala(
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
     coll(Coll.Boards).update(idObject, $set("name" -> name))
+    coll(Coll.Boards).update(idObject, $set("workflowitems" -> {
+      val newItems = workflowitems.getOrElse(return null)
+      for { x <- newItems } yield x.id
+    }))
     BoardScala.byId(idToUpdate)
   }
 

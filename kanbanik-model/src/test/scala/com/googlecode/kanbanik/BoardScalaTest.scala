@@ -50,6 +50,23 @@ class BoardScalaTest extends BaseIntegrationTest {
         BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
       }
     }
+
+    it("should be possible to remove workflow from the board") {
+      val board = BoardScala.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      board.workflowitems = Some(List(board.workflowitems.get(0)))
+      board.store
+      val withOneWorkflowitemOnly = BoardScala.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      assert(withOneWorkflowitemOnly.workflowitems.get.size === 1)
+    }
+    
+    it("should be possible to add workflow to the board") {
+      val board = BoardScala.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      board.workflowitems = Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0d9")) :: board.workflowitems.get)
+      board.store
+      val withOneWorkflowitemOnly = BoardScala.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      assert(withOneWorkflowitemOnly.workflowitems.get.size === 3)
+    }
+    
   }
 
   def notSet = throw new IllegalStateException("Required value not set");

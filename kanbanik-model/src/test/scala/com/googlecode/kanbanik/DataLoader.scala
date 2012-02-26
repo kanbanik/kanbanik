@@ -9,34 +9,70 @@ object DataLoader {
   val boards = MongoConnection()("kanbanik")("boards")
 
   def fillDB() {
-	  fillWorkflowitems()
-	  fillBoards()
+    fillWorkflowitems()
+    fillComplexWorkflowitems()
+    fillBoards()
   }
 
   def clearDB() {
     workflowitems.find().foreach {
       workflowitems.remove(_)
     }
-    
+
     boards.find().foreach {
       boards.remove(_)
     }
   }
-  
+
+  private def fillComplexWorkflowitems() {
+    workflowitems += MongoDBObject(
+      "_id" -> new ObjectId("1c48e10644ae3742baa2d0d9"),
+      "name" -> "some name",
+      "wipLimit" -> 4,
+      "children" -> List(
+        MongoDBObject(
+          "_id" -> new ObjectId("2c48e10644ae3742baa2d0d9"),
+          "name" -> "some name",
+          "wipLimit" -> 4,
+          "children" -> null,
+          "nextItemId" -> null,
+          "boardId" -> new ObjectId("4f48e10644ae3742baa2d0d9")),
+        MongoDBObject(
+          "_id" -> new ObjectId("3c48e10644ae3742baa2d0d9"),
+          "name" -> "some name",
+          "wipLimit" -> 4,
+          "children" -> List(
+            MongoDBObject(
+              "_id" -> new ObjectId("4c48e10644ae3742baa2d0d9"),
+              "name" -> "some name",
+              "wipLimit" -> 4,
+              "children" -> null,
+              "nextItemId" -> null,
+              "boardId" -> new ObjectId("4f48e10644ae3742baa2d0d9"))),
+          "nextItemId" -> null,
+          "boardId" -> new ObjectId("4f48e10644ae3742baa2d0d9"))),
+      "nextItemId" -> null,
+      "boardId" -> new ObjectId("4f48e10644ae3742baa2d0d9"))
+  }
+
   private def fillBoards() {
     boards += MongoDBObject(
       "_id" -> new ObjectId("1f48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
       "workflowitems" -> null)
-      
-      boards += MongoDBObject(
-      "_id" -> new ObjectId("2f48e10644ae3742baa2d0b9"),
+
+    boards += MongoDBObject(
+      "_id" -> new ObjectId("4f48e10644ae3742baa2d0d0"),
       "name" -> "board1 name",
-      "workflowitems" -> List(new ObjectId("1f48e10644ae3742baa2d0d9"), new ObjectId("2f48e10644ae3742baa2d0d9")))
+      "workflowitems" -> List(
+          new ObjectId("1f48e10644ae3742baa2d0d9"), 
+          new ObjectId("2f48e10644ae3742baa2d0d9"), 
+          new ObjectId("3f48e10644ae3742baa2d0d9")
+       ))
   }
-  
+
   private def fillWorkflowitems() {
-        // for basic read write of workflowitems
+    // for basic read write of workflowitems
     workflowitems += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0d9"),
       "name" -> "some name",

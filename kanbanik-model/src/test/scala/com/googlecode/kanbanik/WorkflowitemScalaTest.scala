@@ -184,6 +184,28 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
       WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9")).delete
       WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9")).delete
     }
+    
+    it("should be possible edit primitive of child elements") {
+      val loaded = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
+      loaded.children.get(1).children.get(0).name = "changed name"
+      loaded.store
+      val toBeChanged = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
+      assert(loaded.children.get(1).children.get(0).name === "changed name")
+    }
+    
+    it("should be possible add new children") {
+      val loaded = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
+      val newChildren = new WorkflowitemScala(None, "added", 1, None, None, null) :: loaded.children.get
+      loaded.children = Some(newChildren)
+      loaded.store
+      val toBeChanged = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
+      assert(loaded.children.get.size === 3)
+    }
+    
+    it("should remove reference from board to workflow when the workflow is deleted") {
+      BoardScala.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get(0).delete
+      assert(BoardScala.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get.size === 2)
+    }
 
     def assertItemsInOrder(ids: List[Option[ObjectId]]) {
       ids.foldLeft(ids.head) {
