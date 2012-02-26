@@ -11,8 +11,22 @@ class WorkflowitemScala(
   var wipLimit: Int,
   var children: Option[List[WorkflowitemScala]],
   var nextItemId: Option[ObjectId],
-  var boardId: ObjectId)
+  private var realBoard: BoardScala)
   extends KanbanikEntity {
+
+  private var boardId: ObjectId = null
+
+  if (realBoard != null) {
+    boardId = realBoard.id.getOrElse(throw new IllegalArgumentException("Board has to exist for workflowitem"))
+  }
+
+  def board = {
+    if (realBoard == null) {
+      realBoard = BoardScala.byId(boardId)
+    }
+
+    realBoard
+  }
 
   def store: WorkflowitemScala = {
 
@@ -25,20 +39,20 @@ class WorkflowitemScala(
     val idObject = MongoDBObject("_id" -> idToUpdate)
     coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit))
     move(idToUpdate)
-    
+
     coll(Coll.Workflowitems).update(idObject, $set("children" -> WorkflowitemScala.translateChildren(children)))
-    
+
     WorkflowitemScala.byId(idToUpdate)
   }
-  
+
   def delete {
     val toDelete = WorkflowitemScala.byId(id.getOrElse(throw new IllegalStateException("Can not delete item which does not exist!")))
 
     unregisterFromBoard()
-    
+
     toDelete.nextItemId = None
     toDelete.store
-    val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id))
+    val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
     if (newPrev.isDefined) {
       coll(Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
         $set("nextItemId" -> null))
@@ -46,19 +60,17 @@ class WorkflowitemScala(
 
     coll(Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
   }
-  
+
   def unregisterFromBoard() {
-    val board = BoardScala.byId(boardId)
-    val newReferences = board.workflowitems.getOrElse(null).filter(!_.id.equals(id))
+    val newReferences = board.workflowitems.getOrElse(List()).filter(!_.id.equals(id))
     if (newReferences != null && newReferences.size > 0) {
-    	board.workflowitems = Some(newReferences)
+      board.workflowitems = Some(newReferences)
     } else {
       board.workflowitems = None
     }
     board.store
-    
   }
-  
+
   private def move(idToUpdate: ObjectId) {
     // a->b->c->d->e->f
     // the e moves before b
@@ -74,7 +86,9 @@ class WorkflowitemScala(
       return
     }
 
-    val lastEntity = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> null)).getOrElse(throw new IllegalStateException("No last entity on board: " + boardId.toString))
+    val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
+
+    val lastEntity = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> null)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
     val f = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemId)).getOrElse(null)
     val d = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
     var b: DBObject = null
@@ -123,7 +137,7 @@ object WorkflowitemScala extends KanbanikEntity {
   }
 
   private def asEntity(dbObject: DBObject) = {
-    new WorkflowitemScala(
+    val item = new WorkflowitemScala(
       Some(dbObject.get("_id").asInstanceOf[ObjectId]),
       dbObject.get("name").asInstanceOf[String],
       dbObject.get("wipLimit").asInstanceOf[Int],
@@ -141,7 +155,11 @@ object WorkflowitemScala extends KanbanikEntity {
           Some(dbObject.get("nextItemId").asInstanceOf[ObjectId])
         }
       },
-      dbObject.get("boardId").asInstanceOf[ObjectId])
+      null)
+
+    item.boardId = dbObject.get("boardId").asInstanceOf[ObjectId]
+
+    item
   }
 
   private def asDBObject(entity: WorkflowitemScala): DBObject = {
@@ -151,7 +169,7 @@ object WorkflowitemScala extends KanbanikEntity {
       "wipLimit" -> entity.wipLimit,
       "children" -> translateChildren(entity.children),
       "nextItemId" -> entity.nextItemId.getOrElse(null),
-      "boardId" -> entity.boardId)
+      "boardId" -> entity.board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))
   }
 
   private def translateChildren(children: BasicDBList): Option[List[WorkflowitemScala]] = {

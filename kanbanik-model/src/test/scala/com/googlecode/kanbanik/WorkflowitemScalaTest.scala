@@ -5,7 +5,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
   describe("Workflowitem should be able to do all the CRUD operations") {
 
     it("should be able to find what it stored") {
-      val stored = new WorkflowitemScala(None, "name1", 1, None, None, null).store
+      val stored = new WorkflowitemScala(None, "name1", 1, None, None, board).store
       val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
       assert(stored.name === loaded.name)
       assert(stored.wipLimit === loaded.wipLimit)
@@ -22,8 +22,8 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     it("should be able to store subworkflows") {
       val stored = new WorkflowitemScala(None, "name1", 1,
         Some(List(
-          new WorkflowitemScala(None, "inner1", 1, None, None, null),
-          new WorkflowitemScala(None, "inner2", 1, None, None, null))), None, null).store
+          new WorkflowitemScala(None, "inner1", 1, None, None, board),
+          new WorkflowitemScala(None, "inner2", 1, None, None, board))), None, board).store
 
       val children = WorkflowitemScala.byId(stored.id.getOrElse(notSet)).children.getOrElse(notSet)
       assert(children.size === 2)
@@ -32,14 +32,14 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     it("should be able to store more deep subworkflows") {
       val stored = new WorkflowitemScala(None, "name1", 1,
         Some(List(
-          new WorkflowitemScala(None, "inner1", 1, None, None, null),
+          new WorkflowitemScala(None, "inner1", 1, None, None, board),
           new WorkflowitemScala(None, "inner2", 1,
             Some(List(
               new WorkflowitemScala(None, "inner21", 1,
                 Some(List(
-                  new WorkflowitemScala(None, "inner211", 1, None, None, null),
-                  new WorkflowitemScala(None, "inner2112", 1, None, None, null))), None, null),
-              new WorkflowitemScala(None, "inner22", 1, None, None, null))), None, null))), None, null).store
+                  new WorkflowitemScala(None, "inner211", 1, None, None, board),
+                  new WorkflowitemScala(None, "inner2112", 1, None, None, board))), None, board),
+              new WorkflowitemScala(None, "inner22", 1, None, None, board))), None, board))), None, board).store
 
       val children = WorkflowitemScala.byId(stored.id.getOrElse(notSet)).children.getOrElse(notSet)
 
@@ -52,13 +52,13 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     }
 
     it("should be able to store also nextItem") {
-      val stored = new WorkflowitemScala(None, "name1", 1, None, Some(new ObjectId("4f48e10644ae3742baa2d0a9")), null).store
+      val stored = new WorkflowitemScala(None, "name1", 1, None, Some(new ObjectId("4f48e10644ae3742baa2d0a9")), board).store
       val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
       assert(loaded.nextItemId.getOrElse(notSet) === "4f48e10644ae3742baa2d0a9")
     }
 
     it("should be able to update the primitive parts of the item") {
-      val stored = new WorkflowitemScala(Some(new ObjectId("4f48e10644ae3742baa2d0d9")), "other name", 2, None, None, null).store
+      val stored = new WorkflowitemScala(Some(new ObjectId("4f48e10644ae3742baa2d0d9")), "other name", 2, None, None, board).store
       val loaded = WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0d9"))
       assert(loaded.name === "other name")
       assert(loaded.wipLimit === 2)
@@ -195,7 +195,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     
     it("should be possible add new children") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
-      val newChildren = new WorkflowitemScala(None, "added", 1, None, None, null) :: loaded.children.get
+      val newChildren = new WorkflowitemScala(None, "added", 1, None, None, board) :: loaded.children.get
       loaded.children = Some(newChildren)
       loaded.store
       val toBeChanged = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
@@ -207,6 +207,8 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
       assert(BoardScala.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get.size === 2)
     }
 
+    def board = BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
+    
     def assertItemsInOrder(ids: List[Option[ObjectId]]) {
       ids.foldLeft(ids.head) {
         (actual, expected) =>
