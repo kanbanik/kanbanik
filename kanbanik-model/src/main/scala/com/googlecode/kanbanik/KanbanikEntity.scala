@@ -7,6 +7,7 @@ class KanbanikEntity {
 
   object Coll extends Enumeration {
     val Workflowitems = Value("workflowitems")
+    val Boards = Value("boards")
     
   }
 

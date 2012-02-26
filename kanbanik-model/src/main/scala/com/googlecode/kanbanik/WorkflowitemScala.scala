@@ -104,7 +104,7 @@ object WorkflowitemScala extends KanbanikEntity {
     asEntity(dbWorkflow)
   }
 
-  def asEntity(dbObject: DBObject) = {
+  private def asEntity(dbObject: DBObject) = {
     new WorkflowitemScala(
       Some(dbObject.get("_id").asInstanceOf[ObjectId]),
       dbObject.get("name").asInstanceOf[String],
@@ -126,9 +126,9 @@ object WorkflowitemScala extends KanbanikEntity {
       dbObject.get("boardId").asInstanceOf[ObjectId])
   }
 
-  def asDBObject(entity: WorkflowitemScala): DBObject = {
+  private def asDBObject(entity: WorkflowitemScala): DBObject = {
     MongoDBObject(
-      "_id" -> new ObjectId(),
+      "_id" -> new ObjectId,
       "name" -> entity.name,
       "wipLimit" -> entity.wipLimit,
       "children" -> translateChildren(entity.children),

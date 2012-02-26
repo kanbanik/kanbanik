@@ -178,6 +178,12 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
     }
+    
+    it("should be possible to delete all elements") {
+      WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0d9")).delete
+      WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9")).delete
+      WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9")).delete
+    }
 
     def assertItemsInOrder(ids: List[Option[ObjectId]]) {
       ids.foldLeft(ids.head) {
