@@ -52,7 +52,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     }
 
     it("should be able to store also nextItem") {
-      val stored = new WorkflowitemScala(None, "name1", 1, None, Some(new ObjectId("4f48e10644ae3742baa2d0a9")), board).store
+      val stored = new WorkflowitemScala(None, "name1", 1, None, Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))), board).store
       val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
       assert(loaded.nextItemId.getOrElse(notSet) === "4f48e10644ae3742baa2d0a9")
     }

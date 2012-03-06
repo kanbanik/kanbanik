@@ -10,16 +10,38 @@ class WorkflowitemScala(
   var name: String,
   var wipLimit: Int,
   var children: Option[List[WorkflowitemScala]],
-  var nextItemId: Option[ObjectId],
+  private var nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
   extends KanbanikEntity {
 
   private var boardId: ObjectId = null
 
+  private var nextItemIdInternal: Option[ObjectId] = null
+  
   if (realBoard != null) {
     boardId = realBoard.id.getOrElse(throw new IllegalArgumentException("Board has to exist for workflowitem"))
   }
 
+  
+  if(nextItem.isDefined) {
+    nextItemIdInternal = nextItem.get.id
+  } else {
+    nextItemIdInternal = None
+  }
+
+  def nextItemId = {
+    if (nextItem == null) {
+      if (nextItemIdInternal.isDefined) {
+    	  nextItem = Some(WorkflowitemScala.byId(nextItemIdInternal.get))  
+      } else {
+        nextItem = None
+      }
+      
+    }
+    
+    nextItem
+  }
+  
   def board = {
     if (realBoard == null) {
       realBoard = BoardScala.byId(boardId)
@@ -152,13 +174,14 @@ object WorkflowitemScala extends KanbanikEntity {
         if (dbObject.get("nextItemId") == null) {
           None
         } else {
-          Some(dbObject.get("nextItemId").asInstanceOf[ObjectId])
+          null
         }
       },
       null)
 
     item.boardId = dbObject.get("boardId").asInstanceOf[ObjectId]
-
+    item.nextItemId = Some(dbObject.get("nextItemId").asInstanceOf[ObjectId])
+    
     item
   }
 
