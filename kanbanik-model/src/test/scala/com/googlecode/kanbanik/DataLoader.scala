@@ -8,12 +8,65 @@ object DataLoader {
   val workflowitems = MongoConnection()("kanbanik")("workflowitems")
   val boards = MongoConnection()("kanbanik")("boards")
   val tasks = MongoConnection()("kanbanik")("tasks")
+  val projects = MongoConnection()("kanbanik")("projects")
 
   def fillDB {
     fillWorkflowitems
     fillComplexWorkflowitems
     fillBoards
     fillTasks
+    fillProject
+  }
+
+  def fillProject {
+
+    tasks += MongoDBObject(
+      "_id" -> new ObjectId("4f48e10644ae3742baa2d0a9"),
+      "name" -> "task name",
+      "description" -> "task description",
+      "classOfService" -> 1,
+      "workflowitem" -> new ObjectId("4f48e10644ae3742baa2d0a9"))
+
+    tasks += MongoDBObject(
+      "_id" -> new ObjectId("5f48e10644ae3742baa2d0a9"),
+      "name" -> "task name",
+      "description" -> "task description",
+      "classOfService" -> 1,
+      "workflowitem" -> new ObjectId("4f48e10644ae3742baa2d0a9"))
+
+    boards += MongoDBObject(
+      "_id" -> new ObjectId("1b48e10644ae3742baa2d0d9"),
+      "name" -> "board1 name",
+      "workflowitems" -> null)
+
+    boards += MongoDBObject(
+      "_id" -> new ObjectId("2b48e10644ae3742baa2d0d9"),
+      "name" -> "board1 name",
+      "workflowitems" -> null)
+
+    projects += MongoDBObject(
+      "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
+      "name" -> "project name",
+      "boards" -> None,
+      "tasks" -> None)
+
+    projects += MongoDBObject(
+      "_id" -> new ObjectId("2a48e10644ae3742baa2d0d9"),
+      "name" -> "project name",
+      "boards" -> List(
+        new ObjectId("1b48e10644ae3742baa2d0d9"),
+        new ObjectId("2b48e10644ae3742baa2d0d9")),
+      "tasks" -> None)
+
+    projects += MongoDBObject(
+      "_id" -> new ObjectId("3a48e10644ae3742baa2d0d9"),
+      "name" -> "project name",
+      "boards" -> List(
+        new ObjectId("1b48e10644ae3742baa2d0d9"),
+        new ObjectId("2b48e10644ae3742baa2d0d9")),
+      "tasks" -> List(
+        new ObjectId("4f48e10644ae3742baa2d0a9"),
+        new ObjectId("5f48e10644ae3742baa2d0a9")))
   }
 
   def fillTasks {
@@ -247,6 +300,14 @@ object DataLoader {
     // workflowitem to free usage
     workflowitems += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0a9"),
+      "name" -> "some name",
+      "wipLimit" -> 4,
+      "children" -> null,
+      "nextItemId" -> None,
+      "boardId" -> new ObjectId("1d48e10644ae3742baa2d0b9"))
+
+    workflowitems += MongoDBObject(
+      "_id" -> new ObjectId("5f48e10644ae3742baa2d0a9"),
       "name" -> "some name",
       "wipLimit" -> 4,
       "children" -> null,

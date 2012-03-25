@@ -50,7 +50,6 @@ object TaskScala extends KanbanikEntity {
       "description" -> entity.description,
       "classOfService" -> entity.classOfService,
       "workflowitem" -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
-
   }
 
   private def asEntity(dbObject: DBObject) = {
