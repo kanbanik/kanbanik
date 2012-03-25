@@ -8,10 +8,10 @@ import org.scalatest.junit.JUnitRunner
 class BaseIntegrationTest extends Spec with BeforeAndAfter {
   
   before {
-    DataLoader.fillDB()
+    DataLoader.fillDB
   }
 
   after {
-    DataLoader.clearDB()
+    DataLoader.clearDB
   }
 }
