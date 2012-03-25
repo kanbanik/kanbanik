@@ -52,9 +52,12 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     }
 
     it("should be able to store also nextItem") {
-      val stored = new WorkflowitemScala(None, "name1", 1, None, Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))), board).store
+      val nextItem = Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9")))
+      var stored = new WorkflowitemScala(None, "name1", 1, None, nextItem, board)
+      stored = stored.store
       val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
-      assert(loaded.nextItemId.getOrElse(notSet) === "4f48e10644ae3742baa2d0a9")
+      val nextItemId = loaded.nextItem.getOrElse(notSet).id.get
+      assert(nextItemId === "4f48e10644ae3742baa2d0a9")
     }
 
     it("should be able to update the primitive parts of the item") {
@@ -66,7 +69,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move the workflowitem from beginning to end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = None
+      loaded.nextItem = None
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("2f48e10644ae3742baa2d0d9")),
@@ -76,7 +79,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move the workflowitem from end to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = Some(new ObjectId("1f48e10644ae3742baa2d0d9"))
+      loaded.nextItem = workflowitemOf("1f48e10644ae3742baa2d0d9")
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("3f48e10644ae3742baa2d0d9")),
@@ -86,7 +89,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move the workflowitem from middle to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = Some(new ObjectId("1f48e10644ae3742baa2d0d9"))
+      loaded.nextItem = workflowitemOf("1f48e10644ae3742baa2d0d9")
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("2f48e10644ae3742baa2d0d9")),
@@ -96,7 +99,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move the workflowitem from middle to end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = None
+      loaded.nextItem = None
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
@@ -106,7 +109,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to stay at the end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = None
+      loaded.nextItem = None
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
@@ -116,7 +119,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to stay where you are") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = Some(new ObjectId("3f48e10644ae3742baa2d0d9"))
+      loaded.nextItem = workflowitemOf("3f48e10644ae3742baa2d0d9");
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
@@ -126,7 +129,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move in more complex boards") {
       val loaded = WorkflowitemScala.byId(new ObjectId("5a48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = Some(new ObjectId("2a48e10644ae3742baa2d0d9"))
+      loaded.nextItem = workflowitemOf("2a48e10644ae3742baa2d0d9")
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("1a48e10644ae3742baa2d0d9")),
@@ -139,7 +142,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move in two elemnts board from beginning to end") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1b48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = None
+      loaded.nextItem = None
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("2b48e10644ae3742baa2d0d9")),
@@ -148,7 +151,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible to move in two elemnts board from end to beginning") {
       val loaded = WorkflowitemScala.byId(new ObjectId("2b48e10644ae3742baa2d0d9"))
-      loaded.nextItemId = Some(new ObjectId("1b48e10644ae3742baa2d0d9"))
+      loaded.nextItem = workflowitemOf("1b48e10644ae3742baa2d0d9")
       loaded.store
       assertItemsInOrder(List(
         Some(new ObjectId("2b48e10644ae3742baa2d0d9")),
@@ -178,13 +181,13 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
         Some(new ObjectId("1f48e10644ae3742baa2d0d9")),
         Some(new ObjectId("3f48e10644ae3742baa2d0d9"))))
     }
-    
+
     it("should be possible to delete all elements") {
       WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0d9")).delete
       WorkflowitemScala.byId(new ObjectId("2f48e10644ae3742baa2d0d9")).delete
       WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0d9")).delete
     }
-    
+
     it("should be possible edit primitive of child elements") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
       loaded.children.get(1).children.get(0).name = "changed name"
@@ -192,7 +195,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
       val toBeChanged = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
       assert(loaded.children.get(1).children.get(0).name === "changed name")
     }
-    
+
     it("should be possible add new children") {
       val loaded = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
       val newChildren = new WorkflowitemScala(None, "added", 1, None, None, board) :: loaded.children.get
@@ -201,20 +204,28 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
       val toBeChanged = WorkflowitemScala.byId(new ObjectId("1c48e10644ae3742baa2d0d9"))
       assert(loaded.children.get.size === 3)
     }
-    
+
     it("should remove reference from board to workflow when the workflow is deleted") {
       BoardScala.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get(0).delete
       assert(BoardScala.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get.size === 2)
     }
 
+    def workflowitemOf(id: String) = Some(WorkflowitemScala.byId(new ObjectId(id)))
+
     def board = BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
-    
+
     def assertItemsInOrder(ids: List[Option[ObjectId]]) {
       ids.foldLeft(ids.head) {
         (actual, expected) =>
           {
             assert(actual === expected)
-            WorkflowitemScala.byId(expected.getOrElse(return )).nextItemId
+            val next = WorkflowitemScala.byId(expected.getOrElse(return )).nextItem
+            if (!next.isDefined) {
+              return ;
+            } else {
+              next.get.id
+            }
+
           }
       }
     }

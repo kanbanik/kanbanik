@@ -10,38 +10,37 @@ class WorkflowitemScala(
   var name: String,
   var wipLimit: Int,
   var children: Option[List[WorkflowitemScala]],
-  private var nextItem: Option[WorkflowitemScala],
+  private var _nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
   extends KanbanikEntity {
 
   private var boardId: ObjectId = null
 
   private var nextItemIdInternal: Option[ObjectId] = null
-  
+
   if (realBoard != null) {
     boardId = realBoard.id.getOrElse(throw new IllegalArgumentException("Board has to exist for workflowitem"))
   }
 
-  
-  if(nextItem.isDefined) {
-    nextItemIdInternal = nextItem.get.id
-  } else {
-    nextItemIdInternal = None
+  initNextItemIdInternal(_nextItem)
+
+  def nextItem_=(item: Option[WorkflowitemScala]): Unit = {
+    initNextItemIdInternal(item)
   }
 
-  def nextItemId = {
-    if (nextItem == null) {
+  def nextItem = {
+    if (_nextItem == null) {
       if (nextItemIdInternal.isDefined) {
-    	  nextItem = Some(WorkflowitemScala.byId(nextItemIdInternal.get))  
+        _nextItem = Some(WorkflowitemScala.byId(nextItemIdInternal.get))
       } else {
-        nextItem = None
+        _nextItem = None
       }
-      
+
     }
-    
-    nextItem
+
+    _nextItem
   }
-  
+
   def board = {
     if (realBoard == null) {
       realBoard = BoardScala.byId(boardId)
@@ -55,7 +54,7 @@ class WorkflowitemScala(
     val idToUpdate = id.getOrElse({
       val obj = WorkflowitemScala.asDBObject(this)
       coll(Coll.Workflowitems) += obj
-      return WorkflowitemScala.asEntity(obj)
+      return WorkflowitemScala.byId(WorkflowitemScala.asEntity(obj).id.get)
     })
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
@@ -72,12 +71,12 @@ class WorkflowitemScala(
 
     unregisterFromBoard()
 
-    toDelete.nextItemId = None
+    toDelete.nextItemIdInternal = None
     toDelete.store
     val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
     if (newPrev.isDefined) {
       coll(Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
-        $set("nextItemId" -> null))
+        $set("nextItemId" -> None))
     }
 
     coll(Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
@@ -101,21 +100,21 @@ class WorkflowitemScala(
     // that's where the naming come from
     val e = WorkflowitemScala.byId(idToUpdate)
     // ignore if did not move
-    if (!nextItemId.isDefined && !e.nextItemId.isDefined) {
+    if (!nextItemIdInternal.isDefined && !e.nextItemIdInternal.isDefined) {
       return ;
     }
-    if (e.nextItemId.equals(nextItemId)) {
+    if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
       return
     }
 
     val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
 
-    val lastEntity = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> null)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
-    val f = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemId)).getOrElse(null)
+    val lastEntity = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
+    val f = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemIdInternal)).getOrElse(null)
     val d = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
     var b: DBObject = null
-    if (nextItemId.isDefined) {
-      b = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextItemId)).getOrElse(throw new IllegalArgumentException("Trying to move before not existing object with id: " + nextItemId.toString))
+    if (nextItemIdInternal.isDefined) {
+      b = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextItemIdInternal)).getOrElse(throw new IllegalArgumentException("Trying to move before not existing object with id: " + nextItemIdInternal.toString))
     }
 
     var a: DBObject = null;
@@ -142,14 +141,23 @@ class WorkflowitemScala(
     }
   }
 
-  private def findId(dbObject: DBObject): ObjectId = {
+  private def findId(dbObject: DBObject): Option[ObjectId] = {
     if (dbObject == null) {
-      return null;
+      return None;
     }
 
-    WorkflowitemScala.asEntity(dbObject).id.getOrElse(null)
+    WorkflowitemScala.asEntity(dbObject).id
   }
 
+  private def initNextItemIdInternal(item: Option[WorkflowitemScala]) {
+    if (item != null) {
+      if (item.isDefined) {
+        nextItemIdInternal = item.get.id
+      } else {
+        nextItemIdInternal = None
+      }
+    }
+  }
 }
 
 object WorkflowitemScala extends KanbanikEntity {
@@ -170,18 +178,20 @@ object WorkflowitemScala extends KanbanikEntity {
           None
         }
       },
-      {
-        if (dbObject.get("nextItemId") == null) {
-          None
-        } else {
-          null
-        }
-      },
+      null,
       null)
 
     item.boardId = dbObject.get("boardId").asInstanceOf[ObjectId]
-    item.nextItemId = Some(dbObject.get("nextItemId").asInstanceOf[ObjectId])
-    
+
+    val nextNextItemRaw = dbObject.get("nextItemId")
+    if (nextNextItemRaw == null) {
+      item.nextItemIdInternal = None
+    } else if (nextNextItemRaw.isInstanceOf[ObjectId]) {
+      item.nextItemIdInternal = Some(nextNextItemRaw.asInstanceOf[ObjectId])
+    } else if (nextNextItemRaw.isInstanceOf[Option[ObjectId]]) {
+      item.nextItemIdInternal = nextNextItemRaw.asInstanceOf[Option[ObjectId]]
+    }
+
     item
   }
 
@@ -191,7 +201,7 @@ object WorkflowitemScala extends KanbanikEntity {
       "name" -> entity.name,
       "wipLimit" -> entity.wipLimit,
       "children" -> translateChildren(entity.children),
-      "nextItemId" -> entity.nextItemId.getOrElse(null),
+      "nextItemId" -> entity.nextItemIdInternal,
       "boardId" -> entity.board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))
   }
 
