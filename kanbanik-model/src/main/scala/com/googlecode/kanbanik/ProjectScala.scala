@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik
 import org.bson.types.ObjectId
 
+import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
@@ -12,9 +13,25 @@ class ProjectScala(
   var tasks: Option[List[TaskScala]]) extends KanbanikEntity {
 
   def store: ProjectScala = {
-    val obj = ProjectScala.asDBObject(this)
-    coll(Coll.Projects) += obj
-    return ProjectScala.asEntity(obj)
+    val idToUpdate = id.getOrElse({
+      val obj = ProjectScala.asDBObject(this)
+      coll(Coll.Projects) += obj
+      return ProjectScala.asEntity(obj)
+    })
+
+    val idObject = MongoDBObject("_id" -> idToUpdate)
+
+    coll(Coll.Projects).update(idObject, $set(
+      "name" -> name,
+      "boards" -> ProjectScala.toIdList[BoardScala](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
+      "tasks" -> ProjectScala.toIdList[TaskScala](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
+    )
+
+    ProjectScala.byId(idToUpdate)
+  }
+
+  def delete {
+    coll(Coll.Projects).remove(MongoDBObject("_id" -> id))
   }
 
 }
@@ -29,16 +46,8 @@ object ProjectScala extends KanbanikEntity {
     MongoDBObject(
       "_id" -> new ObjectId,
       "name" -> entity.name,
-      "boards" -> None,
-      "tasks" -> 
-      {
-        if (!entity.tasks.isDefined) {
-          null
-        } else {
-          for { task <- entity.tasks.get } yield task.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))
-        }
-      }
-    )
+      "boards" -> toIdList[BoardScala](entity.boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
+      "tasks" -> toIdList[TaskScala](entity.tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
 
   }
 
@@ -47,30 +56,38 @@ object ProjectScala extends KanbanikEntity {
       Some(dbObject.get("_id").asInstanceOf[ObjectId]),
       dbObject.get("name").asInstanceOf[String],
       {
-        convertList(dbObject.get("boards"), BoardScala.byId(_))
+        toEntityList(dbObject.get("boards"), BoardScala.byId(_))
       },
       {
-        convertList(dbObject.get("tasks"), TaskScala.byId(_))
+        toEntityList(dbObject.get("tasks"), TaskScala.byId(_))
       })
   }
 
-  private def convertList[T](dbObject: Object, codeBlock: ObjectId => T) = {
+  private def toIdList[T](entities: Option[List[T]], codeBlock: T => ObjectId) = {
+    if (!entities.isDefined) {
+      null
+    } else {
+      for { entity <- entities.get } yield codeBlock(entity)
+    }
+  }
+
+  private def toEntityList[T](dbObject: Object, codeBlock: ObjectId => T) = {
     if (dbObject == null || dbObject == None) {
       None
     } else {
-      
+
       var processList: List[ObjectId] = null
-      
+
       if (dbObject.isInstanceOf[List[ObjectId]]) {
         processList = dbObject.asInstanceOf[List[ObjectId]]
       } else {
         processList = dbObject.asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[ObjectId]]
       }
-        
+
       if (processList == null || processList.size == 0) {
         None
       } else {
-        Some(for { boardId <- processList} yield codeBlock(boardId))
+        Some(for { boardId <- processList } yield codeBlock(boardId))
       }
     }
   }

@@ -45,11 +45,55 @@ class ProjectScalaTest extends BaseIntegrationTest {
       assert(stored.tasks.get.size === 2)
     }
 
+    it("should be possible to create a new entity with boards and without tasks") {
+      val stored = new ProjectScala(None,
+        "some name",
+        Some(List(
+          BoardScala.byId(new ObjectId("1b48e10644ae3742baa2d0d9")),
+          BoardScala.byId(new ObjectId("2b48e10644ae3742baa2d0d9")))),
+        None).store
+
+      assert(stored.boards.get.size === 2)
+    }
+
+    it("should be possible to delete a project") {
+      ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9")).delete
+
+      intercept[IllegalArgumentException] {
+        ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9")).delete
+      }
+    }
+
+    it("should be possible to update the name of the project") {
+      val loaded = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      loaded.name = "new name"
+      loaded.store
+      val changed = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      assert(changed.name === "new name")
+    }
+
+    it("should be possible to update the board list of the project") {
+      val loaded = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      loaded.boards = Some(List(
+          BoardScala.byId(new ObjectId("2b48e10644ae3742baa2d0d9")),
+          BoardScala.byId(new ObjectId("1b48e10644ae3742baa2d0d9"))
+      ))
+      loaded.store
+      val changed = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      assert(changed.boards.get.size === 2)
+    }
     
-    // missing tests:
-    // - more boards
-    // - delete
-    // - update
+    it("should be possible to update the task list of the project") {
+      val loaded = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      loaded.tasks = Some(List(
+          TaskScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9")),
+          TaskScala.byId(new ObjectId("5f48e10644ae3742baa2d0a9"))
+      ))
+      
+      loaded.store
+      val changed = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      assert(changed.tasks.get.size === 2)
+    }
 
   }
 }
