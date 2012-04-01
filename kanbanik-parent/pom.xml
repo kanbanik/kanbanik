@@ -58,6 +58,7 @@
 	</dependencies>
 
 	<modules>
+		<module>../kanbanik-dto</module>
 		<module>../kanbanik-model</module>
 		<module>../kanbanik-gui</module>
 	</modules>

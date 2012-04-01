@@ -27,6 +27,12 @@
 			<artifactId>model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>kanbanik</groupId>
+			<artifactId>dto</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.gwt</groupId>
@@ -109,6 +115,7 @@
 					<copyWebapp>true</copyWebapp>
 					<compileSourcesArtifacts>
 						<compileSourcesArtifact>${project.groupId}:web</compileSourcesArtifact>
+						<compileSourcesArtifact>${project.groupId}:dto</compileSourcesArtifact>
 					</compileSourcesArtifacts>
 				</configuration>
 			</plugin>
