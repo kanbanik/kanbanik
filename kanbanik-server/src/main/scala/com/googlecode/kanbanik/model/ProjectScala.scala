@@ -37,6 +37,13 @@ class ProjectScala(
 }
 
 object ProjectScala extends KanbanikEntity {
+  
+  def all(): List[ProjectScala] = {
+    var allProjects = List[ProjectScala]()
+    coll(Coll.Projects).find().foreach(project => allProjects = asEntity(project) :: allProjects)
+    allProjects
+  }
+  
   def byId(id: ObjectId): ProjectScala = {
     val dbProject = coll(Coll.Projects).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such project with id: " + id))
     asEntity(dbProject)

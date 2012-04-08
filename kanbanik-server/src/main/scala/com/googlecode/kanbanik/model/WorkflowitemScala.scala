@@ -5,14 +5,11 @@ import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 
-// TODO refactor the way the children are retrieved
-// the children should only return the first child and all the next should be accessible only using 
-// the nextItem method
 class WorkflowitemScala(
   var id: Option[ObjectId],
   var name: String,
   var wipLimit: Int,
-  var children: Option[List[WorkflowitemScala]],
+  private var _child: Option[WorkflowitemScala],
   private var _nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
   extends KanbanikEntity {
@@ -21,11 +18,14 @@ class WorkflowitemScala(
 
   private var nextItemIdInternal: Option[ObjectId] = null
 
+  private var childIdInternal: Option[ObjectId] = null
+
   if (realBoard != null) {
     boardId = realBoard.id.getOrElse(throw new IllegalArgumentException("Board has to exist for workflowitem"))
   }
 
   initNextItemIdInternal(_nextItem)
+  initChildIdInternal(_child)
 
   def nextItem_=(item: Option[WorkflowitemScala]): Unit = {
     initNextItemIdInternal(item)
@@ -42,6 +42,23 @@ class WorkflowitemScala(
     }
 
     _nextItem
+  }
+
+  def child_=(child: Option[WorkflowitemScala]): Unit = {
+    initChildIdInternal(child)
+  }
+
+  def child = {
+    if (_child == null) {
+      if (childIdInternal.isDefined) {
+        _child = Some(WorkflowitemScala.byId(childIdInternal.get))
+      } else {
+        _child = None
+      }
+
+    }
+
+    _child
   }
 
   def board = {
@@ -62,9 +79,10 @@ class WorkflowitemScala(
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
     coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit))
+    
     move(idToUpdate)
 
-    coll(Coll.Workflowitems).update(idObject, $set("children" -> WorkflowitemScala.translateChildren(children)))
+    coll(Coll.Workflowitems).update(idObject, $set(WorkflowitemScala.CHILD_NAME -> childIdInternal.getOrElse(None)))
 
     WorkflowitemScala.byId(idToUpdate)
   }
@@ -152,18 +170,30 @@ class WorkflowitemScala(
     WorkflowitemScala.asEntity(dbObject).id
   }
 
+  private def initChildIdInternal(child: Option[WorkflowitemScala]) {
+    childIdInternal = valueOrNone(child)
+  }
+
   private def initNextItemIdInternal(item: Option[WorkflowitemScala]) {
-    if (item != null) {
-      if (item.isDefined) {
-        nextItemIdInternal = item.get.id
-      } else {
-        nextItemIdInternal = None
+    nextItemIdInternal = valueOrNone(item)
+  }
+
+  private def valueOrNone(toExtract: Option[WorkflowitemScala]): Option[ObjectId] = {
+    if (toExtract != null) {
+      if (toExtract.isDefined) {
+        val some = toExtract.get.id
+        return toExtract.get.id
       }
     }
+    None
   }
+
 }
 
 object WorkflowitemScala extends KanbanikEntity {
+  
+  val CHILD_NAME = "childId"
+  
   def byId(id: ObjectId): WorkflowitemScala = {
     val dbWorkflow = coll(Coll.Workflowitems).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such workflowitem with id: " + id))
     asEntity(dbWorkflow)
@@ -174,28 +204,28 @@ object WorkflowitemScala extends KanbanikEntity {
       Some(dbObject.get("_id").asInstanceOf[ObjectId]),
       dbObject.get("name").asInstanceOf[String],
       dbObject.get("wipLimit").asInstanceOf[Int],
-      {
-        if (dbObject.get("children").isInstanceOf[BasicDBList]) {
-          translateChildren(dbObject.get("children").asInstanceOf[BasicDBList])
-        } else {
-          None
-        }
-      },
+      null,
       null,
       null)
 
     item.boardId = dbObject.get("boardId").asInstanceOf[ObjectId]
 
-    val nextNextItemRaw = dbObject.get("nextItemId")
-    if (nextNextItemRaw == null) {
-      item.nextItemIdInternal = None
-    } else if (nextNextItemRaw.isInstanceOf[ObjectId]) {
-      item.nextItemIdInternal = Some(nextNextItemRaw.asInstanceOf[ObjectId])
-    } else if (nextNextItemRaw.isInstanceOf[Option[ObjectId]]) {
-      item.nextItemIdInternal = nextNextItemRaw.asInstanceOf[Option[ObjectId]]
-    }
-
+    item.nextItemIdInternal = extractObjectId(dbObject.get("nextItemId"))
+    item.childIdInternal = extractObjectId(dbObject.get(CHILD_NAME))
+    
     item
+  }
+  
+  private def extractObjectId(raw: Object) : Option[ObjectId] = {
+    if (raw == null) {
+      return None
+    } else if (raw.isInstanceOf[ObjectId]) {
+      return Some(raw.asInstanceOf[ObjectId])
+    } else if (raw.isInstanceOf[Option[ObjectId]]) {
+      return raw.asInstanceOf[Option[ObjectId]]
+    }
+    
+    null
   }
 
   private def asDBObject(entity: WorkflowitemScala): DBObject = {
@@ -203,7 +233,7 @@ object WorkflowitemScala extends KanbanikEntity {
       "_id" -> new ObjectId,
       "name" -> entity.name,
       "wipLimit" -> entity.wipLimit,
-      "children" -> translateChildren(entity.children),
+      CHILD_NAME -> entity.childIdInternal,
       "nextItemId" -> entity.nextItemIdInternal,
       "boardId" -> entity.board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))
   }

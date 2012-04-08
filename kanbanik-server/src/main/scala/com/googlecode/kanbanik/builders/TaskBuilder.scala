@@ -12,7 +12,7 @@ class TaskBuilder {
     dto.setName(task.name)
     dto.setDescription(task.description)
     dto.setClassOfService(task.classOfService)
-    dto.setWorkflowitem(builder.buildDto(task.workflowitem))
+    dto.setWorkflowitem(builder.buildDtoNonRecursive(task.workflowitem))
     dto
   }
 }

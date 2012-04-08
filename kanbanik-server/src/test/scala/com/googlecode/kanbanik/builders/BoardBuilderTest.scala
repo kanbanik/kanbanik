@@ -25,25 +25,9 @@ class BoardBuilderTest extends Spec with MockitoSugar {
       val dto = builder.buildDto(board)
       assert(dto.getName() === "boardName")
       assert(dto.getId() === "4f48e10644ae3742baa2d0a9")
-      assert(dto.getWorkflowitems().size() === 0)
+      assert(dto.getRootWorkflowitem() === null)
 
     }
 
-    it("should handle board without more workflowitems") {
-      val board = mock[BoardScala]
-      val workflow1 = mock[WorkflowitemScala]
-      val workflow2 = mock[WorkflowitemScala]
-
-      when(board.name).thenReturn("boardName")
-      when(board.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
-      when(board.workflowitems).thenReturn(Some(List(workflow1, workflow2)))
-
-      val builder = new BoardBuilder
-      val dto = builder.buildDto(board)
-      assert(dto.getName() === "boardName")
-      assert(dto.getId() === "4f48e10644ae3742baa2d0a9")
-      assert(dto.getWorkflowitems().size() === 2)
-
-    }
   }
 }

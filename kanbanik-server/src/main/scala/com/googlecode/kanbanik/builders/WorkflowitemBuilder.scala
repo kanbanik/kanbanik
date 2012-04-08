@@ -1,18 +1,32 @@
 package com.googlecode.kanbanik.builders
 import com.googlecode.kanbanik.dto.WorkflowitemDto
+
 import com.googlecode.kanbanik.model.WorkflowitemScala
 
 class WorkflowitemBuilder {
+
   def buildDto(workflowitem: WorkflowitemScala): WorkflowitemDto = {
 
-    val res = new WorkflowitemDto
-    res.setId(workflowitem.id.get.toString())
-    res.setName(workflowitem.name)
-    res.setWipLimit(workflowitem.wipLimit)
+    val res = buildDtoNonRecursive(workflowitem)
 
-    val children = workflowitem.children.getOrElse(List[WorkflowitemScala]())
-    children.foreach(child => res.addChild(buildDto(child)))
+    if (workflowitem.child.isDefined) {
+      res.setChild(buildDto(workflowitem.child.get))
+    }
+
+    if (workflowitem.nextItem.isDefined) {
+      res.setNextItem(buildDto(workflowitem.nextItem.get))
+    }
 
     res
   }
+
+  def buildDtoNonRecursive(workflowitem: WorkflowitemScala) = {
+    val dto = new WorkflowitemDto
+    dto.setId(workflowitem.id.get.toString())
+    dto.setName(workflowitem.name)
+    dto.setWipLimit(workflowitem.wipLimit)
+
+    dto
+  }
 }
+  

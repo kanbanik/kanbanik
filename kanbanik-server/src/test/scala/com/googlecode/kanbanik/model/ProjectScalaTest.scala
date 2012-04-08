@@ -1,10 +1,27 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
+import com.mongodb.casbah.commons.MongoDBObject
 
 class ProjectScalaTest extends BaseIntegrationTest {
   describe("Project should be able to do all the basic CRUD operations") {
 
+    it("should return empty list when no project are in db for all") {
+      DataLoader.clearDB
+      assert(ProjectScala.all().size === 0)
+    }
+
+    it("should return the correct list if there is one project for all") {
+      DataLoader.clearDB
+      DataLoader.projects += MongoDBObject(
+      "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
+      "name" -> "project name",
+      "boards" -> None,
+      "tasks" -> None)
+        
+      assert(ProjectScala.all().size === 1)
+    }
+    
     it("should be possible to retrive a project without task and board") {
       val loaded = ProjectScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       assert(loaded.name === "project name")

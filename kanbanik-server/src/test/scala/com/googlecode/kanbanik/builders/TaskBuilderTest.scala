@@ -17,7 +17,7 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       val workflowitem = mock[WorkflowitemScala]
       
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
-      when(workflowitem.children).thenReturn(None)
+      when(workflowitem.child).thenReturn(None)
 
       when(task.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
       when(task.name).thenReturn("someName")

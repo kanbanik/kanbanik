@@ -15,6 +15,9 @@ public class ProjectDto implements KanbanikDto {
 	
 	private List<TaskDto> tasks = new ArrayList<TaskDto>();
 
+	public ProjectDto() {
+	}
+	
 	public String getId() {
 		return id;
 	}

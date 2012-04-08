@@ -23,7 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>kanbanik</groupId>
-			<artifactId>model</artifactId>
+			<artifactId>server</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		

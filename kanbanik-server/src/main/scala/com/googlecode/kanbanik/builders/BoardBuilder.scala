@@ -11,8 +11,10 @@ class BoardBuilder {
     val res = new BoardDto
     res.setName(board.name)
     res.setId(board.id.get.toString())
-    val workflowitems = board.workflowitems.getOrElse(List[WorkflowitemScala]())
-    workflowitems.foreach(workflowitem => res.addWorkflowitem(workflowitemBuilder.buildDto(workflowitem)))
+    if (board.workflowitems.isDefined) {
+      res.setRootWorkflowitem(workflowitemBuilder.buildDto(board.workflowitems.get.head))
+    }
+    
     res
   }
 }

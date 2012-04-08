@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class WorkflowitemDto implements KanbanikDto {
 
@@ -13,7 +11,9 @@ public class WorkflowitemDto implements KanbanikDto {
 	
 	private int wipLimit;
 	
-	private List<WorkflowitemDto> children = new ArrayList<WorkflowitemDto>();
+	private WorkflowitemDto child;
+	
+	private WorkflowitemDto nextItem;
 	
 	public String getName() {
 		return name;
@@ -39,12 +39,20 @@ public class WorkflowitemDto implements KanbanikDto {
 		this.wipLimit = wipLimit;
 	}
 
-	public List<WorkflowitemDto> getChildren() {
-		return children;
+	public WorkflowitemDto getChild() {
+		return child;
 	}
-	
-	public void addChild(WorkflowitemDto child) {
-		children.add(child);
+
+	public void setChild(WorkflowitemDto child) {
+		this.child = child;
 	}
-	
+
+	public WorkflowitemDto getNextItem() {
+		return nextItem;
+	}
+
+	public void setNextItem(WorkflowitemDto nextItem) {
+		this.nextItem = nextItem;
+	}
+
 }

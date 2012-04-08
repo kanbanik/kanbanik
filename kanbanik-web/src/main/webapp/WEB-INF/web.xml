@@ -4,16 +4,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
 
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener
-		</listener-class>
-	</listener>
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
-			classpath:spring-context.xml
-  		</param-value>
-	</context-param>
+<!-- 	<listener> -->
+<!-- 		<listener-class>org.springframework.web.context.ContextLoaderListener -->
+<!-- 		</listener-class> -->
+<!-- 	</listener> -->
+<!-- 	<context-param> -->
+<!-- 		<param-name>contextConfigLocation</param-name> -->
+<!-- 		<param-value> -->
+<!-- 			classpath:spring-context.xml -->
+<!--   		</param-value> -->
+<!-- 	</context-param> -->
 
 
 	<servlet>
@@ -25,6 +25,16 @@
 		<servlet-name>configureWorkflowServlet</servlet-name>
 		<servlet-class>com.googlecode.kanbanik.server.ConfigureWorkflowServiceImpl</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>commandInvoker</servlet-name>
+		<servlet-class>com.googlecode.kanbanik.server.ServerCommandInvokerImpl</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>commandInvoker</servlet-name>
+		<url-pattern>/kanbanik/commandInvoker</url-pattern>
+	</servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>configureWorkflowServlet</servlet-name>
