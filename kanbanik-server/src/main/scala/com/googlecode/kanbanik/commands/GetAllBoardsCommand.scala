@@ -19,12 +19,18 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
 
   def execute(params: VoidParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
     val res = new ListDto[BoardWithProjectsDto]()
-    BoardScala.all.foreach(board => { res.addItem(new BoardWithProjectsDto(boardBuilder.buildDto(board))) })
+    BoardScala.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board))) })
 
-    for (project <- ProjectScala.all()) {
-      val projectDto = projectBuilder.buildDto(project)
+    buildProjectsForBoard(res)
+    
+    new SimpleParams(res)
+  }
+  
+  private[commands] def buildProjectsForBoard(res: ListDto[BoardWithProjectsDto]) {
+    for (project <- allProjects) {
+      val projectDto = getProjectBuilder.buildDto(project)
 
-      for (i <- 0 to res.getList().size()) {
+      for (i <- 0 until res.getList().size()) {
         val boardToProjects = res.getList().get(i)
         if (projectDto.getBoards().contains(boardToProjects.getBoard())) {
           boardToProjects.addProject(projectDto)
@@ -32,9 +38,14 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
 
       }
 
-    }
-
-    new SimpleParams(res)
+    }    
   }
- 
+  
+  // both only because of testing
+  private[commands] def getBoardBuilder = boardBuilder
+  
+  private[commands] def getProjectBuilder = projectBuilder
+  
+  private[commands] def allProjects = ProjectScala.all()
+  
 }
