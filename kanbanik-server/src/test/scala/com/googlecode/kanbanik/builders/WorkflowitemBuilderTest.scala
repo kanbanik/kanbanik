@@ -7,6 +7,7 @@ import org.scalatest.Spec
 import com.googlecode.kanbanik.model.WorkflowitemScala
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.dto.ItemType
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowitemBuilderTest extends Spec with MockitoSugar {
@@ -83,7 +84,7 @@ class WorkflowitemBuilderTest extends Spec with MockitoSugar {
     }
 
   }
-  
+
   def mockWorkflowitem(id: String, name: String, wip: Int, nextItem: Option[WorkflowitemScala], child: Option[WorkflowitemScala]) = {
     val item = mock[WorkflowitemScala]
     when(item.id).thenReturn(Some(new ObjectId(id)))
@@ -91,13 +92,15 @@ class WorkflowitemBuilderTest extends Spec with MockitoSugar {
     when(item.wipLimit).thenReturn(wip)
     when(item.child).thenReturn(child)
     when(item.nextItem).thenReturn(nextItem)
+    when(item.itemType).thenReturn("H")
     item
   }
 
   def assertDtoIs(dto: WorkflowitemDto, id: String, name: String, wip: Int) {
-    assert(dto.getId() === id)
-    assert(dto.getName() === name)
-    assert(dto.getWipLimit() === wip)
+    (dto.getId() === id)
+    (dto.getName() === name)
+    (dto.getWipLimit() === wip)
+    (dto.getItemType === ItemType.HORIZONTAL)
   }
 
 }

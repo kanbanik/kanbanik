@@ -23,7 +23,7 @@ class BuildTestableWorkflow extends Spec {
           new ObjectId("4f48e10644ae3742baa2d0b9")))
 
       DataLoader.projects += MongoDBObject(
-        "_id" -> new ObjectId("2a48e10644ae3742baa2d0d9"),
+        "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
         "name" -> "project1",
         "boards" -> List(
           new ObjectId("2f48e10644ae3742baa2d0b9")),
@@ -34,13 +34,17 @@ class BuildTestableWorkflow extends Spec {
         "name" -> "project2",
         "boards" -> List(
           new ObjectId("2f48e10644ae3742baa2d0b9")),
-        "tasks" -> None)
+        "tasks" -> List(
+        		new ObjectId("1a48e10644ae3742baa2d1d9"),
+        		new ObjectId("2a48e10644ae3742baa2d1d9")
+        ))
 
       // workflowitems    
       DataLoader.workflowitems += MongoDBObject(
         "_id" -> new ObjectId("3f48e10644ae3742baa2d0b9"),
         "name" -> "name1",
         "wipLimit" -> 4,
+        "itemType" -> "V",
         "childId" -> None,
         "nextItemId" -> Some(new ObjectId("4f48e10644ae3742baa2d0b9")),
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -48,6 +52,7 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("4f48e10644ae3742baa2d0b9"),
         "name" -> "name2",
         "wipLimit" -> 4,
+        "itemType" -> "V",
         "childId" -> new ObjectId("5f48e10644ae3742baa2d0b9"),
         "nextItemId" -> None,
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -56,6 +61,7 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("5f48e10644ae3742baa2d0b9"),
         "name" -> "name2-1",
         "wipLimit" -> 4,
+        "itemType" -> "V",
         "childId" -> None,
         "nextItemId" -> new ObjectId("6f48e10644ae3742baa2d0b9"),
         "boardId" -> new ObjectId("6f48e10644ae3742baa2d0b9"))
@@ -63,6 +69,7 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("6f48e10644ae3742baa2d0b9"),
         "name" -> "name2-2",
         "wipLimit" -> 4,
+        "itemType" -> "V",
         "childId" -> new ObjectId("6f48e10644ae3742baa2d0b0"),
         "nextItemId" -> new ObjectId("7f48e10644ae3742baa2d0b9"),
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -70,6 +77,7 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("7f48e10644ae3742baa2d0b9"),
         "name" -> "name2-3",
         "wipLimit" -> 4,
+        "itemType" -> "V",
         "childId" -> None,
         "nextItemId" -> None,
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -78,6 +86,7 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("6f48e10644ae3742baa2d0b0"),
         "name" -> "name2-2-1",
         "wipLimit" -> 4,
+        "itemType" -> "H",
         "childId" -> None,
         "nextItemId" -> new ObjectId("6f48e10644ae3742baa2d0b1"),
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b1"))
@@ -85,10 +94,27 @@ class BuildTestableWorkflow extends Spec {
         "_id" -> new ObjectId("6f48e10644ae3742baa2d0b1"),
         "name" -> "name2-2-2",
         "wipLimit" -> 4,
+        "itemType" -> "H",
         "childId" -> None,
         "nextItemId" -> None,
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+
+      // tasks
+      DataLoader.tasks += MongoDBObject(
+        "_id" -> new ObjectId("1a48e10644ae3742baa2d1d9"),
+        "name" -> "task name1",
+        "description" -> "task description",
+        "classOfService" -> 1,
+        "workflowitem" -> new ObjectId("6f48e10644ae3742baa2d0b0"))
+
+      DataLoader.tasks += MongoDBObject(
+        "_id" -> new ObjectId("2a48e10644ae3742baa2d1d9"),
+        "name" -> "task name2",
+        "description" -> "task description",
+        "classOfService" -> 1,
+        "workflowitem" -> new ObjectId("6f48e10644ae3742baa2d0b0"))
     }
+
   }
 
 }

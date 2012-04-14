@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.builders
 import com.googlecode.kanbanik.model.TaskScala
 import com.googlecode.kanbanik.dto.TaskDto
+import com.googlecode.kanbanik.model.ProjectScala
 
 class TaskBuilder {
 

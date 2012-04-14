@@ -14,6 +14,8 @@ public class TaskDto implements KanbanikDto {
 
 	private WorkflowitemDto workflowitem;
 
+	private ProjectDto project;
+	
 	public String getId() {
 		return id;
 	}
@@ -54,4 +56,12 @@ public class TaskDto implements KanbanikDto {
 		this.workflowitem = workflowitem;
 	}
 
+	public ProjectDto getProject() {
+		return project;
+	}
+
+	public void setProject(ProjectDto project) {
+		this.project = project;
+	}
+	
 }

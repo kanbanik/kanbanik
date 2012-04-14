@@ -1,0 +1,23 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.mainPanel {
+			float: left;
+		}
+		
+		.headerPanel {
+			text-align: center;
+		}
+	</ui:style>
+
+	<g:FlowPanel addStyleNames="mainPanel">
+		<g:FlowPanel addStyleNames="headerPanel">
+			<g:Label ui:field="stateName" />
+			<g:Label ui:field="wipLimit"/>
+		</g:FlowPanel>
+		
+		<g:Widget ui:field="contentPanel" />
+	</g:FlowPanel>
+
+</ui:UiBinder>

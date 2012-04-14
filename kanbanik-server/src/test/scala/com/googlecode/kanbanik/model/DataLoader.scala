@@ -179,6 +179,7 @@ object DataLoader {
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1f48e10644ae3742baa2d0b9"))
@@ -193,6 +194,7 @@ object DataLoader {
       "_id" -> new ObjectId("1f48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("2f48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -200,6 +202,7 @@ object DataLoader {
       "_id" -> new ObjectId("2f48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("3f48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -207,6 +210,7 @@ object DataLoader {
       "_id" -> new ObjectId("3f48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
@@ -221,6 +225,7 @@ object DataLoader {
       "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("2a48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1c48e10644ae3742baa2d0b9"))
@@ -228,6 +233,7 @@ object DataLoader {
       "_id" -> new ObjectId("2a48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("3a48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1c48e10644ae3742baa2d0b9"))
@@ -235,6 +241,7 @@ object DataLoader {
       "_id" -> new ObjectId("3a48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("4a48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1c48e10644ae3742baa2d0b9"))
@@ -249,6 +256,7 @@ object DataLoader {
       "_id" -> new ObjectId("5a48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("6a48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1c48e10644ae3742baa2d0b9"))
@@ -256,6 +264,7 @@ object DataLoader {
       "_id" -> new ObjectId("6a48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1c48e10644ae3742baa2d0b9"))
@@ -270,6 +279,7 @@ object DataLoader {
       "_id" -> new ObjectId("1b48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("2b48e10644ae3742baa2d0d9")),
       "boardId" -> new ObjectId("1d48e10644ae3742baa2d0b9"))
@@ -277,6 +287,7 @@ object DataLoader {
       "_id" -> new ObjectId("2b48e10644ae3742baa2d0d9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1d48e10644ae3742baa2d0b9"))
@@ -286,6 +297,7 @@ object DataLoader {
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0a9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1d48e10644ae3742baa2d0b9"))
@@ -294,6 +306,7 @@ object DataLoader {
       "_id" -> new ObjectId("5f48e10644ae3742baa2d0a9"),
       "name" -> "some name",
       "wipLimit" -> 4,
+      "itemType" -> "H",
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1d48e10644ae3742baa2d0b9"))

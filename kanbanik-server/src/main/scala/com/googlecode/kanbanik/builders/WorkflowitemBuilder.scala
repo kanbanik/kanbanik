@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.builders
 import com.googlecode.kanbanik.dto.WorkflowitemDto
-
 import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.dto.ItemType
 
 class WorkflowitemBuilder {
 
@@ -25,7 +25,7 @@ class WorkflowitemBuilder {
     dto.setId(workflowitem.id.get.toString())
     dto.setName(workflowitem.name)
     dto.setWipLimit(workflowitem.wipLimit)
-
+    dto.setItemType(ItemType.asItemType(workflowitem.itemType))
     dto
   }
 }

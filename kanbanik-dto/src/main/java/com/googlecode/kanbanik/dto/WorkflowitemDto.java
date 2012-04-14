@@ -1,20 +1,21 @@
 package com.googlecode.kanbanik.dto;
 
-
 public class WorkflowitemDto implements KanbanikDto {
 
 	private static final long serialVersionUID = 1343045359919670502L;
 
 	private String name;
-	
+
 	private String id;
-	
+
 	private int wipLimit;
-	
+
+	private ItemType itemType;
+
 	private WorkflowitemDto child;
-	
+
 	private WorkflowitemDto nextItem;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -53,6 +54,14 @@ public class WorkflowitemDto implements KanbanikDto {
 
 	public void setNextItem(WorkflowitemDto nextItem) {
 		this.nextItem = nextItem;
+	}
+
+	public ItemType getItemType() {
+		return itemType;
+	}
+
+	public void setItemType(ItemType itemType) {
+		this.itemType = itemType;
 	}
 
 }

@@ -53,7 +53,7 @@ class TaskScalaTest extends BaseIntegrationTest {
           "other name",
           "other description",
           2,
-          new WorkflowitemScala(None, "", 1, None, None, null)).store
+          new WorkflowitemScala(None, "", 1, "H", None, None, null)).store
       }
     }
   }

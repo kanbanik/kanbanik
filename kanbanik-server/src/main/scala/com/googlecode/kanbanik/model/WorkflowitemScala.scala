@@ -9,6 +9,7 @@ class WorkflowitemScala(
   var id: Option[ObjectId],
   var name: String,
   var wipLimit: Int,
+  val itemType: String,
   private var _child: Option[WorkflowitemScala],
   private var _nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
@@ -78,7 +79,7 @@ class WorkflowitemScala(
     })
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
-    coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit))
+    coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
     
     move(idToUpdate)
 
@@ -204,6 +205,7 @@ object WorkflowitemScala extends KanbanikEntity {
       Some(dbObject.get("_id").asInstanceOf[ObjectId]),
       dbObject.get("name").asInstanceOf[String],
       dbObject.get("wipLimit").asInstanceOf[Int],
+      dbObject.get("itemType").asInstanceOf[String],
       null,
       null,
       null)
@@ -233,6 +235,7 @@ object WorkflowitemScala extends KanbanikEntity {
       "_id" -> new ObjectId,
       "name" -> entity.name,
       "wipLimit" -> entity.wipLimit,
+      "itemType" -> entity.itemType,
       CHILD_NAME -> entity.childIdInternal,
       "nextItemId" -> entity.nextItemIdInternal,
       "boardId" -> entity.board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))
