@@ -19,10 +19,12 @@ class TaskScalaTest extends BaseIntegrationTest {
         "other name",
         "other description",
         2,
+        "ticket id",
         WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))).store
 
       assert(stored.name === "other name")
       assert(stored.description === "other description")
+      assert(stored.ticketId === "ticket id")
     }
 
     it("should be possible to update the content of the entity") {
@@ -53,6 +55,7 @@ class TaskScalaTest extends BaseIntegrationTest {
           "other name",
           "other description",
           2,
+          "",
           new WorkflowitemScala(None, "", 1, "H", None, None, null)).store
       }
     }

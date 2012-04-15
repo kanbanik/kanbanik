@@ -15,6 +15,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.shared.ClassOfServiceDTO;
 import com.googlecode.kanbanik.shared.TaskDTO;
 
@@ -104,18 +106,18 @@ public abstract class AbstractTaskEditingComponent {
 	protected abstract String getTicketId();
 	protected abstract String getTaskName();
 	protected abstract String getDescription();
-	protected abstract int getId();
+	protected abstract String getId();
 
-	private TaskDTO createTaskDTO() {
-		TaskDTO taskDTO = createBasicDTO();
+	private TaskDto createTaskDTO() {
+		TaskDto taskDTO = createBasicDTO();
 		taskDTO.setName(taskName.getText());
 		taskDTO.setDescription(richTextArea.getHTML());
-		taskDTO.setClassOfService(getClassOfServiceDTO());
+		taskDTO.setClassOfService(ClassOfService.STANDARD);
 		taskDTO.setId(getId());
 		return taskDTO;
 	}
 
-	protected abstract TaskDTO createBasicDTO();
+	protected abstract TaskDto createBasicDTO();
 
 	private ClassOfServiceDTO getClassOfServiceDTO() {
 		int index = classOfService.getSelectedIndex();
@@ -142,7 +144,7 @@ public abstract class AbstractTaskEditingComponent {
 	class AddTaskButtonHandler implements PanelContainingDialolgListener {
 
 		public void okClicked(PanelContainingDialog dialog) {
-			MessageBus.sendMessage(new TaskChangedMessage(createTaskDTO(), AbstractTaskEditingComponent.this));
+//			MessageBus.sendMessage(new TaskChangedMessage(createTaskDTO(), AbstractTaskEditingComponent.this));
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {

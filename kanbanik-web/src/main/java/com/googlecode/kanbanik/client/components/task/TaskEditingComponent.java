@@ -2,8 +2,7 @@ package com.googlecode.kanbanik.client.components.task;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.model.TaskGui;
-import com.googlecode.kanbanik.shared.ClassOfServiceDTO;
-import com.googlecode.kanbanik.shared.TaskDTO;
+import com.googlecode.kanbanik.dto.TaskDto;
 
 
 public class TaskEditingComponent extends AbstractTaskEditingComponent {
@@ -32,21 +31,23 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	}
 
 	@Override
-	protected int getId() {
+	protected String getId() {
 		return taskGui.getDto().getId();
 	}
 	
 	@Override
 	protected String getClassOfService() {
-		ClassOfServiceDTO classOfService = taskGui.getDto().getClassOfService();
-		if (classOfService == null) {
-			return ClassOfServiceDTO.STANDARD.toString();
-		}
-		return classOfService.toString();
+//		ClassOfServiceDTO classOfService = taskGui.getDto().getClassOfService();
+//		if (classOfService == null) {
+//			return ClassOfServiceDTO.STANDARD.toString();
+//		}
+//		return classOfService.toString();
+		
+		return "";
 	}
 
 	@Override
-	protected TaskDTO createBasicDTO() {
+	protected TaskDto createBasicDTO() {
 		return taskGui.getDto();
 	}
 

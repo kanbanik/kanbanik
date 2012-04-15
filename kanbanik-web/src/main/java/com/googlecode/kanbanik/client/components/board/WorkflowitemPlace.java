@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.model.TaskGui;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
@@ -60,8 +61,8 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		}
 		
 		if (isThisPlace(message.getPayload())) {
-			Label task = new Label(message.getPayload().getName());
-			dragController.makeDraggable(task);
+			TaskGui task = new TaskGui(message.getPayload());
+			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer)contentPanel).add(task);
 		}
 		

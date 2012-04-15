@@ -10,7 +10,9 @@ public class TaskDto implements KanbanikDto {
 
 	private String description;
 
-	private int classOfService;
+	private ClassOfService classOfService;
+
+	private String ticketId;
 
 	private WorkflowitemDto workflowitem;
 
@@ -40,11 +42,11 @@ public class TaskDto implements KanbanikDto {
 		this.description = description;
 	}
 
-	public int getClassOfService() {
+	public ClassOfService getClassOfService() {
 		return classOfService;
 	}
 
-	public void setClassOfService(int classOfService) {
+	public void setClassOfService(ClassOfService classOfService) {
 		this.classOfService = classOfService;
 	}
 
@@ -63,5 +65,12 @@ public class TaskDto implements KanbanikDto {
 	public void setProject(ProjectDto project) {
 		this.project = project;
 	}
-	
+
+	public String getTicketId() {
+		return ticketId;
+	}
+
+	public void setTicketId(String ticketId) {
+		this.ticketId = ticketId;
+	}
 }

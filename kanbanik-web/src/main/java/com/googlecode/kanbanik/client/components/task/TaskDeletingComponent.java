@@ -8,9 +8,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.model.TaskGui;
-import com.googlecode.kanbanik.shared.TaskDTO;
+import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskDeletingComponent implements ClickHandler {
 
@@ -28,7 +27,7 @@ public class TaskDeletingComponent implements ClickHandler {
 	}
 
 	public void onClick(ClickEvent event) {
-		if (taskGui.getDto().getId() == -1) {
+		if (taskGui.getDto().getId() == null) {
 			return;
 		}
 		
@@ -39,14 +38,14 @@ public class TaskDeletingComponent implements ClickHandler {
 	
 class YesNoDialogListener implements PanelContainingDialolgListener {
 		
-		private TaskDTO taskDto;
+		private TaskDto taskDto;
 		
-		public YesNoDialogListener(TaskDTO task) {
+		public YesNoDialogListener(TaskDto task) {
 			this.taskDto = task;
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
-			MessageBus.sendMessage(new TaskDeleteRequestedMessage(taskDto, TaskDeletingComponent.class));
+//			MessageBus.sendMessage(new TaskDeleteRequestedMessage(taskDto, TaskDeletingComponent.class));
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {

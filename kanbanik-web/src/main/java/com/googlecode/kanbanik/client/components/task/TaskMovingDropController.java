@@ -27,7 +27,7 @@ public class TaskMovingDropController extends VerticalPanelDropController {
 
 	private void notifyDropped(Widget widget) {
 		if (widget instanceof TaskGui) {
-			((TaskGui) widget).taskMoved(workflowItem);
+//			((TaskGui) widget).taskMoved();
 			
 			MessageBus.sendMessage(new TaskChangedMessage(((TaskGui) widget).getDto(), this));
 		}

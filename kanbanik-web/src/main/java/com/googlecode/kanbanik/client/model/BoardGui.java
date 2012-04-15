@@ -46,7 +46,7 @@ public class BoardGui extends VerticalPanel {
 					// it means that this project is present on different boards, and this task is for this project from a different board
 					continue;
 				}
-				projectGui.addTask(new TaskGui(taskDTO), workflowItemGui);
+//				projectGui.addTask(new TaskGui(taskDTO), workflowItemGui);
 			}
 			addProject(projectGui);
 		}

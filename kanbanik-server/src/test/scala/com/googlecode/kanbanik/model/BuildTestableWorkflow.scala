@@ -105,6 +105,7 @@ class BuildTestableWorkflow extends Spec {
         "name" -> "task name1",
         "description" -> "task description",
         "classOfService" -> 1,
+        "ticketId" -> "generated id",
         "workflowitem" -> new ObjectId("6f48e10644ae3742baa2d0b0"))
 
       DataLoader.tasks += MongoDBObject(
@@ -112,6 +113,7 @@ class BuildTestableWorkflow extends Spec {
         "name" -> "task name2",
         "description" -> "task description",
         "classOfService" -> 1,
+        "ticketId" -> "generated id",
         "workflowitem" -> new ObjectId("6f48e10644ae3742baa2d0b0"))
     }
 

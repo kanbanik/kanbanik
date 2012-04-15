@@ -43,6 +43,7 @@ class ProjectBuilderTest extends Spec with MockitoSugar {
       
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
       when(workflowitem.child).thenReturn(None)
+      when(workflowitem.itemType).thenReturn("H")
 
       when(task.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
       when(task.workflowitem).thenReturn(workflowitem)

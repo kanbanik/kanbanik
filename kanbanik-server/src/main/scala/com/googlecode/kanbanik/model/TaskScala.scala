@@ -10,6 +10,7 @@ class TaskScala(
   var name: String,
   var description: String,
   var classOfService: Int,
+  var ticketId: String,
   var workflowitem: WorkflowitemScala) extends KanbanikEntity {
 
   def store: TaskScala = {
@@ -25,6 +26,7 @@ class TaskScala(
       "name" -> name,
       "description" -> description,
       "classOfService" -> classOfService,
+      "ticketId" -> ticketId,
       "workflowitem" -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem"))))
 
     TaskScala.byId(idToUpdate)
@@ -49,6 +51,7 @@ object TaskScala extends KanbanikEntity {
       "name" -> entity.name,
       "description" -> entity.description,
       "classOfService" -> entity.classOfService,
+      "ticketId" -> entity.ticketId,
       "workflowitem" -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
   }
 
@@ -58,6 +61,7 @@ object TaskScala extends KanbanikEntity {
       dbObject.get("name").asInstanceOf[String],
       dbObject.get("description").asInstanceOf[String],
       dbObject.get("classOfService").asInstanceOf[Int],
+      dbObject.get("ticketId").asInstanceOf[String],
       WorkflowitemScala.byId(dbObject.get("workflowitem").asInstanceOf[ObjectId]))
   }
 }

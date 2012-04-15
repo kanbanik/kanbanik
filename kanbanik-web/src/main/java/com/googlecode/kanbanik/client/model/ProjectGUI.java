@@ -159,8 +159,8 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 	}
 
 	public void addTask(TaskGui task, WorkflowItemGUI workflowItem) {
-		task.setProject(this);
-		task.setWorkflowItem(workflowItem);
+//		task.setProject(this);
+//		task.setWorkflowItem(workflowItem);
 		taskHolders.get(workflowItem).add(task);
 		setSizes();
 		dragController.makeDraggable(task, task.getHeader());
@@ -169,10 +169,10 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 	private void deleteTask(TaskDTO task) {
 		for (VerticalPanel taskHolder : taskHolders.values()) {
 			for (int i = 0; i < taskHolder.getWidgetCount(); i++) {
-				if ((taskHolder.getWidget(i) instanceof TaskGui) && ((TaskGui)taskHolder.getWidget(i)).getDto().getId() == task.getId()) {
-					taskHolder.remove(taskHolder.getWidget(i));
-					break;
-				}
+//				if ((taskHolder.getWidget(i) instanceof TaskGui) && ((TaskGui)taskHolder.getWidget(i)).getDto().getId() == task.getId()) {
+//					taskHolder.remove(taskHolder.getWidget(i));
+//					break;
+//				}
 			}
 		}
 		
@@ -204,7 +204,7 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 		}
 		
 		if (message instanceof TaskCreationSavedMessage) {
-			addTask(new TaskGui(message.getPayload()), workflow.getInputQueue());
+//			addTask(new TaskGui(message.getPayload()), workflow.getInputQueue());
 		} else if (message instanceof TaskDeletionSavedMessage) {
 			deleteTask(message.getPayload());
 		}

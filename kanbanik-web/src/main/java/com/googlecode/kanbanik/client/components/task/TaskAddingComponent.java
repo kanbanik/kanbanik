@@ -1,9 +1,9 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.shared.ClassOfServiceDTO;
 import com.googlecode.kanbanik.shared.ProjectDTO;
-import com.googlecode.kanbanik.shared.TaskDTO;
 import com.googlecode.kanbanik.shared.WorkflowItemPlaceDTO;
 
 
@@ -36,8 +36,8 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	}
 
 	@Override
-	protected int getId() {
-		return -1;
+	protected String getId() {
+		return null;
 	}
 
 	@Override
@@ -46,10 +46,8 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	}
 
 	@Override
-	protected TaskDTO createBasicDTO() {
-		TaskDTO taskDTO = new TaskDTO();
-		taskDTO.setPlace(workflowItemDTO);
-		taskDTO.setProject(projectDTO);
+	protected TaskDto createBasicDTO() {
+		TaskDto taskDTO = new TaskDto();
 		return taskDTO;
 	}
 	

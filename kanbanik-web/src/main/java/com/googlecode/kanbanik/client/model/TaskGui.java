@@ -21,16 +21,10 @@ import com.googlecode.kanbanik.client.components.task.TaskEditingComponent;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.shared.ClassOfServiceDTO;
-import com.googlecode.kanbanik.shared.TaskDTO;
+import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.dto.TaskDto;
 
-public class TaskGui extends Composite implements MessageListener<TaskDTO> {
-
-	private WorkflowItemGUI workflowItem;
-	
-	private ProjectGUI project;
-
-	private TaskDTO taskDTO;
+public class TaskGui extends Composite implements MessageListener<TaskDto> {
 	
 	@UiField
 	FocusPanel header;
@@ -50,19 +44,21 @@ public class TaskGui extends Composite implements MessageListener<TaskDTO> {
 	@UiField
 	DivElement mainDiv;
 	
-	private Map<ClassOfServiceDTO, String> classOfServiceToCSS;
+	private TaskDto taskDto;
+	
+	private Map<ClassOfService, String> classOfServiceToCSS;
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	
-	public TaskGui(TaskDTO taskDTO) {
+	public TaskGui(TaskDto taskDto) {
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
 		
-		this.taskDTO = taskDTO;
+		this.taskDto = taskDto;
 		MessageBus.registerListener(TaskEditSavedMessage.class, this);
 		
 		setupClassOfServiceToCSS();
@@ -70,63 +66,40 @@ public class TaskGui extends Composite implements MessageListener<TaskDTO> {
 		new TaskEditingComponent(this, editButton);
 		new TaskDeletingComponent(this, deleteButton);
 		
-		setupAccordingDTO(taskDTO);
+		setupAccordingDto(taskDto);
 	}
 	
-	public void setupAccordingDTO(TaskDTO taskDTO) {
-		header.setStyleName(classOfServiceToStyle(taskDTO));
-		ticketIdLabel.setText(taskDTO.getTicketId());
-		nameLabel.setText(taskDTO.getName());
+	public void setupAccordingDto(TaskDto taskDto) {
+		header.setStyleName(classOfServiceToStyle(taskDto));
+		ticketIdLabel.setText(taskDto.getTicketId());
+		nameLabel.setText(taskDto.getName());
 	}
 
 	private void setupClassOfServiceToCSS() {
-		classOfServiceToCSS = new HashMap<ClassOfServiceDTO, String>();
-		classOfServiceToCSS.put(ClassOfServiceDTO.EXPEDITE, "task-class-of-service-EXPEDITE");
-		classOfServiceToCSS.put(ClassOfServiceDTO.FIXED_DELIVERY_DATE, "task-class-of-service-FIXED_DELIVERY_DATE");
-		classOfServiceToCSS.put(ClassOfServiceDTO.INTANGIBLE, "task-class-of-service-STANDARD");
-		classOfServiceToCSS.put(ClassOfServiceDTO.STANDARD, "task-class-of-service-INTANGIBLE");
+		classOfServiceToCSS = new HashMap<ClassOfService, String>();
+		classOfServiceToCSS.put(ClassOfService.EXPEDITE, "task-class-of-service-EXPEDITE");
+		classOfServiceToCSS.put(ClassOfService.FIXED_DELIVERY_DATE, "task-class-of-service-FIXED_DELIVERY_DATE");
+		classOfServiceToCSS.put(ClassOfService.INTANGIBLE, "task-class-of-service-STANDARD");
+		classOfServiceToCSS.put(ClassOfService.STANDARD, "task-class-of-service-INTANGIBLE");
 	}
 
-	private String classOfServiceToStyle(TaskDTO taskDTO) {
-		return classOfServiceToCSS.get(taskDTO.getClassOfService());
-	}
-
-	public void taskMoved(WorkflowItemGUI toItem) {
-		if (toItem.getDto().getId() != workflowItem.getDto().getId()) {
-			this.workflowItem = toItem;
-			taskDTO.setPlace(workflowItem.getDto());
-		}
+	private String classOfServiceToStyle(TaskDto taskDTO) {
+		return classOfServiceToCSS.get(ClassOfService.EXPEDITE);
 	}
 	
-	public WorkflowItemGUI getWorkflowItem() {
-		return workflowItem;
-	}
-
-	public ProjectGUI getProject() {
-		return project;
-	}
-
-	public void setProject(ProjectGUI project) {
-		this.project = project;
-	}
-
-	public void setWorkflowItem(WorkflowItemGUI workflowItem) {
-		this.workflowItem = workflowItem;
-	}
-
 	public FocusPanel getHeader() {
 		return header;
 	}
 
-	public TaskDTO getDto() {
-		return taskDTO;
+	public TaskDto getDto() {
+		return taskDto;
 	}
 
-	public void messageArrived(Message<TaskDTO> message) {
-		TaskDTO payload = message.getPayload();
-		if (payload.getId() == taskDTO.getId()) {
-			this.taskDTO = payload;
-			setupAccordingDTO(payload);
+	public void messageArrived(Message<TaskDto> message) {
+		TaskDto payload = message.getPayload();
+		if (payload.getId() == taskDto.getId()) {
+			this.taskDto = payload;
+			setupAccordingDto(payload);
 		}
 	}
 }

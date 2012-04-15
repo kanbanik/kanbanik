@@ -7,6 +7,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.Spec
 import com.googlecode.kanbanik.model.TaskScala
 import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.dto.ClassOfService
 
 @RunWith(classOf[JUnitRunner])
 class TaskBuilderTest extends Spec with MockitoSugar {
@@ -18,6 +19,7 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
       when(workflowitem.child).thenReturn(None)
+      when(workflowitem.itemType).thenReturn("H")
 
       when(task.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
       when(task.name).thenReturn("someName")
@@ -31,7 +33,7 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       assert(res.getId() === "4f48e10644ae3742baa2d0a9")
       assert(res.getName() === "someName")
       assert(res.getDescription() === "someDesc")
-      assert(res.getClassOfService() === 2)
+      assert(res.getClassOfService() === ClassOfService.fromId(2))
       assert((res.getWorkflowitem() != null) === true)
     }
   }
