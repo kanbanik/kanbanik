@@ -2,7 +2,6 @@ package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
@@ -10,9 +9,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
-import com.googlecode.kanbanik.client.services.ServerCommandInvokerAsync;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ItemType;
@@ -26,10 +24,8 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class MainBoard extends VerticalPanel {
 	
-	final ServerCommandInvokerAsync serverCommandInvoker = GWT.create(ServerCommandInvoker.class);
-	
 	public void initializeBoard(final Widget parent) {
-		serverCommandInvoker.<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
 				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
 				new VoidParams(),
 				new KanbanikAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {

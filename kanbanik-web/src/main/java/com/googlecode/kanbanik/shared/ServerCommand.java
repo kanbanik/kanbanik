@@ -1,6 +1,9 @@
 package com.googlecode.kanbanik.shared;
 
-public enum ServerCommand {
+import java.io.Serializable;
+
+public enum ServerCommand implements Serializable {
 	NEW_PROJECT,
-	GET_ALL_BOARDS_WITH_PROJECTS
+	GET_ALL_BOARDS_WITH_PROJECTS,
+	MOVE_TASK
 }
