@@ -83,8 +83,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		classOfServiceToCSS.put(ClassOfService.STANDARD, "task-class-of-service-INTANGIBLE");
 	}
 
-	private String classOfServiceToStyle(TaskDto taskDTO) {
-		return classOfServiceToCSS.get(ClassOfService.EXPEDITE);
+	private String classOfServiceToStyle(TaskDto taskDto) {
+		return classOfServiceToCSS.get(taskDto.getClassOfService());
 	}
 	
 	public FocusPanel getHeader() {
@@ -97,7 +97,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 
 	public void messageArrived(Message<TaskDto> message) {
 		TaskDto payload = message.getPayload();
-		if (payload.getId() == taskDto.getId()) {
+		if (payload.getId().equals(taskDto.getId())) {
 			this.taskDto = payload;
 			setupAccordingDto(payload);
 		}

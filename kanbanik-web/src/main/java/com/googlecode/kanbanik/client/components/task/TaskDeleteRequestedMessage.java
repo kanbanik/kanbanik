@@ -1,12 +1,12 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import com.googlecode.kanbanik.client.messaging.DefaultMessage;
-import com.googlecode.kanbanik.shared.TaskDTO;
+import com.googlecode.kanbanik.dto.TaskDto;
 
 
-public class TaskDeleteRequestedMessage extends DefaultMessage<TaskDTO> {
+public class TaskDeleteRequestedMessage extends DefaultMessage<TaskDto> {
 
-	public TaskDeleteRequestedMessage(TaskDTO payload, Object source) {
+	public TaskDeleteRequestedMessage(TaskDto payload, Object source) {
 		super(payload, source);
 	}
 

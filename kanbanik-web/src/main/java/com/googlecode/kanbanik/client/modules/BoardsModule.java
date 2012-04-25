@@ -30,7 +30,7 @@ public class BoardsModule implements KanbanikModule {
 	private BoardsGUI boards;
 
 	static {
-		TaskSaver taskSaver = new TaskSaver(kanbanikService);
+		TaskSaver taskSaver = new TaskSaver();
 		MessageBus.registerListener(TaskChangedMessage.class, taskSaver);
 		MessageBus.registerListener(TaskDeleteRequestedMessage.class, taskSaver);
 	}

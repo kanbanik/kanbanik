@@ -194,7 +194,7 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 	}
 
 	public void messageArrived(Message<TaskDTO> message) {
-		if (!message.getPayload().getProject().equals(projectDTO)) {
+	/*	if (!message.getPayload().getProject().equals(projectDTO)) {
 			return;
 		}
 
@@ -208,7 +208,7 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 		} else if (message instanceof TaskDeletionSavedMessage) {
 			deleteTask(message.getPayload());
 		}
-		
+		*/
 	}
 	
 	private boolean isInThisBoard(TaskDTO task) {

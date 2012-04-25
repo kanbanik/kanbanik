@@ -10,6 +10,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.task.TaskChangedMessage;
+import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage;
+import com.googlecode.kanbanik.client.components.task.TaskSaver;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
@@ -23,6 +26,12 @@ import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class MainBoard extends VerticalPanel {
+	
+	static {
+		TaskSaver taskSaver = new TaskSaver();
+		MessageBus.registerListener(TaskChangedMessage.class, taskSaver);
+		MessageBus.registerListener(TaskDeleteRequestedMessage.class, taskSaver);
+	}
 	
 	public void initializeBoard(final Widget parent) {
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(

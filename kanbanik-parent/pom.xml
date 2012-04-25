@@ -56,11 +56,9 @@
 		</dependency>
 
 	</dependencies>
-
 	<modules>
 		<module>../kanbanik-dto</module>
 		<module>../kanbanik-server</module>
 		<module>../kanbanik-web</module>
 	</modules>
-
 </project>

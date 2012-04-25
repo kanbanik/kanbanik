@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.model.TaskGui;
 import com.googlecode.kanbanik.dto.TaskDto;
 
@@ -45,7 +46,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
-//			MessageBus.sendMessage(new TaskDeleteRequestedMessage(taskDto, TaskDeletingComponent.class));
+			MessageBus.sendMessage(new TaskDeleteRequestedMessage(taskDto, TaskDeletingComponent.class));
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {

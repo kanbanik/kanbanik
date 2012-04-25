@@ -17,8 +17,6 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelCont
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.dto.ClassOfService;
 import com.googlecode.kanbanik.dto.TaskDto;
-import com.googlecode.kanbanik.shared.ClassOfServiceDTO;
-import com.googlecode.kanbanik.shared.TaskDTO;
 
 public abstract class AbstractTaskEditingComponent {
 	
@@ -74,7 +72,7 @@ public abstract class AbstractTaskEditingComponent {
 	  public Widget initializeRichTextEditor() {
 		    richTextArea = new RichTextArea();
 		    richTextArea.ensureDebugId("cwRichText-area");
-		    richTextArea.setSize("100%", "600px");
+		    richTextArea.setSize("100%", "400px");
 		    RichTextToolbar toolbar = new RichTextToolbar(richTextArea);
 		    toolbar.ensureDebugId("cwRichText-toolbar");
 		    toolbar.setWidth("100%");
@@ -91,10 +89,10 @@ public abstract class AbstractTaskEditingComponent {
 		taskName.setValue(getTaskName());
 		richTextArea.setHTML(getDescription());
 		
-		String currentClassOfService = getClassOfService();
+		String currentClassOfService = getClassOfServiceAsString();
 		classOfService.clear();
 		classOfService.addItem(currentClassOfService);
-		for(ClassOfServiceDTO item : ClassOfServiceDTO.values()) {
+		for(ClassOfService item : ClassOfService.values()) {
 			if (item.toString().equals(currentClassOfService)) {
 				continue;
 			}
@@ -102,7 +100,7 @@ public abstract class AbstractTaskEditingComponent {
 		}
 	}
 
-	protected abstract String getClassOfService();
+	protected abstract String getClassOfServiceAsString();
 	protected abstract String getTicketId();
 	protected abstract String getTaskName();
 	protected abstract String getDescription();
@@ -114,21 +112,22 @@ public abstract class AbstractTaskEditingComponent {
 		taskDTO.setDescription(richTextArea.getHTML());
 		taskDTO.setClassOfService(ClassOfService.STANDARD);
 		taskDTO.setId(getId());
+		taskDTO.setClassOfService(getClassOfService());
 		return taskDTO;
 	}
 
 	protected abstract TaskDto createBasicDTO();
 
-	private ClassOfServiceDTO getClassOfServiceDTO() {
+	private ClassOfService getClassOfService() {
 		int index = classOfService.getSelectedIndex();
 		String value = classOfService.getValue(index);
-		for(ClassOfServiceDTO item : ClassOfServiceDTO.values()) {
+		for(ClassOfService item : ClassOfService.values()) {
 			if (item.toString().equals(value)) {
 				return item;
 			}
 		}
 		
-		return ClassOfServiceDTO.STANDARD;
+		return ClassOfService.STANDARD;
 	}
 
 	class ShowDialogHandler implements ClickHandler {
@@ -144,7 +143,7 @@ public abstract class AbstractTaskEditingComponent {
 	class AddTaskButtonHandler implements PanelContainingDialolgListener {
 
 		public void okClicked(PanelContainingDialog dialog) {
-//			MessageBus.sendMessage(new TaskChangedMessage(createTaskDTO(), AbstractTaskEditingComponent.this));
+			MessageBus.sendMessage(new TaskChangedMessage(createTaskDTO(), AbstractTaskEditingComponent.this));
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {

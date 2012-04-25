@@ -38,7 +38,10 @@ public class TaskMovingDropController extends FlowPanelDropController {
 
 	private void notifyDropped(final TaskGui task) {
 		final WorkflowitemDto prevWorkflowitem = task.getDto().getWorkflowitem();
+		final ProjectDto prevProject = task.getDto().getProject();
+		
 		task.getDto().setWorkflowitem(workflowitem);
+		task.getDto().setProject(project);
 		
 		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, SimpleParams<TaskDto>> invokeCommand(
 				ServerCommand.MOVE_TASK,
@@ -56,6 +59,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 						// reconstruct to the previous state (at least in memory)
 						// TODO move the item really back to its prev place
 						task.getDto().setWorkflowitem(prevWorkflowitem);
+						task.getDto().setProject(prevProject);
 					}
 
 				});

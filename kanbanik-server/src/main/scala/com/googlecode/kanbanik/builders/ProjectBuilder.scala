@@ -6,14 +6,11 @@ import com.googlecode.kanbanik.model.TaskScala
 
 class ProjectBuilder {
 
-  val boardBuilder = new BoardBuilder
-
-  val taskBuilder = new TaskBuilder
-
   def buildDto(project: ProjectScala): ProjectDto = {
-    val res = new ProjectDto
-    res.setId(project.id.get.toString())
-    res.setName(project.name)
+    val boardBuilder = new BoardBuilder
+
+    val taskBuilder = new TaskBuilder
+    val res = buildShallowDto(project)
 
     val boards = project.boards.getOrElse(List[BoardScala]())
     val tasks = project.tasks.getOrElse(List[TaskScala]())
@@ -25,6 +22,13 @@ class ProjectBuilder {
       res.addTask(taskDto)
     })
 
+    res
+  }
+
+  def buildShallowDto(project: ProjectScala) = {
+    val res = new ProjectDto
+    res.setId(project.id.get.toString())
+    res.setName(project.name)
     res
   }
 }
