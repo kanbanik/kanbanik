@@ -99,7 +99,7 @@ public class MainBoard extends VerticalPanel {
 				buildBoard(currentItem.getChild(), project, childTable, dragController, 0, 0);
 			} else {
 
-				TaskContainer taskContainer = createTaskContainer(dragController, currentItem);
+				TaskContainer taskContainer = createTaskContainer(dragController, currentItem, project);
 				table.setWidget(row, column, new WorkflowitemPlace(currentItem, project, taskContainer, dragController));
 			}
 
@@ -121,9 +121,9 @@ public class MainBoard extends VerticalPanel {
 
 	}
 
-	private TaskContainer createTaskContainer(PickupDragController dragController, WorkflowitemDto currentItem) {
+	private TaskContainer createTaskContainer(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project) {
 		TaskContainer taskContainer = new TaskContainer();
-		DropController dropController = new TaskMovingDropController(taskContainer);
+		DropController dropController = new TaskMovingDropController(taskContainer, currentItem, project);
 		dragController.registerDropController(dropController);
 		return taskContainer;
 	}

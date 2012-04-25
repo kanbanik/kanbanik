@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.model.TaskGui;
+import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams;
@@ -16,9 +17,12 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 public class TaskMovingDropController extends FlowPanelDropController {
 
 	private WorkflowitemDto workflowitem;
+	private final ProjectDto project;
 	
-	public TaskMovingDropController(FlowPanel dropTarget) {
+	public TaskMovingDropController(FlowPanel dropTarget, WorkflowitemDto workflowitem, ProjectDto project) {
 		super(dropTarget);
+		this.workflowitem = workflowitem;
+		this.project = project;
 	}
 
 	@Override
@@ -38,7 +42,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		
 		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, SimpleParams<TaskDto>> invokeCommand(
 				ServerCommand.MOVE_TASK,
-				new MoveTaskParams(task.getDto(), null),
+				new MoveTaskParams(task.getDto(), project),
 				new KanbanikAsyncCallback<SimpleParams<TaskDto>>() {
 
 					@Override
