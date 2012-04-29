@@ -1,10 +1,14 @@
 package com.googlecode.kanbanik.commands
-import scala.util.control.Breaks._
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
 
+import com.googlecode.kanbanik.model.KanbanikEntity
 import com.googlecode.kanbanik.model.ProjectScala
 import com.googlecode.kanbanik.model.TaskScala
+import com.mongodb.casbah.Imports.$set
+import com.mongodb.casbah.commons.MongoDBObject
 
-trait TaskManipulation {
+trait TaskManipulation extends KanbanikEntity {
 
   def removeTaskFromProject(task: TaskScala, project: ProjectScala) {
     if (project.tasks.isDefined) {
@@ -39,6 +43,23 @@ trait TaskManipulation {
     }
 
     definedOnProject
+
+  }
+
+  def generateUniqueTicketId(): String = {
+    val maxTaskId = coll(Coll.TaskId).findOne()
+
+    if (maxTaskId.isDefined) {
+      val nextMaxId = maxTaskId.get.get("maxId").asInstanceOf[Int] + 1
+      coll(Coll.TaskId).update(MongoDBObject("_id" -> maxTaskId.get.get("_id")),
+        $set("maxId" -> nextMaxId))
+
+      return "#" + nextMaxId
+    } 
+    
+    coll(Coll.TaskId) += MongoDBObject("maxId" -> 1)
+    
+    "#1"
 
   }
 }

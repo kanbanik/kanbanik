@@ -4,9 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
@@ -25,7 +23,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class MainBoard extends VerticalPanel {
+public class MainBoard {
 	
 	static {
 		TaskSaver taskSaver = new TaskSaver();
@@ -61,7 +59,7 @@ public class MainBoard extends VerticalPanel {
 	
 	private void buildBoard(Widget rootPanel,
 			SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-		VerticalPanel panel = new VerticalPanel();
+		BoardPanel panel = new BoardPanel();
 
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload()
 				.getList()) {
@@ -75,12 +73,12 @@ public class MainBoard extends VerticalPanel {
 					panelWithDraggabls, false);
 			panelWithDraggabls.add(table);
 			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
-				table.setWidget(row, 0, new Label(project.getName()));
+				table.setWidget(row, 0, new ProjectHeader(board, project));
 				buildBoard(board.getRootWorkflowitem(), project, table, dragController,
 						row, 1);
 				row++;
 			}
-			panel.add(panelWithDraggabls);
+			panel.addBoard(panelWithDraggabls);
 
 		}
 

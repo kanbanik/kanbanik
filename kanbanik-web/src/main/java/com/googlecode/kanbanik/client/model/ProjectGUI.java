@@ -152,7 +152,7 @@ public class ProjectGUI extends HorizontalPanel implements MessageListener<TaskD
 		addButton.setTitle("Add new task");
 		addButton.setStyleName("centered-label");
 		
-		new TaskAddingComponent(projectDTO, workflow.getInputQueue().getDto(), addButton);
+//		new TaskAddingComponent(projectDTO, workflow.getInputQueue().getDto(), addButton);
 
 		projectHeaderPanel.add(addButton);
 		add(projectHeaderPanel);

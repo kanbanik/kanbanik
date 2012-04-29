@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.components.task;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -27,7 +28,7 @@ public class TaskSaver implements MessageListener<TaskDto> {
 									@Override
 									public void success(SimpleParams<TaskDto> result) {
 										if (isNew) {
-											MessageBus.sendMessage(new TaskCreationSavedMessage(result.getPayload(), TaskSaver.this));
+											MessageBus.sendMessage(new TaskAddedMessage(result.getPayload(), TaskSaver.this));
 										} else {
 											MessageBus.sendMessage(new TaskEditSavedMessage(result.getPayload(), TaskSaver.this));
 										}

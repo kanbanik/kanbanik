@@ -28,11 +28,32 @@ class TaskBuilder extends TaskManipulation {
 
   def buildEntity(taskDto: TaskDto): TaskScala = {
     new TaskScala(
-      Some(new ObjectId(taskDto.getId())),
+      determineId(taskDto),
       taskDto.getName(),
       taskDto.getDescription(),
       taskDto.getClassOfService().getId(),
-      taskDto.getTicketId(),
+      determineTicketId(taskDto),
       WorkflowitemScala.byId(new ObjectId(taskDto.getWorkflowitem().getId())));
+  }
+  
+  private def determineId(taskDto: TaskDto): Option[ObjectId]= {
+    if (taskDto.getId() != null) {
+    	return Some(new ObjectId(taskDto.getId()))  
+    }
+    
+    None
+    
+  }
+  
+  private def determineTicketId(taskDto: TaskDto): String = {
+    if (taskDto.getId() == null) {
+      return generateUniqueTicketId()
+    }
+    
+    if (taskDto.getId() != null && taskDto.getTicketId() == null) {
+      throw new IllegalStateException("The task " + taskDto.getId() + " has not set a ticket id!" )
+    }
+    
+    taskDto.getTicketId()
   }
 }

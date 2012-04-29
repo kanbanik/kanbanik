@@ -1,0 +1,13 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.mainPanel {
+			float: left;
+		}
+	</ui:style>
+
+	<g:FlowPanel ui:field="boardPanel" addStyleNames="mainPanel">
+	</g:FlowPanel>
+
+</ui:UiBinder>

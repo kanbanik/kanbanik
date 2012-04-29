@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.model
 import com.mongodb.casbah.MongoConnection
 
-class KanbanikEntity {
+trait KanbanikEntity {
   
   val conn = MongoConnection()("kanbanik")
 
@@ -10,6 +10,7 @@ class KanbanikEntity {
     val Boards = Value("boards")
     val Tasks = Value("tasks")
     val Projects = Value("projects")
+    val TaskId = Value("taskid")
   }
 
   def coll(collName: Coll.Value) = {
