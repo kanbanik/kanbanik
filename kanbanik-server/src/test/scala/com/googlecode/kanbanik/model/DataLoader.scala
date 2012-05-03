@@ -77,6 +77,13 @@ object DataLoader {
       "description" -> "task description",
       "classOfService" -> 1,
       "workflowitem" -> new ObjectId("4f48e10644ae3742baa2d0a9"))
+      
+      projects += MongoDBObject(
+      "_id" -> new ObjectId("3a48e10644ae3742baa2d0d9"),
+      "name" -> "project name",
+      "boards" -> None,
+      "tasks" -> List(
+        new ObjectId("1a48e10644ae3742baa2d0d9")))
   }
 
   def clearDB {

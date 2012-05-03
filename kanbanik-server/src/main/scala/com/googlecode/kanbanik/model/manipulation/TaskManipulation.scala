@@ -55,10 +55,10 @@ trait TaskManipulation extends KanbanikEntity {
         $set("maxId" -> nextMaxId))
 
       return "#" + nextMaxId
-    } 
-    
+    }
+
     coll(Coll.TaskId) += MongoDBObject("maxId" -> 1)
-    
+
     "#1"
 
   }

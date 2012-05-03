@@ -7,16 +7,19 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.model.TaskGui;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
-public class WorkflowitemPlace extends Composite implements MessageListener<TaskDto> {
+public class WorkflowitemPlace extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener {
 
 	@UiField
 	Label stateName;
@@ -50,6 +53,8 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		stateName.setText(workflowitemDto.getName());
 		wipLimit.setText(Integer.toString(workflowitemDto.getWipLimit()));
 
+		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+		
 		MessageBus.registerListener(TaskAddedMessage.class, this);
 		MessageBus.registerListener(TaskDeleteRequestedMessage.class, this);
 
@@ -89,5 +94,21 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		}
 
 		return false;
+	}
+
+	public void activated() {
+		if (!MessageBus.listens(TaskAddedMessage.class, this)) {
+			MessageBus.registerListener(TaskAddedMessage.class, this);	
+		}
+		
+		if (!MessageBus.listens(TaskDeleteRequestedMessage.class, this)) {
+			MessageBus.registerListener(TaskDeleteRequestedMessage.class, this);	
+		}
+	}
+
+	public void deactivated() {
+		MessageBus.unregisterListener(TaskAddedMessage.class, this);
+		MessageBus.unregisterListener(TaskDeleteRequestedMessage.class, this);
+		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 }

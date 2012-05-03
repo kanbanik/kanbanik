@@ -14,7 +14,7 @@ class ProjectBuilder {
 
     val boards = project.boards.getOrElse(List[BoardScala]())
     val tasks = project.tasks.getOrElse(List[TaskScala]())
-
+    
     boards.foreach(board => res.addBoard(boardBuilder.buildDto(board)))
     tasks.foreach(task => {
       val taskDto = taskBuilder.buildDto(task)

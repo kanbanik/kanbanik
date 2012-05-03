@@ -41,7 +41,7 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
     }    
   }
   
-  // both only because of testing
+  // all only because of testing
   private[commands] def getBoardBuilder = boardBuilder
   
   private[commands] def getProjectBuilder = projectBuilder

@@ -11,9 +11,14 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], SimpleParams[
   
   def execute(params: SimpleParams[TaskDto]): SimpleParams[TaskDto] = {
     val task = taskBuilder.buildEntity(params.getPayload())
+    val isNew = !task.id.isDefined
+    
     val storedTask = task.store
     val project = ProjectScala.byId(new ObjectId(params.getPayload().getProject().getId()))
-    addTaskToProject(storedTask, project)
+    
+    if (isNew) {
+    	addTaskToProject(storedTask, project)
+    }
 
     return new SimpleParams(taskBuilder.buildDto(storedTask))
   }

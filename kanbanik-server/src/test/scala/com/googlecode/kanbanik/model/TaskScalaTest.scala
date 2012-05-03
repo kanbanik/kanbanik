@@ -47,7 +47,7 @@ class TaskScalaTest extends BaseIntegrationTest {
         TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       }
     }
-
+    
     it("should fail when triing to create with a non existing workflow") {
       intercept[IllegalArgumentException] {
         new TaskScala(
