@@ -9,7 +9,6 @@ class ProjectBuilder {
   def buildDto(project: ProjectScala): ProjectDto = {
     val boardBuilder = new BoardBuilder
 
-    val taskBuilder = new TaskBuilder
     val res = buildShallowDto(project)
 
     val boards = project.boards.getOrElse(List[BoardScala]())
@@ -31,4 +30,6 @@ class ProjectBuilder {
     res.setName(project.name)
     res
   }
+  
+  private[builders] def taskBuilder = new TaskBuilder
 }

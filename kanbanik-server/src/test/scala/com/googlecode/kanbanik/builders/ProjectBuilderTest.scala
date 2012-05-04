@@ -9,6 +9,7 @@ import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.WorkflowitemScala
 import com.googlecode.kanbanik.model.TaskScala
+import com.googlecode.kanbanik.dto.TaskDto
 
 @RunWith(classOf[JUnitRunner])
 class ProjectBuilderTest extends Spec with MockitoSugar {
@@ -37,10 +38,10 @@ class ProjectBuilderTest extends Spec with MockitoSugar {
       when(board.name).thenReturn("boardName")
       when(board.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
       when(board.workflowitems).thenReturn(None)
-      
+
       val task = mock[TaskScala]
       val workflowitem = mock[WorkflowitemScala]
-      
+
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
       when(workflowitem.child).thenReturn(None)
       when(workflowitem.itemType).thenReturn("H")
@@ -53,14 +54,23 @@ class ProjectBuilderTest extends Spec with MockitoSugar {
       when(project.name).thenReturn("someName")
       when(project.boards).thenReturn(Some(List(board)))
       when(project.tasks).thenReturn(Some(List(task)))
-      
-      val builder = new ProjectBuilder
+
+      val builder = new TestedProjectBuilder
       val res = builder.buildDto(project)
 
       assert(res.getId() === "4f48e10644ae3742baa2d0a9")
       assert(res.getName() === "someName")
       assert(res.getBoards().size() === 1)
       assert(res.getTasks().size() === 1)
+    }
+  }
+
+  class TestedProjectBuilder extends ProjectBuilder {
+
+    override def taskBuilder = new SimpleTaskBilder
+
+    class SimpleTaskBilder extends TaskBuilder {
+    	override def buildDto(task: TaskScala) = new TaskDto 
     }
   }
 

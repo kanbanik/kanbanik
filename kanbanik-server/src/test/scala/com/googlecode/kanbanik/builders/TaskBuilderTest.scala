@@ -8,6 +8,8 @@ import org.scalatest.Spec
 import com.googlecode.kanbanik.model.TaskScala
 import com.googlecode.kanbanik.model.WorkflowitemScala
 import com.googlecode.kanbanik.dto.ClassOfService
+import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.dto.ProjectDto
 
 @RunWith(classOf[JUnitRunner])
 class TaskBuilderTest extends Spec with MockitoSugar {
@@ -27,7 +29,7 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       when(task.classOfService).thenReturn(2)
       when(task.workflowitem).thenReturn(workflowitem)
 
-      val taskBuilder = new TaskBuilder
+      val taskBuilder = new TestedTaskBuilder
       val res = taskBuilder.buildDto(task)
 
       assert(res.getId() === "4f48e10644ae3742baa2d0a9")
@@ -35,6 +37,17 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       assert(res.getDescription() === "someDesc")
       assert(res.getClassOfService() === ClassOfService.fromId(2))
       assert((res.getWorkflowitem() != null) === true)
+    }
+  }
+  
+  class TestedTaskBuilder extends TaskBuilder {
+    
+    override def findProjectForTask(task: TaskScala) = Some(mock[ProjectScala])
+    
+    override def projectBuilder = new SimpleProjectBuilder
+    
+    class SimpleProjectBuilder extends ProjectBuilder {
+      override def buildShallowDto(project: ProjectScala) = new ProjectDto
     }
   }
 }
