@@ -86,6 +86,13 @@ class BoardScalaTest extends BaseIntegrationTest {
       val renamed = BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
       assert(renamed.name === "renamed")
     }
+    
+    it("should returned the new board") {
+      val board = BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
+      board.name = "renamed"
+      val renamed = board.store
+      assert(renamed.name === "renamed")
+    }
 
     it("should be possible to delete a board") {
       val board = BoardScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))

@@ -74,18 +74,22 @@ class WorkflowitemScala(
 
     val idToUpdate = id.getOrElse({
       val obj = WorkflowitemScala.asDBObject(this)
-      coll(Coll.Workflowitems) += obj
+      using(createConnection) { conn =>
+        coll(conn, Coll.Workflowitems) += obj
+      }
       return WorkflowitemScala.byId(WorkflowitemScala.asEntity(obj).id.get)
     })
 
-    val idObject = MongoDBObject("_id" -> idToUpdate)
-    coll(Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
-    
-    move(idToUpdate)
+    using(createConnection) { conn =>
+      val idObject = MongoDBObject("_id" -> idToUpdate)
+      coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
 
-    coll(Coll.Workflowitems).update(idObject, $set(WorkflowitemScala.CHILD_NAME -> childIdInternal.getOrElse(None)))
+      move(idToUpdate)
 
-    WorkflowitemScala.byId(idToUpdate)
+      coll(conn, Coll.Workflowitems).update(idObject, $set(WorkflowitemScala.CHILD_NAME -> childIdInternal.getOrElse(None)))
+
+      WorkflowitemScala.byId(idToUpdate)
+    }
   }
 
   def delete {
@@ -95,13 +99,16 @@ class WorkflowitemScala(
 
     toDelete.nextItemIdInternal = None
     toDelete.store
-    val newPrev = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
-    if (newPrev.isDefined) {
-      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
-        $set("nextItemId" -> None))
+    using(createConnection) { conn =>
+      val newPrev = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
+      if (newPrev.isDefined) {
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
+          $set("nextItemId" -> None))
+      }
+
+      coll(conn, Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
     }
 
-    coll(Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
   }
 
   def unregisterFromBoard() {
@@ -115,51 +122,53 @@ class WorkflowitemScala(
   }
 
   private def move(idToUpdate: ObjectId) {
-    // a->b->c->d->e->f
-    // the e moves before b
-    // so, the result:
-    // a->e->b->c->d->f
-    // that's where the naming come from
-    val e = WorkflowitemScala.byId(idToUpdate)
-    // ignore if did not move
-    if (!nextItemIdInternal.isDefined && !e.nextItemIdInternal.isDefined) {
-      return ;
-    }
-    if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
-      return
-    }
+    using(createConnection) { conn =>
+      // a->b->c->d->e->f
+      // the e moves before b
+      // so, the result:
+      // a->e->b->c->d->f
+      // that's where the naming come from
+      val e = WorkflowitemScala.byId(idToUpdate)
+      // ignore if did not move
+      if (!nextItemIdInternal.isDefined && !e.nextItemIdInternal.isDefined) {
+        return ;
+      }
+      if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
+        return
+      }
 
-    val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
+      val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
 
-    val lastEntity = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
-    val f = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemIdInternal)).getOrElse(null)
-    val d = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
-    var b: DBObject = null
-    if (nextItemIdInternal.isDefined) {
-      b = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextItemIdInternal)).getOrElse(throw new IllegalArgumentException("Trying to move before not existing object with id: " + nextItemIdInternal.toString))
-    }
+      val lastEntity = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
+      val f = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemIdInternal)).getOrElse(null)
+      val d = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
+      var b: DBObject = null
+      if (nextItemIdInternal.isDefined) {
+        b = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextItemIdInternal)).getOrElse(throw new IllegalArgumentException("Trying to move before not existing object with id: " + nextItemIdInternal.toString))
+      }
 
-    var a: DBObject = null;
-    if (b != null) {
-      a = coll(Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> findId(b))).getOrElse(null)
-    }
+      var a: DBObject = null;
+      if (b != null) {
+        a = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> findId(b))).getOrElse(null)
+      }
 
-    if (a != null) {
-      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> findId(a)),
-        $set("nextItemId" -> e.id))
-    }
+      if (a != null) {
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(a)),
+          $set("nextItemId" -> e.id))
+      }
 
-    coll(Coll.Workflowitems).update(MongoDBObject("_id" -> e.id),
-      $set("nextItemId" -> findId(b)))
+      coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> e.id),
+        $set("nextItemId" -> findId(b)))
 
-    if (d != null) {
-      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> findId(d)),
-        $set("nextItemId" -> findId(f)))
-    }
+      if (d != null) {
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(d)),
+          $set("nextItemId" -> findId(f)))
+      }
 
-    if (b == null && !findId(lastEntity).equals(e.id.getOrElse(null))) {
-      coll(Coll.Workflowitems).update(MongoDBObject("_id" -> findId(lastEntity)),
-        $set("nextItemId" -> e.id))
+      if (b == null && !findId(lastEntity).equals(e.id.getOrElse(null))) {
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(lastEntity)),
+          $set("nextItemId" -> e.id))
+      }
     }
   }
 
@@ -192,12 +201,14 @@ class WorkflowitemScala(
 }
 
 object WorkflowitemScala extends KanbanikEntity {
-  
+
   val CHILD_NAME = "childId"
-  
+
   def byId(id: ObjectId): WorkflowitemScala = {
-    val dbWorkflow = coll(Coll.Workflowitems).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such workflowitem with id: " + id))
-    asEntity(dbWorkflow)
+    using(createConnection) { conn =>
+      val dbWorkflow = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such workflowitem with id: " + id))
+      asEntity(dbWorkflow)
+    }
   }
 
   private def asEntity(dbObject: DBObject) = {
@@ -214,11 +225,11 @@ object WorkflowitemScala extends KanbanikEntity {
 
     item.nextItemIdInternal = extractObjectId(dbObject.get("nextItemId"))
     item.childIdInternal = extractObjectId(dbObject.get(CHILD_NAME))
-    
+
     item
   }
-  
-  private def extractObjectId(raw: Object) : Option[ObjectId] = {
+
+  private def extractObjectId(raw: Object): Option[ObjectId] = {
     if (raw == null) {
       return None
     } else if (raw.isInstanceOf[ObjectId]) {
@@ -226,7 +237,7 @@ object WorkflowitemScala extends KanbanikEntity {
     } else if (raw.isInstanceOf[Option[ObjectId]]) {
       return raw.asInstanceOf[Option[ObjectId]]
     }
-    
+
     null
   }
 

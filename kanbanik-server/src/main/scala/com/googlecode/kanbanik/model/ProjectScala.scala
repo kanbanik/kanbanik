@@ -15,38 +15,46 @@ class ProjectScala(
   def store: ProjectScala = {
     val idToUpdate = id.getOrElse({
       val obj = ProjectScala.asDBObject(this)
-      coll(Coll.Projects) += obj
+      using(createConnection) { conn =>
+        coll(conn, Coll.Projects) += obj
+      }
       return ProjectScala.asEntity(obj)
     })
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
 
-    coll(Coll.Projects).update(idObject, $set(
-      "name" -> name,
-      "boards" -> ProjectScala.toIdList[BoardScala](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
-      "tasks" -> ProjectScala.toIdList[TaskScala](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
-    )
-
+    using(createConnection) { conn =>
+      coll(conn, Coll.Projects).update(idObject, $set(
+        "name" -> name,
+        "boards" -> ProjectScala.toIdList[BoardScala](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
+        "tasks" -> ProjectScala.toIdList[TaskScala](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!")))))
+    }
     ProjectScala.byId(idToUpdate)
   }
 
   def delete {
-    coll(Coll.Projects).remove(MongoDBObject("_id" -> id))
+    using(createConnection) { conn =>
+      coll(conn, Coll.Projects).remove(MongoDBObject("_id" -> id))
+    }
   }
 
 }
 
 object ProjectScala extends KanbanikEntity {
-  
+
   def all(): List[ProjectScala] = {
     var allProjects = List[ProjectScala]()
-    coll(Coll.Projects).find().foreach(project => allProjects = asEntity(project) :: allProjects)
+    using(createConnection) { conn =>
+      coll(conn, Coll.Projects).find().foreach(project => allProjects = asEntity(project) :: allProjects)
+    }
     allProjects
   }
-  
+
   def byId(id: ObjectId): ProjectScala = {
-    val dbProject = coll(Coll.Projects).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such project with id: " + id))
-    asEntity(dbProject)
+    using(createConnection) { conn =>
+      val dbProject = coll(conn, Coll.Projects).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such project with id: " + id))
+      asEntity(dbProject)
+    }
   }
 
   private def asDBObject(entity: ProjectScala): DBObject = {

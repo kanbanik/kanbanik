@@ -16,33 +16,40 @@ class TaskScala(
   def store: TaskScala = {
     val idToUpdate = id.getOrElse({
       val obj = TaskScala.asDBObject(this)
-      coll(Coll.Tasks) += obj
+      using(createConnection) { conn =>
+        coll(conn, Coll.Tasks) += obj
+      }
       return TaskScala.asEntity(obj)
     })
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
 
-    coll(Coll.Tasks).update(idObject, $set(
-      "name" -> name,
-      "description" -> description,
-      "classOfService" -> classOfService,
-      "ticketId" -> ticketId,
-      "workflowitem" -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem"))))
+    using(createConnection) { conn =>
+      coll(conn, Coll.Tasks).update(idObject, $set(
+        "name" -> name,
+        "description" -> description,
+        "classOfService" -> classOfService,
+        "ticketId" -> ticketId,
+        "workflowitem" -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem"))))
 
-    TaskScala.byId(idToUpdate)
-
+      TaskScala.byId(idToUpdate)
+    }
   }
 
   def delete {
-    coll(Coll.Tasks).remove(MongoDBObject("_id" -> id))
+    using(createConnection) { conn =>
+      coll(conn, Coll.Tasks).remove(MongoDBObject("_id" -> id))
+    }
   }
 
 }
 
 object TaskScala extends KanbanikEntity {
   def byId(id: ObjectId): TaskScala = {
-    val dbTask = coll(Coll.Tasks).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
-    asEntity(dbTask)
+    using(createConnection) { conn =>
+      val dbTask = coll(conn, Coll.Tasks).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
+      asEntity(dbTask)
+    }
   }
 
   private def asDBObject(entity: TaskScala): DBObject = {

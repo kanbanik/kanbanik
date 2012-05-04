@@ -13,7 +13,7 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.services.ConfigureWorkflowService;
 import com.googlecode.kanbanik.client.services.ConfigureWorkflowServiceAsync;
-import com.googlecode.kanbanik.shared.BoardDTO;
+import com.googlecode.kanbanik.dto.BoardDto;
 
 public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener {
 	
@@ -27,10 +27,10 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 
 	private PanelContainingDialog dialog;
 	
-	public AbstractBoardEditingComponent(HasClickHandlers hasClickHandler) {
+	public AbstractBoardEditingComponent(HasClickHandlers hasClickHandler, String title) {
 		panel.add(boardNameLabel);
 		panel.add(boardNameText);
-		dialog = new PanelContainingDialog("Add Board", panel);
+		dialog = new PanelContainingDialog(title, panel);
 		dialog.addListener(this);
 		hasClickHandler.addClickHandler(new ShowDialogHandler());
 	}
@@ -46,7 +46,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 
 	public void okClicked(PanelContainingDialog dialog) {
-		BoardDTO dto = new BoardDTO();
+		BoardDto dto = new BoardDto();
 		dto.setName(boardNameText.getText());
 		onOkClicked(dto);
 	}
@@ -57,5 +57,5 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	
 	protected abstract String getBoardName();
 	
-	protected abstract void onOkClicked(BoardDTO dto);
+	protected abstract void onOkClicked(BoardDto dto);
 }

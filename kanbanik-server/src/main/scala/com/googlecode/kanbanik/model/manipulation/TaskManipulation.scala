@@ -47,19 +47,21 @@ trait TaskManipulation extends KanbanikEntity {
   }
 
   def generateUniqueTicketId(): String = {
-    val maxTaskId = coll(Coll.TaskId).findOne()
+    using(createConnection) { conn =>
+      val maxTaskId = coll(conn, Coll.TaskId).findOne()
 
-    if (maxTaskId.isDefined) {
-      val nextMaxId = maxTaskId.get.get("maxId").asInstanceOf[Int] + 1
-      coll(Coll.TaskId).update(MongoDBObject("_id" -> maxTaskId.get.get("_id")),
-        $set("maxId" -> nextMaxId))
+      if (maxTaskId.isDefined) {
+        val nextMaxId = maxTaskId.get.get("maxId").asInstanceOf[Int] + 1
+        coll(conn, Coll.TaskId).update(MongoDBObject("_id" -> maxTaskId.get.get("_id")),
+          $set("maxId" -> nextMaxId))
 
-      return "#" + nextMaxId
+        return "#" + nextMaxId
+      }
+
+      coll(conn, Coll.TaskId) += MongoDBObject("maxId" -> 1)
+
+      "#1"
     }
-
-    coll(Coll.TaskId) += MongoDBObject("maxId" -> 1)
-
-    "#1"
 
   }
 }

@@ -1,29 +1,28 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardDeletedMessage;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowService;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowServiceAsync;
-import com.googlecode.kanbanik.shared.BoardDTO;
-import com.googlecode.kanbanik.shared.ReturnObjectDTO;
+import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class BoardDeletingComponent extends AbstractDeletingComponent {
 
-	private BoardDTO boardDto;
+	private BoardDto boardDto;
 
-	private final ConfigureWorkflowServiceAsync configureWorkflowService = GWT.create(ConfigureWorkflowService.class);
 
 	public BoardDeletingComponent(HasClickHandlers clickHandler) {
 		super(clickHandler);
 	}
 
-	public void setBoardDto(BoardDTO boardDto) {
+	public void setBoardDto(BoardDto boardDto) {
 		this.boardDto = boardDto;
 	}
 
@@ -34,24 +33,24 @@ public class BoardDeletingComponent extends AbstractDeletingComponent {
 
 	@Override
 	protected void onOkClicked() {
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-						configureWorkflowService.deleteBoard(boardDto, new KanbanikAsyncCallback<ReturnObjectDTO>() {
+		BoardDto toDelete = new BoardDto();
+		toDelete.setId(boardDto.getId());
+		
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<VoidParams>> invokeCommand(
+				ServerCommand.DELETE_BOARD,
+				new SimpleParams<BoardDto>(toDelete),
+				new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
 
-							@Override
-							public void success(ReturnObjectDTO result) {
-								if (!result.isOK()) {
-									new ErrorDialog(result.getMessage()).center();
-								} else {
-									MessageBus.sendMessage(new BoardDeletedMessage(boardDto, this));
-								}
-							}
-
-						});				
+					@Override
+					public void success(FailableResult<VoidParams> result) {
+						if (!result.isSucceeded()) {
+							new ErrorDialog(result.getMessage()).center();
+						} else {
+							MessageBus.sendMessage(new BoardDeletedMessage(boardDto, this));
+						}
 					}
-				}
-				);	
+				});
+		
 	}
 }

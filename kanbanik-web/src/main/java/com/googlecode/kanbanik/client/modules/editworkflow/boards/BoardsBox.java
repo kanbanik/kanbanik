@@ -25,8 +25,8 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardDeleted
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.shared.BoardDTO;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.ProjectDto;
 
 public class BoardsBox extends Composite {
 
@@ -79,15 +79,15 @@ public class BoardsBox extends Composite {
 		
 	}
 	
-	public void setBoards(List<BoardDTO> allBoards) {
+	public void setBoards(List<BoardDto> allBoards) {
 		boardsList.setContent(allBoards);
 	}
 
-	class BoardsListBox extends ListBox implements ChangeHandler, MessageListener<BoardDTO>, ModulesLifecycleListener {
+	class BoardsListBox extends ListBox implements ChangeHandler, MessageListener<BoardDto>, ModulesLifecycleListener {
 
-		private List<BoardDTO> boards;
+		private List<BoardDto> boards;
 
-		private BoardDTO selectedDTO = null;
+		private BoardDto selectedDto = null;
 
 		private ConfigureWorkflowModule configureWorkflowModule;
 
@@ -98,20 +98,20 @@ public class BoardsBox extends Composite {
 			MessageBus.registerListener(BoardCreatedMessage.class, this);
 		}
 
-		public void setContent(List<BoardDTO> boards) {
+		public void setContent(List<BoardDto> boards) {
 			int tmpSelectedBoard = lastSelectedIndex;
 			clear();
 			this.boards = boards;
-			for (BoardDTO board : boards) {
+			for (BoardDto board : boards) {
 				addItem(board.getName());
 			}
 
-			setupSelectedDTO();
+			setupSelectedDto();
 			lastSelectedIndex = tmpSelectedBoard;
 			resetButtonAvailability();
 		}
 
-		private void setupSelectedDTO() {
+		private void setupSelectedDto() {
 			if (boards == null) {
 				// TODO handle this better, it means the boards has not been initialized
 				return;
@@ -119,14 +119,14 @@ public class BoardsBox extends Composite {
 
 			int index = getSelectedIndex();
 			if (boards.size() != 0 && index >= 0 && index  < boards.size()) {
-				selectedDTO = boards.get(index);	
+				selectedDto = boards.get(index);	
 			} else { 
-				selectedDTO = null;
+				selectedDto = null;
 			}
 			
 			lastSelectedIndex = index;
-			boardDeletingComponent.setBoardDto(selectedDTO);
-			boardEditingComponent.setBoardDto(selectedDTO);
+			boardDeletingComponent.setBoardDto(selectedDto);
+			boardEditingComponent.setBoardDto(selectedDto);
 		}
 
 		public void onChange(ChangeEvent event) {
@@ -134,23 +134,23 @@ public class BoardsBox extends Composite {
 		}
 
 		void onChange() {
-			setupSelectedDTO();
-			configureWorkflowModule.selectedBoardChanged(selectedDTO);
+			setupSelectedDto();
+			configureWorkflowModule.selectedBoardChanged(selectedDto);
 			resetButtonAvailability();
 		}
 
 		private void resetButtonAvailability() {
-			editButton.setEnabled(selectedDTO != null);
-			deleteButton.setEnabled(selectedDTO != null);
-			addProjectButton.setEnabled(selectedDTO != null);
+			editButton.setEnabled(selectedDto != null);
+			deleteButton.setEnabled(selectedDto != null);
+			addProjectButton.setEnabled(selectedDto != null);
 		}
 
-		public BoardDTO getSelectedBoard() {
-			return selectedDTO;
+		public BoardDto getSelectedBoard() {
+			return selectedDto;
 		}
 
-		public void messageArrived(Message<BoardDTO> message) {
-			BoardDTO dto = message.getPayload();
+		public void messageArrived(Message<BoardDto> message) {
+			BoardDto dto = message.getPayload();
 			
 			if (message instanceof BoardCreatedMessage) {
 				addNewBoard(dto);	
@@ -163,14 +163,14 @@ public class BoardsBox extends Composite {
 			
 		}
 
-		private void editBoard(BoardDTO dto) {
+		private void editBoard(BoardDto dto) {
 			int toEdit = idOfBoard(dto);
 			boards.get(toEdit).setName(dto.getName());
 			setItemText(toEdit, dto.getName());
 			onChange();
 		}
 
-		private void removeBoard(BoardDTO dto) {
+		private void removeBoard(BoardDto dto) {
 			int toRemove = idOfBoard(dto);
 			boards.remove(toRemove);
 			removeItem(toRemove);
@@ -185,7 +185,7 @@ public class BoardsBox extends Composite {
 			}
 		}
 
-		private int idOfBoard(BoardDTO dto) {
+		private int idOfBoard(BoardDto dto) {
 			int idOfBoard = -1;
 			for (int i = 0; i < boards.size(); i++) {
 				if (boards.get(i).getId() == dto.getId()) {
@@ -199,7 +199,7 @@ public class BoardsBox extends Composite {
 			return idOfBoard;
 		}
 
-		private void addNewBoard(BoardDTO dto) {
+		private void addNewBoard(BoardDto dto) {
 			boards.add(dto);
 			addItem(dto.getName());
 			setSelectedIndex(boards.size()-1);
@@ -228,17 +228,17 @@ public class BoardsBox extends Composite {
 		}
 	}
 	
-	public void editBoard(BoardDTO board, List<ProjectDTO> projects) {
-		if (projectToBoardAdding != null) {
-			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
-		}
-		
-		projectToBoardAdding = new ProjectsToBoardAdding(board, projects);
-		projectsToBoardAddingContainer.add(projectToBoardAdding);
-		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
-			boardsList.setSelectedIndex(lastSelectedIndex);
-			boardsList.onChange();	
-		}
+	public void editBoard(BoardDto board, List<ProjectDto> projects) {
+//		if (projectToBoardAdding != null) {
+//			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
+//		}
+//		
+//		projectToBoardAdding = new ProjectsToBoardAdding(board, projects);
+//		projectsToBoardAddingContainer.add(projectToBoardAdding);
+//		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
+//			boardsList.setSelectedIndex(lastSelectedIndex);
+//			boardsList.onChange();	
+//		}
 	}
 
 }

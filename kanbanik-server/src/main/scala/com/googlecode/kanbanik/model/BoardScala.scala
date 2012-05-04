@@ -15,21 +15,34 @@ class BoardScala(
   def store: BoardScala = {
     val idToUpdate = id.getOrElse({
       val obj = BoardScala.asDBObject(this)
-      coll(Coll.Boards) += obj
+      using(createConnection) {
+        connection => coll(connection, Coll.Boards) += obj
+      }
+
       return BoardScala.asEntity(obj)
     })
 
     val idObject = MongoDBObject("_id" -> idToUpdate)
-    coll(Coll.Boards).update(idObject, $set("name" -> name))
-    coll(Coll.Boards).update(idObject, $set("workflowitems" -> {
-      val newItems = workflowitems.getOrElse(return null)
-      for { x <- newItems } yield x.id
-    }))
-    BoardScala.byId(idToUpdate)
+
+    using(createConnection) { conn =>
+      coll(conn, Coll.Boards).update(idObject, $set("name" -> name))
+      coll(conn, Coll.Boards).update(idObject, $set("workflowitems" -> {
+        if (workflowitems.isDefined) {
+          for { x <- workflowitems.get } yield x.id
+        } else {
+          null
+        }
+      }))
+
+      return BoardScala.byId(idToUpdate)
+    }
+
   }
 
   def delete {
-    coll(Coll.Boards).remove(MongoDBObject("_id" -> id))
+    using(createConnection) { conn =>
+      coll(conn, Coll.Boards).remove(MongoDBObject("_id" -> id))
+    }
   }
 
 }
@@ -38,13 +51,17 @@ object BoardScala extends KanbanikEntity {
 
   def all(): List[BoardScala] = {
     var allBoards = List[BoardScala]()
-    coll(Coll.Boards).find().foreach(board => allBoards = asEntity(board) :: allBoards)
+    using(createConnection) { conn =>
+      coll(conn, Coll.Boards).find().foreach(board => allBoards = asEntity(board) :: allBoards)
+    }
     allBoards
   }
 
   def byId(id: ObjectId): BoardScala = {
-    val dbBoards = coll(Coll.Boards).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
-    asEntity(dbBoards)
+    using(createConnection) { conn =>
+      val dbBoards = coll(conn, Coll.Boards).findOne(MongoDBObject("_id" -> id)).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
+      asEntity(dbBoards)
+    }
   }
 
   private def asEntity(dbObject: DBObject) = {

@@ -2,9 +2,9 @@ package com.googlecode.kanbanik.model
 import com.mongodb.casbah.MongoConnection
 
 trait KanbanikEntity {
-  
-  val conn = MongoConnection()("kanbanik")
 
+  def createConnection = MongoConnection()
+  
   object Coll extends Enumeration {
     val Workflowitems = Value("workflowitems")
     val Boards = Value("boards")
@@ -13,8 +13,14 @@ trait KanbanikEntity {
     val TaskId = Value("taskid")
   }
 
-  def coll(collName: Coll.Value) = {
-    conn(collName.toString())
+  def coll(connection: MongoConnection, collName: Coll.Value) = {
+    connection("kanbanik")(collName.toString())
   }
 
+  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
+    try {
+      f(param)
+    } finally {
+      param.close()
+    }
 }

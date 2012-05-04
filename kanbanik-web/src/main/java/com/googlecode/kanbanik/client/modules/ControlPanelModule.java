@@ -36,7 +36,7 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 
 		public void initialized(Widget widget) {
 			boardsContent.add(widget);
-//			configureWorkflowModule.initialize(new ConfigureWorkflowModuleInitialized());
+			configureWorkflowModule.initialize(new ConfigureWorkflowModuleInitialized());
 			selectTab(0);
 		}
 	}
@@ -75,9 +75,7 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		if (event.getSelectedItem() == 0) {
 			boardsModule.initialize(new BoardsRefreshed());
 		} else if (event.getSelectedItem() == 1) {
-			MessageBus.sendMessage(new ModuleActivatedMessage(ConfigureWorkflowModule.class, this));
-			MessageBus.sendMessage(new ModuleDeactivatedMessage(BoardsModule.class, this));
-//			configureWorkflowModule.initialize(new ConfigureWorkflowRefreshed());
+			configureWorkflowModule.initialize(new ConfigureWorkflowRefreshed());
 		}
 	}
 	
