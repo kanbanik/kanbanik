@@ -1,12 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.googlecode.kanbanik.client.messaging.DefaultMessage;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.ProjectDto;
 
 
-public class ProjectDeletedMessage extends DefaultMessage<ProjectDTO> {
+public class ProjectDeletedMessage extends DefaultMessage<ProjectDto> {
 
-	public ProjectDeletedMessage(ProjectDTO payload, Object source) {
+	public ProjectDeletedMessage(ProjectDto payload, Object source) {
 		super(payload, source);
 	}
 

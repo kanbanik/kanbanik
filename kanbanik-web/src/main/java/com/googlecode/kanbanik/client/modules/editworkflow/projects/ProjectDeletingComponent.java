@@ -1,26 +1,24 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.AbstractDeletingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ProjectDeletedMessage;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowService;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowServiceAsync;
-import com.googlecode.kanbanik.shared.ProjectDTO;
-import com.googlecode.kanbanik.shared.ReturnObjectDTO;
+import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ProjectDeletingComponent extends AbstractDeletingComponent {
 
-	private final ConfigureWorkflowServiceAsync configureWorkflowService = GWT.create(ConfigureWorkflowService.class);
+	private ProjectDto projectDto;
 	
-	private ProjectDTO projectDto;
-	
-	public ProjectDeletingComponent(ProjectDTO projectDto, HasClickHandlers hasClickHandler) {
+	public ProjectDeletingComponent(ProjectDto projectDto, HasClickHandlers hasClickHandler) {
 		super(hasClickHandler);
 		this.projectDto = projectDto;
 	}
@@ -32,24 +30,21 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent {
 
 	@Override
 	protected void onOkClicked() {
-		new KanbanikServerCaller(
-				new Runnable() {
+		
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<VoidParams>> invokeCommand(
+				ServerCommand.DELETE_PROJECT,
+				new SimpleParams<ProjectDto>(projectDto),
+				new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
 
-					public void run() {
-						configureWorkflowService.deleteProject(projectDto, new KanbanikAsyncCallback<ReturnObjectDTO>() {
-
-							@Override
-							public void success(ReturnObjectDTO result) {
-								if (!result.isOK()) {
-									new ErrorDialog(result.getMessage()).center();
-								} else {
-									MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
-								}	
-							}
-						});
+					@Override
+					public void success(FailableResult<VoidParams> result) {
+						if (!result.isSucceeded()) {
+							new ErrorDialog(result.getMessage()).center();
+						} else {
+							MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
+						}	
 					}
-				}
-				);	
+				});
 	}
 
 }

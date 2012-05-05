@@ -3,6 +3,7 @@ import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.ProjectScala
 import com.googlecode.kanbanik.model.TaskScala
+import org.bson.types.ObjectId
 
 class ProjectBuilder {
 
@@ -24,6 +25,22 @@ class ProjectBuilder {
     res
   }
 
+  def buildEntity(projectDto: ProjectDto): ProjectScala = {
+    // only shallow for now
+    new ProjectScala(
+        {
+          if (projectDto.getId() == null) {
+            None
+          } else {
+            Some(new ObjectId(projectDto.getId()))
+          }
+        },
+        projectDto.getName(),
+        None,
+        None
+    )
+  }
+  
   def buildShallowDto(project: ProjectScala) = {
     val res = new ProjectDto
     res.setId(project.id.get.toString())

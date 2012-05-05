@@ -3,36 +3,27 @@ package com.googlecode.kanbanik.client.modules.editworkflow;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowService;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowServiceAsync;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.BoardDTO;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ConfigureWorkflowModule extends HorizontalPanel implements KanbanikModule {
 
-	private final ConfigureWorkflowServiceAsync configureWorkflowService = GWT.create(ConfigureWorkflowService.class);
-
 	private BoardsBox boardsBox = new BoardsBox(this);
 
 	private EditableBoard editableBoard;
-
-	private List<ProjectDto> projects;
 
 	public ConfigureWorkflowModule() {
 		
@@ -55,11 +46,11 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 					@Override
 					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-						projects = extractProjects(result);
-						List<BoardDto> boards = extractBoards(result);
+//						projects = extractProjects(result);
+						List<BoardWithProjectsDto> boards = result.getPayload().getList();
 						boardsBox.setBoards(boards);
 						if (boards != null && boards.size() > 0) {
-							selectedBoardChanged(boards.iterator().next());	
+							selectedBoardChanged(result.getPayload().getList().iterator().next());	
 						}	
 						
 						
@@ -71,57 +62,41 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		
 	}
 
-	public void selectedBoardChanged(final BoardDto selectedDTO) {
+	public void selectedBoardChanged(final BoardWithProjectsDto selectedDto) {
 
-		if (selectedDTO == null) {
+		if (selectedDto == null) {
 			// this means that no board is changed - e.g. the last one has been deleted
 			removeEverithing();
 			return;
 		}
 		
-		editBoard(selectedDTO);
-		
-//		new KanbanikServerCaller(
-//				new Runnable() {
-//
-//					public void run() {
-//						configureWorkflowService.loadRealBoard(selectedDTO, new KanbanikAsyncCallback<BoardDTO>() {
-//
-//							@Override
-//							public void success(BoardDTO result) {
-//								editBoard(selectedDTO);
-//							}
-//
-//						});				
-//					}
-//				}
-//		);
-
+		editBoard(selectedDto);
 	}
 
 	private Label paddingLabel = null;
 	
-	private void editBoard(final BoardDto board) {
+	private void editBoard(final BoardWithProjectsDto boardWithProjects) {
 		// well, this is a hack. It should listen to ProjectAddedMessage and update the projects.
 		
-//		TODO, fix than ignore for now...
-		
-//		loadProjects(new Runnable() {
-//			
-//			public void run() {
-//				removeEverithing();
-//				
-//				editableBoard = new EditableBoard(board, projects);
-//				add(editableBoard);
-//
-//				paddingLabel = new Label(" ");
-//				paddingLabel.setWidth("100%");
-//				add(paddingLabel);
-//				
-//				boardsBox.editBoard(board, projects);		
-//			}
-//		});
-		
+		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ProjectDto>>> invokeCommand(
+				ServerCommand.GET_ALL_PROJECTS,
+				new VoidParams(),
+				new KanbanikAsyncCallback<SimpleParams<ListDto<ProjectDto>>>() {
+
+					@Override
+					public void success(SimpleParams<ListDto<ProjectDto>> result) {
+						removeEverithing();
+						
+//						editableBoard = new EditableBoard(boardWithProjects, result.getPayload());
+//						add(editableBoard);
+//		
+//						paddingLabel = new Label(" ");
+//						paddingLabel.setWidth("100%");
+//						add(paddingLabel);
+						
+						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
+					}
+				});
 	}
 
 	private void removeEverithing() {

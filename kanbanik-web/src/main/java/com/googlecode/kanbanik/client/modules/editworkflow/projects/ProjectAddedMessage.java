@@ -1,12 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 import com.googlecode.kanbanik.client.messaging.DefaultMessage;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.ProjectDto;
 
 
-public class ProjectAddedMessage extends DefaultMessage<ProjectDTO> {
+public class ProjectAddedMessage extends DefaultMessage<ProjectDto> {
 
-	public ProjectAddedMessage(ProjectDTO payload, Object source) {
+	public ProjectAddedMessage(ProjectDto payload, Object source) {
 		super(payload, source);
 	}
 

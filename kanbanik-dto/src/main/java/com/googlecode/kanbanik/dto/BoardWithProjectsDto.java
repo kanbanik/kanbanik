@@ -30,4 +30,8 @@ public class BoardWithProjectsDto implements KanbanikDto {
 		projectsOnBoard.add(project);
 	}
 	
+	public void setProjects(List<ProjectDto> projectsOnBoard) {
+		this.projectsOnBoard = projectsOnBoard;
+	}
+	
 }

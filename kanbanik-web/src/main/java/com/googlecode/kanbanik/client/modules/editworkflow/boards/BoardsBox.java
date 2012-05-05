@@ -26,6 +26,7 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardEditedM
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 
 public class BoardsBox extends Composite {
@@ -79,15 +80,15 @@ public class BoardsBox extends Composite {
 		
 	}
 	
-	public void setBoards(List<BoardDto> allBoards) {
+	public void setBoards(List<BoardWithProjectsDto> allBoards) {
 		boardsList.setContent(allBoards);
 	}
 
 	class BoardsListBox extends ListBox implements ChangeHandler, MessageListener<BoardDto>, ModulesLifecycleListener {
 
-		private List<BoardDto> boards;
+		private List<BoardWithProjectsDto> boards;
 
-		private BoardDto selectedDto = null;
+		private BoardWithProjectsDto selectedDto = null;
 
 		private ConfigureWorkflowModule configureWorkflowModule;
 
@@ -98,12 +99,12 @@ public class BoardsBox extends Composite {
 			MessageBus.registerListener(BoardCreatedMessage.class, this);
 		}
 
-		public void setContent(List<BoardDto> boards) {
+		public void setContent(List<BoardWithProjectsDto> boards) {
 			int tmpSelectedBoard = lastSelectedIndex;
 			clear();
 			this.boards = boards;
-			for (BoardDto board : boards) {
-				addItem(board.getName());
+			for (BoardWithProjectsDto board : boards) {
+				addItem(board.getBoard().getName());
 			}
 
 			setupSelectedDto();
@@ -125,8 +126,8 @@ public class BoardsBox extends Composite {
 			}
 			
 			lastSelectedIndex = index;
-			boardDeletingComponent.setBoardDto(selectedDto);
-			boardEditingComponent.setBoardDto(selectedDto);
+			boardDeletingComponent.setBoardDto(selectedDto.getBoard());
+			boardEditingComponent.setBoardDto(selectedDto.getBoard());
 		}
 
 		public void onChange(ChangeEvent event) {
@@ -146,7 +147,7 @@ public class BoardsBox extends Composite {
 		}
 
 		public BoardDto getSelectedBoard() {
-			return selectedDto;
+			return selectedDto.getBoard();
 		}
 
 		public void messageArrived(Message<BoardDto> message) {
@@ -165,7 +166,7 @@ public class BoardsBox extends Composite {
 
 		private void editBoard(BoardDto dto) {
 			int toEdit = idOfBoard(dto);
-			boards.get(toEdit).setName(dto.getName());
+			boards.get(toEdit).getBoard().setName(dto.getName());
 			setItemText(toEdit, dto.getName());
 			onChange();
 		}
@@ -188,7 +189,7 @@ public class BoardsBox extends Composite {
 		private int idOfBoard(BoardDto dto) {
 			int idOfBoard = -1;
 			for (int i = 0; i < boards.size(); i++) {
-				if (boards.get(i).getId() == dto.getId()) {
+				if (boards.get(i).getBoard().getId() == dto.getId()) {
 					idOfBoard = i;
 					break;
 				}
@@ -200,7 +201,7 @@ public class BoardsBox extends Composite {
 		}
 
 		private void addNewBoard(BoardDto dto) {
-			boards.add(dto);
+			boards.add(new BoardWithProjectsDto(dto));
 			addItem(dto.getName());
 			setSelectedIndex(boards.size()-1);
 			onChange();
@@ -228,17 +229,17 @@ public class BoardsBox extends Composite {
 		}
 	}
 	
-	public void editBoard(BoardDto board, List<ProjectDto> projects) {
-//		if (projectToBoardAdding != null) {
-//			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
-//		}
-//		
-//		projectToBoardAdding = new ProjectsToBoardAdding(board, projects);
-//		projectsToBoardAddingContainer.add(projectToBoardAdding);
-//		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
-//			boardsList.setSelectedIndex(lastSelectedIndex);
-//			boardsList.onChange();	
-//		}
+	public void editBoard(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
+		if (projectToBoardAdding != null) {
+			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
+		}
+		
+		projectToBoardAdding = new ProjectsToBoardAdding(boardWithProjects, allProjects);
+		projectsToBoardAddingContainer.add(projectToBoardAdding);
+		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
+			boardsList.setSelectedIndex(lastSelectedIndex);
+			boardsList.onChange();	
+		}
 	}
 
 }

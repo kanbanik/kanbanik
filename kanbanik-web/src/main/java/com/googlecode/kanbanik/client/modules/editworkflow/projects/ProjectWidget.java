@@ -19,11 +19,11 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.ProjectDto;
 
-public class ProjectWidget extends Composite implements HasDragHandle, MessageListener<ProjectDTO>, ModulesLifecycleListener {
+public class ProjectWidget extends Composite implements HasDragHandle, MessageListener<ProjectDto>, ModulesLifecycleListener {
 	
-	private ProjectDTO dto;
+	private ProjectDto dto;
 	
 	private String position;
 
@@ -42,7 +42,7 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 	interface MyUiBinder extends UiBinder<Widget, ProjectWidget> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
-	public ProjectWidget(String position, ProjectDTO project) {
+	public ProjectWidget(String position, ProjectDto project) {
 		this.dto = project;
 		this.position = position;
 		
@@ -58,7 +58,7 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 		new ProjectEditingComponent(project, editButton);
 	}
 
-	public ProjectDTO getDto() {
+	public ProjectDto getDto() {
 		return dto;
 	}
 	
@@ -78,7 +78,7 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 		return header;
 	}
 
-	public void messageArrived(Message<ProjectDTO> message) {
+	public void messageArrived(Message<ProjectDto> message) {
 		if (message.getPayload().getId() != dto.getId()) {
 			return;
 		}

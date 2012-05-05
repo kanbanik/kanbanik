@@ -4,7 +4,8 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.client.services.ServerCommandInvokerAsync;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -27,36 +28,20 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 
 	@Override
 	protected void onOkClicked(ProjectDTO project) {
-		final ProjectDTO dto = new ProjectDTO();
-		dto.setId(-1);
-		dto.setName(project.getName());
+		final ProjectDto toStore = new ProjectDto();
+		toStore.setId(null);
+		toStore.setName(project.getName());
 		
-		new KanbanikServerCaller(
-				new Runnable() {
+		
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
+				ServerCommand.SAVE_PROJECT,
+				new SimpleParams<ProjectDto>(toStore),
+				new KanbanikAsyncCallback<SimpleParams<ProjectDto>>() {
 
-					public void run() {
-						
-						serverCommandInvoker.<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>>invokeCommand(ServerCommand.NEW_PROJECT, new SimpleParams<ProjectDto>(new ProjectDto()), new KanbanikAsyncCallback<SimpleParams<ProjectDto>>(){
-
-							@Override
-							public void success(SimpleParams<ProjectDto> result) {
-								System.out.println("result");
-								// TODO send message
-							}
-							
-						});
-						
-						
-//						configureWorkflowService.createNewProject(dto, new KanbanikAsyncCallback<ProjectDTO>() {
-//
-//							@Override
-//							public void success(ProjectDTO result) {
-//								MessageBus.sendMessage(new ProjectAddedMessage(result, ProjectCreatingComponent.this));
-//							}
-//
-//						});				
+					@Override
+					public void success(SimpleParams<ProjectDto> result) {
+						MessageBus.sendMessage(new ProjectAddedMessage(result.getPayload(), ProjectCreatingComponent.this));
 					}
-				}
-		);
+				});
 	}
 }

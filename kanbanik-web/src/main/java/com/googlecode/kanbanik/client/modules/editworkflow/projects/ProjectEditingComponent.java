@@ -3,18 +3,19 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ProjectEditedMessage;
+import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ProjectDTO;
-import com.googlecode.kanbanik.shared.ReturnObjectDTO;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ProjectEditingComponent extends AbstractProjectEditingComponent {
 
-	private ProjectDTO projectDto;
+	private ProjectDto projectDto;
 	
-	public ProjectEditingComponent(ProjectDTO projectDto, HasClickHandlers clickHandlers) {
+	public ProjectEditingComponent(ProjectDto projectDto, HasClickHandlers clickHandlers) {
 		super(clickHandlers);
 		this.projectDto = projectDto;
 	}
@@ -27,29 +28,22 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent {
 	@Override
 	protected void onOkClicked(ProjectDTO project) {
 		
-		final ProjectDTO dto = new ProjectDTO();
-		dto.setId(projectDto.getId());
-		dto.setName(project.getName());
+		final ProjectDto toStore = new ProjectDto();
+		toStore.setId(projectDto.getId());
+		toStore.setName(project.getName());
 		
-		new KanbanikServerCaller(
-				new Runnable() {
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
+				ServerCommand.SAVE_PROJECT,
+				new SimpleParams<ProjectDto>(toStore),
+				new KanbanikAsyncCallback<SimpleParams<ProjectDto>>() {
 
-					public void run() {
-						configureWorkflowService.editProject(dto, new KanbanikAsyncCallback<ReturnObjectDTO>() {
-							@Override
-							public void success(ReturnObjectDTO result) {
-								if (!result.isOK()) {
-									new ErrorDialog(result.getMessage()).center();
-								} else {
-									projectDto.setName(dto.getName());
-									MessageBus.sendMessage(new ProjectEditedMessage(dto, ProjectEditingComponent.this));
-								}
-							}
-
-						});				
+					@Override
+					public void success(SimpleParams<ProjectDto> result) {
+						projectDto.setName(toStore.getName());
+						MessageBus.sendMessage(new ProjectEditedMessage(result.getPayload(), ProjectEditingComponent.this));
 					}
-				}
-		);
+				});
+		
 	}
 	
 	

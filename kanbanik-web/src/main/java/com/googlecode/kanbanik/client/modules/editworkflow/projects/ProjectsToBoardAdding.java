@@ -15,18 +15,19 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ProjectDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowService;
-import com.googlecode.kanbanik.client.services.ConfigureWorkflowServiceAsync;
-import com.googlecode.kanbanik.shared.BoardDTO;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ProjectsToBoardAdding extends Composite implements ModulesLifecycleListener {
 
@@ -34,9 +35,9 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
 	private static final String TO_BE_ADDED = "LEFT";
 
-	private BoardDTO board;
+	private BoardWithProjectsDto boardWithProjects;
 
-	private List<ProjectDTO> projects;
+	private List<ProjectDto> projects;
 
 	@UiField
 	FlowPanel toBeAdded;
@@ -50,18 +51,15 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
 	private PickupDragController dragController;
 
-	private final ConfigureWorkflowServiceAsync configureWorkflowService = GWT.create(ConfigureWorkflowService.class);
-
 	private ProjectChangedListener projectChangedListener = new ProjectChangedListener();
-	
 	
 	interface MyUiBinder extends UiBinder<Widget, ProjectsToBoardAdding> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
-	public ProjectsToBoardAdding(BoardDTO board, List<ProjectDTO> projects) {
+	public ProjectsToBoardAdding(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
 		super();
-		this.board = board;
-		this.projects = projects;
+		this.boardWithProjects = boardWithProjects;
+		this.projects = allProjects;
 
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		
@@ -83,27 +81,27 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		dragController.registerDropController(projectsOfBoardDropController);
 
 
-		for (ProjectDTO project : projects) {
-			if (contains(board.getProjects(), project)) {
+		for (ProjectDto project : projects) {
+			if (contains(boardWithProjects.getProjectsOnBoard(), project)) {
 				continue;
 			}
 
 			addProjectToPanel(toBeAdded, TO_BE_ADDED, project);
 		}
 
-		for (ProjectDTO project : board.getProjects()) {
+		for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
 			addProjectToPanel(projectsOfBoard, ON_BOARD, project);
 		}
 	}
 
-	private void addProjectToPanel(Panel panel, String position, ProjectDTO project) {
+	private void addProjectToPanel(Panel panel, String position, ProjectDto project) {
 		ProjectWidget projectWidget = new ProjectWidget(position, project);
 		panel.add(projectWidget);
 		dragController.makeDraggable(projectWidget);
 	}
 
-	private boolean contains(List<ProjectDTO> projectsOnBoard, ProjectDTO project) {
-		for (ProjectDTO onBoard : projectsOnBoard) {
+	private boolean contains(List<ProjectDto> projectsOnBoard, ProjectDto project) {
+		for (ProjectDto onBoard : projectsOnBoard) {
 			if (onBoard.equals(project)) { 
 				return true;
 			}
@@ -112,46 +110,24 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		return false;
 	}
 
-	private void projectsRemoved(List<Widget> widgets) {
-		final List<ProjectDTO> dtos = extractDTOs(widgets);
-		new KanbanikServerCaller(
-				new Runnable() {
+	private void executeCommand(ServerCommand command, List<Widget> widgets) {
+		List<ProjectDto> dtos = extractDTOs(widgets);
+		final BoardWithProjectsDto toStore = new BoardWithProjectsDto(boardWithProjects.getBoard());
+		toStore.setProjects(dtos);
+		
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, VoidParams> invokeCommand(
+				command,
+				new SimpleParams<BoardWithProjectsDto>(toStore),
+				new KanbanikAsyncCallback<VoidParams>() {
 
-					public void run() {
-						configureWorkflowService.removeProjects(board, dtos, new KanbanikAsyncCallback<Void>() {
-
-							@Override
-							public void success(Void result) {
-								// nothing to do...
-							}
-
-						});				
+					@Override
+					public void success(VoidParams result) {
 					}
-				}
-		);
+				});
 	}
 
-	private void projectsAdded(List<Widget> widgets) {
-		final List<ProjectDTO> dtos = extractDTOs(widgets);
-		new KanbanikServerCaller(
-				new Runnable() {
-
-					public void run() {
-						configureWorkflowService.addProjects(board, dtos, new KanbanikAsyncCallback<Void>() {
-
-							@Override
-							public void success(Void result) {
-								// nothing to do...
-							}
-
-						});				
-					}
-				}
-		);
-	}
-
-	private List<ProjectDTO> extractDTOs(List<Widget> widgets) {
-		List<ProjectDTO> dtos = new ArrayList<ProjectDTO>();
+	private List<ProjectDto> extractDTOs(List<Widget> widgets) {
+		List<ProjectDto> dtos = new ArrayList<ProjectDto>();
 		for (Widget widget : widgets) {
 			if (widget instanceof ProjectWidget) {
 				dtos.add(((ProjectWidget) widget).getDto());
@@ -163,19 +139,19 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
 	class LeftListener implements WidgetsDropListener {
 		public void dropped(List<Widget> widgets) {
-			projectsRemoved(widgets);
+			executeCommand(ServerCommand.REMOVE_PROJECTS_FROM_BOARD, widgets);
 		}
 	}
 
 	class RightListener implements WidgetsDropListener {
 		public void dropped(List<Widget> widgets) {
-			projectsAdded(widgets);
+			executeCommand(ServerCommand.ADD_PROJECTS_TO_BOARD, widgets);
 		}
 	}
 	
-	class ProjectChangedListener implements MessageListener<ProjectDTO> {
+	class ProjectChangedListener implements MessageListener<ProjectDto> {
 
-		public void messageArrived(Message<ProjectDTO> message) {
+		public void messageArrived(Message<ProjectDto> message) {
 			if (message instanceof ProjectAddedMessage) {
 				addProjectToPanel(toBeAdded, TO_BE_ADDED, message.getPayload());	
 			} else if (message instanceof ProjectDeletedMessage) {
@@ -183,13 +159,13 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 			}
 		}
 
-		private void removedProjectFromPanel(ProjectDTO payload) {
+		private void removedProjectFromPanel(ProjectDto payload) {
 			if (!removeIfPresent(toBeAdded, payload)) {
 				removeIfPresent(projectsOfBoard, payload);
 			}
 		}
 
-		private boolean removeIfPresent(FlowPanel panel, ProjectDTO payload) {
+		private boolean removeIfPresent(FlowPanel panel, ProjectDto payload) {
 			int toDelete = -1;
 			for (int i = 0; i < panel.getWidgetCount(); i++) {
 				if (panel.getWidget(i) instanceof ProjectWidget) {
