@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.shared.ProjectDTO;
+import com.googlecode.kanbanik.dto.ProjectDto;
 
 public abstract class AbstractProjectEditingComponent implements PanelContainingDialolgListener {
 	
@@ -45,10 +45,10 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 
 	protected abstract String getProjectName();
 	
-	protected abstract void onOkClicked(ProjectDTO project);
+	protected abstract void onOkClicked(ProjectDto project);
 	
 	public void okClicked(PanelContainingDialog dialog) {
-		ProjectDTO project = new ProjectDTO();
+		ProjectDto project = createProject();
 		project.setName(projectNameText.getText());
 		onOkClicked(project);
 	}
@@ -57,4 +57,5 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 		
 	}
 	
+	protected abstract ProjectDto createProject();
 }

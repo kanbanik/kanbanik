@@ -10,7 +10,6 @@ import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.client.services.ServerCommandInvokerAsync;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ProjectDTO;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
@@ -27,15 +26,11 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 	}
 
 	@Override
-	protected void onOkClicked(ProjectDTO project) {
-		final ProjectDto toStore = new ProjectDto();
-		toStore.setId(null);
-		toStore.setName(project.getName());
-		
+	protected void onOkClicked(final ProjectDto project) {
 		
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
 				ServerCommand.SAVE_PROJECT,
-				new SimpleParams<ProjectDto>(toStore),
+				new SimpleParams<ProjectDto>(project),
 				new KanbanikAsyncCallback<SimpleParams<ProjectDto>>() {
 
 					@Override
@@ -43,5 +38,12 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 						MessageBus.sendMessage(new ProjectAddedMessage(result.getPayload(), ProjectCreatingComponent.this));
 					}
 				});
+	}
+
+	@Override
+	protected ProjectDto createProject() {
+		ProjectDto project = new ProjectDto();
+		project.setId(null);
+		return project;
 	}
 }

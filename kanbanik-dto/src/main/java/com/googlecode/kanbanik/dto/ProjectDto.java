@@ -50,6 +50,14 @@ public class ProjectDto implements KanbanikDto {
 		boards.add(board);
 	}
 
+	public void setBoards(List<BoardDto> boards) {
+		this.boards = boards;
+	}
+
+	public void setTasks(List<TaskDto> tasks) {
+		this.tasks = tasks;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
