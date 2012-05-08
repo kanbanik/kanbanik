@@ -18,9 +18,9 @@ import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage
 import com.googlecode.kanbanik.client.components.task.TaskSaver;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.BoardGuiBuilder;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.ItemType;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
@@ -50,6 +50,8 @@ public class BoardsModule {
 	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		BoardPanel panel = new BoardPanel();
 
+		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
+		
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload()
 				.getList()) {
 			BoardDto board = boardWithProjects.getBoard();
@@ -63,7 +65,7 @@ public class BoardsModule {
 			panelWithDraggabls.add(table);
 			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
 				table.setWidget(row, 0, new ProjectHeader(board, project));
-				buildBoard(board.getRootWorkflowitem(), project, table, dragController,
+				boardBuilder.buildBoard(board.getRootWorkflowitem(), project, table, dragController,
 						row, 1);
 				row++;
 			}
@@ -72,56 +74,6 @@ public class BoardsModule {
 		}
 
 		return panel;
-	}
-
-	private void buildBoard(
-			WorkflowitemDto workflowitem,
-			ProjectDto project,
-			FlexTable table,
-			PickupDragController dragController, 
-			int row, 
-			int column) {
-		if (workflowitem == null) {
-			return;
-		}
-		WorkflowitemDto currentItem = workflowitem;
-
-		while (true) {
-			if (currentItem.getChild() != null) {
-				FlexTable childTable = new FlexTable();
-				childTable.setBorderWidth(1);
-
-				table.setWidget(row, column, new WorkflowitemPlace(currentItem, project, childTable, dragController));
-				buildBoard(currentItem.getChild(), project, childTable, dragController, 0, 0);
-			} else {
-
-				TaskContainer taskContainer = createTaskContainer(dragController, currentItem, project);
-				table.setWidget(row, column, new WorkflowitemPlace(currentItem, project, taskContainer, dragController));
-			}
-
-			if (currentItem.getItemType() == ItemType.VERTICAL) {
-				column++;
-			} else if (currentItem.getItemType() == ItemType.HORIZONTAL) {
-				row++;
-			} else {
-				throw new IllegalStateException("Unsupported item type: '"
-						+ currentItem.getItemType() + "'");
-			}
-
-			currentItem = currentItem.getNextItem();
-			if (currentItem == null) {
-				break;
-			}
-
-		}
-
-	}
-
-	private TaskContainer createTaskContainer(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project) {
-		TaskContainer taskContainer = new TaskContainer();
-		DropController dropController = new TaskMovingDropController(taskContainer, currentItem, project);
-		dragController.registerDropController(dropController);
-		return taskContainer;
 	}
 
 	public void initialize(final ModuleInitializeCallback boardsModuleInitialized) {
@@ -141,4 +93,23 @@ public class BoardsModule {
 				});
 	}
 
+	class BoardBoardGuiBuilder extends BoardGuiBuilder {
+
+		@Override
+		protected Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project) {
+			TaskContainer taskContainer = new TaskContainer();
+			DropController dropController = new TaskMovingDropController(taskContainer, currentItem, project);
+			dragController.registerDropController(dropController);
+			return taskContainer;
+		}
+
+		@Override
+		protected Widget createWorkflowitemPlace(
+				PickupDragController dragController,
+				WorkflowitemDto currentItem, ProjectDto project,
+				Widget childTable) {
+			return new WorkflowitemPlace(currentItem, project, childTable, dragController);
+		}
+		
+	}
 }

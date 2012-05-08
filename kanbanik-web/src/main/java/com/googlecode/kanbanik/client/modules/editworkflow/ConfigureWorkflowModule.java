@@ -1,17 +1,15 @@
 package com.googlecode.kanbanik.client.modules.editworkflow;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
-import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -23,7 +21,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private BoardsBox boardsBox = new BoardsBox(this);
 
-	private EditableBoard editableBoard;
+	private WorkflowEditingComponent workflowEditingComponent;
 
 	public ConfigureWorkflowModule() {
 		
@@ -46,7 +44,6 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 					@Override
 					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-//						projects = extractProjects(result);
 						List<BoardWithProjectsDto> boards = result.getPayload().getList();
 						boardsBox.setBoards(boards);
 						if (boards != null && boards.size() > 0) {
@@ -73,8 +70,6 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		editBoard(selectedDto);
 	}
 
-	private Label paddingLabel = null;
-	
 	private void editBoard(final BoardWithProjectsDto boardWithProjects) {
 		// well, this is a hack. It should listen to ProjectAddedMessage and update the projects.
 		
@@ -87,46 +82,18 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 					public void success(SimpleParams<ListDto<ProjectDto>> result) {
 						removeEverithing();
 						
-//						editableBoard = new EditableBoard(boardWithProjects, result.getPayload());
-//						add(editableBoard);
-//		
-//						paddingLabel = new Label(" ");
-//						paddingLabel.setWidth("100%");
-//						add(paddingLabel);
-						
+						workflowEditingComponent = new WorkflowEditingComponent(boardWithProjects);
+						add(workflowEditingComponent);
+
 						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
 					}
 				});
 	}
 
 	private void removeEverithing() {
-		if (editableBoard != null) {
-			remove(editableBoard);	
-		}
-
-		if (paddingLabel != null) {
-			remove(paddingLabel);
+		if (workflowEditingComponent != null) {
+			remove(workflowEditingComponent);	
 		}
 	}
 
-	private List<ProjectDto> extractProjects(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-		List<ProjectDto> projects = new ArrayList<ProjectDto>();
-		for (BoardWithProjectsDto boardWithProject : result.getPayload().getList()) {
-			for (ProjectDto project : boardWithProject.getProjectsOnBoard()) {
-				if (!projects.contains(project)) {
-					projects.add(project);
-				}	
-			}
-			
-		}
-		return projects;
-	}
-
-	private List<BoardDto> extractBoards(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-		List<BoardDto> boards = new ArrayList<BoardDto>();
-		for (BoardWithProjectsDto boardWithProject : result.getPayload().getList()) {
-			boards.add(boardWithProject.getBoard());
-		}
-		return boards;
-	}
 }
