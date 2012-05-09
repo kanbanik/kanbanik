@@ -37,6 +37,9 @@ public class ProjectHeader extends Composite {
 
 	
 	private WorkflowitemDto getInputQueue(WorkflowitemDto root) {
+		if (root == null) {
+			return null;
+		}
 		if (root.getChild() == null) {
 			return root;
 		} else {

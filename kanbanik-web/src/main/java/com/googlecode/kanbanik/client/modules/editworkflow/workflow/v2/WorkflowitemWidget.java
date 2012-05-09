@@ -34,6 +34,8 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 	
 	interface MyUiBinder extends UiBinder<Widget, WorkflowitemWidget> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+
+	private Widget child;
 	
 	public WorkflowitemWidget(WorkflowitemDto workflowitem) {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -44,11 +46,16 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 	
 	public WorkflowitemWidget(WorkflowitemDto workflowitem, Widget child) {
 		this(workflowitem);
+		this.child = child;
 		content.add(child);
 	}
 
 	public FocusPanel getHeader() {
 		return header;
+	}
+
+	public Widget getChild() {
+		return child;
 	}
 
 	public Widget getDragHandle() {

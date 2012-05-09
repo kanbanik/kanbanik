@@ -3,7 +3,6 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
 import com.googlecode.kanbanik.dto.ItemType;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
