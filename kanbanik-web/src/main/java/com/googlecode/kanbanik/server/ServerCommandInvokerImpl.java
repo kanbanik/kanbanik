@@ -6,8 +6,10 @@ import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand;
 import com.googlecode.kanbanik.commands.DeleteBoardCommand;
 import com.googlecode.kanbanik.commands.DeleteProjectCommand;
 import com.googlecode.kanbanik.commands.DeleteTaskCommand;
+import com.googlecode.kanbanik.commands.EditWorkflowCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
 import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
+import com.googlecode.kanbanik.commands.GetBoardCommand;
 import com.googlecode.kanbanik.commands.MoveTaskCommand;
 import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
@@ -46,6 +48,10 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new AddProjectsToBoardCommand().execute(params);
 		} else if (command == ServerCommand.REMOVE_PROJECTS_FROM_BOARD) {
 			return (R) new RemoveProjectFromBoardCommand().execute(params);
+		} else if (command == ServerCommand.EDIT_WORKFLOW) {
+			return (R) new EditWorkflowCommand().execute(params);
+		} else if (command == ServerCommand.GET_BOARD) {
+			return (R) new GetBoardCommand().execute(params);
 		}
 		return null;
 	}

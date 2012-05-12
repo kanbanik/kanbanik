@@ -3,19 +3,51 @@ import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.WorkflowitemScala
 import org.bson.types.ObjectId
+import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 class BoardBuilder {
 
   val workflowitemBuilder = new WorkflowitemBuilder
   
   def buildDto(board: BoardScala): BoardDto = {
+    val res = buildShallowDto(board)
+    if (board.workflowitems.isDefined) {
+      res.setRootWorkflowitem(findRootWorkflowitem(board, board.workflowitems))
+    }
+    
+    res
+  }
+  
+  private def findRootWorkflowitem(board: BoardScala, workflowitems: Option[List[WorkflowitemScala]]) : WorkflowitemDto = {
+    if (!workflowitems.isDefined || workflowitems.get.size == 0) {
+      return null;
+    }
+    
+    for (candidate <- workflowitems.get) {
+      if (isRoot(candidate, workflowitems.get)) {
+        return workflowitemBuilder.buildDto(candidate)
+      }
+    }
+    
+    throw new IllegalStateException("The board + " + board.id + " has no root workflowitem")
+  }
+  
+  private def isRoot(candidate: WorkflowitemScala, workflowitems: List[WorkflowitemScala]): Boolean = {
+    for (potentialParent <- workflowitems) {
+        if (potentialParent.nextItem.isDefined) {
+          if (potentialParent.nextItem.get.id == candidate.id) {
+            return false
+          }
+        }
+      }
+    
+    return true
+  }
+  
+  def buildShallowDto(board: BoardScala): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
     res.setId(board.id.get.toString())
-    if (board.workflowitems.isDefined) {
-      res.setRootWorkflowitem(workflowitemBuilder.buildDto(board.workflowitems.get.head))
-    }
-    
     res
   }
   

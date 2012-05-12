@@ -15,6 +15,8 @@ public class WorkflowitemDto implements KanbanikDto {
 	private WorkflowitemDto child;
 
 	private WorkflowitemDto nextItem;
+	
+	private BoardDto board;
 
 	public String getName() {
 		return name;
@@ -64,4 +66,11 @@ public class WorkflowitemDto implements KanbanikDto {
 		this.itemType = itemType;
 	}
 
+	public BoardDto getBoard() {
+		return board;
+	}
+
+	public void setBoard(BoardDto board) {
+		this.board = board;
+	}
 }

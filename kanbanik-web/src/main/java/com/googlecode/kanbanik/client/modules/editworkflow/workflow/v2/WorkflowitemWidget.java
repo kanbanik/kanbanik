@@ -36,8 +36,11 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	private Widget child;
+
+	private final WorkflowitemDto workflowitem;
 	
 	public WorkflowitemWidget(WorkflowitemDto workflowitem) {
+		this.workflowitem = workflowitem;
 		initWidget(uiBinder.createAndBindUi(this));
 		workflowitemName.setText(workflowitem.getName() + "(" + workflowitem.getWipLimit() + ")");
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
@@ -61,4 +64,9 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 	public Widget getDragHandle() {
 		return header;
 	}
+
+	public WorkflowitemDto getWorkflowitem() {
+		return workflowitem;
+	}
+	
 }

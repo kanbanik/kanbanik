@@ -1,7 +1,8 @@
 package com.googlecode.kanbanik.model
 import com.mongodb.casbah.MongoConnection
+import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
 
-trait KanbanikEntity {
+trait KanbanikEntity extends ResourceManipulation {
 
   def createConnection = MongoConnection()
   
@@ -17,10 +18,5 @@ trait KanbanikEntity {
     connection("kanbanik")(collName.toString())
   }
 
-  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try {
-      f(param)
-    } finally {
-      param.close()
-    }
+
 }

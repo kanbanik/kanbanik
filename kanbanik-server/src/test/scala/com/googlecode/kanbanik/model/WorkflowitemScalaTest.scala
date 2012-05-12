@@ -166,7 +166,7 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
     it("should be possible add new children") {
       val loaded = WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))
-      val newChild = new WorkflowitemScala(None, "added", 1, "H", None, None, board)
+      val newChild = new WorkflowitemScala(None, "added", 1, "H", None, None, BoardScala.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
       loaded.child = Some(newChild.store)
       loaded.store
       val toBeChanged = WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))
@@ -203,3 +203,4 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
     }
   }
 }
+

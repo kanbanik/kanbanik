@@ -4,6 +4,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
+import com.googlecode.kanbanik.model.manipulation.WorkflowitemOrderManipulation
 
 class WorkflowitemScala(
   var id: Option[ObjectId],
@@ -13,7 +14,8 @@ class WorkflowitemScala(
   private var _child: Option[WorkflowitemScala],
   private var _nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
-  extends KanbanikEntity {
+  extends KanbanikEntity
+  with WorkflowitemOrderManipulation {
 
   private var boardId: ObjectId = null
 
@@ -84,9 +86,41 @@ class WorkflowitemScala(
       val idObject = MongoDBObject("_id" -> idToUpdate)
       coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
 
-      move(idToUpdate)
-
-      coll(conn, Coll.Workflowitems).update(idObject, $set(WorkflowitemScala.CHILD_NAME -> childIdInternal.getOrElse(None)))
+      move[WorkflowitemScala](
+    		  idToUpdate,
+    		  id,
+    		  nextItemIdInternal,
+    		  entity => entity.nextItemIdInternal,
+    		  id => WorkflowitemScala.byId(id),
+    		  dbObject => {
+    		     if (dbObject == null) {
+    		    	 None;
+    		     } else {
+    		    	 WorkflowitemScala.asEntity(dbObject).id
+    		     }
+    		  },
+    		  entity => entity.id,
+    		  board,
+    		  "nextItemId"
+      )
+      
+      move[WorkflowitemScala](
+    		  idToUpdate,
+    		  id,
+    		  childIdInternal,
+    		  entity => entity.childIdInternal,
+    		  id => WorkflowitemScala.byId(id),
+    		  dbObject => {
+    		     if (dbObject == null) {
+    		    	 None;
+    		     } else {
+    		    	 WorkflowitemScala.asEntity(dbObject).id
+    		     }
+    		  },
+    		  entity => entity.id,
+    		  board,
+    		  WorkflowitemScala.CHILD_NAME
+      )
 
       WorkflowitemScala.byId(idToUpdate)
     }
@@ -121,65 +155,6 @@ class WorkflowitemScala(
     board.store
   }
 
-  private def move(idToUpdate: ObjectId) {
-    using(createConnection) { conn =>
-      // a->b->c->d->e->f
-      // the e moves before b
-      // so, the result:
-      // a->e->b->c->d->f
-      // that's where the naming come from
-      val e = WorkflowitemScala.byId(idToUpdate)
-      // ignore if did not move
-      if (!nextItemIdInternal.isDefined && !e.nextItemIdInternal.isDefined) {
-        return ;
-      }
-      if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
-        return
-      }
-
-      val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
-
-      val lastEntity = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board: " + realBoard.toString))
-      val f = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemIdInternal)).getOrElse(null)
-      val d = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
-      var b: DBObject = null
-      if (nextItemIdInternal.isDefined) {
-        b = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextItemIdInternal)).getOrElse(throw new IllegalArgumentException("Trying to move before not existing object with id: " + nextItemIdInternal.toString))
-      }
-
-      var a: DBObject = null;
-      if (b != null) {
-        a = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> findId(b))).getOrElse(null)
-      }
-
-      if (a != null) {
-        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(a)),
-          $set("nextItemId" -> e.id))
-      }
-
-      coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> e.id),
-        $set("nextItemId" -> findId(b)))
-
-      if (d != null) {
-        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(d)),
-          $set("nextItemId" -> findId(f)))
-      }
-
-      if (b == null && !findId(lastEntity).equals(e.id.getOrElse(null))) {
-        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(lastEntity)),
-          $set("nextItemId" -> e.id))
-      }
-    }
-  }
-
-  private def findId(dbObject: DBObject): Option[ObjectId] = {
-    if (dbObject == null) {
-      return None;
-    }
-
-    WorkflowitemScala.asEntity(dbObject).id
-  }
-
   private def initChildIdInternal(child: Option[WorkflowitemScala]) {
     childIdInternal = valueOrNone(child)
   }
@@ -203,6 +178,14 @@ class WorkflowitemScala(
 object WorkflowitemScala extends KanbanikEntity {
 
   val CHILD_NAME = "childId"
+
+  def all(): List[WorkflowitemScala] = {
+    var allWorkflowitems = List[WorkflowitemScala]()
+    using(createConnection) { conn =>
+      coll(conn, Coll.Workflowitems).find().foreach(workflowitem => allWorkflowitems = asEntity(workflowitem) :: allWorkflowitems)
+    }
+    allWorkflowitems
+  }
 
   def byId(id: ObjectId): WorkflowitemScala = {
     using(createConnection) { conn =>
