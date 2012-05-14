@@ -87,43 +87,51 @@ class WorkflowitemScala(
       coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
 
       move[WorkflowitemScala](
-    		  idToUpdate,
-    		  id,
-    		  nextItemIdInternal,
-    		  entity => entity.nextItemIdInternal,
-    		  id => WorkflowitemScala.byId(id),
-    		  dbObject => {
-    		     if (dbObject == null) {
-    		    	 None;
-    		     } else {
-    		    	 WorkflowitemScala.asEntity(dbObject).id
-    		     }
-    		  },
-    		  entity => entity.id,
-    		  board,
-    		  "nextItemId"
-      )
-      
+        idToUpdate,
+        id,
+        nextItemIdInternal,
+        entity => entity.nextItemIdInternal,
+        id => WorkflowitemScala.byId(id),
+        dbObject => {
+          if (dbObject == null) {
+            None;
+          } else {
+            WorkflowitemScala.asEntity(dbObject).id
+          }
+        },
+        entity => entity.id,
+        board,
+        "nextItemId",
+        unit => coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board")))
+
       move[WorkflowitemScala](
-    		  idToUpdate,
-    		  id,
-    		  childIdInternal,
-    		  entity => entity.childIdInternal,
-    		  id => WorkflowitemScala.byId(id),
-    		  dbObject => {
-    		     if (dbObject == null) {
-    		    	 None;
-    		     } else {
-    		    	 WorkflowitemScala.asEntity(dbObject).id
-    		     }
-    		  },
-    		  entity => entity.id,
-    		  board,
-    		  WorkflowitemScala.CHILD_NAME
-      )
+        idToUpdate,
+        id,
+        childIdInternal,
+        entity => entity.childIdInternal,
+        id => WorkflowitemScala.byId(id),
+        dbObject => {
+          if (dbObject == null) {
+            None;
+          } else {
+            WorkflowitemScala.asEntity(dbObject).id
+          }
+        },
+        entity => entity.id,
+        board,
+        WorkflowitemScala.CHILD_NAME,
+        unit => WorkflowitemScala.asDBObject(findLastChild(this)))
 
       WorkflowitemScala.byId(idToUpdate)
     }
+  }
+
+  private def findLastChild(parent: WorkflowitemScala): WorkflowitemScala = {
+    if (parent.child.isDefined) {
+      return findLastChild(parent.child.get)
+    }
+    
+    return parent
   }
 
   def delete {

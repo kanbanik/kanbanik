@@ -19,7 +19,8 @@ trait WorkflowitemOrderManipulation extends KanbanikEntity {
       findId: DBObject => Option[ObjectId],
       toId: T => Option[ObjectId],
       board: BoardScala,
-      nextItemId: String
+      nextItemId: String,
+      findLastEntity: Unit => DBObject
       ) {
     using(createConnection) { conn =>
       // a->b->c->d->e->f
@@ -35,12 +36,10 @@ trait WorkflowitemOrderManipulation extends KanbanikEntity {
       if (nextInternalId(e).equals(nextItemIdInternal)) {
         return
       }
-      
-//      e.nextItemIdInternal == nextInternalId(e)
 
       val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
 
-      val lastEntity = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, nextItemId -> None)).getOrElse(throw new IllegalStateException("No last entity on board"))
+      val lastEntity = findLastEntity()
       val f = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> nextInternalId(e))).getOrElse(null)
       val d = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, nextItemId -> id)).getOrElse(null)
       var b: DBObject = null
@@ -73,13 +72,4 @@ trait WorkflowitemOrderManipulation extends KanbanikEntity {
     }
   }
   
-//  private def findId(
-//      dbObject: DBObject,
-//      toId: DBObject => Option[ObjectId]): Option[ObjectId] = {
-//    if (dbObject == null) {
-//      return None;
-//    }
-//
-//    WorkflowitemScala.asEntity(dbObject).id
-//  }
 }

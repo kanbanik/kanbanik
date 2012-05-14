@@ -45,7 +45,7 @@ class BuildSimpleTestableWorkflow extends Spec {
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
       DataLoader.workflowitems += MongoDBObject(
         "_id" -> new ObjectId("5f48e10644ae3742baa2d0b9"),
-        "name" -> "name2",
+        "name" -> "name3",
         "wipLimit" -> 2,
         "itemType" -> "V",
         "childId" -> None,
