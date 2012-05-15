@@ -7,8 +7,6 @@ import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 class BoardBuilder {
 
-  val workflowitemBuilder = new WorkflowitemBuilder
-
   def buildDto(board: BoardScala): BoardDto = {
     val res = buildShallowDto(board)
     if (board.workflowitems.isDefined) {
@@ -18,7 +16,7 @@ class BoardBuilder {
     res
   }
 
-  private def findRootWorkflowitem(board: BoardScala, workflowitems: Option[List[WorkflowitemScala]]): WorkflowitemDto = {
+  private[builders] def findRootWorkflowitem(board: BoardScala, workflowitems: Option[List[WorkflowitemScala]]): WorkflowitemDto = {
     if (!workflowitems.isDefined || workflowitems.get.size == 0) {
       return null;
     }
@@ -29,7 +27,7 @@ class BoardBuilder {
       }
     }
 
-    throw new IllegalStateException("The board + " + board.id + " has no root workflowitem")
+    throw new IllegalStateException("The board + " + board.id.get.toString() + " has no root workflowitem")
   }
 
   private def isRoot(candidate: WorkflowitemScala, workflowitems: List[WorkflowitemScala]): Boolean = {
@@ -37,7 +35,6 @@ class BoardBuilder {
       if (potentialParent.nextItem.isDefined) {
         if (potentialParent.nextItem.get.id.get == candidate.id.get) {
           return false
-        } else {
         }
       }
     }
@@ -67,4 +64,6 @@ class BoardBuilder {
       return Some(new ObjectId(boardDto.getId()))
     }
   }
+  
+  private[builders] def workflowitemBuilder = new WorkflowitemBuilder
 }

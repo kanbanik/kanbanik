@@ -8,6 +8,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.Spec
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 @RunWith(classOf[JUnitRunner])
 class BoardBuilderTest extends Spec with MockitoSugar {
@@ -29,5 +30,42 @@ class BoardBuilderTest extends Spec with MockitoSugar {
 
     }
 
+    it("should find the correct workflowitem") {
+      val item1 = mockWorkflowitem("1f48e10644ae3742baa2d0a9");
+      val item2 = mockWorkflowitem("2f48e10644ae3742baa2d0a9");
+      val item3 = mockWorkflowitem("3f48e10644ae3742baa2d0a9");
+
+      when(item1.nextItem).thenReturn(Some(item2))
+      when(item2.nextItem).thenReturn(Some(item3))
+      when(item3.nextItem).thenReturn(None)
+
+      val board = mock[BoardScala]
+      when(board.id).thenReturn(Some(new ObjectId("1f48e10644ae3742baa2d0a9")))
+      
+      val builder = new TestedBuilder
+
+      assert(builder.findRootWorkflowitem(board, Some(List(item1, item2, item3))).getId() === "1f48e10644ae3742baa2d0a9")
+      assert(builder.findRootWorkflowitem(board, Some(List(item3, item2, item1))).getId() === "1f48e10644ae3742baa2d0a9")
+      assert(builder.findRootWorkflowitem(board, Some(List(item2, item3, item1))).getId() === "1f48e10644ae3742baa2d0a9")
+
+    }
+
+    def mockWorkflowitem(id: String) = {
+      val item = mock[WorkflowitemScala]
+      when(item.id).thenReturn(Some(new ObjectId(id)))
+      item
+    }
+  }
+}
+
+class TestedBuilder extends BoardBuilder {
+  override def workflowitemBuilder = new SimpleWorkflowitemBuilder
+
+  class SimpleWorkflowitemBuilder extends WorkflowitemBuilder {
+    override def buildDto(workflowitem: WorkflowitemScala): WorkflowitemDto = {
+      val dto = new WorkflowitemDto
+      dto.setId(workflowitem.id.get.toString())
+      dto
+    }
   }
 }
