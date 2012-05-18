@@ -8,12 +8,14 @@ import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.ItemType
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.BoardScala
 
 class EditWorkflowCommandTest extends BaseIntegrationTest {
   
   val command = new EditWorkflowCommand
   
   describe("This command should take care of editing of the workflow") {
+    
     it("should be able to move a workflowitem from inside to outside") {
       DataLoader.clearDB
       buildSomeData()
@@ -31,7 +33,11 @@ class EditWorkflowCommandTest extends BaseIntegrationTest {
       assert(item.id.get.toString() === "5f48e10644ae3742baa2d0b9")
       assert(item.nextItem.get.id.get.toString === "3f48e10644ae3742baa2d0b9")
       assert(item.nextItem.get.nextItem.get.id.get.toString === "4f48e10644ae3742baa2d0b9")
+      
+      val board = BoardScala.byId(new ObjectId("1e48e10644ae3742baa2d0b9"))
+      assert(board.workflowitems.get.size === 3)
     }
+    
   }
   
   private def createFilledDto() = {
