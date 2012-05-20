@@ -10,9 +10,12 @@ public class EditWorkflowParams implements Params {
 	
 	private WorkflowitemDto current;
 	
-	public EditWorkflowParams(WorkflowitemDto parent, WorkflowitemDto current) {
+	private WorkflowitemDto context;
+	
+	public EditWorkflowParams(WorkflowitemDto parent, WorkflowitemDto current, WorkflowitemDto context) {
 		this.parent = parent;
 		this.current = current;
+		this.context = context;
 	}
 
 	public EditWorkflowParams() {
@@ -32,6 +35,14 @@ public class EditWorkflowParams implements Params {
 
 	public void setCurrent(WorkflowitemDto current) {
 		this.current = current;
+	}
+
+	public WorkflowitemDto getContext() {
+		return context;
+	}
+
+	public void setContext(WorkflowitemDto context) {
+		this.context = context;
 	}
 	
 }

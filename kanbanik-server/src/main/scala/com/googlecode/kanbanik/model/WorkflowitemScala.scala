@@ -72,8 +72,21 @@ class WorkflowitemScala(
     realBoard
   }
 
-  def store: WorkflowitemScala = {
-
+  /**
+   * The context is the parent workflowitem. But the parent workflowitem
+   * does not need to have the child to be set to this. The parent's child
+   * is the first child, while this is the parent of any child in that context
+   *
+   * So, there is:
+   * ---------
+   * |a| b |c|
+   * | |d|e| |
+   * ---------
+   *
+   * Than b is the parent of d, but the context of d AND e
+   *
+   */
+  def store(context: Option[WorkflowitemScala]): WorkflowitemScala = {
     val idToUpdate = id.getOrElse({
       val obj = WorkflowitemScala.asDBObject(this)
       using(createConnection) { conn =>
@@ -102,7 +115,7 @@ class WorkflowitemScala(
         entity => entity.id,
         board,
         "nextItemId",
-        unit => coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board")))
+        unit => findLastEntityInContext(context, conn))
 
       move[WorkflowitemScala](
         idToUpdate,
@@ -126,11 +139,32 @@ class WorkflowitemScala(
     }
   }
 
+  private def findLastEntityInContext(context: Option[WorkflowitemScala], conn: MongoConnection): DBObject = {
+    if (!context.isDefined) {
+      return coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).getOrElse(throw new IllegalStateException("No last entity on board"))
+    }
+
+    var candidate = context.get.child.getOrElse(throw new IllegalStateException("No last entity on board for context: " + context.get.id.toString))
+    while (true) {
+      if (!candidate.nextItem.isDefined) {
+        return WorkflowitemScala.asDBObject(candidate)
+      }
+
+      candidate = candidate.nextItem.get
+    }
+
+    throw new IllegalStateException("No last entity on board for context: " + context.get.id.toString)
+  }
+
+  def store: WorkflowitemScala = {
+    store(None)
+  }
+
   private def findLastChild(parent: WorkflowitemScala): WorkflowitemScala = {
     if (parent.child.isDefined) {
       return findLastChild(parent.child.get)
     }
-    
+
     return parent
   }
 
@@ -234,7 +268,7 @@ object WorkflowitemScala extends KanbanikEntity {
 
   private def asDBObject(entity: WorkflowitemScala): DBObject = {
     MongoDBObject(
-      "_id" -> new ObjectId,
+      "_id" -> entity.id.getOrElse(new ObjectId),
       "name" -> entity.name,
       "wipLimit" -> entity.wipLimit,
       "itemType" -> entity.itemType,

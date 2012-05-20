@@ -21,7 +21,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
     val parentDto = params.getParent()
     val currenDto = params.getCurrent()
     val nextOfCurrentDto = params.getCurrent().getNextItem()
-
+    val contextDto = params.getContext();
+    
     if (currenDto.getId() != null) {
       val prevCurrent = WorkflowitemScala.byId(new ObjectId(currenDto.getId()))
       val prevParent = findParent(prevCurrent)
@@ -34,7 +35,12 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
 
     val currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
-    currentEntity.store
+    if (contextDto != null) {
+    	currentEntity.store(Some(WorkflowitemScala.byId(new ObjectId(contextDto.getId()))))  
+    } else {
+      currentEntity.store
+    }
+    
 
     if (parentDto != null) {
       val parentEntity = workflowitemBuilder.buildEntity(parentDto)

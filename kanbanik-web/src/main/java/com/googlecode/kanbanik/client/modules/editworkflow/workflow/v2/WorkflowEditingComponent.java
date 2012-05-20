@@ -181,7 +181,7 @@ public class WorkflowEditingComponent extends Composite {
 			
 			ServerCommandInvokerManager.getInvoker().<EditWorkflowParams, VoidParams> invokeCommand(
 					ServerCommand.EDIT_WORKFLOW,
-					new EditWorkflowParams(parentToSend, droppedItem),
+					new EditWorkflowParams(parentToSend, droppedItem, null),
 					new KanbanikAsyncCallback<VoidParams>() {
 
 						@Override
