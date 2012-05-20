@@ -117,23 +117,23 @@ class WorkflowitemScala(
         "nextItemId",
         unit => findLastEntityInContext(context, conn))
 
-      move[WorkflowitemScala](
-        idToUpdate,
-        id,
-        childIdInternal,
-        entity => entity.childIdInternal,
-        id => WorkflowitemScala.byId(id),
-        dbObject => {
-          if (dbObject == null) {
-            None;
-          } else {
-            WorkflowitemScala.asEntity(dbObject).id
-          }
-        },
-        entity => entity.id,
-        board,
-        WorkflowitemScala.CHILD_NAME,
-        unit => WorkflowitemScala.asDBObject(findLastChild(this)))
+//      move[WorkflowitemScala](
+//        idToUpdate,
+//        id,
+//        childIdInternal,
+//        entity => entity.childIdInternal,
+//        id => WorkflowitemScala.byId(id),
+//        dbObject => {
+//          if (dbObject == null) {
+//            None;
+//          } else {
+//            WorkflowitemScala.asEntity(dbObject).id
+//          }
+//        },
+//        entity => entity.id,
+//        board,
+//        WorkflowitemScala.CHILD_NAME,
+//        unit => WorkflowitemScala.asDBObject(findLastChild(this)))
 
       WorkflowitemScala.byId(idToUpdate)
     }
