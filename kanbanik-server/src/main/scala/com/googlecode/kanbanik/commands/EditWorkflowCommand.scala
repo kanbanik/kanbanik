@@ -23,16 +23,6 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
     val nextOfCurrentDto = params.getCurrent().getNextItem()
     val contextDto = params.getContext();
     
-    if (currenDto.getId() != null) {
-      val prevCurrent = WorkflowitemScala.byId(new ObjectId(currenDto.getId()))
-      val prevParent = findParent(prevCurrent)
-      if (prevParent.isDefined) {
-        prevParent.get.child = prevCurrent.nextItem
-        prevParent.get.store
-      }
-
-    }
-
     val currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
     if (contextDto != null) {
@@ -40,15 +30,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
     } else {
       currentEntity.store
     }
-    
 
-    if (parentDto != null) {
-      val parentEntity = workflowitemBuilder.buildEntity(parentDto)
-      parentEntity.child = Some(currentEntity)
-      parentEntity.store
-    }
-
-    updateBoard(currenDto, parentDto, currentEntity)
+    updateBoard(currenDto, contextDto, currentEntity)
 
     new VoidParams
   }
@@ -57,10 +40,10 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
    * The board.workflowitems can contain only workflowitems which has no parent (e.g. top level entities)
    * This method ensures it.
    */
-  private def updateBoard(currentDto: WorkflowitemDto, parentDto: WorkflowitemDto, currentEntity: WorkflowitemScala) {
+  private def updateBoard(currentDto: WorkflowitemDto, contextDto: WorkflowitemDto, currentEntity: WorkflowitemScala) {
     val board = BoardScala.byId(new ObjectId(currentDto.getBoard().getId()))
     val isInBoard = findIfIsInBoard(board, currentEntity)
-    val hasNewParent = parentDto != null
+    val hasNewParent = contextDto != null
 
     if (isInBoard && hasNewParent) {
       if (board.workflowitems.isDefined) {
@@ -91,20 +74,6 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
     })
 
     false
-  }
-
-  def findParent(child: WorkflowitemScala): Option[WorkflowitemScala] = {
-    using(createConnection) { conn =>
-      val maxTaskId = coll(conn, Coll.Workflowitems).find()
-      val parent = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("childId" -> child.id))
-
-      if (parent.isDefined) {
-        return Some(WorkflowitemScala.byId(parent.get.get("_id").asInstanceOf[ObjectId]));
-      } else {
-        return None
-      }
-
-    }
   }
 
 }

@@ -27,7 +27,7 @@ object EditWorkflowDataLoader {
       "name" -> "name1",
       "wipLimit" -> 4,
       "itemType" -> "V",
-      "childId" -> None,
+      "childId" -> Some(new ObjectId("7f48e10644ae3742baa2d0b9")),
       "nextItemId" -> Some(new ObjectId("2f48e10644ae3742baa2d0b9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
     DataLoader.workflowitems += MongoDBObject(
@@ -40,6 +40,16 @@ object EditWorkflowDataLoader {
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
     DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("3f48e10644ae3742baa2d0b9"),
+      "name" -> "name2-1",
+      "wipLimit" -> 2,
+      "itemType" -> "V",
+      "childId" -> None,
+      "nextItemId" -> None,
+      "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      
+      // child of 1
+      DataLoader.workflowitems += MongoDBObject(
+      "_id" -> new ObjectId("7f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
       "itemType" -> "V",
