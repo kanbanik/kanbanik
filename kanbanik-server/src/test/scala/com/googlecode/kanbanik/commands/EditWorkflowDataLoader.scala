@@ -53,7 +53,7 @@ object EditWorkflowDataLoader {
       "name" -> "name2-1",
       "wipLimit" -> 2,
       "itemType" -> "V",
-      "childId" -> None,
+      "childId" -> Some(new ObjectId("8f48e10644ae3742baa2d0b9")),
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
       
@@ -71,11 +71,29 @@ object EditWorkflowDataLoader {
       "name" -> "name2-1",
       "wipLimit" -> 2,
       "itemType" -> "V",
-      "childId" -> None,
+      "childId" -> Some(new ObjectId("9f48e10644ae3742baa2d0b9")),
       "nextItemId" -> Some(new ObjectId("6f48e10644ae3742baa2d0b9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
       DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("6f48e10644ae3742baa2d0b9"),
+      "name" -> "name2-1",
+      "wipLimit" -> 2,
+      "itemType" -> "V",
+      "childId" -> None,
+      "nextItemId" -> None,
+      "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      
+      DataLoader.workflowitems += MongoDBObject(
+      "_id" -> new ObjectId("8f48e10644ae3742baa2d0b9"),
+      "name" -> "name2-1",
+      "wipLimit" -> 2,
+      "itemType" -> "V",
+      "childId" -> None,
+      "nextItemId" -> None,
+      "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      
+      DataLoader.workflowitems += MongoDBObject(
+      "_id" -> new ObjectId("9f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
       "itemType" -> "V",

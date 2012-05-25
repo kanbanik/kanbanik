@@ -40,6 +40,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] 
    * The board.workflowitems can contain only workflowitems which has no parent (e.g. top level entities)
    * This method ensures it.
    */
+  // TODO move this method to the WorkflowitemScala, it has no reason to be outside of the model
   private def updateBoard(currentDto: WorkflowitemDto, contextDto: WorkflowitemDto, currentEntity: WorkflowitemScala) {
     val board = BoardScala.byId(new ObjectId(currentDto.getBoard().getId()))
     val isInBoard = findIfIsInBoard(board, currentEntity)

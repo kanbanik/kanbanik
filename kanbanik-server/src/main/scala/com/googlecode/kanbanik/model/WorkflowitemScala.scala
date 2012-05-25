@@ -47,6 +47,8 @@ class WorkflowitemScala(
 
   def child_=(child: Option[WorkflowitemScala]): Unit = {
     initChildIdInternal(child)
+    // re-init the _child
+    _child = null
   }
 
   def child = {
@@ -97,29 +99,26 @@ class WorkflowitemScala(
       val idObject = MongoDBObject("_id" -> idToUpdate)
       coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
 
-      moveHorizontally(idToUpdate, context)
+      moveVertically(idToUpdate, context)
 
-      moveVertically(context)
+      moveHorizontally(idToUpdate, context)
 
       WorkflowitemScala.byId(idToUpdate)
     }
   }
 
-  private def moveVertically(context: Option[WorkflowitemScala]) {
-    val parent = findParent(this)
+  private def moveVertically(
+    idToUpdate: ObjectId,
+    context: Option[WorkflowitemScala]) {
 
     using(createConnection) { conn =>
+      val prevThis = WorkflowitemScala.byId(idToUpdate)
+      val parent = findParent(prevThis)
+
       // removing from original place
       if (parent.isDefined) {
-        //        parent.get.child = this.nextItem
-        //        parent.get.store
-
-        val idObject = MongoDBObject("_id" -> parent.get.id.get)
-        var nextId: ObjectId = null
-        if (this.nextItem.isDefined) {
-          nextId = this.nextItem.get.id.get
-        }
-        coll(conn, Coll.Workflowitems).update(idObject, $set("childId" -> nextId))
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> parent.get.id.get),
+          $set("childId" -> idFromEntity(prevThis.nextItem)))
       }
 
       // adding to new place
@@ -128,24 +127,26 @@ class WorkflowitemScala(
 
         // it has no children, adding as the only one
         if (!child.isDefined) {
-          context.get.child = Some(this)
-          context.get.store
+          coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> context.get.id.get),
+            $set("childId" -> id))
 
-          val idObject = MongoDBObject("_id" -> parent.get.id.get)
-          var nextId: ObjectId = null
-          if (this.nextItem.isDefined) {
-            nextId = this.nextItem.get.id.get
-          }
-          coll(conn, Coll.Workflowitems).update(idObject, $set("childId" -> nextId))
         } else {
           // before something existing - replace the child to the new one
-          if (child.get.id == this.nextItem.get.id) {
-            context.get.child = Some(this)
-            context.get.store
+          if (this.nextItemIdInternal.isDefined && child.get.id.get == this.nextItemIdInternal.get) {
+            coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> context.get.id.get),
+              $set("childId" -> id))
           }
         }
       }
     }
+  }
+
+  private def idFromEntity(entity: Option[WorkflowitemScala]): Option[ObjectId] = {
+    if (entity.isDefined) {
+      return entity.get.id
+    }
+
+    return None
   }
 
   private def findLastEntityInContext(context: Option[WorkflowitemScala], conn: MongoConnection): Option[DBObject] = {
@@ -246,7 +247,7 @@ class WorkflowitemScala(
     }
   }
 
-  def moveHorizontally(
+  private def moveHorizontally(
     idToUpdate: ObjectId,
     context: Option[WorkflowitemScala]) {
     using(createConnection) { conn =>

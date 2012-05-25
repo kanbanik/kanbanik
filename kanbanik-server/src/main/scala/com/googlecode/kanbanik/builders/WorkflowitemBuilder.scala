@@ -44,12 +44,10 @@ class WorkflowitemBuilder {
     val res = buildDtoNonRecursive(workflowitem)
 
     if (workflowitem.child.isDefined) {
-      println("building CHILD: " + workflowitem.id.toString()  + " child: " + workflowitem.child.get.id.toString)
       res.setChild(buildDto(workflowitem.child.get))
     }
 
     if (workflowitem.nextItem.isDefined) {
-      println("building NEXT: " + workflowitem.id.toString()  + " child: " + workflowitem.nextItem.get.id.toString)
       res.setNextItem(buildDto(workflowitem.nextItem.get))
     }
 

@@ -20,6 +20,8 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
   val command = new EditWorkflowCommand
 
   before {
+    // if the DB contained something before the test runs
+    DataLoader.clearDB
     EditWorkflowDataLoader.buildWorkflow
   }
 
@@ -28,8 +30,8 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
   }
 
   describe("This command should take care of editing of the workflow") {
-/*
- it("should be able to move the workflowitem from outside to inside to first") {
+
+    it("should be able to move the workflowitem from outside to inside to first") {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
         "4f48e10644ae3742baa2d0b9",
@@ -109,7 +111,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
 
       assertTopLevelEntitiesInBoard(4)
     }
-    
+
     it("should be able to move a workflowitem from middle inside to outside") {
 
       moveAndCheck(
@@ -131,8 +133,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
       assertTopLevelEntitiesInBoard(4)
     }
 
-    
-   it("should be able to move a workflowitem from last inside to outside") {
+    it("should be able to move a workflowitem from last inside to outside") {
 
       moveAndCheck(
         "6f48e10644ae3742baa2d0b9",
@@ -152,25 +153,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
 
       assertTopLevelEntitiesInBoard(4)
     }
-   
-    it("should be able to move the last workflowitem from inside to outside") {
-      moveAndCheck(
-        "7f48e10644ae3742baa2d0b9",
-        "1f48e10644ae3742baa2d0b9",
-        null,
-        null,
-        null,
 
-        "7f48e10644ae3742baa2d0b9",
-        "1f48e10644ae3742baa2d0b9",
-        "2f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9")
-
-        assertTopLevelEntitiesInBoard(4)
-        
-        assert(WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.isDefined === false)
-    }*/
-    
     it("should be able to move the workflowitem from outside to be the only inside") {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
@@ -182,10 +165,74 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "2f48e10644ae3742baa2d0b9",
         "3f48e10644ae3742baa2d0b9")
 
-        assertTopLevelEntitiesInBoard(2)
-        
-        assert(WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "1f48e10644ae3742baa2d0b9")
+      assertTopLevelEntitiesInBoard(2)
+
+      assert(WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "1f48e10644ae3742baa2d0b9")
+
     }
+
+    it("should be able to move the last workflowitem from inside to outside") {
+      moveAndCheck(
+        "7f48e10644ae3742baa2d0b9",
+        "1f48e10644ae3742baa2d0b9",
+        null,
+        null,
+        "2f48e10644ae3742baa2d0b9",
+
+        "7f48e10644ae3742baa2d0b9",
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(4)
+
+      assert(WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.isDefined === false)
+    }
+
+    it("should be able to move the middle child to last child") {
+      moveAndCheck(
+        "7f48e10644ae3742baa2d0b9",
+        null,
+        "5f48e10644ae3742baa2d0b9",
+        "5f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9",
+
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(3)
+
+      checkOrder(
+        "9f48e10644ae3742baa2d0b9",
+        "7f48e10644ae3742baa2d0b9")
+
+      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
+      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "9f48e10644ae3742baa2d0b9")
+    }
+
+    it("should be able to move the middle child to first child") {
+      moveAndCheck(
+        "7f48e10644ae3742baa2d0b9",
+        "9f48e10644ae3742baa2d0b9",
+        "5f48e10644ae3742baa2d0b9",
+        "5f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9",
+
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(3)
+
+      checkOrder(
+        "7f48e10644ae3742baa2d0b9",
+        "9f48e10644ae3742baa2d0b9")
+
+      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
+      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "7f48e10644ae3742baa2d0b9")
+    }
+
   }
 
   private def assertTopLevelEntitiesInBoard(num: Int) {
@@ -202,7 +249,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
 
     val nextOfParent = createFilledDto();
     nextOfParent.setId(nextOfParentId)
-    
+
     val parent = createFilledDto()
     parent.setId(parentId)
     parent.setNextItem(nextOfParent)
@@ -225,7 +272,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
       next
     });
 
-    assert(WorkflowitemScala.byId(new ObjectId(expectedIdOrder.last)).nextItem.isDefined === false, expectedIdOrder.last + "should not have a next")
+    assert(WorkflowitemScala.byId(new ObjectId(expectedIdOrder.last)).nextItem.isDefined === false, expectedIdOrder.last + " should not have a next")
   }
 
   private def createFilledDto() = {
