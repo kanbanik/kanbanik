@@ -6,27 +6,16 @@ public class EditWorkflowParams implements Params {
 	
 	private static final long serialVersionUID = 5036607739533857149L;
 
-	private WorkflowitemDto parent;
-	
 	private WorkflowitemDto current;
 	
 	private WorkflowitemDto context;
 	
-	public EditWorkflowParams(WorkflowitemDto parent, WorkflowitemDto current, WorkflowitemDto context) {
-		this.parent = parent;
+	public EditWorkflowParams(WorkflowitemDto current, WorkflowitemDto context) {
 		this.current = current;
 		this.context = context;
 	}
 
 	public EditWorkflowParams() {
-	}
-	
-	public WorkflowitemDto getParent() {
-		return parent;
-	}
-
-	public void setParent(WorkflowitemDto parent) {
-		this.parent = parent;
 	}
 
 	public WorkflowitemDto getCurrent() {

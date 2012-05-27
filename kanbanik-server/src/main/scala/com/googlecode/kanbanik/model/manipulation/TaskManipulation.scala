@@ -1,12 +1,12 @@
 package com.googlecode.kanbanik.commands
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-
 import com.googlecode.kanbanik.model.KanbanikEntity
 import com.googlecode.kanbanik.model.ProjectScala
 import com.googlecode.kanbanik.model.TaskScala
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
+import org.bson.types.ObjectId
 
 trait TaskManipulation extends KanbanikEntity {
 

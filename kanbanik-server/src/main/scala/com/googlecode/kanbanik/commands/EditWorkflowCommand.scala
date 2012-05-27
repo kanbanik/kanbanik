@@ -11,70 +11,28 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.dto.shell.SimpleParams
 
-class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, VoidParams] with KanbanikEntity {
+class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, SimpleParams[WorkflowitemDto]] with KanbanikEntity {
 
   lazy val workflowitemBuilder = new WorkflowitemBuilder
 
-  def execute(params: EditWorkflowParams): VoidParams = {
+  def execute(params: EditWorkflowParams): SimpleParams[WorkflowitemDto] = {
 
-    val parentDto = params.getParent()
     val currenDto = params.getCurrent()
     val nextOfCurrentDto = params.getCurrent().getNextItem()
     val contextDto = params.getContext();
     
-    val currentEntity = workflowitemBuilder.buildEntity(currenDto)
+    var currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
     if (contextDto != null) {
-    	currentEntity.store(Some(WorkflowitemScala.byId(new ObjectId(contextDto.getId()))))  
+    	currentEntity = currentEntity.store(Some(WorkflowitemScala.byId(new ObjectId(contextDto.getId()))))  
     } else {
-      currentEntity.store
+      currentEntity = currentEntity.store
     }
 
-    updateBoard(currenDto, contextDto, currentEntity)
-
-    new VoidParams
+    new SimpleParams(workflowitemBuilder.buildDto(currentEntity))
   }
 
-  /**
-   * The board.workflowitems can contain only workflowitems which has no parent (e.g. top level entities)
-   * This method ensures it.
-   */
-  // TODO move this method to the WorkflowitemScala, it has no reason to be outside of the model
-  private def updateBoard(currentDto: WorkflowitemDto, contextDto: WorkflowitemDto, currentEntity: WorkflowitemScala) {
-    val board = BoardScala.byId(new ObjectId(currentDto.getBoard().getId()))
-    val isInBoard = findIfIsInBoard(board, currentEntity)
-    val hasNewParent = contextDto != null
-
-    if (isInBoard && hasNewParent) {
-      if (board.workflowitems.isDefined) {
-        board.workflowitems = Some(board.workflowitems.get.filter(_.id != currentEntity.id))
-        board.store
-      }
-    } else if (!isInBoard && !hasNewParent) {
-      if (board.workflowitems.isDefined) {
-        board.workflowitems = Some(currentEntity :: board.workflowitems.get)
-        board.store
-      } else {
-        board.workflowitems = Some(List(currentEntity))
-        board.store
-      }
-    }
-  }
-
-  private def findIfIsInBoard(board: BoardScala, workflowitem: WorkflowitemScala): Boolean = {
-
-    if (!board.workflowitems.isDefined) {
-      return false
-    }
-
-    board.workflowitems.get.foreach(item => {
-      if (item.id.get == workflowitem.id.get) {
-        return true
-      }
-    })
-
-    false
-  }
 
 }

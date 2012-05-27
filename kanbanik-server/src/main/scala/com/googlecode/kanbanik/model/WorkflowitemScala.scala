@@ -1,9 +1,10 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
+
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
-import com.mongodb.casbah.Imports._
 
 class WorkflowitemScala(
   var id: Option[ObjectId],
@@ -89,27 +90,49 @@ class WorkflowitemScala(
   def store(context: Option[WorkflowitemScala]): WorkflowitemScala = {
     val idToUpdate = id.getOrElse({
       val obj = WorkflowitemScala.asDBObject(this)
+      var storedThis: WorkflowitemScala = null
       using(createConnection) { conn =>
         coll(conn, Coll.Workflowitems) += obj
+
+        val prevLast = findLastEntityInContext(context, conn)
+        storedThis = WorkflowitemScala.byId(WorkflowitemScala.asEntity(obj).id.get)
+        moveVertically(storedThis.id.get, context, storedThis)
+
+        if (prevLast.isDefined) {
+
+          val prevLastEntity = WorkflowitemScala.asEntity(prevLast.get)
+
+          // first put to the end
+          coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> prevLastEntity.id.get),
+            $set("nextItemId" -> storedThis.id.get))
+
+          coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> storedThis.id.get),
+            $set("nextItemId" -> None))
+
+          // than move to the correct place
+          storedThis.store(context)
+        }
       }
-      return WorkflowitemScala.byId(WorkflowitemScala.asEntity(obj).id.get)
+
+      return storedThis
     })
 
     using(createConnection) { conn =>
       val idObject = MongoDBObject("_id" -> idToUpdate)
       coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
 
-      moveVertically(idToUpdate, context)
+      moveVertically(idToUpdate, context, WorkflowitemScala.byId(idToUpdate))
 
       moveHorizontally(idToUpdate, context)
 
-      WorkflowitemScala.byId(idToUpdate)
+      return WorkflowitemScala.byId(idToUpdate)
     }
   }
 
   private def moveVertically(
     idToUpdate: ObjectId,
-    context: Option[WorkflowitemScala]) {
+    context: Option[WorkflowitemScala],
+    currentEntity: WorkflowitemScala) {
 
     using(createConnection) { conn =>
       val prevThis = WorkflowitemScala.byId(idToUpdate)
@@ -128,16 +151,18 @@ class WorkflowitemScala(
         // it has no children, adding as the only one
         if (!child.isDefined) {
           coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> context.get.id.get),
-            $set("childId" -> id))
+            $set("childId" -> idToUpdate))
 
         } else {
           // before something existing - replace the child to the new one
           if (this.nextItemIdInternal.isDefined && child.get.id.get == this.nextItemIdInternal.get) {
             coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> context.get.id.get),
-              $set("childId" -> id))
+              $set("childId" -> idToUpdate))
           }
         }
       }
+      
+      updateBoard(context, currentEntity)
     }
   }
 
@@ -151,7 +176,13 @@ class WorkflowitemScala(
 
   private def findLastEntityInContext(context: Option[WorkflowitemScala], conn: MongoConnection): Option[DBObject] = {
     if (!context.isDefined) {
-      return coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> None))
+      coll(conn, Coll.Workflowitems).find(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).foreach(
+        item =>
+          if (!findParent(WorkflowitemScala.asEntity(item)).isDefined) {
+            return Some(item)
+          })
+
+      None
     }
 
     var candidate = context.get.child.getOrElse(return None)
@@ -195,13 +226,27 @@ class WorkflowitemScala(
   def delete {
     val toDelete = WorkflowitemScala.byId(id.getOrElse(throw new IllegalStateException("Can not delete item which does not exist!")))
 
-    unregisterFromBoard()
-
     toDelete.nextItemIdInternal = None
     toDelete.store
+    
+    val lastChildOfParent = findLastChildInContext(findParent(toDelete))
+    if (lastChildOfParent.isDefined) {
+      val newParent = WorkflowitemScala.asEntity(lastChildOfParent.get)
+      newParent.child = Some(toDelete)
+      newParent.store
+    }
+    
+    unregisterFromBoard()
+    
     using(createConnection) { conn =>
       val newPrev = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
       if (newPrev.isDefined) {
+        coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
+          $set("nextItemId" -> None))
+      }
+      
+      val newParent = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "childId" -> id))
+      if (newParent.isDefined) {
         coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
           $set("nextItemId" -> None))
       }
@@ -209,6 +254,7 @@ class WorkflowitemScala(
       coll(conn, Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
     }
 
+    
   }
 
   def unregisterFromBoard() {
@@ -321,6 +367,48 @@ class WorkflowitemScala(
     }
   }
 
+  /**
+   * The board.workflowitems can contain only workflowitems which has no parent (e.g. top level entities)
+   * This method ensures it.
+   */
+  private def updateBoard(context: Option[WorkflowitemScala], currentEntity: WorkflowitemScala) {
+    val isInBoard = findIfIsInBoard(board, currentEntity)
+    val hasNewParent = context.isDefined
+
+    if (isInBoard && hasNewParent) {
+      if (board.workflowitems.isDefined) {
+        board.workflowitems = Some(board.workflowitems.get.filter(_.id != currentEntity.id))
+        board.store
+      }
+    } else if (!isInBoard && !hasNewParent) {
+      if (board.workflowitems.isDefined) {
+        board.workflowitems = Some(currentEntity :: board.workflowitems.get)
+        board.store
+      } else {
+        board.workflowitems = Some(List(currentEntity))
+        board.store
+      }
+    }
+  }
+
+  private def findIfIsInBoard(board: BoardScala, workflowitem: WorkflowitemScala): Boolean = {
+
+    if (!workflowitem.id.isDefined) {
+      return false
+    }
+    
+    if (!board.workflowitems.isDefined) {
+      return false
+    }
+
+    board.workflowitems.get.foreach(item => {
+      if (item.id.get == workflowitem.id.get) {
+        return true
+      }
+    })
+
+    false
+  }
 }
 
 object WorkflowitemScala extends KanbanikEntity {

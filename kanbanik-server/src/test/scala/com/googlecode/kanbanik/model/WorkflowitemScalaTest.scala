@@ -4,6 +4,15 @@ import org.bson.types.ObjectId
 class WorkflowitemScalaTest extends BaseIntegrationTest {
   describe("Workflowitem should be able to do all the CRUD operations") {
 
+    it("should be able to store also nextItem") {
+      val nextItem = Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9")))
+      var stored = new WorkflowitemScala(None, "name1", 1, "H", None, nextItem, BoardScala.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
+      stored = stored.store
+      val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
+      val nextItemId = loaded.nextItem.getOrElse(notSet).id.get
+      assert(nextItemId === "4f48e10644ae3742baa2d0a9")
+    }
+    
     it("should be able to find what it stored") {
       val stored = new WorkflowitemScala(None, "name1", 1, "H", None, None, board).store
       val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
@@ -25,15 +34,6 @@ class WorkflowitemScalaTest extends BaseIntegrationTest {
 
       val child = WorkflowitemScala.byId(stored.id.getOrElse(notSet)).child.getOrElse(notSet)
       assert(child.name === "some name")
-    }
-
-    it("should be able to store also nextItem") {
-      val nextItem = Some(WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9")))
-      var stored = new WorkflowitemScala(None, "name1", 1, "H", None, nextItem, board)
-      stored = stored.store
-      val loaded = WorkflowitemScala.byId(stored.id.getOrElse(notSet))
-      val nextItemId = loaded.nextItem.getOrElse(notSet).id.get
-      assert(nextItemId === "4f48e10644ae3742baa2d0a9")
     }
 
     it("should be able to update the primitive parts of the item") {

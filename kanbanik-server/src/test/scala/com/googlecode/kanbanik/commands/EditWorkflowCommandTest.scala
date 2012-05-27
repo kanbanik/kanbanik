@@ -14,20 +14,9 @@ import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.DataLoader
 import com.googlecode.kanbanik.model.WorkflowitemScala
 
-@RunWith(classOf[JUnitRunner])
-class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
+class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
 
   val command = new EditWorkflowCommand
-
-  before {
-    // if the DB contained something before the test runs
-    DataLoader.clearDB
-    EditWorkflowDataLoader.buildWorkflow
-  }
-
-  after {
-    DataLoader.clearDB
-  }
 
   describe("This command should take care of editing of the workflow") {
 
@@ -36,8 +25,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "1f48e10644ae3742baa2d0b9",
         "4f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
-        "2f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "4f48e10644ae3742baa2d0b9",
@@ -55,9 +42,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
         "5f48e10644ae3742baa2d0b9",
-        null,
         "2f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9",
 
         "4f48e10644ae3742baa2d0b9",
         "1f48e10644ae3742baa2d0b9",
@@ -75,9 +60,7 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
         null,
-        null,
         "2f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9",
 
         "4f48e10644ae3742baa2d0b9",
         "5f48e10644ae3742baa2d0b9",
@@ -97,8 +80,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "4f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
         null,
-        null,
-        "3f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "4f48e10644ae3742baa2d0b9",
@@ -118,8 +99,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "5f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
         null,
-        null,
-        "3f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "5f48e10644ae3742baa2d0b9",
@@ -139,8 +118,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "6f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
         null,
-        null,
-        "3f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "6f48e10644ae3742baa2d0b9",
@@ -159,8 +136,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "1f48e10644ae3742baa2d0b9",
         null,
         "3f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9",
-        null,
 
         "2f48e10644ae3742baa2d0b9",
         "3f48e10644ae3742baa2d0b9")
@@ -176,8 +151,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "7f48e10644ae3742baa2d0b9",
         "1f48e10644ae3742baa2d0b9",
         null,
-        null,
-        "2f48e10644ae3742baa2d0b9",
 
         "7f48e10644ae3742baa2d0b9",
         "1f48e10644ae3742baa2d0b9",
@@ -194,8 +167,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "7f48e10644ae3742baa2d0b9",
         null,
         "5f48e10644ae3742baa2d0b9",
-        "5f48e10644ae3742baa2d0b9",
-        "6f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
@@ -216,8 +187,6 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
         "7f48e10644ae3742baa2d0b9",
         "9f48e10644ae3742baa2d0b9",
         "5f48e10644ae3742baa2d0b9",
-        "5f48e10644ae3742baa2d0b9",
-        "6f48e10644ae3742baa2d0b9",
 
         "1f48e10644ae3742baa2d0b9",
         "2f48e10644ae3742baa2d0b9",
@@ -233,56 +202,148 @@ class EditWorkflowCommandTest extends Spec with BeforeAndAfter {
       assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "7f48e10644ae3742baa2d0b9")
     }
 
+    it("should be able to add new entity to the start of the top-level workflow") {
+      val stored = move(
+        null,
+        "1f48e10644ae3742baa2d0b9",
+        null)
+
+      checkOrder(
+        stored.getId(),
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(4)
+    }
+
+    it("should be able to add new entity to the end of the top-level workflow") {
+      val stored = move(
+        null,
+        null,
+        null)
+
+      checkOrder(
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9",
+        stored.getId())
+
+      assertTopLevelEntitiesInBoard(4)
+    }
+
+    it("should be able to add new entity to the middle of the top-level workflow") {
+      val stored = move(
+        null,
+        "2f48e10644ae3742baa2d0b9",
+        null)
+
+      checkOrder(
+        "1f48e10644ae3742baa2d0b9",
+        stored.getId(),
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(4)
+    }
+
+    it("should be able to add new entity to the middle of the bottom-level workflow") {
+      val stored = move(
+        null,
+        "5f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9")
+
+      checkOrder(
+        "4f48e10644ae3742baa2d0b9",
+        stored.getId(),
+        "5f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(3)
+    }
+
+    it("should be able to add new entity to the start of the bottom-level workflow") {
+      val stored = move(
+        null,
+        "4f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9")
+
+      checkOrder(
+        stored.getId(),
+        "4f48e10644ae3742baa2d0b9",
+        "5f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9")
+
+      assertTopLevelEntitiesInBoard(3)
+    }
+
+    it("should be able to add new entity to the end of the bottom-level workflow") {
+      val stored = move(
+        null,
+        null,
+        "2f48e10644ae3742baa2d0b9")
+
+      checkOrder(
+        "4f48e10644ae3742baa2d0b9",
+        "5f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9",
+        stored.getId())
+
+      assertTopLevelEntitiesInBoard(3)
+    }
+
+    it("should be able to add new entity as the only to workflow") {
+      val stored = move(
+        null,
+        null,
+        "3f48e10644ae3742baa2d0b9")
+
+      checkOrder(
+        stored.getId())
+
+      assert(WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
+
+      assertTopLevelEntitiesInBoard(3)
+    }
+
+    it("should be able to add new entity as the only to deeper workflow") {
+      val stored = move(
+        null,
+        null,
+        "8f48e10644ae3742baa2d0b9")
+
+      checkOrder(
+        stored.getId())
+
+      assert(WorkflowitemScala.byId(new ObjectId("7f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "8f48e10644ae3742baa2d0b9")
+      assert(WorkflowitemScala.byId(new ObjectId("8f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
+
+      assertTopLevelEntitiesInBoard(3)
+    }
   }
 
-  private def assertTopLevelEntitiesInBoard(num: Int) {
-    val board = BoardScala.byId(new ObjectId("1e48e10644ae3742baa2d0b9"))
-    assert(board.workflowitems.get.size === num)
+
+  private def moveAndCheck(currentId: String, nextId: String, contextId: String, expectedIdOrder: String*) {
+    move(currentId, nextId, contextId);
+
+    checkOrder(expectedIdOrder.toList: _*)
   }
 
-  private def moveAndCheck(currentId: String, nextId: String, parentId: String, contextId: String, nextOfParentId: String, expectedIdOrder: String*) {
+  private def move(currentId: String, nextId: String, contextId: String) = {
     val current = createFilledDto()
     current.setId(currentId)
 
     val next = createFilledDto()
     next.setId(nextId)
 
-    val nextOfParent = createFilledDto();
-    nextOfParent.setId(nextOfParentId)
-
-    val parent = createFilledDto()
-    parent.setId(parentId)
-    parent.setNextItem(nextOfParent)
-
     val context = createFilledDto()
     context.setId(contextId)
 
     current.setNextItem(next)
     command.execute(new EditWorkflowParams(
-      { if (parentId == null) null else parent },
       current,
-      { if (contextId == null) null else context }))
-
-    checkOrder(expectedIdOrder.toList: _*)
+      { if (contextId == null) null else context })).getPayload()
   }
 
-  private def checkOrder(expectedIdOrder: String*) {
-    expectedIdOrder.tail.foldLeft(expectedIdOrder.head)((curr: String, next: String) => {
-      assert(WorkflowitemScala.byId(new ObjectId(curr)).nextItem.get.id.get.toString() === next, curr + " should have a next: " + next)
-      next
-    });
-
-    assert(WorkflowitemScala.byId(new ObjectId(expectedIdOrder.last)).nextItem.isDefined === false, expectedIdOrder.last + " should not have a next")
-  }
-
-  private def createFilledDto() = {
-    val dto = new WorkflowitemDto
-    dto.setName("")
-    dto.setItemType(ItemType.HORIZONTAL)
-    val board = new BoardDto
-    board.setId("1e48e10644ae3742baa2d0b9")
-    dto.setBoard(board)
-    dto
-  }
 
 }
