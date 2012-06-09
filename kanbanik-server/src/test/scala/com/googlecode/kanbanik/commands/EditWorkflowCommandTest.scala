@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfter
 import org.scalatest.Spec
-
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.dto.ItemType
@@ -13,13 +12,14 @@ import com.googlecode.kanbanik.model.BaseIntegrationTest
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.model.DataLoader
 import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.mongodb.casbah.commons.MongoDBObject
 
 class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
 
   val command = new EditWorkflowCommand
 
   describe("This command should take care of editing of the workflow") {
-
+    
     it("should be able to move the workflowitem from outside to inside to first") {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
@@ -306,6 +306,127 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
       assertTopLevelEntitiesInBoard(3)
     }
 
+    it("should be possible to move from las inside to even more inside") {
+      DataLoader.clearDB
+      EditWorkflowDataLoader.prepareBoardAndProject
+
+      // outer
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("1f48e10644ae3742baa2d0b9"),
+        "name" -> "name1",
+        "wipLimit" -> 4,
+        "itemType" -> "V",
+        "childId" -> Some(new ObjectId("2f48e10644ae3742baa2d0b9")),
+        "nextItemId" -> None,
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("2f48e10644ae3742baa2d0b9"),
+        "name" -> "name2",
+        "wipLimit" -> 2,
+        "itemType" -> "V",
+        "childId" -> None,
+        "nextItemId" -> Some(new ObjectId("3f48e10644ae3742baa2d0b9")),
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("3f48e10644ae3742baa2d0b9"),
+        "name" -> "name3",
+        "wipLimit" -> 2,
+        "itemType" -> "V",
+        "childId" -> None,
+        "nextItemId" -> None,
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+
+      move(
+        "3f48e10644ae3742baa2d0b9",
+        null,
+        "2f48e10644ae3742baa2d0b9")
+
+      val first = WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.get
+      assert(first.id.get.toString === "2f48e10644ae3742baa2d0b9")
+      assert(first.nextItem === None)
+      assert(first.child.get.id.get.toString === "3f48e10644ae3742baa2d0b9")
+    }
+    
+     it("should be able to move from last inside to last outside") {
+      // 1  ->    2     ->  3
+      //    (4 -> 5 -> 6)
+      // 6 moves after 3
+      DataLoader.clearDB
+      EditWorkflowDataLoader.prepareBoardAndProject
+
+      // outer
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("1f48e10644ae3742baa2d0b9"),
+        "name" -> "name1",
+        "wipLimit" -> 4,
+        "itemType" -> "H",
+        "childId" -> None,
+        "nextItemId" -> Some(new ObjectId("2f48e10644ae3742baa2d0b9")),
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("2f48e10644ae3742baa2d0b9"),
+        "name" -> "name2",
+        "wipLimit" -> 2,
+        "itemType" -> "H",
+        "childId" -> None,
+        "nextItemId" -> Some(new ObjectId("3f48e10644ae3742baa2d0b9")),
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("3f48e10644ae3742baa2d0b9"),
+        "name" -> "name3",
+        "wipLimit" -> 2,
+        "itemType" -> "H",
+        "childId" -> Some(new ObjectId("4f48e10644ae3742baa2d0b9")),
+        "nextItemId" -> None,
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+
+      // inner
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("4f48e10644ae3742baa2d0b9"),
+        "name" -> "name1",
+        "wipLimit" -> 4,
+        "itemType" -> "H",
+        "childId" -> None,
+        "nextItemId" -> Some(new ObjectId("5f48e10644ae3742baa2d0b9")),
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("5f48e10644ae3742baa2d0b9"),
+        "name" -> "name2",
+        "wipLimit" -> 2,
+        "itemType" -> "H",
+        "childId" -> None,
+        "nextItemId" -> Some(new ObjectId("6f48e10644ae3742baa2d0b9")),
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+      DataLoader.workflowitems += MongoDBObject(
+        "_id" -> new ObjectId("6f48e10644ae3742baa2d0b9"),
+        "name" -> "name3",
+        "wipLimit" -> 2,
+        "itemType" -> "H",
+        "childId" -> None,
+        "nextItemId" -> None,
+        "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
+
+      moveAndCheck(
+        "6f48e10644ae3742baa2d0b9",
+        null,
+        null,
+
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9")
+        
+        moveAndCheck(
+        "1f48e10644ae3742baa2d0b9",
+        null,
+        null,
+
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9",
+        "6f48e10644ae3742baa2d0b9",
+        "1f48e10644ae3742baa2d0b9")
+    }
+
     it("should be able to add new entity as the only to deeper workflow") {
       val stored = move(
         null,
@@ -320,8 +441,18 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
 
       assertTopLevelEntitiesInBoard(3)
     }
-  }
 
+    it("should be able move to the same place") {
+      moveAndCheck(
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        null,
+
+        "1f48e10644ae3742baa2d0b9",
+        "2f48e10644ae3742baa2d0b9",
+        "3f48e10644ae3742baa2d0b9")
+    }
+  }
 
   private def moveAndCheck(currentId: String, nextId: String, contextId: String, expectedIdOrder: String*) {
     move(currentId, nextId, contextId);
@@ -344,6 +475,5 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
       current,
       { if (contextId == null) null else context })).getPayload()
   }
-
 
 }

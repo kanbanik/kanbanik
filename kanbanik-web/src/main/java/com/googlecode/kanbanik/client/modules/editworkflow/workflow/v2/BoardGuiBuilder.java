@@ -33,9 +33,9 @@ public abstract class BoardGuiBuilder {
 				table.setWidget(row, column, createWorkflowitemPlace(dragController, currentItem, project, taskContainer));
 			}
 
-			if (currentItem.getItemType() == ItemType.VERTICAL) {
+			if (currentItem.getItemType() == ItemType.HORIZONTAL) {
 				column++;
-			} else if (currentItem.getItemType() == ItemType.HORIZONTAL) {
+			} else if (currentItem.getItemType() == ItemType.VERTICAL) {
 				row++;
 			} else {
 				throw new IllegalStateException("Unsupported item type: '"

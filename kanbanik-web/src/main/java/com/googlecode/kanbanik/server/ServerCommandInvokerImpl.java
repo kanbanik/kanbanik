@@ -6,6 +6,7 @@ import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand;
 import com.googlecode.kanbanik.commands.DeleteBoardCommand;
 import com.googlecode.kanbanik.commands.DeleteProjectCommand;
 import com.googlecode.kanbanik.commands.DeleteTaskCommand;
+import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
 import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
@@ -15,6 +16,7 @@ import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
 import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
+import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -52,6 +54,10 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new EditWorkflowCommand().execute(params);
 		} else if (command == ServerCommand.GET_BOARD) {
 			return (R) new GetBoardCommand().execute(params);
+		} else if (command == ServerCommand.DELETE_WORKFLOWITEM) {
+			return (R) new DeleteWorkflowitemCommand().execute(params);
+		} else if (command == ServerCommand.EDIT_WORKFLOWITEM_DATA) {
+			return (R) new EditWorkflowitemDataCommand().execute(params);
 		}
 		return null;
 	}

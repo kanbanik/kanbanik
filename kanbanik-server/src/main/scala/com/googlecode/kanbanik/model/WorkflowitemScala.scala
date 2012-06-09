@@ -10,7 +10,7 @@ class WorkflowitemScala(
   var id: Option[ObjectId],
   var name: String,
   var wipLimit: Int,
-  val itemType: String,
+  var itemType: String,
   private var _child: Option[WorkflowitemScala],
   private var _nextItem: Option[WorkflowitemScala],
   private var realBoard: BoardScala)
@@ -118,14 +118,23 @@ class WorkflowitemScala(
     })
 
     using(createConnection) { conn =>
-      val idObject = MongoDBObject("_id" -> idToUpdate)
-      coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
+      storeData
 
+      // remember prev context
+      val prevContext = findContext(WorkflowitemScala.byId(idToUpdate))
       moveVertically(idToUpdate, context, WorkflowitemScala.byId(idToUpdate))
 
-      moveHorizontally(idToUpdate, context)
+      // put as argument before it was changed
+      moveHorizontally(idToUpdate, context, prevContext)
 
       return WorkflowitemScala.byId(idToUpdate)
+    }
+  }
+
+  def storeData() {
+    using(createConnection) { conn =>
+      val idObject = MongoDBObject("_id" -> id.get)
+      coll(conn, Coll.Workflowitems).update(idObject, $set("name" -> name, "wipLimit" -> wipLimit, "itemType" -> itemType))
     }
   }
 
@@ -161,7 +170,7 @@ class WorkflowitemScala(
           }
         }
       }
-      
+
       updateBoard(context, currentEntity)
     }
   }
@@ -178,7 +187,7 @@ class WorkflowitemScala(
     if (!context.isDefined) {
       coll(conn, Coll.Workflowitems).find(MongoDBObject("boardId" -> boardId, "nextItemId" -> None)).foreach(
         item =>
-          if (!findParent(WorkflowitemScala.asEntity(item)).isDefined) {
+          if (!findContext(WorkflowitemScala.asEntity(item)).isDefined) {
             return Some(item)
           })
 
@@ -228,23 +237,23 @@ class WorkflowitemScala(
 
     toDelete.nextItemIdInternal = None
     toDelete.store
-    
+
     val lastChildOfParent = findLastChildInContext(findParent(toDelete))
     if (lastChildOfParent.isDefined) {
       val newParent = WorkflowitemScala.asEntity(lastChildOfParent.get)
       newParent.child = Some(toDelete)
       newParent.store
     }
-    
+
     unregisterFromBoard()
-    
+
     using(createConnection) { conn =>
       val newPrev = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> id))
       if (newPrev.isDefined) {
         coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
           $set("nextItemId" -> None))
       }
-      
+
       val newParent = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "childId" -> id))
       if (newParent.isDefined) {
         coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> newPrev.get.get("_id")),
@@ -254,7 +263,6 @@ class WorkflowitemScala(
       coll(conn, Coll.Workflowitems).remove(MongoDBObject("_id" -> id))
     }
 
-    
   }
 
   def unregisterFromBoard() {
@@ -295,7 +303,8 @@ class WorkflowitemScala(
 
   private def moveHorizontally(
     idToUpdate: ObjectId,
-    context: Option[WorkflowitemScala]) {
+    context: Option[WorkflowitemScala],
+    prevContext: Option[WorkflowitemScala]) {
     using(createConnection) { conn =>
       // a->b->c->d->e->f
       // the e moves before b
@@ -305,14 +314,13 @@ class WorkflowitemScala(
       val e = WorkflowitemScala.byId(idToUpdate)
 
       // ignore if did not move
-      val parent = findParent(e)
-      if (parent.isDefined && context.isDefined && parent.get.id.get == context.get.id.get) {
+      if (prevContext.isDefined && context.isDefined && prevContext.get.id.get == context.get.id.get) {
         if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
           return
         }
       }
 
-      if (!parent.isDefined && !context.isDefined) {
+      if (!prevContext.isDefined && !context.isDefined) {
         if (e.nextItemIdInternal.equals(nextItemIdInternal)) {
           return
         }
@@ -351,6 +359,30 @@ class WorkflowitemScala(
         coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> findId(lastEntity.get)),
           $set("nextItemId" -> e.id))
       }
+    }
+  }
+
+  def findContext(child: WorkflowitemScala): Option[WorkflowitemScala] = {
+
+    using(createConnection) { conn =>
+      var prev = child
+      while (true) {
+        val parent = findParent(prev)
+        if (parent.isDefined) {
+          return parent
+        }
+
+        prev = findPrev(prev).getOrElse(return None)
+      }
+    }
+
+    None
+  }
+
+  private def findPrev(next: WorkflowitemScala): Option[WorkflowitemScala] = {
+    using(createConnection) { conn =>
+      val prev = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> board.id.getOrElse(throw new IllegalStateException("The board has to be set for workflowitem!")), "nextItemId" -> next.id.get))
+      return Some(WorkflowitemScala.asEntity(prev.getOrElse(return None)))
     }
   }
 
@@ -396,7 +428,7 @@ class WorkflowitemScala(
     if (!workflowitem.id.isDefined) {
       return false
     }
-    
+
     if (!board.workflowitems.isDefined) {
       return false
     }

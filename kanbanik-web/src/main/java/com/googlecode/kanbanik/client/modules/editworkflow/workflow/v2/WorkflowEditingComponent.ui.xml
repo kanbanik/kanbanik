@@ -19,7 +19,6 @@
 
 	<g:FlowPanel addStyleNames="mainPanel">
 		<g:FlowPanel ui:field="board" addStyleNames="boardPanel" />
-		<g:FlowPanel ui:field="palette" addStyleNames="palettePanel" />
 	</g:FlowPanel>
 
 </ui:UiBinder>

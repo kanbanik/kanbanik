@@ -4,23 +4,11 @@ import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
 
 object EditWorkflowDataLoader {
-  
-   def buildWorkflow() {
-    DataLoader.boards += MongoDBObject(
-      "_id" -> new ObjectId("1e48e10644ae3742baa2d0b9"),
-      "name" -> "board1 name",
-      "workflowitems" -> List(
-        new ObjectId("1f48e10644ae3742baa2d0b9"),
-        new ObjectId("2f48e10644ae3742baa2d0b9"),
-        new ObjectId("3f48e10644ae3742baa2d0b9")))
 
-    DataLoader.projects += MongoDBObject(
-      "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
-      "name" -> "project1",
-      "boards" -> List(
-        new ObjectId("1e48e10644ae3742baa2d0b9")),
-      "tasks" -> None)
-
+  def buildWorkflow() {
+    
+    prepareBoardAndProject
+    
     // workflowitems    
     DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("1f48e10644ae3742baa2d0b9"),
@@ -46,9 +34,9 @@ object EditWorkflowDataLoader {
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      
-      // child of 1
-      DataLoader.workflowitems += MongoDBObject(
+
+    // child of 1
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("7f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -56,9 +44,9 @@ object EditWorkflowDataLoader {
       "childId" -> Some(new ObjectId("8f48e10644ae3742baa2d0b9")),
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      
-      // children of 2
-      DataLoader.workflowitems += MongoDBObject(
+
+    // children of 2
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -66,7 +54,7 @@ object EditWorkflowDataLoader {
       "childId" -> None,
       "nextItemId" -> Some(new ObjectId("5f48e10644ae3742baa2d0b9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      DataLoader.workflowitems += MongoDBObject(
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("5f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -74,7 +62,7 @@ object EditWorkflowDataLoader {
       "childId" -> Some(new ObjectId("9f48e10644ae3742baa2d0b9")),
       "nextItemId" -> Some(new ObjectId("6f48e10644ae3742baa2d0b9")),
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      DataLoader.workflowitems += MongoDBObject(
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("6f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -82,8 +70,8 @@ object EditWorkflowDataLoader {
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      
-      DataLoader.workflowitems += MongoDBObject(
+
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("8f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -91,8 +79,8 @@ object EditWorkflowDataLoader {
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      
-      DataLoader.workflowitems += MongoDBObject(
+
+    DataLoader.workflowitems += MongoDBObject(
       "_id" -> new ObjectId("9f48e10644ae3742baa2d0b9"),
       "name" -> "name2-1",
       "wipLimit" -> 2,
@@ -100,7 +88,23 @@ object EditWorkflowDataLoader {
       "childId" -> None,
       "nextItemId" -> None,
       "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-      
   }
-  
+
+  def prepareBoardAndProject() {
+    DataLoader.boards += MongoDBObject(
+      "_id" -> new ObjectId("1e48e10644ae3742baa2d0b9"),
+      "name" -> "board1 name",
+      "workflowitems" -> List(
+        new ObjectId("1f48e10644ae3742baa2d0b9"),
+        new ObjectId("2f48e10644ae3742baa2d0b9"),
+        new ObjectId("3f48e10644ae3742baa2d0b9")))
+
+    DataLoader.projects += MongoDBObject(
+      "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
+      "name" -> "project1",
+      "boards" -> List(
+        new ObjectId("1e48e10644ae3742baa2d0b9")),
+      "tasks" -> None)
+  }
+
 }

@@ -1,14 +1,12 @@
-package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
+package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.googlecode.kanbanik.dto.ItemType;
 
 public class WorkflowItemEditPanel extends VerticalPanel {
 
@@ -17,10 +15,6 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 	private TextBox wipLimitBox;
 	
 	private CheckBox wipLimitEnabled;
-	
-	private RadioButton horizontal = new RadioButton("itemTypeGroup", "Horizontal");
-
-	private RadioButton vertical = new RadioButton("itemTypeGroup", "Vertical");
 	
 	public void setWipLimit(int wipLimit) {
 		wipLimitBox = new TextBox();
@@ -42,19 +36,6 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 	private void disableWipLimit() {
 		wipLimitBox.setText("");
 		wipLimitBox.setEnabled(false);
-	}
-	
-	public void setType(ItemType itemType) {
-		VerticalPanel panel = new VerticalPanel();
-		panel.add(horizontal);
-		panel.add(vertical);
-		add(panel);
-		
-		if (itemType == ItemType.HORIZONTAL) {
-			horizontal.setValue(true);
-		} else {
-			vertical.setValue(true);
-		}
 	}
 	
 	class WipLimitEnabledClickHandler implements ClickHandler {
@@ -96,14 +77,6 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 		} catch (NumberFormatException e) {
 			return -1;
 		}
-	}
-
-	public ItemType getItemType() {
-		if (horizontal.getValue()) {
-			return ItemType.HORIZONTAL;
-		}
-		
-		return ItemType.VERTICAL;
 	}
 	
 }

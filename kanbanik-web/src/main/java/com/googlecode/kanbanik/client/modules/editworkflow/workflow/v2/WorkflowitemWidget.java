@@ -42,9 +42,17 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 	public WorkflowitemWidget(WorkflowitemDto workflowitem) {
 		this.workflowitem = workflowitem;
 		initWidget(uiBinder.createAndBindUi(this));
-		workflowitemName.setText(workflowitem.getName() + "(" + workflowitem.getWipLimit() + ")");
+		workflowitemName.setText(createHeader(workflowitem));
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
+		
+		new WorkflowitemDeletingComponent(workflowitem, deleteButton);
+		new WorkflowitemEditingComponent(workflowitem, editButton);
+	}
+
+	private String createHeader(WorkflowitemDto workflowitem) {
+		String wip = workflowitem.getWipLimit() == -1 ? "" : "(" + workflowitem.getWipLimit() + ")";
+		return workflowitem.getName() + wip;
 	}
 	
 	public WorkflowitemWidget(WorkflowitemDto workflowitem, Widget child) {

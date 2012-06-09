@@ -5,37 +5,32 @@
 	xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
 
 <!-- 	<listener> -->
-<!-- 		<listener-class>org.springframework.web.context.ContextLoaderListener -->
-<!-- 		</listener-class> -->
+<!-- 		<listener-class>com.acme.MyConnectionManager</listener-class> -->
 <!-- 	</listener> -->
-<!-- 	<context-param> -->
-<!-- 		<param-name>contextConfigLocation</param-name> -->
-<!-- 		<param-value> -->
-<!-- 			classpath:spring-context.xml -->
-<!--   		</param-value> -->
-<!-- 	</context-param> -->
-
 
 	<servlet>
 		<servlet-name>kanbanikServlet</servlet-name>
-		<servlet-class>com.googlecode.kanbanik.server.KanbanikServiceImpl</servlet-class>
+		<servlet-class>com.googlecode.kanbanik.server.KanbanikServiceImpl
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>configureWorkflowServlet</servlet-name>
-		<servlet-class>com.googlecode.kanbanik.server.ConfigureWorkflowServiceImpl</servlet-class>
+		<servlet-class>com.googlecode.kanbanik.server.ConfigureWorkflowServiceImpl
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>commandInvoker</servlet-name>
-		<servlet-class>com.googlecode.kanbanik.server.ServerCommandInvokerImpl</servlet-class>
+		<servlet-class>com.googlecode.kanbanik.server.ServerCommandInvokerImpl
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet-mapping>
 		<servlet-name>commandInvoker</servlet-name>
 		<url-pattern>/kanbanik/commandInvoker</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>configureWorkflowServlet</servlet-name>
 		<url-pattern>/kanbanik/configureWorkflow</url-pattern>

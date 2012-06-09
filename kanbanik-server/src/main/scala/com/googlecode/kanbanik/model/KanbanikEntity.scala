@@ -4,8 +4,10 @@ import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
 
 trait KanbanikEntity extends ResourceManipulation {
 
-  def createConnection = MongoConnection()
-  
+  def createConnection = {
+    MongoConnection()
+  }
+
   object Coll extends Enumeration {
     val Workflowitems = Value("workflowitems")
     val Boards = Value("boards")
@@ -17,6 +19,5 @@ trait KanbanikEntity extends ResourceManipulation {
   def coll(connection: MongoConnection, collName: Coll.Value) = {
     connection("kanbanik")(collName.toString())
   }
-
 
 }
