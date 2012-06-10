@@ -33,7 +33,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
   
   def hasTasksOnWorkflowitem(workflowitemId: ObjectId): Boolean = {
     using(createConnection) { conn =>
-      return coll(conn, Coll.Workflowitems).findOne(MongoDBObject("workflowitem" -> workflowitemId)).isDefined
+      return coll(conn, Coll.Tasks).findOne(MongoDBObject("workflowitem" -> workflowitemId)).isDefined
     }
   }
 }
