@@ -16,69 +16,82 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class WorkflowEditingDropController extends FlowPanelDropController {
 	private final WorkflowitemDto contextItem;
-	
+
 	private final WorkflowitemDto currentItem;
-	
+
 	private final Position position;
 
-	public WorkflowEditingDropController(
-			FlowPanel dropTarget,
-			WorkflowitemDto contextItem,
-			WorkflowitemDto currentItem, 
+	public WorkflowEditingDropController(FlowPanel dropTarget,
+			WorkflowitemDto contextItem, WorkflowitemDto currentItem,
 			Position position) {
 		super(dropTarget);
 		this.contextItem = contextItem;
 		this.currentItem = currentItem;
 		this.position = position;
 	}
-	
+
 	@Override
 	public void onPreviewDrop(DragContext context) throws VetoDragException {
+		// veto if dropped before or after himself
+
 		Widget w = context.selectedWidgets.iterator().next();
 		if (!(w instanceof WorkflowitemWidget)) {
 			return;
 		}
-		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w).getWorkflowitem();
-		WorkflowitemDto nextItem = findNextItem();
-		if (droppedItem.getId() != null && 
-				nextItem.getId() != null && 
-				droppedItem.getId().equals(nextItem.getId())) {
-			// dropped before himself
-			throw new VetoDragException();
+		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
+				.getWorkflowitem();
+		if (droppedItem.getId() != null && currentItem.getId() != null) {
+			if (droppedItem.getId().equals(currentItem.getId())) {
+				throw new VetoDragException();
+			}
+
+			WorkflowitemDto nextItem = findNextItem();
+			if (nextItem != null && nextItem.getId() != null
+					&& droppedItem.getId().equals(nextItem.getId())) {
+				throw new VetoDragException();
+			}
 		}
+
 		super.onPreviewDrop(context);
 	}
-	
+
 	@Override
 	public void onDrop(DragContext context) {
 		super.onDrop(context);
-		
+
 		if (context.selectedWidgets.size() > 1) {
-			throw new UnsupportedOperationException("Only one workflowitem can be dragged at a time");
+			throw new UnsupportedOperationException(
+					"Only one workflowitem can be dragged at a time");
 		}
-		
+
 		Widget w = context.selectedWidgets.iterator().next();
 		if (!(w instanceof WorkflowitemWidget)) {
 			return;
 		}
-		
-		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w).getWorkflowitem();
-		WorkflowitemDto nextItem = findNextItem();
-		
-		droppedItem.setNextItem(nextItem);
-		
-		ServerCommandInvokerManager.getInvoker().<EditWorkflowParams, SimpleParams<WorkflowitemDto>> invokeCommand(
-				ServerCommand.EDIT_WORKFLOW,
-				new EditWorkflowParams(droppedItem, contextItem),
-				new KanbanikAsyncCallback<SimpleParams<WorkflowitemDto>>() {
 
-					@Override
-					public void success(SimpleParams<WorkflowitemDto> result) {
-						MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
-					}
-				});
+		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
+				.getWorkflowitem();
+		WorkflowitemDto nextItem = findNextItem();
+
+		droppedItem.setNextItem(nextItem);
+
+		ServerCommandInvokerManager
+				.getInvoker()
+				.<EditWorkflowParams, SimpleParams<WorkflowitemDto>> invokeCommand(
+						ServerCommand.EDIT_WORKFLOW,
+						new EditWorkflowParams(droppedItem, contextItem),
+						new KanbanikAsyncCallback<SimpleParams<WorkflowitemDto>>() {
+
+							@Override
+							public void success(
+									SimpleParams<WorkflowitemDto> result) {
+								MessageBus
+										.sendMessage(new RefreshBoardsRequestMessage(
+												"", this));
+							}
+						});
 	}
-	
+
 	private WorkflowitemDto findNextItem() {
 		if (position == Position.BEFORE) {
 			return currentItem;
@@ -88,6 +101,6 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 			// this can happen only if it has no children => has no next item
 			return null;
 		}
-		
+
 	}
 }
