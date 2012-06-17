@@ -57,16 +57,19 @@ public class BoardsModule {
 			BoardDto board = boardWithProjects.getBoard();
 
 			int row = 0;
-			FlexTable table = new FlexTable();
-			table.setBorderWidth(1);
+			FlexTable boardTable = new FlexTable();
+			boardTable.setBorderWidth(1);
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
-			panelWithDraggabls.add(table);
+			panelWithDraggabls.add(boardTable);
 			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
-				table.setWidget(row, 0, new ProjectHeader(board, project));
-				boardBuilder.buildBoard(board.getRootWorkflowitem(), project, table, dragController,
-						row, 1);
+				boardTable.setWidget(row, 0, new ProjectHeader(board, project));
+				FlexTable projectTable = new FlexTable();
+				projectTable.setBorderWidth(2);
+				boardBuilder.buildBoard(board.getRootWorkflowitem(), project, projectTable, dragController,
+						0, 0);
+				boardTable.setWidget(row, 1, projectTable);
 				row++;
 			}
 			panel.addBoard(panelWithDraggabls);
