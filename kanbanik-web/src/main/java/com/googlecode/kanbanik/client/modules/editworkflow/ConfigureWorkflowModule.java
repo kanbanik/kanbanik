@@ -3,8 +3,6 @@ package com.googlecode.kanbanik.client.modules.editworkflow;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
@@ -26,11 +24,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	public ConfigureWorkflowModule() {
 		
 		setStyleName("edit-workflow-module");
-		
-		Panel boardsPanel = new VerticalPanel();
-		boardsPanel.add(boardsBox);
-		
-		add(boardsPanel);
+
 	}
 
 	public void initialize(final ModuleInitializeCallback initializedCallback) {

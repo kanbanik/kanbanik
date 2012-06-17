@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -100,6 +101,11 @@ public class BoardsBox extends Composite {
 		}
 
 		public void setContent(List<BoardWithProjectsDto> boards) {
+			if (boards == null || boards.size() == 0) {
+				this.boards = new ArrayList<BoardWithProjectsDto>();
+				return;
+			}
+			
 			int tmpSelectedBoard = lastSelectedIndex;
 			clear();
 			this.boards = boards;
