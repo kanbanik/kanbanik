@@ -4,9 +4,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
 
-<!-- 	<listener> -->
-<!-- 		<listener-class>com.acme.MyConnectionManager</listener-class> -->
-<!-- 	</listener> -->
+	<listener>
+		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener</listener-class>
+	</listener>
 
 	<servlet>
 		<servlet-name>kanbanikServlet</servlet-name>

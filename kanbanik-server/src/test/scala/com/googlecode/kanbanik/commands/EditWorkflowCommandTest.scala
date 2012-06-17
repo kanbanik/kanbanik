@@ -218,6 +218,8 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
     }
 
     it("should be able to add new entity to the end of the top-level workflow") {
+      DataLoader.clearDB
+      EditWorkflowDataLoader.buildWorkflow
       val stored = move(
         null,
         null,
@@ -230,8 +232,10 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         stored.getId())
 
       assertTopLevelEntitiesInBoard(4)
+      DataLoader.clearDB
     }
 
+    
     it("should be able to add new entity to the middle of the top-level workflow") {
       val stored = move(
         null,
@@ -452,6 +456,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         "2f48e10644ae3742baa2d0b9",
         "3f48e10644ae3742baa2d0b9")
     }
+    
   }
 
   private def moveAndCheck(currentId: String, nextId: String, contextId: String, expectedIdOrder: String*) {

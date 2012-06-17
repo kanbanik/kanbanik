@@ -4,12 +4,12 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoConnection
 
-object DataLoader {
+object DataLoader extends KanbanikEntity {
 
-  val workflowitems = MongoConnection()("kanbanik")("workflowitems")
-  val boards = MongoConnection()("kanbanik")("boards")
-  val tasks = MongoConnection()("kanbanik")("tasks")
-  val projects = MongoConnection()("kanbanik")("projects")
+  val workflowitems = createConnection("kanbanik")("workflowitems")
+  val boards = createConnection("kanbanik")("boards")
+  val tasks = createConnection("kanbanik")("tasks")
+  val projects = createConnection("kanbanik")("projects")
 
   def fillDB {
     fillWorkflowitems

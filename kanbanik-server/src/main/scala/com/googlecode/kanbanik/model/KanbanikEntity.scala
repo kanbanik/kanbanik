@@ -1,11 +1,15 @@
 package com.googlecode.kanbanik.model
 import com.mongodb.casbah.MongoConnection
 import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
+import com.mongodb.casbah.WriteConcern
+import com.mongodb.casbah.MongoOptions
+import com.mongodb.ServerAddress
 
 trait KanbanikEntity extends ResourceManipulation {
 
   def createConnection = {
-    MongoConnection()
+    KanbanikEntity.initConnection
+    KanbanikEntity.connection
   }
 
   object Coll extends Enumeration {
@@ -20,4 +24,17 @@ trait KanbanikEntity extends ResourceManipulation {
     connection("kanbanik")(collName.toString())
   }
 
+}
+
+object KanbanikEntity {
+  var connection: MongoConnection = null
+  def initConnection {
+    if (connection == null) {
+      connection = MongoConnection()
+      connection.writeConcern = WriteConcern.Safe
+    }
+
+  }
+  
+  def destroyConnection = connection.close()
 }

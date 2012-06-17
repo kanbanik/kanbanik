@@ -92,16 +92,15 @@ class WorkflowitemScala(
       val obj = WorkflowitemScala.asDBObject(this)
       var storedThis: WorkflowitemScala = null
       using(createConnection) { conn =>
+        val prevLast = findLastEntityInContext(context, conn)
         coll(conn, Coll.Workflowitems) += obj
 
-        val prevLast = findLastEntityInContext(context, conn)
         storedThis = WorkflowitemScala.byId(WorkflowitemScala.asEntity(obj).id.get)
         moveVertically(storedThis.id.get, context, storedThis)
 
         if (prevLast.isDefined) {
 
           val prevLastEntity = WorkflowitemScala.asEntity(prevLast.get)
-
           // first put to the end
           coll(conn, Coll.Workflowitems).update(MongoDBObject("_id" -> prevLastEntity.id.get),
             $set("nextItemId" -> storedThis.id.get))
