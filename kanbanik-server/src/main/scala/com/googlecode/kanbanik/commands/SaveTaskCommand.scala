@@ -4,12 +4,17 @@ import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.model.ProjectScala
 import org.bson.types.ObjectId
+import com.googlecode.kanbanik.dto.shell.FailableResult
 
-class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], SimpleParams[TaskDto]] with TaskManipulation {
+class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {
   
   private lazy val taskBuilder = new TaskBuilder()
   
-  def execute(params: SimpleParams[TaskDto]): SimpleParams[TaskDto] = {
+  def execute(params: SimpleParams[TaskDto]): FailableResult[SimpleParams[TaskDto]] = {
+    if (params.getPayload().getWorkflowitem() == null) {
+      return new FailableResult(null, false, "At least one workflowitem must exist to create a task!")
+    }
+    
     val task = taskBuilder.buildEntity(params.getPayload())
     val isNew = !task.id.isDefined
     
@@ -20,6 +25,6 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], SimpleParams[
     	addTaskToProject(storedTask, project)
     }
 
-    return new SimpleParams(taskBuilder.buildDto(storedTask))
+    return new FailableResult(new SimpleParams(taskBuilder.buildDto(storedTask)), true, "")
   }
 }

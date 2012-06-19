@@ -7,7 +7,7 @@ import com.googlecode.kanbanik.model.KanbanikConnectionManager;
 public class KanbanikContextListener implements ServletContextListener {
 
 	public void contextDestroyed(ServletContextEvent arg0) {
-		// close the connection
+		// close the connection pool
 		new KanbanikConnectionManager().destroyConnection();
 	}
 

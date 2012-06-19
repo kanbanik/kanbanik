@@ -190,7 +190,7 @@ class WorkflowitemScala(
             return Some(item)
           })
 
-      None
+      return None
     }
 
     var candidate = context.get.child.getOrElse(return None)

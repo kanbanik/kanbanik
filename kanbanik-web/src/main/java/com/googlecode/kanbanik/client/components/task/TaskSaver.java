@@ -3,11 +3,13 @@ package com.googlecode.kanbanik.client.components.task;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -20,17 +22,22 @@ public class TaskSaver implements MessageListener<TaskDto> {
 
 					public void run() {
 						final boolean isNew = taskDTO.getId() == null;
-						ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, SimpleParams<TaskDto>> invokeCommand(
+						ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
 								ServerCommand.SAVE_TASK,
 								new SimpleParams<TaskDto>(taskDTO),
-								new KanbanikAsyncCallback<SimpleParams<TaskDto>>() {
+								new KanbanikAsyncCallback<FailableResult<SimpleParams<TaskDto>>>() {
 
 									@Override
-									public void success(SimpleParams<TaskDto> result) {
+									public void success(FailableResult<SimpleParams<TaskDto>> result) {
+										if (!result.isSucceeded()) {
+											new ErrorDialog(result.getMessage()).center();
+											return;
+										}
+										
 										if (isNew) {
-											MessageBus.sendMessage(new TaskAddedMessage(result.getPayload(), TaskSaver.this));
+											MessageBus.sendMessage(new TaskAddedMessage(result.getPayload().getPayload(), TaskSaver.this));
 										} else {
-											MessageBus.sendMessage(new TaskEditSavedMessage(result.getPayload(), TaskSaver.this));
+											MessageBus.sendMessage(new TaskEditSavedMessage(result.getPayload().getPayload(), TaskSaver.this));
 										}
 									}
 								});

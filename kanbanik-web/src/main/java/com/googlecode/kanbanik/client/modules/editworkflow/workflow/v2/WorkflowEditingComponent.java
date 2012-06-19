@@ -90,6 +90,17 @@ public class WorkflowEditingComponent extends Composite implements
 		buildBoard(null, boardDto.getRootWorkflowitem(), null, table,
 				dragController, 0, 0);
 
+		// default DTO
+		if (boardDto.getRootWorkflowitem() == null) {
+			table.setWidget(
+					0,
+					0,
+					createDropTarget(dragController, 
+							null,
+							null, 
+							Position.BEFORE));
+		}
+		
 		board.add(panelWithDraggabls);
 		initAndAddPalette(dragController);
 	}
