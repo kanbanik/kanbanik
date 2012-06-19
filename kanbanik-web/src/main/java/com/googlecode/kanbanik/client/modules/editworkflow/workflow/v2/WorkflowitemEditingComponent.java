@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
@@ -56,6 +57,9 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 	public void okClicked(PanelContainingDialog dialog) {
 		flushDto();
 		
+		new KanbanikServerCaller(
+				new Runnable() {
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, VoidParams> invokeCommand(
 				ServerCommand.EDIT_WORKFLOWITEM_DATA,
 				new SimpleParams<WorkflowitemDto>(dto),
@@ -65,6 +69,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 					public void success(VoidParams result) {
 						MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
 					}
-				});		
+				}); 
+		}});		
 	}
 }

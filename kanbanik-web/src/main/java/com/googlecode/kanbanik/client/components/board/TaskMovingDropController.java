@@ -5,6 +5,7 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.model.TaskGui;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -42,7 +43,10 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		
 		task.getDto().setWorkflowitem(workflowitem);
 		task.getDto().setProject(project);
-		
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, SimpleParams<TaskDto>> invokeCommand(
 				ServerCommand.MOVE_TASK,
 				new MoveTaskParams(task.getDto(), project),
@@ -63,6 +67,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 					}
 
 				});
+		}});
 		
 	}
 }

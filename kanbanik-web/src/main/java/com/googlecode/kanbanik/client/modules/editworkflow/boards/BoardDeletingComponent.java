@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -34,9 +35,12 @@ public class BoardDeletingComponent extends AbstractDeletingComponent {
 	@Override
 	protected void onOkClicked() {
 
-		BoardDto toDelete = new BoardDto();
+		final BoardDto toDelete = new BoardDto();
 		toDelete.setId(boardDto.getId());
-		
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<VoidParams>> invokeCommand(
 				ServerCommand.DELETE_BOARD,
 				new SimpleParams<BoardDto>(toDelete),
@@ -50,7 +54,7 @@ public class BoardDeletingComponent extends AbstractDeletingComponent {
 							MessageBus.sendMessage(new BoardDeletedMessage(boardDto, this));
 						}
 					}
-				});
+				});}});
 		
 	}
 }

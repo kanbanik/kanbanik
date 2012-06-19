@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
@@ -30,7 +31,10 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	public void initialize(final ModuleInitializeCallback initializedCallback) {
 		add(boardsBox);
 		
-		
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
 				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
 				new VoidParams(),
@@ -48,6 +52,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 						initializedCallback.initialized(ConfigureWorkflowModule.this);
 					}
 				});
+					}});
 
 		setVisible(true);
 		
@@ -67,6 +72,10 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	private void editBoard(final BoardWithProjectsDto boardWithProjects) {
 		// well, this is a hack. It should listen to ProjectAddedMessage and update the projects.
 		
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ProjectDto>>> invokeCommand(
 				ServerCommand.GET_ALL_PROJECTS,
 				new VoidParams(),
@@ -82,6 +91,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
 					}
 				});
+		}});
 	}
 
 	private void removeEverithing() {

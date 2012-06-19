@@ -6,6 +6,7 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent.Position;
@@ -40,7 +41,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 		}
 		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
 				.getWorkflowitem();
-		if (droppedItem.getId() != null && currentItem.getId() != null) {
+		if (droppedItem.getId() != null && currentItem != null && currentItem.getId() != null) {
 			if (droppedItem.getId().equals(currentItem.getId())) {
 				throw new VetoDragException();
 			}
@@ -69,12 +70,16 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 			return;
 		}
 
-		WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
+		final WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
 				.getWorkflowitem();
 		WorkflowitemDto nextItem = findNextItem();
 
 		droppedItem.setNextItem(nextItem);
 
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager
 				.getInvoker()
 				.<EditWorkflowParams, SimpleParams<WorkflowitemDto>> invokeCommand(
@@ -90,6 +95,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 												"", this));
 							}
 						});
+		}});
 	}
 
 	private WorkflowitemDto findNextItem() {

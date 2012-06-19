@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -30,7 +31,10 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent {
 
 	@Override
 	protected void onOkClicked() {
-		
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<VoidParams>> invokeCommand(
 				ServerCommand.DELETE_PROJECT,
 				new SimpleParams<ProjectDto>(projectDto),
@@ -45,6 +49,7 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent {
 						}	
 					}
 				});
+		}});
 	}
 
 }

@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardEditedMessage;
@@ -31,6 +32,10 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent {
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
+		
+		new KanbanikServerCaller(
+				new Runnable() {
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
 				ServerCommand.SAVE_BOARD,
 				new SimpleParams<BoardDto>(toStore),
@@ -41,6 +46,7 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent {
 						MessageBus.sendMessage(new BoardEditedMessage(result.getPayload(), this));
 					}
 				});
+		}});
 		
 	}
 

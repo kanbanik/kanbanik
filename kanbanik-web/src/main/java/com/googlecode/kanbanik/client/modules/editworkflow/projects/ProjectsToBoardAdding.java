@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -110,11 +111,14 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		return false;
 	}
 
-	private void executeCommand(ServerCommand command, List<Widget> widgets) {
+	private void executeCommand(final ServerCommand command, List<Widget> widgets) {
 		List<ProjectDto> dtos = extractDTOs(widgets);
 		final BoardWithProjectsDto toStore = new BoardWithProjectsDto(boardWithProjects.getBoard());
 		toStore.setProjects(dtos);
 		
+		new KanbanikServerCaller(
+				new Runnable() {
+					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, VoidParams> invokeCommand(
 				command,
 				new SimpleParams<BoardWithProjectsDto>(toStore),
@@ -124,6 +128,7 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 					public void success(VoidParams result) {
 					}
 				});
+		}});
 	}
 
 	private List<ProjectDto> extractDTOs(List<Widget> widgets) {

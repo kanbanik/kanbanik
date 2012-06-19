@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -250,6 +251,10 @@ public class WorkflowEditingComponent extends Composite implements
 	public void messageArrived(Message<RefreshBoardsRequestMessage> message) {
 		// I know, this is not really efficient...
 		// One day it should be improved
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
 		ServerCommandInvokerManager
 				.getInvoker()
 				.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
@@ -264,6 +269,7 @@ public class WorkflowEditingComponent extends Composite implements
 							}
 
 						});
+		}});
 	}
 
 }

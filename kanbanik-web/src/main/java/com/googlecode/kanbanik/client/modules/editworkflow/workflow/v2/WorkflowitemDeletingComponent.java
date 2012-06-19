@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
@@ -47,6 +48,10 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
+			
+			new KanbanikServerCaller(
+					new Runnable() {
+						public void run() {
 			ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, FailableResult<VoidParams>> invokeCommand(
 					ServerCommand.DELETE_WORKFLOWITEM,
 					new SimpleParams<WorkflowitemDto>(dto),
@@ -61,6 +66,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 							}
 						}
 					});
+			}});
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {
