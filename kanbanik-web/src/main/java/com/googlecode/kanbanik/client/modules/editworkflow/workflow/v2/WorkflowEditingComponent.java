@@ -5,16 +5,20 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
@@ -36,9 +40,21 @@ public class WorkflowEditingComponent extends Composite implements
 
 	interface MyUiBinder extends UiBinder<Widget, WorkflowEditingComponent> {
 	}
+	
+	public interface Style extends CssResource {
+        String boardStyle();
+        String dropTargetStyle();
+		String palettePanelStyle();
+		String paletteHeaderStyle();
+		String paletteDescriptionStyle();
+    }
+
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
+	@UiField 
+	Style style;
+	
 	@UiField
 	Panel board;
 
@@ -62,18 +78,31 @@ public class WorkflowEditingComponent extends Composite implements
 		horizontal.setBoard(boardDto);
 		horizontal.setItemType(ItemType.HORIZONTAL);
 		horizontal.setName("Horizontal Item");
-		horizontal.setWipLimit(2);
+		horizontal.setWipLimit(0);
 		
 		WorkflowitemDto vertical = new WorkflowitemDto();
 		vertical.setBoard(boardDto);
 		vertical.setItemType(ItemType.VERTICAL);
 		vertical.setName("Vertical Item");
-		horizontal.setWipLimit(2);
+		horizontal.setWipLimit(0);
 		
 		WorkflowItemPalette paletteContent = new WorkflowItemPalette(dragController);
+		
 		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(horizontal));
 		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(vertical));
-		panelWithDraggabls.add(paletteContent);
+		FlowPanel designPanel = new FlowPanel();
+		
+		Label headerLabel = new Label("Workflowitem Palette");
+		headerLabel.setStyleName(style.paletteHeaderStyle());
+		
+		Label descriptionLabel = new Label("Drag and drop workflowitems from palette to workflow");
+		descriptionLabel.setStyleName(style.paletteDescriptionStyle());
+		
+		designPanel.add(headerLabel);
+		designPanel.add(descriptionLabel);
+		designPanel.add(paletteContent);
+		designPanel.setStyleName(style.palettePanelStyle());
+		panelWithDraggabls.add(designPanel);
 	}
 
 	private void renderBoard() {
@@ -82,10 +111,15 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 
 		FlexTable table = new FlexTable();
-		table.setBorderWidth(1);
+		table.setStyleName(style.boardStyle());
+		
 		panelWithDraggabls = new AbsolutePanel();
 		PickupDragController dragController = new PickupDragController(
 				panelWithDraggabls, false);
+		
+		Label boardLabel = new Label("Workflow");
+		panelWithDraggabls.add(boardLabel);
+		
 		panelWithDraggabls.add(table);
 
 		buildBoard(null, boardDto.getRootWorkflowitem(), null, table,
@@ -99,7 +133,8 @@ public class WorkflowEditingComponent extends Composite implements
 					createDropTarget(dragController, 
 							null,
 							null, 
-							Position.BEFORE));
+							Position.BEFORE,
+							KanbanikResources.INSTANCE.insideDropArrowImage()));
 		}
 		
 		board.add(panelWithDraggabls);
@@ -114,14 +149,22 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 		WorkflowitemDto currentItem = workflowitem;
 
-		table.setWidget(
-				row,
-				column,
-				createDropTarget(dragController, parentWorkflowitem,
-						currentItem, Position.BEFORE));
 		if (currentItem.getItemType() == ItemType.HORIZONTAL) {
+			table.setWidget(
+					row,
+					column,
+					createDropTarget(dragController, parentWorkflowitem,
+							currentItem, Position.BEFORE,
+							KanbanikResources.INSTANCE.rightDropArrowImage()));
 			column++;
 		} else if (currentItem.getItemType() == ItemType.VERTICAL) {
+			table.setWidget(
+					row,
+					column,
+					createDropTarget(dragController, parentWorkflowitem,
+							currentItem, Position.BEFORE,
+							KanbanikResources.INSTANCE.downDropArrowImage()));
+
 			row++;
 		} else {
 			throw new IllegalStateException("Unsupported item type: '"
@@ -133,7 +176,7 @@ public class WorkflowEditingComponent extends Composite implements
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
 				FlexTable childTable = new FlexTable();
-				childTable.setBorderWidth(1);
+				childTable.setStyleName(style.boardStyle());
 
 				table.setWidget(
 						row,
@@ -146,7 +189,8 @@ public class WorkflowEditingComponent extends Composite implements
 				// this one does not have a child yet, so create a drop target
 				// so it can have in the future
 				Panel dropTarget = createDropTarget(dragController,
-						currentItem, null, Position.INSIDE);
+						currentItem, null, Position.INSIDE,
+						KanbanikResources.INSTANCE.insideDropArrowImage());
 				table.setWidget(
 						row,
 						column,
@@ -160,7 +204,7 @@ public class WorkflowEditingComponent extends Composite implements
 						row,
 						column,
 						createDropTarget(dragController, parentWorkflowitem,
-								currentItem, Position.AFTER));
+								currentItem, Position.AFTER, KanbanikResources.INSTANCE.rightDropArrowImage()));
 				column++;
 			} else if (currentItem.getItemType() == ItemType.VERTICAL) {
 				row++;
@@ -168,7 +212,7 @@ public class WorkflowEditingComponent extends Composite implements
 						row,
 						column,
 						createDropTarget(dragController, parentWorkflowitem,
-								currentItem, Position.AFTER));
+								currentItem, Position.AFTER, KanbanikResources.INSTANCE.downDropArrowImage()));
 				row++;
 			} else {
 				throw new IllegalStateException("Unsupported item type: '"
@@ -186,10 +230,10 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private Panel createDropTarget(PickupDragController dragController,
 			WorkflowitemDto contextItem, WorkflowitemDto currentItem,
-			Position position) {
+			Position position, ImageResource image) {
 		FlowPanel dropTarget = new FlowPanel();
-		Label dropLabel = new Label("drop");
-		dropTarget.add(dropLabel);
+		dropTarget.setStyleName(style.dropTargetStyle());
+		dropTarget.add(new Image(image));
 		DropController dropController = new WorkflowEditingDropController(
 				dropTarget, contextItem, currentItem, position);
 		dragController.registerDropController(dropController);

@@ -1,21 +1,54 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style>
-		.mainPanel {
+	<ui:style
+		type="com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent.Style">
+			.mainPanel {
+				
+			}
 			
-		}
-		
-		.boardPanel {
-			float: left;
-			border: 1px solid black;
-		}
-		
-		.palettePanel {
-			float: left;
-			border: 1px solid pink;
-		}
-	</ui:style>
+			.boardPanel {
+				float: left;
+				border: 1px solid black;
+			}
+			
+			.palettePanel {
+				float: left;
+				border: 1px solid pink;
+			}
+			
+			.boardStyle {
+				border: 1px solid black;
+			}
+			
+			.dropTargetStyle img {
+				display: block;
+				margin-left: auto;
+				margin-right: auto
+			}
+			
+			.palettePanelStyle {
+				width: 99%;				
+				margin-top: 2px;
+				text-align: center;
+				border: 1px solid black;
+				margin-left: 0px;
+				margin-right: 0px
+			}
+			
+			.palettePanelStyle>table {
+	 			margin-left: auto;
+    			margin-right: auto;
+			}
+			
+			.paletteHeaderStyle {
+				font-weight: bold;
+			
+			}
+			
+			.paletteDescriptionStyle {
+			}
+		</ui:style>
 
 	<g:FlowPanel addStyleNames="mainPanel">
 		<g:FlowPanel ui:field="board" addStyleNames="boardPanel" />
