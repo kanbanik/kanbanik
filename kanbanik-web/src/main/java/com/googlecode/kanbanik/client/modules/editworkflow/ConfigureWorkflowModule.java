@@ -96,6 +96,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private void removeEverithing() {
 		if (workflowEditingComponent != null) {
+			workflowEditingComponent.unregisterListeners();
 			remove(workflowEditingComponent);	
 		}
 	}

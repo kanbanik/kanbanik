@@ -132,8 +132,10 @@ public class BoardsBox extends Composite {
 			}
 			
 			lastSelectedIndex = index;
-			boardDeletingComponent.setBoardDto(selectedDto.getBoard());
-			boardEditingComponent.setBoardDto(selectedDto.getBoard());
+			if (selectedDto != null) {
+				boardDeletingComponent.setBoardDto(selectedDto.getBoard());
+				boardEditingComponent.setBoardDto(selectedDto.getBoard());
+			}
 		}
 
 		public void onChange(ChangeEvent event) {

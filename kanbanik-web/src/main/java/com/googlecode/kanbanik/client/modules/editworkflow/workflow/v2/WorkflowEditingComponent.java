@@ -25,7 +25,6 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -71,7 +70,6 @@ public class WorkflowEditingComponent extends Composite implements
 		
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(RefreshBoardsRequestMessage.class, this);
-		MessageBus.registerListener(BoardDeletedMessage.class, this);
 	}
 
 	private void initAndAddPalette(PickupDragController dragController, FlowPanel mainContentPanel) {
@@ -302,25 +300,19 @@ public class WorkflowEditingComponent extends Composite implements
 					.registerListener(RefreshBoardsRequestMessage.class, this);
 		}
 
-		if (!MessageBus.listens(BoardDeletedMessage.class, this)) {
-			MessageBus
-					.registerListener(BoardDeletedMessage.class, this);
-		}
 	}
 
 	public void deactivated() {
-		MessageBus.unregisterListener(RefreshBoardsRequestMessage.class, this);
-		MessageBus.unregisterListener(BoardDeletedMessage.class, this);
+		unregisterListeners();
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
+	}
+	
+	public void unregisterListeners() {
+		MessageBus.unregisterListener(RefreshBoardsRequestMessage.class, this);
 	}
 
 	public void messageArrived(Message<BoardDto> message) {
-		
-		if (message instanceof BoardDeletedMessage) {
-			this.boardDto = null;
-			if (panelWithDraggabls != null) {
-				board.remove(panelWithDraggabls);
-			}
+		if (boardDto == null) {
 			return;
 		}
 		
