@@ -1,11 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
 
+import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class PaletteWorkflowitemWidget extends WorkflowitemWidget {
 
-	public PaletteWorkflowitemWidget(WorkflowitemDto workflowitem) {
-		super(workflowitem, null);
+	public PaletteWorkflowitemWidget(WorkflowitemDto workflowitem, Widget child) {
+		super(workflowitem, child);
 		
 		editButton.setVisible(false);
 		deleteButton.setVisible(false);
@@ -16,6 +17,6 @@ public class PaletteWorkflowitemWidget extends WorkflowitemWidget {
 		dto.setName(getWorkflowitem().getName());
 		dto.setItemType(getWorkflowitem().getItemType());
 		dto.setBoard(getWorkflowitem().getBoard());
-		return new PaletteWorkflowitemWidget(dto);
+		return new PaletteWorkflowitemWidget(dto, getChild());
 	}
 }

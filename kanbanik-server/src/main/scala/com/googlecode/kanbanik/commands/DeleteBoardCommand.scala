@@ -15,6 +15,6 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
       return new FailableResult(new VoidParams, true, "")
     }
 
-    return new FailableResult(new VoidParams, false, "There are workflowitems connected to this board. Please delete them first and than delete this board.")
+    return new FailableResult(new VoidParams, false, "There are workflowitems on this board. Please delete them first and than delete this board.")
   }
 }

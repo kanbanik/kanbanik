@@ -4,20 +4,17 @@
 	<ui:style
 		type="com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent.Style">
 			.mainPanel {
-				
 			}
 			
 			.boardPanel {
 				float: left;
-				border: 1px solid black;
 			}
 			
 			.palettePanel {
 				float: left;
-				border: 1px solid pink;
 			}
 			
-			.boardStyle {
+			.bordered { 
 				border: 1px solid black;
 			}
 			
@@ -28,7 +25,6 @@
 			}
 			
 			.palettePanelStyle {
-				width: 99%;				
 				margin-top: 2px;
 				text-align: center;
 				border: 1px solid black;
@@ -36,22 +32,25 @@
 				margin-right: 0px
 			}
 			
+			.tablePanelStyle {
+				text-align: center;
+				border: 1px solid black;
+				margin-top: 5px;
+			}
+			
 			.palettePanelStyle>table {
 	 			margin-left: auto;
     			margin-right: auto;
 			}
 			
-			.paletteHeaderStyle {
+			.headerTextStyle {
 				font-weight: bold;
-			
 			}
 			
-			.paletteDescriptionStyle {
-			}
 		</ui:style>
 
 	<g:FlowPanel addStyleNames="mainPanel">
-		<g:FlowPanel ui:field="board" addStyleNames="boardPanel" />
+			<g:FlowPanel ui:field="board" addStyleNames="boardPanel" />
 	</g:FlowPanel>
 
 </ui:UiBinder>

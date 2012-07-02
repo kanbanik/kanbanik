@@ -3,14 +3,14 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.dto.ItemType;
 
-public class WorkflowItemEditPanel extends VerticalPanel {
+public class WorkflowItemEditPanel extends FlowPanel {
 
 	private TextBox nameBox;
 	
@@ -24,7 +24,7 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 	
 	public void setWipLimit(int wipLimit) {
 		wipLimitBox = new TextBox();
-		HorizontalPanel panel = createNameWaluePair("WIP Limit: ", Integer.toString(wipLimit), wipLimitBox);
+		Panel panel = createNameWaluePair("WIP Limit: ", Integer.toString(wipLimit), wipLimitBox);
 		
 		wipLimitEnabled = new CheckBox();
 		wipLimitEnabled.setValue(true);
@@ -45,10 +45,14 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 	}
 	
 	public void setType(ItemType itemType) {
-		VerticalPanel panel = new VerticalPanel();
+		Panel panel = new FlowPanel();
 		panel.add(horizontal);
 		panel.add(vertical);
-		add(panel);
+		
+		Panel nameValue = new FlowPanel();
+		nameValue.add(new Label("Orientation:"));
+		nameValue.add(panel);
+		add(nameValue);
 		
 		if (itemType == ItemType.HORIZONTAL) {
 			horizontal.setValue(true);
@@ -74,8 +78,8 @@ public class WorkflowItemEditPanel extends VerticalPanel {
 		createNameWaluePair("Name: ", name, nameBox);	
 	}
 
-	private HorizontalPanel createNameWaluePair(String label, String value, TextBox textBox) {
-		HorizontalPanel panel = new HorizontalPanel();
+	private Panel createNameWaluePair(String label, String value, TextBox textBox) {
+		Panel panel = new FlowPanel();
 		panel.add(new Label(label));
 		textBox.setText(value);
 		panel.add(textBox);

@@ -25,6 +25,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -36,17 +37,17 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class WorkflowEditingComponent extends Composite implements
-		ModulesLifecycleListener, MessageListener<RefreshBoardsRequestMessage> {
+		ModulesLifecycleListener, MessageListener<BoardDto> {
 
 	interface MyUiBinder extends UiBinder<Widget, WorkflowEditingComponent> {
 	}
 	
 	public interface Style extends CssResource {
-        String boardStyle();
+        String bordered();
         String dropTargetStyle();
 		String palettePanelStyle();
-		String paletteHeaderStyle();
-		String paletteDescriptionStyle();
+		String headerTextStyle();
+		String tablePanelStyle();
     }
 
 
@@ -70,57 +71,74 @@ public class WorkflowEditingComponent extends Composite implements
 		
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(RefreshBoardsRequestMessage.class, this);
+		MessageBus.registerListener(BoardDeletedMessage.class, this);
 	}
 
-	private void initAndAddPalette(PickupDragController dragController) {
-
+	private void initAndAddPalette(PickupDragController dragController, FlowPanel mainContentPanel) {
+		if (boardDto == null) {
+			return;
+		}
+		
 		WorkflowitemDto horizontal = new WorkflowitemDto();
 		horizontal.setBoard(boardDto);
 		horizontal.setItemType(ItemType.HORIZONTAL);
 		horizontal.setName("Horizontal Item");
-		horizontal.setWipLimit(0);
+		horizontal.setWipLimit(-1);
 		
 		WorkflowitemDto vertical = new WorkflowitemDto();
 		vertical.setBoard(boardDto);
 		vertical.setItemType(ItemType.VERTICAL);
 		vertical.setName("Vertical Item");
-		horizontal.setWipLimit(0);
+		vertical.setWipLimit(-1);
+		
 		
 		WorkflowItemPalette paletteContent = new WorkflowItemPalette(dragController);
-		
-		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(horizontal));
-		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(vertical));
+		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(horizontal, imageResourceAsPanel(KanbanikResources.INSTANCE.rightDropArrowImage())));
+		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(vertical, imageResourceAsPanel(KanbanikResources.INSTANCE.downDropArrowImage())));
 		FlowPanel designPanel = new FlowPanel();
 		
 		Label headerLabel = new Label("Workflowitem Palette");
-		headerLabel.setStyleName(style.paletteHeaderStyle());
+		headerLabel.setStyleName(style.headerTextStyle());
 		
 		Label descriptionLabel = new Label("Drag and drop workflowitems from palette to workflow");
-		descriptionLabel.setStyleName(style.paletteDescriptionStyle());
 		
 		designPanel.add(headerLabel);
 		designPanel.add(descriptionLabel);
 		designPanel.add(paletteContent);
 		designPanel.setStyleName(style.palettePanelStyle());
-		panelWithDraggabls.add(designPanel);
+		
+		mainContentPanel.add(designPanel);
 	}
 
+	private Panel imageResourceAsPanel(ImageResource image) {
+		Panel panel = new FlowPanel();
+		panel.add(new Image(image));
+		return panel;
+	}
+	
 	private void renderBoard() {
+		if (boardDto == null) {
+			return;
+		}
 		if (panelWithDraggabls != null) {
 			board.remove(panelWithDraggabls);
 		}
-
+		
 		FlexTable table = new FlexTable();
-		table.setStyleName(style.boardStyle());
+		FlowPanel mainContentPanel = new FlowPanel();
+		FlowPanel tableDesignPanel = new FlowPanel();
+		tableDesignPanel.addStyleName(style.tablePanelStyle());
+		Label headerLabel = new Label("Workflow of board: " + boardDto.getName());
+		headerLabel.setStyleName(style.headerTextStyle());
+		tableDesignPanel.add(headerLabel);
+		tableDesignPanel.add(table);
 		
 		panelWithDraggabls = new AbsolutePanel();
 		PickupDragController dragController = new PickupDragController(
 				panelWithDraggabls, false);
 		
-		Label boardLabel = new Label("Workflow");
-		panelWithDraggabls.add(boardLabel);
-		
-		panelWithDraggabls.add(table);
+		mainContentPanel.add(tableDesignPanel);
+		panelWithDraggabls.add(mainContentPanel);
 
 		buildBoard(null, boardDto.getRootWorkflowitem(), null, table,
 				dragController, 0, 0);
@@ -138,7 +156,7 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 		
 		board.add(panelWithDraggabls);
-		initAndAddPalette(dragController);
+		initAndAddPalette(dragController, mainContentPanel);
 	}
 
 	public void buildBoard(WorkflowitemDto parentWorkflowitem,
@@ -176,7 +194,6 @@ public class WorkflowEditingComponent extends Composite implements
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
 				FlexTable childTable = new FlexTable();
-				childTable.setStyleName(style.boardStyle());
 
 				table.setWidget(
 						row,
@@ -285,14 +302,28 @@ public class WorkflowEditingComponent extends Composite implements
 					.registerListener(RefreshBoardsRequestMessage.class, this);
 		}
 
+		if (!MessageBus.listens(BoardDeletedMessage.class, this)) {
+			MessageBus
+					.registerListener(BoardDeletedMessage.class, this);
+		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(RefreshBoardsRequestMessage.class, this);
+		MessageBus.unregisterListener(BoardDeletedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
-	public void messageArrived(Message<RefreshBoardsRequestMessage> message) {
+	public void messageArrived(Message<BoardDto> message) {
+		
+		if (message instanceof BoardDeletedMessage) {
+			this.boardDto = null;
+			if (panelWithDraggabls != null) {
+				board.remove(panelWithDraggabls);
+			}
+			return;
+		}
+		
 		// I know, this is not really efficient...
 		// One day it should be improved
 		new KanbanikServerCaller(
