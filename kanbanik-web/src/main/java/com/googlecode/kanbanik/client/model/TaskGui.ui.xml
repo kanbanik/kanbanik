@@ -9,8 +9,7 @@
 			margin-bottom: 4px;
 			margin-top: 2px;
 			margin-right: 2px;
- 			width: 100%;
-			text-align: right;
+			width: 100%;
 		}
 	</ui:style>
 
@@ -23,10 +22,10 @@
 			</g:FocusPanel>
 
 			<g:HorizontalPanel styleName="{style.task-toolbar}">
-				<g:PushButton styleName="imageButtonStyle"
-					ui:field="editButton" text="Edit" title="Edit" />
-				<g:PushButton styleName="imageButtonStyle"
-					ui:field="deleteButton" text="Delete" title="Delete" />
+				<g:PushButton styleName="imageButtonStyle" ui:field="editButton"
+					text="Edit" title="Edit" />
+				<g:PushButton styleName="imageButtonStyle" ui:field="deleteButton"
+					text="Delete" title="Delete" />
 			</g:HorizontalPanel>
 
 			<g:TextArea styleName="taskNameBox" width="94%" enabled="false"

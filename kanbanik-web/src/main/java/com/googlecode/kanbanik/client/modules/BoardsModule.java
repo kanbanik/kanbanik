@@ -5,7 +5,9 @@ import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.board.BoardPanel;
@@ -31,12 +33,16 @@ import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class BoardsModule {
+
+	private static final BoardStyle style = KanbanikResources.INSTANCE.boardStyle();
 	
 	static {
 		TaskSaver taskSaver = new TaskSaver();
 		MessageBus.registerListener(TaskChangedMessage.class, taskSaver);
 		MessageBus.registerListener(TaskDeleteRequestedMessage.class, taskSaver);
+		style.ensureInjected();
 	}
+	
 	
 	private void addTasks(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload().getList()) {
@@ -59,7 +65,6 @@ public class BoardsModule {
 
 			int row = 0;
 			FlexTable boardTable = new FlexTable();
-			boardTable.setBorderWidth(1);
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
@@ -67,7 +72,7 @@ public class BoardsModule {
 			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
 				boardTable.setWidget(row, 0, new ProjectHeader(board, project));
 				FlexTable projectTable = new FlexTable();
-				projectTable.setBorderWidth(2);
+				projectTable.setStyleName(style.board());
 				boardBuilder.buildBoard(board.getRootWorkflowitem(), project, projectTable, dragController,
 						0, 0);
 				boardTable.setWidget(row, 1, projectTable);

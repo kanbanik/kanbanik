@@ -28,4 +28,7 @@ public interface KanbanikResources extends ClientBundle {
 	
 	@Source("images/progressbar.gif")
 	ImageResource progressBarImage();
+	
+	@Source("style/Board.css")
+	BoardStyle boardStyle();
 }

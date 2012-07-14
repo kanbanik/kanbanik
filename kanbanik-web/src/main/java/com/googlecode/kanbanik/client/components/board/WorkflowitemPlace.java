@@ -51,13 +51,22 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		initWidget(uiBinder.createAndBindUi(this));
 
 		stateName.setText(workflowitemDto.getName());
-		wipLimit.setText(Integer.toString(workflowitemDto.getWipLimit()));
+		setupWipLimit();
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 		
 		MessageBus.registerListener(TaskAddedMessage.class, this);
 		MessageBus.registerListener(TaskDeleteRequestedMessage.class, this);
 
+	}
+
+	private void setupWipLimit() {
+		int wipLimitValue = workflowitemDto.getWipLimit();
+		if (wipLimitValue <= 0) {
+			wipLimit.setVisible(false);	
+		} else {
+			wipLimit.setText("(" + Integer.toString(wipLimitValue) + ")");
+		}
 	}
 
 	public void messageArrived(Message<TaskDto> message) {

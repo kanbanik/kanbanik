@@ -64,14 +64,14 @@ public class WorkflowEditingComponent extends Composite implements
 
 	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
+		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 	public void initialize(BoardWithProjectsDto boardWithProjects) {
 		this.boardDto = boardWithProjects.getBoard();
 		renderBoard();
 		
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
-		MessageBus.registerListener(RefreshBoardsRequestMessage.class, this);
+		registerListeners();
 	}
 	
 	private void initAndAddPalette(PickupDragController dragController, FlowPanel mainContentPanel) {
@@ -125,6 +125,7 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 		
 		FlexTable table = new FlexTable();
+		table.setStyleName("boards-board");
 		FlowPanel mainContentPanel = new FlowPanel();
 		FlowPanel tableDesignPanel = new FlowPanel();
 		tableDesignPanel.addStyleName(style.tablePanelStyle());
@@ -194,7 +195,7 @@ public class WorkflowEditingComponent extends Composite implements
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
 				FlexTable childTable = new FlexTable();
-
+				childTable.setStyleName("boards-board");
 				table.setWidget(
 						row,
 						column,
@@ -297,11 +298,14 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	public void activated() {
+		registerListeners();
+	}
+
+	private void registerListeners() {
 		if (!MessageBus.listens(RefreshBoardsRequestMessage.class, this)) {
 			MessageBus
 					.registerListener(RefreshBoardsRequestMessage.class, this);
 		}
-
 	}
 
 	public void deactivated() {

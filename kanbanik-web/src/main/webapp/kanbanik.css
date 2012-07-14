@@ -11,25 +11,38 @@ h1 {
 }
 
 table {
-	height: 100%;
+	height: 97%;
 	vertical-align: top;
 	width: 0px;
 }
 
 tr {
-	height: 100%;
+/* 	height: 100%; */
 	vertical-align: top;
 	width: 0px;
 }
 
 td {
-	height: 100%;
+/* 	height: 100%; */
 	width: 0px;
 	vertical-align: top;
 }
 
 body {
 	background-color: #e1e1e1;
+}
+
+/* .boards-board td:last-of-type { */
+/* 	border-left: 1px solid black; */
+/* 	border-right: 1px solid black; */
+/* } */
+
+.imageButtonStyle {
+	width: 100%;
+	height: 10px;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 2px;
 }
 
 .gwt-TabBarItem {
@@ -45,7 +58,7 @@ body {
 }
 
 .gwt-TabBarRest-wrapper {
-	width: 100%;	
+	width: 100%;
 }
 
 .workflowitem-palette-style {
@@ -54,14 +67,6 @@ body {
 
 .workflowitem-palette-style>tbody>tr>td {
 	text-align: center;
-}
-
-.imageButtonStyle {
-	width: 10p;
-	height: 10px;
-	vertical-align: middle;
-	text-align: center;
-	margin-right: 2px;
 }
 
 .project-gui {
@@ -76,7 +81,7 @@ body {
 	text-align: center;
 	font-weight: bold;
 	border-style: solid;
-	border-width: 1px;	
+	border-width: 1px;
 }
 
 td .project-gui {
@@ -241,11 +246,13 @@ td .project-gui {
 	font-weight: bold;
 }
 
-.task-holder>tbody>tr>td,.task-holder>tbody>tr,.sub-task-holder>tbody>tr>td,.sub-task-holder>tbody>tr {
+.task-holder>tbody>tr>td,.task-holder>tbody>tr,.sub-task-holder>tbody>tr>td,.sub-task-holder>tbody>tr
+	{
 	height: 100px;
 }
 
-.task-holder>tbody>tr:last-of-type,.task-holder>tbody>tr:last-of-type>td,.sub-task-holder>tbody>tr:last-of-type,.sub-task-holder>tbody>tr:last-of-type>td {
+.task-holder>tbody>tr:last-of-type,.task-holder>tbody>tr:last-of-type>td,.sub-task-holder>tbody>tr:last-of-type,.sub-task-holder>tbody>tr:last-of-type>td
+	{
 	height: 100%;
 }
 

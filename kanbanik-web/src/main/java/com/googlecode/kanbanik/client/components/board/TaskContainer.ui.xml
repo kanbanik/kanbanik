@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.contantPanelStyle {
+			float: left;
+			width: 150px;
+			min-height: 100px;
+			height: 100%;
+		}
+	</ui:style>
+
+	<g:FlowPanel ui:field="contentPanel" addStyleNames="{style.contantPanelStyle}" />
+
+</ui:UiBinder>

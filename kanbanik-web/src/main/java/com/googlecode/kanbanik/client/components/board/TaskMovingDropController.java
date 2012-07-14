@@ -2,7 +2,6 @@ package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
@@ -20,8 +19,8 @@ public class TaskMovingDropController extends FlowPanelDropController {
 	private WorkflowitemDto workflowitem;
 	private final ProjectDto project;
 	
-	public TaskMovingDropController(FlowPanel dropTarget, WorkflowitemDto workflowitem, ProjectDto project) {
-		super(dropTarget);
+	public TaskMovingDropController(TaskContainer dropTarget, WorkflowitemDto workflowitem, ProjectDto project) {
+		super(dropTarget.asFlowPanel());
 		this.workflowitem = workflowitem;
 		this.project = project;
 	}

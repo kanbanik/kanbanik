@@ -4,20 +4,26 @@
 	<ui:style>
 		.mainPanel {
 			float: left;
+			height: 100%;
 		}
 		
 		.headerPanel {
 			text-align: center;
+			background-color: #d0e4f6;
+			font-weight: bold;
+		}
+		
+		.contentPanelStyle {
 		}
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="mainPanel">
-		<g:FlowPanel addStyleNames="headerPanel">
+	<g:FlowPanel addStyleNames="{style.mainPanel}">
+		<g:FlowPanel addStyleNames="{style.headerPanel}">
 			<g:Label ui:field="stateName" />
 			<g:Label ui:field="wipLimit"/>
 		</g:FlowPanel>
 		
-		<g:Widget ui:field="contentPanel" />
+		<g:Widget ui:field="contentPanel" addStyleNames="{style.contentPanelStyle}" />
 	</g:FlowPanel>
 
 </ui:UiBinder>
