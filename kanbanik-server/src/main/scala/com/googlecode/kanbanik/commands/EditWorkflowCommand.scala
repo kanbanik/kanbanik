@@ -20,7 +20,6 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, SimpleParams
   def execute(params: EditWorkflowParams): SimpleParams[WorkflowitemDto] = {
 
     val currenDto = params.getCurrent()
-    val nextOfCurrentDto = params.getCurrent().getNextItem()
     val contextDto = params.getContext();
     
     var currentEntity = workflowitemBuilder.buildEntity(currenDto)

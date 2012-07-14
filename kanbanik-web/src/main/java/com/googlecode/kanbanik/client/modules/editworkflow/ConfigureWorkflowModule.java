@@ -20,7 +20,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private BoardsBox boardsBox = new BoardsBox(this);
 
-	private WorkflowEditingComponent workflowEditingComponent;
+	private WorkflowEditingComponent workflowEditingComponent = new WorkflowEditingComponent();;
 
 	public ConfigureWorkflowModule() {
 		
@@ -85,7 +85,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 					public void success(SimpleParams<ListDto<ProjectDto>> result) {
 						removeEverithing();
 						
-						workflowEditingComponent = new WorkflowEditingComponent(boardWithProjects);
+						workflowEditingComponent.initialize(boardWithProjects);
 						add(workflowEditingComponent);
 
 						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
@@ -96,7 +96,6 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private void removeEverithing() {
 		if (workflowEditingComponent != null) {
-			workflowEditingComponent.unregisterListeners();
 			remove(workflowEditingComponent);	
 		}
 	}

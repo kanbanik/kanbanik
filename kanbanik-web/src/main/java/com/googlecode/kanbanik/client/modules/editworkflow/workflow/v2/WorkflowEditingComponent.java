@@ -62,16 +62,18 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private BoardDto boardDto;
 
-	public WorkflowEditingComponent(BoardWithProjectsDto boardWithProjects) {
-		this.boardDto = boardWithProjects.getBoard();
+	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
+	}
 
+	public void initialize(BoardWithProjectsDto boardWithProjects) {
+		this.boardDto = boardWithProjects.getBoard();
 		renderBoard();
 		
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(RefreshBoardsRequestMessage.class, this);
 	}
-
+	
 	private void initAndAddPalette(PickupDragController dragController, FlowPanel mainContentPanel) {
 		if (boardDto == null) {
 			return;
