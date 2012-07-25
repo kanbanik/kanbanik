@@ -1,4 +1,5 @@
 .board {
 	border: 1px solid black;
 	height: 100%;
+	display: inline-table;
 }

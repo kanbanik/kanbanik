@@ -50,7 +50,14 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		this.dragController = dragController;
 		initWidget(uiBinder.createAndBindUi(this));
 
+		String name = workflowitemDto.getName();
+		if ("".equals(name)) {
+			// an anonymous state - it has only body
+			stateName.setVisible(false);
+			wipLimit.setVisible(false);
+		}
 		stateName.setText(workflowitemDto.getName());
+		
 		setupWipLimit();
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
@@ -63,7 +70,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 	private void setupWipLimit() {
 		int wipLimitValue = workflowitemDto.getWipLimit();
 		if (wipLimitValue <= 0) {
-			wipLimit.setVisible(false);	
+			wipLimit.setText("( - )");	
 		} else {
 			wipLimit.setText("(" + Integer.toString(wipLimitValue) + ")");
 		}

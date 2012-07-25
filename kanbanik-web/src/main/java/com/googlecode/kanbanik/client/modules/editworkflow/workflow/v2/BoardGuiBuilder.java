@@ -37,15 +37,14 @@ public abstract class BoardGuiBuilder {
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
+				setupTdHeight(table, row, column, height);
 				buildBoard(currentItem.getChild(), project, childTable, dragController, 0, 0);
 			} else {
 				Widget taskContainer = createWorkflowitemPlaceContentWidget(dragController, currentItem, project);
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, taskContainer);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
-				// TODO - find a less hacky way of styling this
-				Element td = table.getCellFormatter().getElement(row, column);
-				DOM.setElementProperty(td, "height", height);
+				setupTdHeight(table, row, column, height);
 			}
 
 			if (currentItem.getItemType() == ItemType.HORIZONTAL) {
@@ -64,6 +63,12 @@ public abstract class BoardGuiBuilder {
 
 		}
 
+	}
+
+	private void setupTdHeight(FlexTable table, int row, int column, String height) {
+		// TODO - find a less hacky way of styling this
+		Element td = table.getCellFormatter().getElement(row, column);
+		DOM.setElementProperty(td, "height", height);
 	}
 	
 	private String calculatVerticalItemsHeight(WorkflowitemDto item) {
