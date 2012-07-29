@@ -26,6 +26,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -37,11 +38,11 @@ import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.RichTextArea.Formatter;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.googlecode.kanbanik.client.KanbanikResources;
 
 public class RichTextToolbar extends Composite {
 	/** Local CONSTANTS **/
 	//ImageMap and CSS related
-	private static final String HTTP_STATIC_ICONS_GIF = "http://blog.elitecoderz.net/wp-includes/js/tinymce/themes/advanced/img/icons.gif";
 	private static final String CSS_ROOT_NAME = "RichTextToolbar";
 	
 	//Color and Fontlists - First Value (key) is the Name to display, Second Value (value) is the HTML-Definition
@@ -152,6 +153,8 @@ public class RichTextToolbar extends Composite {
 	
 	private ListBox fontlist;
 	private ListBox colorlist;
+	
+	private static final KanbanikResources resources = KanbanikResources.INSTANCE;
 
 	/** Constructor of the Toolbar **/
 	public RichTextToolbar(RichTextArea richtext) {
@@ -408,32 +411,32 @@ public class RichTextToolbar extends Composite {
 	/** Initialize the options on the toolbar **/
 	private void buildTools() {
 		//Init the TOP Panel forst
-		topPanel.add(bold = createToggleButton(HTTP_STATIC_ICONS_GIF,0,0,20,20,GUI_HOVERTEXT_BOLD));
-		topPanel.add(italic = createToggleButton(HTTP_STATIC_ICONS_GIF,0,60,20,20,GUI_HOVERTEXT_ITALIC));
-		topPanel.add(underline = createToggleButton(HTTP_STATIC_ICONS_GIF,0,140,20,20,GUI_HOVERTEXT_UNDERLINE));
-		topPanel.add(stroke = createToggleButton(HTTP_STATIC_ICONS_GIF,0,120,20,20,GUI_HOVERTEXT_STROKE));
+		topPanel.add(bold = createToggleButton(resources.bold(),20,20,GUI_HOVERTEXT_BOLD)); // done
+		topPanel.add(italic = createToggleButton(resources.italic(),20,20,GUI_HOVERTEXT_ITALIC)); // done
+		topPanel.add(underline = createToggleButton(resources.underline(),20,20,GUI_HOVERTEXT_UNDERLINE)); // done
+		topPanel.add(stroke = createToggleButton(resources.stroke(),20,20,GUI_HOVERTEXT_STROKE)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(subscript = createToggleButton(HTTP_STATIC_ICONS_GIF,0,600,20,20,GUI_HOVERTEXT_SUBSCRIPT));
-		topPanel.add(superscript = createToggleButton(HTTP_STATIC_ICONS_GIF,0,620,20,20,GUI_HOVERTEXT_SUPERSCRIPT));
+		topPanel.add(subscript = createToggleButton(resources.subscript(),20,20,GUI_HOVERTEXT_SUBSCRIPT)); // done
+		topPanel.add(superscript = createToggleButton(resources.superscript(),20,20,GUI_HOVERTEXT_SUPERSCRIPT)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(alignleft = createPushButton(HTTP_STATIC_ICONS_GIF,0,460,20,20,GUI_HOVERTEXT_ALIGNLEFT));
-		topPanel.add(alignmiddle = createPushButton(HTTP_STATIC_ICONS_GIF,0,420,20,20,GUI_HOVERTEXT_ALIGNCENTER));
-		topPanel.add(alignright = createPushButton(HTTP_STATIC_ICONS_GIF,0,480,20,20,GUI_HOVERTEXT_ALIGNRIGHT));
+		topPanel.add(alignleft = createPushButton(resources.alignleft(),20,20,GUI_HOVERTEXT_ALIGNLEFT)); // done
+		topPanel.add(alignmiddle = createPushButton(resources.alignmiddle(),20,20,GUI_HOVERTEXT_ALIGNCENTER)); // done
+		topPanel.add(alignright = createPushButton(resources.alignright(),20,20,GUI_HOVERTEXT_ALIGNRIGHT)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(orderlist = createPushButton(HTTP_STATIC_ICONS_GIF,0,80,20,20,GUI_HOVERTEXT_ORDERLIST));
-		topPanel.add(unorderlist = createPushButton(HTTP_STATIC_ICONS_GIF,0,20,20,20,GUI_HOVERTEXT_UNORDERLIST));
-		topPanel.add(indentright = createPushButton(HTTP_STATIC_ICONS_GIF,0,400,20,20,GUI_HOVERTEXT_IDENTRIGHT));
-		topPanel.add(indentleft = createPushButton(HTTP_STATIC_ICONS_GIF,0,540,20,20,GUI_HOVERTEXT_IDENTLEFT));
+		topPanel.add(orderlist = createPushButton(resources.orderlist(),20,20,GUI_HOVERTEXT_ORDERLIST)); // done
+		topPanel.add(unorderlist = createPushButton(resources.unorderlist(),20,20,GUI_HOVERTEXT_UNORDERLIST)); // done
+		topPanel.add(indentright = createPushButton(resources.indentright(),20,20,GUI_HOVERTEXT_IDENTRIGHT)); // done
+		topPanel.add(indentleft = createPushButton(resources.indentleft(),20,20,GUI_HOVERTEXT_IDENTLEFT)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(generatelink = createPushButton(HTTP_STATIC_ICONS_GIF,0,500,20,20,GUI_HOVERTEXT_LINK));
-		topPanel.add(breaklink = createPushButton(HTTP_STATIC_ICONS_GIF,0,640,20,20,GUI_HOVERTEXT_BREAKLINK));
+		topPanel.add(generatelink = createPushButton(resources.generatelink(),20,20,GUI_HOVERTEXT_LINK)); // done
+		topPanel.add(breaklink = createPushButton(resources.breaklink(),20,20,GUI_HOVERTEXT_BREAKLINK)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(insertline = createPushButton(HTTP_STATIC_ICONS_GIF,0,360,20,20,GUI_HOVERTEXT_HLINE));
-		topPanel.add(insertimage = createPushButton(HTTP_STATIC_ICONS_GIF,0,380,20,20,GUI_HOVERTEXT_IMAGE));
+		topPanel.add(insertline = createPushButton(resources.insertline(),20,20,GUI_HOVERTEXT_HLINE)); // done
+		topPanel.add(insertimage = createPushButton(resources.insertimage(),20,20,GUI_HOVERTEXT_IMAGE)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(removeformatting = createPushButton(HTTP_STATIC_ICONS_GIF,20,460,20,20,GUI_HOVERTEXT_REMOVEFORMAT));
+		topPanel.add(removeformatting = createPushButton(resources.removeformatting(),20,20,GUI_HOVERTEXT_REMOVEFORMAT)); // done
 		topPanel.add(new HTML("&nbsp;"));
-		topPanel.add(texthtml = createToggleButton(HTTP_STATIC_ICONS_GIF,0,260,20,20,GUI_HOVERTEXT_SWITCHVIEW));
+		topPanel.add(texthtml = createToggleButton(resources.texthtml(),20,20,GUI_HOVERTEXT_SWITCHVIEW)); // done
 
 		//Init the BOTTOM Panel
 		bottomPanel.add(fontlist = createFontList());
@@ -442,8 +445,8 @@ public class RichTextToolbar extends Composite {
 	}
 
 	/** Method to create a Toggle button for the toolbar **/
-	private ToggleButton createToggleButton(String url, Integer top, Integer left, Integer width, Integer height, String tip) {
-		Image extract = new Image(url, left, top, width, height);
+	private ToggleButton createToggleButton(ImageResource imageResource, Integer width, Integer height, String tip) {
+		Image extract = new Image(imageResource);
 		ToggleButton tb = new ToggleButton(extract);
 		tb.setHeight(height+"px");
 		tb.setWidth(width+"px");
@@ -455,8 +458,8 @@ public class RichTextToolbar extends Composite {
 	}
 
 	/** Method to create a Push button for the toolbar **/
-	private PushButton createPushButton(String url, Integer top, Integer left, Integer width, Integer height, String tip) {
-		Image extract = new Image(url, left, top, width, height);
+	private PushButton createPushButton(ImageResource imageResource, Integer width, Integer height, String tip) {
+		Image extract = new Image(imageResource);
 		PushButton tb = new PushButton(extract);
 		tb.setHeight(height+"px");
 		tb.setWidth(width+"px");

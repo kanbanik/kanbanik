@@ -29,6 +29,67 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/progressbar.gif")
 	ImageResource progressBarImage();
 	
+	// Rich Text Editor Resources
+	
+	@Source("images/richTextEditor/bold.png")
+	ImageResource bold();
+	
+	@Source("images/richTextEditor/italic.png")
+	ImageResource italic();
+	
+	@Source("images/richTextEditor/underline.png")
+	ImageResource underline();
+	
+	@Source("images/richTextEditor/stroke.png")
+	ImageResource stroke();
+	
+	@Source("images/richTextEditor/subscript.png")
+	ImageResource subscript();
+	
+	@Source("images/richTextEditor/superscript.png")
+	ImageResource superscript();
+	
+	@Source("images/richTextEditor/alignleft.png")
+	ImageResource alignleft();
+	
+	@Source("images/richTextEditor/alignmiddle.png")
+	ImageResource alignmiddle();
+	
+	@Source("images/richTextEditor/alignright.png")
+	ImageResource alignright();
+	
+	@Source("images/richTextEditor/orderlist.png")
+	ImageResource orderlist();
+	
+	@Source("images/richTextEditor/unorderlist.png")
+	ImageResource unorderlist();
+	
+	@Source("images/richTextEditor/indentright.png")
+	ImageResource indentright();
+	
+	@Source("images/richTextEditor/indentleft.png")
+	ImageResource indentleft();
+	
+	@Source("images/richTextEditor/generatelink.png")
+	ImageResource generatelink();
+	
+	@Source("images/richTextEditor/breaklink.png")
+	ImageResource breaklink();
+	
+	@Source("images/richTextEditor/insertline.png")
+	ImageResource insertline();
+	
+	@Source("images/richTextEditor/insertimage.png")
+	ImageResource insertimage();
+	
+	@Source("images/richTextEditor/removeformatting.png")
+	ImageResource removeformatting();
+	
+	@Source("images/richTextEditor/texthtml.png")
+	ImageResource texthtml();
+	
+	
+	// CSS Resources
 	@Source("style/Board.css")
 	BoardStyle boardStyle();
 }
