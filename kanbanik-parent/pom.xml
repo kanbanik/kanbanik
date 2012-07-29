@@ -8,10 +8,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
-	</properties>
-
 	<repositories>
 		<repository>
 			<id>jboss-repo</id>
@@ -30,12 +26,6 @@
 	</repositories>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -59,6 +49,6 @@
 	<modules>
 		<module>../kanbanik-dto</module>
 		<module>../kanbanik-server</module>
-		<module>../kanbanik-web</module>
+		<module>../kanbanik-web</module> 
 	</modules>
 </project>
