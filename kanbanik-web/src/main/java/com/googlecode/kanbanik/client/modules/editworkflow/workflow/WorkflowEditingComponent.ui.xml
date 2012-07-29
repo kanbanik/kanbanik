@@ -2,7 +2,7 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style
-		type="com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent.Style">
+		type="com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Style">
 			.mainPanel {
 			}
 			

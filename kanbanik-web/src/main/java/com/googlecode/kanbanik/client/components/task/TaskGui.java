@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.model;
+package com.googlecode.kanbanik.client.components.task;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +15,6 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.client.components.task.TaskDeletingComponent;
-import com.googlecode.kanbanik.client.components.task.TaskEditSavedMessage;
-import com.googlecode.kanbanik.client.components.task.TaskEditingComponent;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;

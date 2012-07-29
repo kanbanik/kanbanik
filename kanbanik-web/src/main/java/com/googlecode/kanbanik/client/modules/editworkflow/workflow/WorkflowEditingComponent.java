@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
+package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;

@@ -12,7 +12,7 @@ public class KanbanikContextListener implements ServletContextListener {
 	}
 
 	public void contextInitialized(ServletContextEvent arg0) {
-		// it takes care about creating a connection in a lazy way
+		// KanbanikConnectionManager takes care about creating a connection in a lazy way
 	}
 
 }

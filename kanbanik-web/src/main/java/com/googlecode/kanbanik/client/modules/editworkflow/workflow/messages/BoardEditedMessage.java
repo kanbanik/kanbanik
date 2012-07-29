@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
+package com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages;
 
 import com.googlecode.kanbanik.client.messaging.DefaultMessage;
 import com.googlecode.kanbanik.dto.BoardDto;

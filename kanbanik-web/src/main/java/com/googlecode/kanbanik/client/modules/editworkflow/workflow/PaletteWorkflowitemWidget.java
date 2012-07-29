@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
+package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;

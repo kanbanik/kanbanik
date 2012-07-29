@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2;
+package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.VetoDragException;
@@ -9,7 +9,7 @@ import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent.Position;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;

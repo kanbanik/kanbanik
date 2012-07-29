@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.model.TaskGui;
 import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskDeletingComponent implements ClickHandler {

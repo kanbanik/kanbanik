@@ -16,7 +16,7 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ProjectEditedMessage;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.ProjectDto;

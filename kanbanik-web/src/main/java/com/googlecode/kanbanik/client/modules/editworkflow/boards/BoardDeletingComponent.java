@@ -7,7 +7,7 @@ import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardDeletedMessage;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.BoardDeletedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;

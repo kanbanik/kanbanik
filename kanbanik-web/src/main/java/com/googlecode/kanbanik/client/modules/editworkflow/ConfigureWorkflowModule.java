@@ -8,7 +8,7 @@ import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.WorkflowEditingComponent;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;

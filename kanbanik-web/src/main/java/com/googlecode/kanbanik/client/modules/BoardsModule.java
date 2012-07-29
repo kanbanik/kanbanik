@@ -21,7 +21,7 @@ import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage
 import com.googlecode.kanbanik.client.components.task.TaskSaver;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.v2.BoardGuiBuilder;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ListDto;

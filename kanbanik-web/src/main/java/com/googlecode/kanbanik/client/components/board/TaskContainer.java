@@ -6,7 +6,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.model.TaskGui;
+import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskContainer extends Composite {

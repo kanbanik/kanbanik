@@ -35,8 +35,8 @@ public class WorkflowItemPalette extends HorizontalPanel {
 	@Override
 	public boolean remove(Widget w) {
 		int index = getWidgetIndex(w);
-		if (index != -1 && w instanceof DraggableWorkflowItem) {
-			Widget clone = ((DraggableWorkflowItem) w).cloneItem();
+		if (index != -1 && w instanceof PaletteWorkflowitemWidget) {
+			PaletteWorkflowitemWidget clone = ((PaletteWorkflowitemWidget) w).cloneWidget();
 			dragController.makeDraggable(clone);
 			insertFromRemove(clone, index);
 		}
