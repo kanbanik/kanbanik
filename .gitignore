@@ -1,0 +1,9 @@
+# Maven output directory
+target
+gen
+
+# IDE files
+.settings
+.project
+.classpath
+
