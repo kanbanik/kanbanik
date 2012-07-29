@@ -7,11 +7,6 @@
 		</layout>
 	</appender>
 
-	<logger name="org.hibernate.SQL">
-		<level value="error" />
-		<appender-ref ref="stdout" />
-	</logger>
-
 	<root>
 		<priority value="ERROR"></priority>
 		<appender-ref ref="stdout" />
