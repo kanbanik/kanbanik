@@ -8,10 +8,12 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
@@ -82,14 +84,17 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 					public void run() {
 		ServerCommandInvokerManager
 				.getInvoker()
-				.<EditWorkflowParams, SimpleParams<WorkflowitemDto>> invokeCommand(
+				.<EditWorkflowParams, FailableResult<SimpleParams<WorkflowitemDto>>> invokeCommand(
 						ServerCommand.EDIT_WORKFLOW,
 						new EditWorkflowParams(droppedItem, contextItem),
-						new KanbanikAsyncCallback<SimpleParams<WorkflowitemDto>>() {
+						new KanbanikAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>() {
 
 							@Override
 							public void success(
-									SimpleParams<WorkflowitemDto> result) {
+									FailableResult<SimpleParams<WorkflowitemDto>> result) {
+								if (!result.isSucceeded()) {
+									new ErrorDialog(result.getMessage()).center();
+								}
 								MessageBus
 										.sendMessage(new RefreshBoardsRequestMessage(
 												"", this));

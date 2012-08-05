@@ -478,7 +478,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
     current.setNextItem(next)
     command.execute(new EditWorkflowParams(
       current,
-      { if (contextId == null) null else context })).getPayload()
+      { if (contextId == null) null else context })).getPayload().getPayload()
   }
 
 }

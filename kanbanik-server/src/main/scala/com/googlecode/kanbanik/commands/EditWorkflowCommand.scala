@@ -12,15 +12,20 @@ import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.BoardScala
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.shell.SimpleParams
+import com.googlecode.kanbanik.dto.shell.FailableResult
 
-class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, SimpleParams[WorkflowitemDto]] with KanbanikEntity {
+class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with KanbanikEntity {
 
   lazy val workflowitemBuilder = new WorkflowitemBuilder
 
-  def execute(params: EditWorkflowParams): SimpleParams[WorkflowitemDto] = {
+  def execute(params: EditWorkflowParams): FailableResult[SimpleParams[WorkflowitemDto]] = {
 
     val currenDto = params.getCurrent()
     val contextDto = params.getContext();
+
+    if (hasTasks(contextDto)) {
+    	return new FailableResult(new SimpleParams(currenDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
+    }
     
     var currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
@@ -30,8 +35,17 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, SimpleParams
       currentEntity = currentEntity.store
     }
 
-    new SimpleParams(workflowitemBuilder.buildDto(currentEntity))
+    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity)), true, "")
   }
 
+  private def hasTasks(contextDto : WorkflowitemDto) : Boolean = {
+    if (contextDto == null) {
+      return false;
+    }
+   
+    using(createConnection) { conn =>
+      return coll(conn, Coll.Tasks).findOne(MongoDBObject("workflowitem" -> new ObjectId(contextDto.getId()))).isDefined
+    }
+  }
 
 }
