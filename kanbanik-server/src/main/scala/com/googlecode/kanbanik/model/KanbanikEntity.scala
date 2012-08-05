@@ -35,6 +35,10 @@ object KanbanikEntity {
     }
 
   }
-  
-  def destroyConnection = connection.close()
+
+  def destroyConnection = {
+    if (connection != null) {
+      connection.close()
+    }
+  }
 }
