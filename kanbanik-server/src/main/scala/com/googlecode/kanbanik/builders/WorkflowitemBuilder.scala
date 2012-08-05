@@ -9,8 +9,6 @@ import com.googlecode.kanbanik.model.WorkflowitemScala
 
 class WorkflowitemBuilder {
 
-  lazy val boardBuilder = new BoardBuilder()
-  
   def buildEntity(dto: WorkflowitemDto): WorkflowitemScala = {
     new WorkflowitemScala(
         findId(dto),
@@ -63,5 +61,7 @@ class WorkflowitemBuilder {
     dto.setBoard(boardBuilder.buildShallowDto(workflowitem.board))
     dto
   }
+  
+  private[builders] def boardBuilder = new BoardBuilder
 }
   

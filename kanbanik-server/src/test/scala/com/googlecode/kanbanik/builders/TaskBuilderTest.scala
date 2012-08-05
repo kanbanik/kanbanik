@@ -10,6 +10,7 @@ import com.googlecode.kanbanik.model.WorkflowitemScala
 import com.googlecode.kanbanik.dto.ClassOfService
 import com.googlecode.kanbanik.model.ProjectScala
 import com.googlecode.kanbanik.dto.ProjectDto
+import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 @RunWith(classOf[JUnitRunner])
 class TaskBuilderTest extends Spec with MockitoSugar {
@@ -18,7 +19,7 @@ class TaskBuilderTest extends Spec with MockitoSugar {
     it("should be able to fill all properties") {
       val task = mock[TaskScala]
       val workflowitem = mock[WorkflowitemScala]
-      
+
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
       when(workflowitem.child).thenReturn(None)
       when(workflowitem.itemType).thenReturn("H")
@@ -39,15 +40,21 @@ class TaskBuilderTest extends Spec with MockitoSugar {
       assert((res.getWorkflowitem() != null) === true)
     }
   }
-  
+
   class TestedTaskBuilder extends TaskBuilder {
-    
+
     override def findProjectForTask(task: TaskScala) = Some(mock[ProjectScala])
-    
+
     override def projectBuilder = new SimpleProjectBuilder
-    
+
+    override def workflowitemBuilder = new SimpleWorkflowitemBuilder
+
     class SimpleProjectBuilder extends ProjectBuilder {
       override def buildShallowDto(project: ProjectScala) = new ProjectDto
+    }
+
+    class SimpleWorkflowitemBuilder extends WorkflowitemBuilder {
+      override def buildDtoNonRecursive(workflowitem: WorkflowitemScala) = new WorkflowitemDto
     }
   }
 }

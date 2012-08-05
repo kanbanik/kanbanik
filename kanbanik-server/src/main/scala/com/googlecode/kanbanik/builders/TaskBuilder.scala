@@ -10,8 +10,6 @@ import com.googlecode.kanbanik.model.ProjectScala
 class TaskBuilder extends TaskManipulation {
 
   def buildDto(task: TaskScala): TaskDto = {
-    val workflowitemBuilder = new WorkflowitemBuilder
-    
     val dto = new TaskDto
     dto.setId(task.id.get.toString())
     dto.setName(task.name)
@@ -54,6 +52,8 @@ class TaskBuilder extends TaskManipulation {
     
     taskDto.getTicketId()
   }
+
+  private[builders] def workflowitemBuilder = new WorkflowitemBuilder
   
   private[builders] def projectBuilder = new ProjectBuilder
 }
