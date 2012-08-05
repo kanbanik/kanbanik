@@ -2,11 +2,26 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style>
-		.mainPanel {
-			width:100%; 
+		.boardStyle {
+			border: 1px solid black;
+			margin-bottom: 15px;
 		}
+		
+		.boardLabelStyle {
+			background-color: #92c1f0;
+			width: 100%;
+			text-align: center;
+			font-weight: bold;
+			font-size: 17px;
+		}
+
 	</ui:style>
-	<g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}">
+
+	<g:FlowPanel addStyleNames="{style.boardStyle}">
+		<g:FlowPanel addStyleNames="{style.boardLabelStyle}">
+			<g:Label ui:field="boardName"/>
+		</g:FlowPanel>
+		<g:Panel ui:field="projects"/>
 	</g:FlowPanel>
 
 </ui:UiBinder>

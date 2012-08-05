@@ -4,25 +4,23 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class BoardPanel extends Composite {
-	
-	interface MyUiBinder extends UiBinder<Widget, BoardPanel> {}
+public class BoardsPanel extends Composite {
+	interface MyUiBinder extends UiBinder<Widget, BoardsPanel> {
+	}
+
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	
-	@UiField(provided=true)
-	Panel projects;
-	
+
 	@UiField
-	Label boardName;
+	Panel boardPanel;
 	
-	public BoardPanel(String name, Panel projects) {
-		this.projects = projects;
+	public BoardsPanel() {
 		initWidget(uiBinder.createAndBindUi(this));
-		
-		boardName.setText(name);
+	}
+	
+	public void addBoard(Composite board) {
+		boardPanel.add(board);
 	}
 }

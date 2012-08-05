@@ -11,6 +11,7 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.board.BoardPanel;
+import com.googlecode.kanbanik.client.components.board.BoardsPanel;
 import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
@@ -55,7 +56,7 @@ public class BoardsModule {
 	}
 	
 	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-		BoardPanel panel = new BoardPanel();
+		BoardsPanel panel = new BoardsPanel();
 
 		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
 		
@@ -78,7 +79,7 @@ public class BoardsModule {
 				boardTable.setWidget(row, 1, projectTable);
 				row++;
 			}
-			panel.addBoard(panelWithDraggabls);
+			panel.addBoard(new BoardPanel(board.getName(), panelWithDraggabls));
 
 		}
 
