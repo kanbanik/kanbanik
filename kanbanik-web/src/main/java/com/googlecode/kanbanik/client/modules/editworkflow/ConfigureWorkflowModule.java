@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.modules.editworkflow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -9,6 +10,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
+import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -83,12 +85,32 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 					@Override
 					public void success(SimpleParams<ListDto<ProjectDto>> result) {
+						refreshProjectsOnBoard(boardWithProjects, result);
+						
 						removeEverithing();
 						
 						workflowEditingComponent.initialize(boardWithProjects);
 						add(workflowEditingComponent);
 
 						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
+					}
+
+					private void refreshProjectsOnBoard(
+							final BoardWithProjectsDto boardWithProjects,
+							SimpleParams<ListDto<ProjectDto>> result) {
+						String boardId = boardWithProjects.getBoard().getId();
+						List<ProjectDto> projectsOnBoard = new ArrayList<ProjectDto>();
+						
+						for (ProjectDto projectDto : result.getPayload().getList()) {
+							for (BoardDto boardDto : projectDto.getBoards()) {
+								if (boardDto.getId().equals(boardId)) {
+									projectsOnBoard.add(projectDto);
+									break;
+								}
+							}
+						}
+						
+						boardWithProjects.setProjects(projectsOnBoard);
 					}
 				});
 		}});
