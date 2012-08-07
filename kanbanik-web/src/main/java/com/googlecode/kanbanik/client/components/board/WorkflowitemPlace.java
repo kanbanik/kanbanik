@@ -29,7 +29,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 
 	@UiField(provided = true)
 	Widget contentPanel;
-
+	
 	interface MyUiBinder extends UiBinder<Widget, WorkflowitemPlace> {
 	}
 
@@ -82,14 +82,20 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 			return;
 		}
 
-		if (!isThisPlace(message.getPayload())) {
+		TaskDto taskDto = message.getPayload();
+		
+		if (!isThisPlace(taskDto)) {
+			return;
+		}
+		
+		if (((TaskContainer) contentPanel).containsTask(taskDto)) {
 			return;
 		}
 
 		if (message instanceof TaskDeleteRequestedMessage) {
-			((TaskContainer) contentPanel).removeTask(message.getPayload());
+			((TaskContainer) contentPanel).removeTask(taskDto);
 		} else if (message instanceof TaskAddedMessage) {
-			TaskGui task = new TaskGui(message.getPayload());
+			TaskGui task = new TaskGui(taskDto);
 			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer) contentPanel).add(task);
 		}

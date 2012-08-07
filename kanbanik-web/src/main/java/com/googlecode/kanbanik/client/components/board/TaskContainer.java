@@ -22,15 +22,27 @@ public class TaskContainer extends Composite {
 	}
 
 	public void removeTask(TaskDto task) {
+		int widgetIndex = getTaskIndex(task);
+		if (widgetIndex != -1) {
+			contentPanel.remove(widgetIndex);
+		}
+	}
+	
+	public boolean containsTask(TaskDto task) {
+		return getTaskIndex(task) != -1;
+	}
+	
+	private int getTaskIndex(TaskDto task) {
 		for (int i = 0; i < contentPanel.getWidgetCount(); i ++) {
 			Widget widget = contentPanel.getWidget(i);
 			if (widget instanceof TaskGui) {
 				if (((TaskGui) widget).getDto().equals(task)) {
-					contentPanel.remove(i);
+					return i;
 				}
 			}
 		}
 		
+		return -1;
 	}
 
 	public void add(TaskGui task) {
