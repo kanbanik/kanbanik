@@ -4,8 +4,35 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
 
+<!-- 	MongoDB connection configuration -->
+	<context-param>
+		<param-name>mongoServer</param-name>
+		<param-value>127.0.0.1</param-value>
+	</context-param>
+	<context-param>
+		<param-name>mongoPort</param-name>
+		<param-value>27017</param-value>
+	</context-param>
+	<context-param>
+		<param-name>mongoDBName</param-name>
+		<param-value>kanbanikdb</param-value>
+	</context-param>
+	<context-param>
+		<param-name>mongoAuthenticationRequired</param-name>
+		<param-value>false</param-value>
+	</context-param>
+	<context-param>
+		<param-name>mongoUser</param-name>
+		<param-value></param-value>
+	</context-param>
+	<context-param>
+		<param-name>mongoPassword</param-name>
+		<param-value></param-value>
+	</context-param>
+
 	<listener>
-		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener</listener-class>
+		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener
+		</listener-class>
 	</listener>
 
 	<servlet>

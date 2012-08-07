@@ -1,9 +1,7 @@
 package com.googlecode.kanbanik.model
-import com.mongodb.casbah.MongoConnection
 import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
+import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.WriteConcern
-import com.mongodb.casbah.MongoOptions
-import com.mongodb.ServerAddress
 
 trait KanbanikEntity extends ResourceManipulation {
 
@@ -21,19 +19,70 @@ trait KanbanikEntity extends ResourceManipulation {
   }
 
   def coll(connection: MongoConnection, collName: Coll.Value) = {
-    connection("kanbanik")(collName.toString())
+    connection(KanbanikEntity.dbName)(collName.toString())
   }
 
 }
 
 object KanbanikEntity {
+
   var connection: MongoConnection = null
   def initConnection {
     if (connection == null) {
-      connection = MongoConnection()
+      connection = MongoConnection(server, port)
+      if (authenticationRequired) {
+    	  connection(dbName).authenticate(user, password)
+      }
       connection.writeConcern = WriteConcern.Safe
     }
 
+  }
+  
+  var server = "127.0.0.1"
+  var port = 27017
+  var user = ""
+  var password = ""
+  var dbName = "kanbanik"
+  var authenticationRequired = false
+  
+  def initConnectionParams(
+      server: String, 
+      port: String, 
+      user: String, 
+      password: String, 
+      dbName: String,
+      authenticationRequired: String) {
+    
+    if (server != "") {
+      this.server = server
+    }
+    
+    if (user != "") {
+      this.user = user
+    }
+    
+    if (password != "") {
+      this.password = password
+    }
+    
+    if (dbName != "") {
+      this.dbName = dbName
+    }
+    
+    try {
+    	this.port = port.toInt
+    } catch {
+      case e: NumberFormatException =>
+        throw new IllegalArgumentException("The port number: '" + port + "' is not a valid integer")
+    }
+    
+    try {
+    	this.authenticationRequired = authenticationRequired.toBoolean
+    } catch {
+      case e: NumberFormatException => 
+        throw new IllegalArgumentException("authenticationRequired '"+ authenticationRequired + "' field is not a valid boolean")
+    }
+    
   }
 
   def destroyConnection = {
