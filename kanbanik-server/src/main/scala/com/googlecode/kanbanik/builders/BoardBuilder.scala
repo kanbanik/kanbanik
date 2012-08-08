@@ -38,7 +38,7 @@ class BoardBuilder {
         }
       }
     }
-    
+
     return true
   }
 
@@ -53,9 +53,10 @@ class BoardBuilder {
     new BoardScala(
       detrmineId(boardDto),
       boardDto.getName(),
-      // ignoring workflowitems for now...
-      None);
+      None
+    )
   }
+
 
   private def detrmineId(boardDto: BoardDto): Option[ObjectId] = {
     if (boardDto.getId() == null) {
@@ -64,6 +65,6 @@ class BoardBuilder {
       return Some(new ObjectId(boardDto.getId()))
     }
   }
-  
+
   private[builders] def workflowitemBuilder = new WorkflowitemBuilder
 }
