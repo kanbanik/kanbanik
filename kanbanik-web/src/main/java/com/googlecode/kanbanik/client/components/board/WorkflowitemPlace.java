@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage;
+import com.googlecode.kanbanik.client.components.task.TaskDeletionSavedMessage;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -63,7 +64,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 		
 		MessageBus.registerListener(TaskAddedMessage.class, this);
-		MessageBus.registerListener(TaskDeleteRequestedMessage.class, this);
+		MessageBus.registerListener(TaskDeletionSavedMessage.class, this);
 
 	}
 
@@ -88,13 +89,12 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 			return;
 		}
 		
-		if (((TaskContainer) contentPanel).containsTask(taskDto)) {
-			return;
-		}
-
-		if (message instanceof TaskDeleteRequestedMessage) {
+		if (message instanceof TaskDeletionSavedMessage) {
 			((TaskContainer) contentPanel).removeTask(taskDto);
 		} else if (message instanceof TaskAddedMessage) {
+			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
+				return;
+			}
 			TaskGui task = new TaskGui(taskDto);
 			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer) contentPanel).add(task);
