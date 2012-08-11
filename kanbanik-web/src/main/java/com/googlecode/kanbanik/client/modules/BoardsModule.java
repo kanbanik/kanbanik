@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.client.modules;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -12,6 +14,7 @@ import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.board.BoardPanel;
 import com.googlecode.kanbanik.client.components.board.BoardsPanel;
+import com.googlecode.kanbanik.client.components.board.NoContentWarningPanel;
 import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
@@ -58,32 +61,63 @@ public class BoardsModule {
 	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		BoardsPanel panel = new BoardsPanel();
 
-		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
+		List<BoardWithProjectsDto> boardsWithProjects = result.getPayload().getList();
 		
-		for (BoardWithProjectsDto boardWithProjects : result.getPayload()
-				.getList()) {
+		if (boardsWithProjects == null || boardsWithProjects.size() == 0) {
+			createNoBoardsPanel(panel);
+		} else {
+			createBoardsPanel(panel, boardsWithProjects);
+		}
+
+		return panel;
+	}
+
+	private void createBoardsPanel(BoardsPanel panel, List<BoardWithProjectsDto> boardsWithProjects) {
+		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
+		for (BoardWithProjectsDto boardWithProjects : boardsWithProjects) {
 			BoardDto board = boardWithProjects.getBoard();
 
-			int row = 0;
 			FlexTable boardTable = new FlexTable();
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
 			panelWithDraggabls.add(boardTable);
-			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
-				boardTable.setWidget(row, 0, new ProjectHeader(board, project));
-				FlexTable projectTable = new FlexTable();
-				projectTable.setStyleName(style.board());
-				boardBuilder.buildBoard(board.getRootWorkflowitem(), project, projectTable, dragController,
-						0, 0);
-				boardTable.setWidget(row, 1, projectTable);
-				row++;
+			List<ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard();
+			if (projectsOnBoard == null || projectsOnBoard.size() == 0) {
+				addNoProjects(boardTable);
+			} else {
+				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
 			}
 			panel.addBoard(new BoardPanel(board.getName(), panelWithDraggabls));
 
 		}
+	}
 
-		return panel;
+	private void addNoProjects(FlexTable boardTable) {
+		boardTable.setWidth("100%");
+		boardTable.setWidget(0, 0, new NoContentWarningPanel("There are no projects on this board. Please add at least one project."));
+	}
+
+	private void addProjcets(PickupDragController dragController, BoardDto board, BoardBoardGuiBuilder boardBuilder, FlexTable boardTable, List<ProjectDto> projectsOnBoard) {
+		int row = 0;
+		for (ProjectDto project : projectsOnBoard) {
+			boardTable.setWidget(row, 0, new ProjectHeader(board, project));
+			FlexTable projectTable = new FlexTable();
+			projectTable.setStyleName(style.board());
+			WorkflowitemDto rootWorkflowitem = board.getRootWorkflowitem();
+			if (rootWorkflowitem != null) {
+				boardBuilder.buildBoard(rootWorkflowitem, project, projectTable, dragController, 0, 0);
+				boardTable.setWidget(row, 1, projectTable);
+			} else {
+				boardTable.setWidth("100%");
+				boardTable.setWidget(row, 1, new NoContentWarningPanel("There is no workflow on this board. Please add at least one workflowitem to this board."));
+			}
+			row++;
+		}		
+	}
+
+	private void createNoBoardsPanel(BoardsPanel panel) {
+		panel.addBoard(new NoContentWarningPanel("There are no boards configured. Please create at lease one board."));
 	}
 
 	public void initialize(final ModuleInitializeCallback boardsModuleInitialized) {
