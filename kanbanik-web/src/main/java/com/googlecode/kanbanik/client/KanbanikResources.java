@@ -17,6 +17,9 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/add.png")
 	ImageResource addButtonImage();
 
+	@Source("images/addDisabled.png")
+	ImageResource addDisabledButtonImage();
+	
 	@Source("images/arrowRight.png")
 	ImageResource rightDropArrowImage();
 	

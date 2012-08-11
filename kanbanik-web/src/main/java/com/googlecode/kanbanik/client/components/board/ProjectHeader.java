@@ -31,7 +31,16 @@ public class ProjectHeader extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		projectName.setText(project.getName());
-		addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
+		WorkflowitemDto rootDto = board.getRootWorkflowitem();
+		if (rootDto != null) {
+			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
+		} else {
+			// the board has no workflow, disable add button
+			addButton.setEnabled(false);
+			addButton.setTitle("It is not possible to add a task to a board when the board has no workflow.");
+			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addDisabledButtonImage()));
+		}
+		
 		new TaskAddingComponent(project, getInputQueue(board.getRootWorkflowitem()), addButton);
 	}
 
