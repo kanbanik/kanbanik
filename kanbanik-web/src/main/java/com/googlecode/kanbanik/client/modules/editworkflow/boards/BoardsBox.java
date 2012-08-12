@@ -196,7 +196,9 @@ public class BoardsBox extends Composite {
 		private int idOfBoard(BoardDto dto) {
 			int idOfBoard = -1;
 			for (int i = 0; i < boards.size(); i++) {
-				if (boards.get(i).getBoard().getId() == dto.getId()) {
+				
+				String id = boards.get(i).getBoard().getId();
+				if (id != null && id.equals(dto.getId())) {
 					idOfBoard = i;
 					break;
 				}
