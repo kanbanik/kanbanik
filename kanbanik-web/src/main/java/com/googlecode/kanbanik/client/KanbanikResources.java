@@ -11,8 +11,14 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/edit.png")
 	ImageResource editButtonImage();
 	
+	@Source("images/editDisabled.png")
+	ImageResource editButtonDisabledImage();
+	
 	@Source("images/delete.png")
 	ImageResource deleteButtonImage();
+	
+	@Source("images/deleteDisabled.png")
+	ImageResource deleteButtonDisabledImage();
 	
 	@Source("images/add.png")
 	ImageResource addButtonImage();

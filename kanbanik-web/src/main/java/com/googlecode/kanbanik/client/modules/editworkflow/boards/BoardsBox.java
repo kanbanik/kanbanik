@@ -70,8 +70,8 @@ public class BoardsBox extends Composite {
 		addProjectButton.setEnabled(true);
 		
 		addBoardButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
-		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
-		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
+		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonDisabledImage()));
+		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonDisabledImage()));
 		
 		addProjectButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
 		new BoardCreatingComponent(addBoardButton);
@@ -151,6 +151,14 @@ public class BoardsBox extends Composite {
 		private void resetButtonAvailability() {
 			editButton.setEnabled(selectedDto != null);
 			deleteButton.setEnabled(selectedDto != null);
+			
+			if (selectedDto != null) {
+				editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
+				deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
+			} else {
+				editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonDisabledImage()));
+				deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonDisabledImage()));
+			}
 		}
 
 		public BoardDto getSelectedBoard() {
