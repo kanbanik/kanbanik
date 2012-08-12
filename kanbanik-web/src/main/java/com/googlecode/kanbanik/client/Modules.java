@@ -1,8 +1,8 @@
 package com.googlecode.kanbanik.client;
 
 import com.googlecode.kanbanik.client.modules.BoardsModule;
+import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
 import com.googlecode.kanbanik.client.modules.ControlPanelModule;
-import com.googlecode.kanbanik.client.modules.editworkflow.ConfigureWorkflowModule;
 
 public enum Modules {
 	

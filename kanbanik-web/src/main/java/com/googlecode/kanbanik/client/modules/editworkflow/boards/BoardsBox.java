@@ -19,7 +19,7 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.modules.editworkflow.ConfigureWorkflowModule;
+import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.BoardDeletedMessage;
@@ -67,7 +67,7 @@ public class BoardsBox extends Composite {
 		
 		deleteButton.setEnabled(false);
 		editButton.setEnabled(false);
-		addProjectButton.setEnabled(false);
+		addProjectButton.setEnabled(true);
 		
 		addBoardButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
@@ -151,7 +151,6 @@ public class BoardsBox extends Composite {
 		private void resetButtonAvailability() {
 			editButton.setEnabled(selectedDto != null);
 			deleteButton.setEnabled(selectedDto != null);
-			addProjectButton.setEnabled(selectedDto != null);
 		}
 
 		public BoardDto getSelectedBoard() {
@@ -188,7 +187,7 @@ public class BoardsBox extends Composite {
 				onChange();
 			} else {
 				if (projectToBoardAdding != null) {
-					projectsToBoardAddingContainer.remove(projectToBoardAdding);	
+					projectToBoardAdding.disable();
 				}
 				onChange();
 			}

@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.modules.editworkflow;
+package com.googlecode.kanbanik.client.modules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.modules.KanbanikModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -25,9 +24,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	private WorkflowEditingComponent workflowEditingComponent = new WorkflowEditingComponent();;
 
 	public ConfigureWorkflowModule() {
-		
 		setStyleName("edit-workflow-module");
-
 	}
 
 	public void initialize(final ModuleInitializeCallback initializedCallback) {
@@ -46,10 +43,11 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 						List<BoardWithProjectsDto> boards = result.getPayload().getList();
 						boardsBox.setBoards(boards);
-						if (boards != null && boards.size() > 0) {
-							selectedBoardChanged(result.getPayload().getList().iterator().next());	
-						}	
-						
+						if (boards.size() != 0) {
+							selectedBoardChanged(boards.iterator().next());	
+						} else {
+							selectedBoardChanged(null);
+						}
 						
 						initializedCallback.initialized(ConfigureWorkflowModule.this);
 					}
@@ -65,7 +63,6 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		if (selectedDto == null) {
 			// this means that no board is changed - e.g. the last one has been deleted
 			removeEverithing();
-			return;
 		}
 		
 		editBoard(selectedDto);
@@ -89,8 +86,10 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 						
 						removeEverithing();
 						
-						workflowEditingComponent.initialize(boardWithProjects);
-						add(workflowEditingComponent);
+						if (boardWithProjects != null) {
+							workflowEditingComponent.initialize(boardWithProjects);
+							add(workflowEditingComponent);
+						}
 
 						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
 					}
@@ -98,6 +97,11 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 					private void refreshProjectsOnBoard(
 							final BoardWithProjectsDto boardWithProjects,
 							SimpleParams<ListDto<ProjectDto>> result) {
+						
+						if (boardWithProjects == null) {
+							return;
+						}
+						
 						String boardId = boardWithProjects.getBoard().getId();
 						List<ProjectDto> projectsOnBoard = new ArrayList<ProjectDto>();
 						

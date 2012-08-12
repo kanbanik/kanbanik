@@ -79,7 +79,8 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 	}
 
 	public void messageArrived(Message<ProjectDto> message) {
-		if (message.getPayload().getId() != dto.getId()) {
+		String payloadId = message.getPayload().getId();
+		if (payloadId == null || !payloadId.equals(dto.getId())) {
 			return;
 		}
 		

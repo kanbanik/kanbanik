@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -54,6 +53,10 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
 	private ProjectChangedListener projectChangedListener = new ProjectChangedListener();
 	
+	private ProjectMovedDropController toBeAddedDropController;
+	
+	private ProjectMovedDropController projectsOfBoardDropController;
+	
 	interface MyUiBinder extends UiBinder<Widget, ProjectsToBoardAdding> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
@@ -72,26 +75,38 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		MessageBus.registerListener(ProjectAddedMessage.class, projectChangedListener);
 		MessageBus.registerListener(ProjectDeletedMessage.class, projectChangedListener);
 	}
+	
+	public void disable() {
+		boardWithProjects = null;
+		removeAllProjectsFromPanel(projectsOfBoard);
+		String message = "It is not possible to move the project if there is no board";
+		toBeAddedDropController.disableDrop(message);
+		projectsOfBoardDropController.disableDrop(message);
+	}
 
 	private void init() {
 		projectsOfBoard.add(new Label(""));
 		toBeAdded.add(new Label(""));
-		DropController toBeAddedDropController = new ProjectMovedDropController(toBeAdded, TO_BE_ADDED, new LeftListener());
+		toBeAddedDropController = new ProjectMovedDropController(toBeAdded, TO_BE_ADDED, new LeftListener());
 		dragController.registerDropController(toBeAddedDropController);
-		DropController projectsOfBoardDropController = new ProjectMovedDropController(projectsOfBoard, ON_BOARD, new RightListener());
+		projectsOfBoardDropController = new ProjectMovedDropController(projectsOfBoard, ON_BOARD, new RightListener());
 		dragController.registerDropController(projectsOfBoardDropController);
 
 
 		for (ProjectDto project : projects) {
-			if (contains(boardWithProjects.getProjectsOnBoard(), project)) {
+			if (boardWithProjects != null && contains(boardWithProjects.getProjectsOnBoard(), project)) {
 				continue;
 			}
 
 			addProjectToPanel(toBeAdded, TO_BE_ADDED, project);
 		}
 
-		for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
-			addProjectToPanel(projectsOfBoard, ON_BOARD, project);
+		if (boardWithProjects != null) {
+			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
+				addProjectToPanel(projectsOfBoard, ON_BOARD, project);
+			}
+		} else {
+			disable();
 		}
 	}
 
@@ -99,6 +114,14 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		ProjectWidget projectWidget = new ProjectWidget(position, project);
 		panel.add(projectWidget);
 		dragController.makeDraggable(projectWidget);
+	}
+	
+	private void removeAllProjectsFromPanel(FlowPanel panel) {
+		for (int i = 0; i < panel.getWidgetCount(); i++) {
+			if (panel.getWidget(i) instanceof ProjectWidget) {
+				panel.remove(i);
+			}
+		}
 	}
 
 	private boolean contains(List<ProjectDto> projectsOnBoard, ProjectDto project) {

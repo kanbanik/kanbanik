@@ -10,7 +10,6 @@ import com.googlecode.kanbanik.client.ModuleActivatedMessage;
 import com.googlecode.kanbanik.client.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
-import com.googlecode.kanbanik.client.modules.editworkflow.ConfigureWorkflowModule;
 
 public class ControlPanelModule extends TabPanel implements SelectionHandler<Integer> {
 	
