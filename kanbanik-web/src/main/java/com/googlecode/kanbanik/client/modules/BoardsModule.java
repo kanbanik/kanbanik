@@ -110,7 +110,9 @@ public class BoardsModule {
 				boardTable.setWidget(row, 1, projectTable);
 			} else {
 				boardTable.setWidth("100%");
-				boardTable.setWidget(row, 1, new NoContentWarningPanel("There is no workflow on this board. Please add at least one workflowitem to this board."));
+				if (row == 0) {
+					boardTable.setWidget(row, 1, new NoContentWarningPanel("There is no workflow on this board. Please add at least one workflowitem to this board."));
+				}
 			}
 			row++;
 		}		
