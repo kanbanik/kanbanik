@@ -17,6 +17,7 @@ import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -25,6 +26,7 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycl
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -135,23 +137,39 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 	}
 
 	private void executeCommand(final ServerCommand command, List<Widget> widgets) {
-		List<ProjectDto> dtos = extractDTOs(widgets);
+		final List<ProjectDto> dtos = extractDTOs(widgets);
 		final BoardWithProjectsDto toStore = new BoardWithProjectsDto(boardWithProjects.getBoard());
 		toStore.setProjects(dtos);
 		
 		new KanbanikServerCaller(
 				new Runnable() {
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, VoidParams> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, FailableResult<VoidParams>> invokeCommand(
 				command,
 				new SimpleParams<BoardWithProjectsDto>(toStore),
-				new KanbanikAsyncCallback<VoidParams>() {
+				new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
 
 					@Override
-					public void success(VoidParams result) {
+					public void success(FailableResult<VoidParams> result) {
+						if (!result.isSucceeded()) {
+							new ErrorDialog(result.getMessage()).center();
+							rollbackAfterFail(dtos, command);
+						}
 					}
+
 				});
 		}});
+	}
+
+	private void rollbackAfterFail(List<ProjectDto> dtos, ServerCommand command) {
+		for (ProjectDto dto: dtos) {
+			removedProjectFromPanel(dto);
+			if (command == ServerCommand.REMOVE_PROJECTS_FROM_BOARD) {
+				addProjectToPanel(projectsOfBoard, ON_BOARD, dto);
+			} else if (command == ServerCommand.ADD_PROJECTS_TO_BOARD) {
+				addProjectToPanel(toBeAdded, TO_BE_ADDED, dto);
+			}
+		}
 	}
 
 	private List<ProjectDto> extractDTOs(List<Widget> widgets) {
@@ -187,30 +205,30 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 			}
 		}
 
-		private void removedProjectFromPanel(ProjectDto payload) {
-			if (!removeIfPresent(toBeAdded, payload)) {
-				removeIfPresent(projectsOfBoard, payload);
-			}
-		}
+	}
 
-		private boolean removeIfPresent(FlowPanel panel, ProjectDto payload) {
-			int toDelete = -1;
-			for (int i = 0; i < panel.getWidgetCount(); i++) {
-				if (panel.getWidget(i) instanceof ProjectWidget) {
-					ProjectWidget widget = (ProjectWidget) panel.getWidget(i);
-					if (widget.getDto().getId() == payload.getId()) {
-						toDelete = i;
-						break;
-					}
+	private void removedProjectFromPanel(ProjectDto payload) {
+		if (!removeIfPresent(toBeAdded, payload)) {
+			removeIfPresent(projectsOfBoard, payload);
+		}
+	}
+
+	private boolean removeIfPresent(FlowPanel panel, ProjectDto payload) {
+		int toDelete = -1;
+		for (int i = 0; i < panel.getWidgetCount(); i++) {
+			if (panel.getWidget(i) instanceof ProjectWidget) {
+				ProjectWidget widget = (ProjectWidget) panel.getWidget(i);
+				if (widget.getDto().getId() == payload.getId()) {
+					toDelete = i;
+					break;
 				}
 			}
-			if (toDelete != -1) {
-				return panel.remove(toDelete);
-			}
-			
-			return false;
+		}
+		if (toDelete != -1) {
+			return panel.remove(toDelete);
 		}
 		
+		return false;
 	}
 	
 	public void activated() {

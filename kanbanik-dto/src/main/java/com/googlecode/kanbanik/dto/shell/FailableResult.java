@@ -20,6 +20,10 @@ public class FailableResult<T extends Result> implements Result {
 		this.succeeded = succeeded;
 		this.message = message;
 	}
+	
+	public FailableResult(T payload) {
+		this(payload, true, "");
+	}
 
 	public T getPayload() {
 		return payload;
