@@ -92,13 +92,18 @@ public abstract class AbstractTaskEditingComponent {
 		
 		String currentClassOfService = getClassOfServiceAsString();
 		classOfService.clear();
-		classOfService.addItem(currentClassOfService);
+
+		int selectedIndex = 0;
+		int i = 0;
 		for(ClassOfService item : ClassOfService.values()) {
-			if (item.toString().equals(currentClassOfService)) {
-				continue;
-			}
 			classOfService.addItem(item.toString());
+			if (item.toString().equals(currentClassOfService)) {
+				selectedIndex = i;
+			}
+			
+			i ++;
 		}
+		classOfService.setSelectedIndex(selectedIndex);
 	}
 
 	protected abstract String getClassOfServiceAsString();

@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.dto;
 import java.io.Serializable;
 
 public enum ClassOfService implements Serializable {
-	EXPEDITE(0), FIXED_DELIVERY_DATE(1), STANDARD(2), INTANGIBLE(3);
+	STANDARD(2), EXPEDITE(0), INTANGIBLE(3), FIXED_DELIVERY_DATE(1);
 	
 	private int id;
 	
