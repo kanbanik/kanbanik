@@ -22,6 +22,7 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardRefreshedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.BoardEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
@@ -174,9 +175,15 @@ public class BoardsBox extends Composite {
 				removeBoard(dto);
 			} else if (message instanceof BoardEditedMessage) {
 				editBoard(dto);
+			} else if (message instanceof BoardRefreshedMessage) {
+				refreshBoard(dto);
 			}
 			
-			
+		}
+
+		private void refreshBoard(BoardDto dto) {
+			int toRefresh = idOfBoard(dto);
+			boards.get(toRefresh).setBoard(dto);
 		}
 
 		private void editBoard(BoardDto dto) {
@@ -236,12 +243,17 @@ public class BoardsBox extends Composite {
 			if (!MessageBus.listens(BoardEditedMessage.class, this)) {
 				MessageBus.registerListener(BoardEditedMessage.class, this);	
 			}
+			
+			if (!MessageBus.listens(BoardRefreshedMessage.class, this)) {
+				MessageBus.registerListener(BoardRefreshedMessage.class, this);	
+			}
 		}
 
 		public void deactivated() {
 			MessageBus.unregisterListener(BoardCreatedMessage.class, this);
 			MessageBus.unregisterListener(BoardDeletedMessage.class, this);
 			MessageBus.unregisterListener(BoardEditedMessage.class, this);
+			MessageBus.unregisterListener(BoardRefreshedMessage.class, this);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
 	}

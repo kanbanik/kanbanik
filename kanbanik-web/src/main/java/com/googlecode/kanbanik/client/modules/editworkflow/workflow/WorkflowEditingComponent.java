@@ -338,6 +338,7 @@ public class WorkflowEditingComponent extends Composite implements
 							@Override
 							public void success(SimpleParams<BoardDto> result) {
 								boardDto = result.getPayload();
+								MessageBus.sendMessage(new BoardRefreshedMessage(boardDto, WorkflowEditingComponent.this));
 								renderBoard();
 							}
 
