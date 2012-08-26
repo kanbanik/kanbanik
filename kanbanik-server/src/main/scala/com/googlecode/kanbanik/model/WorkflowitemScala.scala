@@ -119,12 +119,14 @@ class WorkflowitemScala(
     using(createConnection) { conn =>
       storeData
 
-      // remember prev context
+      // remember some state before it gets changed
       val prevContext = findContext(WorkflowitemScala.byId(idToUpdate))
+      val lastEntity = findLastEntityInContext(context, conn)
+      
       moveVertically(idToUpdate, context, WorkflowitemScala.byId(idToUpdate))
 
       // put as argument before it was changed
-      moveHorizontally(idToUpdate, context, prevContext)
+      moveHorizontally(idToUpdate, context, prevContext, lastEntity)
 
       return WorkflowitemScala.byId(idToUpdate)
     }
@@ -303,7 +305,8 @@ class WorkflowitemScala(
   private def moveHorizontally(
     idToUpdate: ObjectId,
     context: Option[WorkflowitemScala],
-    prevContext: Option[WorkflowitemScala]) {
+    prevContext: Option[WorkflowitemScala],
+    lastEntity: Option[DBObject]) {
     using(createConnection) { conn =>
       // a->b->c->d->e->f
       // the e moves before b
@@ -326,8 +329,6 @@ class WorkflowitemScala(
       }
 
       val boardId = board.id.getOrElse(throw new IllegalStateException("the board has no ID set!"))
-
-      val lastEntity = findLastEntityInContext(context, conn)
 
       val f = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "_id" -> e.nextItemIdInternal)).getOrElse(null)
       val d = coll(conn, Coll.Workflowitems).findOne(MongoDBObject("boardId" -> boardId, "nextItemId" -> id)).getOrElse(null)
