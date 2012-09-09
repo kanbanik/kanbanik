@@ -6,8 +6,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import org.scalatest.Spec
-import com.googlecode.kanbanik.model.BoardScala
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 @RunWith(classOf[JUnitRunner])
@@ -16,7 +16,7 @@ class BoardBuilderTest extends Spec with MockitoSugar {
   describe("BoardBuilder should be able to build DTOs from entity objects and vice versa") {
 
     it("should handle board without workflow") {
-      val board = mock[BoardScala]
+      val board = mock[Board]
 
       when(board.name).thenReturn("boardName")
       when(board.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
@@ -39,7 +39,7 @@ class BoardBuilderTest extends Spec with MockitoSugar {
       when(item2.nextItem).thenReturn(Some(item3))
       when(item3.nextItem).thenReturn(None)
 
-      val board = mock[BoardScala]
+      val board = mock[Board]
       when(board.id).thenReturn(Some(new ObjectId("1f48e10644ae3742baa2d0a9")))
       
       val builder = new TestedBuilder
@@ -51,7 +51,7 @@ class BoardBuilderTest extends Spec with MockitoSugar {
     }
 
     def mockWorkflowitem(id: String) = {
-      val item = mock[WorkflowitemScala]
+      val item = mock[Workflowitem]
       when(item.id).thenReturn(Some(new ObjectId(id)))
       item
     }
@@ -62,7 +62,7 @@ class TestedBuilder extends BoardBuilder {
   override def workflowitemBuilder = new SimpleWorkflowitemBuilder
 
   class SimpleWorkflowitemBuilder extends WorkflowitemBuilder {
-    override def buildDto(workflowitem: WorkflowitemScala): WorkflowitemDto = {
+    override def buildDto(workflowitem: Workflowitem): WorkflowitemDto = {
       val dto = new WorkflowitemDto
       dto.setId(workflowitem.id.get.toString())
       dto

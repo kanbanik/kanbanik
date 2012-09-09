@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.model
 
 // just a bridge between java and scala world
 class KanbanikConnectionManager {
-	def destroyConnectionPool = KanbanikEntity.destroyConnection
+	def destroyConnectionPool = HasMongoConnection.destroyConnection
 	
 	def initConnectionPool(
 	  server: String, 
@@ -10,7 +10,7 @@ class KanbanikConnectionManager {
       user: String, 
       password: String, 
       dbName: String,
-      authenticationRequired: String) = KanbanikEntity.initConnectionParams(
+      authenticationRequired: String) = HasMongoConnection.initConnectionParams(
           server,
           port,
           user,

@@ -5,10 +5,10 @@ import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.Spec
-import com.googlecode.kanbanik.model.TaskScala
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Task
+import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.dto.ClassOfService
-import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 
@@ -17,8 +17,8 @@ class TaskBuilderTest extends Spec with MockitoSugar {
   describe("TaskBuilder should be able to build DTOs from entity objects and vice versa") {
 
     it("should be able to fill all properties") {
-      val task = mock[TaskScala]
-      val workflowitem = mock[WorkflowitemScala]
+      val task = mock[Task]
+      val workflowitem = mock[Workflowitem]
 
       when(workflowitem.id).thenReturn(Some(new ObjectId("6f48e10644ae3742baa2d0a9")))
       when(workflowitem.child).thenReturn(None)
@@ -43,18 +43,18 @@ class TaskBuilderTest extends Spec with MockitoSugar {
 
   class TestedTaskBuilder extends TaskBuilder {
 
-    override def findProjectForTask(task: TaskScala) = Some(mock[ProjectScala])
+    override def findProjectForTask(task: Task) = Some(mock[Project])
 
     override def projectBuilder = new SimpleProjectBuilder
 
     override def workflowitemBuilder = new SimpleWorkflowitemBuilder
 
     class SimpleProjectBuilder extends ProjectBuilder {
-      override def buildShallowDto(project: ProjectScala) = new ProjectDto
+      override def buildShallowDto(project: Project) = new ProjectDto
     }
 
     class SimpleWorkflowitemBuilder extends WorkflowitemBuilder {
-      override def buildDtoNonRecursive(workflowitem: WorkflowitemScala) = new WorkflowitemDto
+      override def buildDtoNonRecursive(workflowitem: Workflowitem) = new WorkflowitemDto
     }
   }
 }

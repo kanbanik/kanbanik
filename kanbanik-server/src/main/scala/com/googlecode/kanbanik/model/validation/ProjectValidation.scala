@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.model.validation
-import com.googlecode.kanbanik.model.ProjectScala
-import com.googlecode.kanbanik.model.BoardScala
-import com.googlecode.kanbanik.model.TaskScala
+import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Task
 
 trait ProjectValidation {
 
-  def canBeDeleted(project: ProjectScala): (Boolean, String) = {
+  def canBeDeleted(project: Project): (Boolean, String) = {
     if (!project.tasks.isDefined) {
       return (true, "")
     }
@@ -13,7 +13,7 @@ trait ProjectValidation {
     return composeResult(project.tasks.get)
   }
   
-  def canBeRemoved(project: ProjectScala, board: BoardScala): (Boolean, String) = {
+  def canBeRemoved(project: Project, board: Board): (Boolean, String) = {
     if (!project.tasks.isDefined) {
       return (true, "")
     }
@@ -26,7 +26,7 @@ trait ProjectValidation {
     return composeResult(tasks)
   }
   
-  def composeResult(tasks: List[TaskScala]): (Boolean, String) = {
+  def composeResult(tasks: List[Task]): (Boolean, String) = {
 
     var msg = "There are some tasks associated with this project. Please delete them first and than try to do this action again. The tasks: [";
     for (task <- tasks) {

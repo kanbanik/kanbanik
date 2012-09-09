@@ -9,9 +9,9 @@ import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.dto.ItemType
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.model.BaseIntegrationTest
-import com.googlecode.kanbanik.model.BoardScala
+import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.DataLoader
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Workflowitem
 import com.mongodb.casbah.commons.MongoDBObject
 
 class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
@@ -142,7 +142,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
 
       assertTopLevelEntitiesInBoard(2)
 
-      assert(WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "1f48e10644ae3742baa2d0b9")
+      assert(Workflowitem.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "1f48e10644ae3742baa2d0b9")
 
     }
 
@@ -159,7 +159,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
 
       assertTopLevelEntitiesInBoard(4)
 
-      assert(WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.isDefined === false)
+      assert(Workflowitem.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.isDefined === false)
     }
 
     it("should be able to move the middle child to last child") {
@@ -178,8 +178,8 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         "9f48e10644ae3742baa2d0b9",
         "7f48e10644ae3742baa2d0b9")
 
-      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
-      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "9f48e10644ae3742baa2d0b9")
+      assert(Workflowitem.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
+      assert(Workflowitem.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "9f48e10644ae3742baa2d0b9")
     }
 
     it("should be able to move the middle child to first child") {
@@ -198,8 +198,8 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         "7f48e10644ae3742baa2d0b9",
         "9f48e10644ae3742baa2d0b9")
 
-      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
-      assert(WorkflowitemScala.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "7f48e10644ae3742baa2d0b9")
+      assert(Workflowitem.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.isDefined === true)
+      assert(Workflowitem.byId(new ObjectId("5f48e10644ae3742baa2d0b9")).child.get.id.get === "7f48e10644ae3742baa2d0b9")
     }
 
     it("should be able to add new entity to the start of the top-level workflow") {
@@ -305,7 +305,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
       checkOrder(
         stored.getId())
 
-      assert(WorkflowitemScala.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
+      assert(Workflowitem.byId(new ObjectId("3f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
 
       assertTopLevelEntitiesInBoard(3)
     }
@@ -345,7 +345,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         null,
         "2f48e10644ae3742baa2d0b9")
 
-      val first = WorkflowitemScala.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.get
+      val first = Workflowitem.byId(new ObjectId("1f48e10644ae3742baa2d0b9")).child.get
       assert(first.id.get.toString === "2f48e10644ae3742baa2d0b9")
       assert(first.nextItem === None)
       assert(first.child.get.id.get.toString === "3f48e10644ae3742baa2d0b9")
@@ -440,8 +440,8 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
       checkOrder(
         stored.getId())
 
-      assert(WorkflowitemScala.byId(new ObjectId("7f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "8f48e10644ae3742baa2d0b9")
-      assert(WorkflowitemScala.byId(new ObjectId("8f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
+      assert(Workflowitem.byId(new ObjectId("7f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === "8f48e10644ae3742baa2d0b9")
+      assert(Workflowitem.byId(new ObjectId("8f48e10644ae3742baa2d0b9")).child.get.id.get.toString() === stored.getId())
 
       assertTopLevelEntitiesInBoard(3)
     }

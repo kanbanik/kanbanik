@@ -5,7 +5,7 @@ import org.scalatest.Spec
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.ListDto
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto
 import com.googlecode.kanbanik.dto.BoardDto
@@ -18,7 +18,7 @@ class GetAllBoardsCommandTest extends Spec with MockitoSugar {
   class TestingGetAllBoardsCommand(
     val boardBuilder: BoardBuilder,
     val projectBuilder: ProjectBuilder,
-    val allProjectsMocked: List[ProjectScala]) extends GetAllBoardsCommand {
+    val allProjectsMocked: List[Project]) extends GetAllBoardsCommand {
 
     override def getBoardBuilder = boardBuilder
     override def getProjectBuilder = projectBuilder
@@ -36,7 +36,7 @@ class GetAllBoardsCommandTest extends Spec with MockitoSugar {
 
     it("assignes nothing if there is one project but not assigned to the board") {
       val list = new ListDto[BoardWithProjectsDto]()
-      val project = mock[ProjectScala]
+      val project = mock[Project]
       val projectBuilder = mock[ProjectBuilder]
 
       new TestingGetAllBoardsCommand(null, projectBuilder, List(project)).buildProjectsForBoard(list)
@@ -90,7 +90,7 @@ class GetAllBoardsCommandTest extends Spec with MockitoSugar {
   }
 
   private def projectWithBoard(boardIds: String*) = {
-    val project = mock[ProjectScala]
+    val project = mock[Project]
 
     val projectDto = new ProjectDto()
     for (boardId <- boardIds) {

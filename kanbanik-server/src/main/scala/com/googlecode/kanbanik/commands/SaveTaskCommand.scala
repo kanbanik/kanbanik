@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.model.Project
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.shell.FailableResult
 
@@ -19,7 +19,7 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     val isNew = !task.id.isDefined
     
     val storedTask = task.store
-    val project = ProjectScala.byId(new ObjectId(params.getPayload().getProject().getId()))
+    val project = Project.byId(new ObjectId(params.getPayload().getProject().getId()))
     
     if (isNew) {
     	addTaskToProject(storedTask, project)

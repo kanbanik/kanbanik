@@ -2,19 +2,20 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-import com.googlecode.kanbanik.model.KanbanikEntity
+import com.googlecode.kanbanik.model.HasMongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.model.BoardScala
+import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.FailableResult
+import com.googlecode.kanbanik.model.Task
 
-class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with KanbanikEntity {
+class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
 
   lazy val workflowitemBuilder = new WorkflowitemBuilder
 
@@ -30,7 +31,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     var currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
     if (contextDto != null) {
-    	currentEntity = currentEntity.store(Some(WorkflowitemScala.byId(new ObjectId(contextDto.getId()))))  
+    	currentEntity = currentEntity.store(Some(Workflowitem.byId(new ObjectId(contextDto.getId()))))  
     } else {
       currentEntity = currentEntity.store
     }
@@ -44,7 +45,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     }
    
     using(createConnection) { conn =>
-      return coll(conn, Coll.Tasks).findOne(MongoDBObject("workflowitem" -> new ObjectId(contextDto.getId()))).isDefined
+      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> new ObjectId(contextDto.getId()))).isDefined
     }
   }
 

@@ -5,8 +5,8 @@ import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.model.ProjectScala
-import com.googlecode.kanbanik.model.TaskScala
+import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.Task
 
 class MoveTaskCommand extends ServerCommand[MoveTaskParams, SimpleParams[TaskDto]] with TaskManipulation {
 
@@ -14,7 +14,7 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, SimpleParams[TaskDto
 
   def execute(params: MoveTaskParams): SimpleParams[TaskDto] = {
     val task = taskBuilder.buildEntity(params.getTask())
-    val project = ProjectScala.byId(new ObjectId(params.getProject().getId()));
+    val project = Project.byId(new ObjectId(params.getProject().getId()));
 
     val definedOnProject = findProjectForTask(task).getOrElse(throw new IllegalStateException("The task '" + task.id + "' is defined on NO project!"))
 

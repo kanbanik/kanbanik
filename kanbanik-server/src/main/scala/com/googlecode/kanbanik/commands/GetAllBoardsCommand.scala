@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
-import com.googlecode.kanbanik.model.BoardScala
+import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dto.ListDto
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto
@@ -19,7 +19,7 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
 
   def execute(params: VoidParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
     val res = new ListDto[BoardWithProjectsDto]()
-    BoardScala.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board))) })
+    Board.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board))) })
 
     buildProjectsForBoard(res)
     
@@ -46,6 +46,6 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
   
   private[commands] def getProjectBuilder = projectBuilder
   
-  private[commands] def allProjects = ProjectScala.all()
+  private[commands] def allProjects = Project.all()
   
 }

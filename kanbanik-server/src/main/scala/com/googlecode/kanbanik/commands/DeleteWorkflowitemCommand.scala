@@ -4,12 +4,13 @@ import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.model.KanbanikEntity
+import com.googlecode.kanbanik.model.HasMongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.shell.VoidParams
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.Task
 
-class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with KanbanikEntity {
+class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection {
   
   lazy val workflowitemBuilder = new WorkflowitemBuilder
   
@@ -21,7 +22,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")
     }
     
-    if (WorkflowitemScala.byId(id).child.isDefined) {
+    if (Workflowitem.byId(id).child.isDefined) {
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a child workflowitem.")
     }
     
@@ -33,7 +34,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
   
   def hasTasksOnWorkflowitem(workflowitemId: ObjectId): Boolean = {
     using(createConnection) { conn =>
-      return coll(conn, Coll.Tasks).findOne(MongoDBObject("workflowitem" -> workflowitemId)).isDefined
+      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> workflowitemId)).isDefined
     }
   }
 }

@@ -1,21 +1,21 @@
 package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.ProjectDto
-import com.googlecode.kanbanik.model.BoardScala
-import com.googlecode.kanbanik.model.ProjectScala
-import com.googlecode.kanbanik.model.TaskScala
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.dto.BoardDto
 
 class ProjectBuilder {
 
-  def buildDto(project: ProjectScala): ProjectDto = {
+  def buildDto(project: Project): ProjectDto = {
     val boardBuilder = new BoardBuilder
 
     val res = buildShallowDto(project)
 
-    val boards = project.boards.getOrElse(List[BoardScala]())
-    val tasks = project.tasks.getOrElse(List[TaskScala]())
+    val boards = project.boards.getOrElse(List[Board]())
+    val tasks = project.tasks.getOrElse(List[Task]())
 
     boards.foreach(board => res.addBoard(boardBuilder.buildDto(board)))
     tasks.foreach(task => {
@@ -27,9 +27,9 @@ class ProjectBuilder {
     res
   }
 
-  def buildEntity(projectDto: ProjectDto): ProjectScala = {
+  def buildEntity(projectDto: ProjectDto): Project = {
     // only shallow for now
-    new ProjectScala(
+    new Project(
       {
         if (projectDto.getId() == null) {
           None
@@ -39,11 +39,11 @@ class ProjectBuilder {
       },
       projectDto.getName(),
       {
-        dtosToEntities[BoardScala, BoardDto](projectDto.getBoards(), {board => BoardScala.byId(new ObjectId(board.getId()))})
+        dtosToEntities[Board, BoardDto](projectDto.getBoards(), {board => Board.byId(new ObjectId(board.getId()))})
       },
 
       {
-        dtosToEntities[TaskScala, TaskDto](projectDto.getTasks(), {task => TaskScala.byId(new ObjectId(task.getId()))})
+        dtosToEntities[Task, TaskDto](projectDto.getTasks(), {task => Task.byId(new ObjectId(task.getId()))})
       })
   }
 
@@ -60,7 +60,7 @@ class ProjectBuilder {
     }
   }
 
-  def buildShallowDto(project: ProjectScala) = {
+  def buildShallowDto(project: Project) = {
     val res = new ProjectDto
     res.setId(project.id.get.toString())
     res.setName(project.name)

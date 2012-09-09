@@ -1,12 +1,12 @@
 package com.googlecode.kanbanik.commands
-import com.googlecode.kanbanik.model.ProjectScala
-import com.googlecode.kanbanik.model.BoardScala
+import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.VoidParams
 
 class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand {
 
-  override def executeSpecific(board: BoardScala, project: ProjectScala): FailableResult[VoidParams] = {
+  override def executeSpecific(board: Board, project: Project): FailableResult[VoidParams] = {
 
     val (deletable, msg) = canBeRemoved(project, board)
 

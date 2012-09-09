@@ -3,30 +3,30 @@ import org.bson.types.ObjectId
 
 import com.googlecode.kanbanik.dto.ItemType
 import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.model.BoardScala
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Workflowitem
 
 
 class WorkflowitemBuilder {
 
-  def buildEntity(dto: WorkflowitemDto): WorkflowitemScala = {
-    new WorkflowitemScala(
+  def buildEntity(dto: WorkflowitemDto): Workflowitem = {
+    new Workflowitem(
         findId(dto),
         dto.getName(),
         dto.getWipLimit(),
         dto.getItemType().asStringValue(),
         findWorkflowitem(dto.getChild()),
         findWorkflowitem(dto.getNextItem()),
-        BoardScala.byId(new ObjectId(dto.getBoard().getId()))
+        Board.byId(new ObjectId(dto.getBoard().getId()))
     )
   }
   
-  def findWorkflowitem(dto: WorkflowitemDto): Option[WorkflowitemScala] = {
+  def findWorkflowitem(dto: WorkflowitemDto): Option[Workflowitem] = {
     if (dto == null || dto.getId() == null) {
       return None
     }
     
-    return Some(WorkflowitemScala.byId(new ObjectId(dto.getId())))
+    return Some(Workflowitem.byId(new ObjectId(dto.getId())))
   }
   
   def findId(dto: WorkflowitemDto): Option[ObjectId] = {
@@ -37,7 +37,7 @@ class WorkflowitemBuilder {
     Some(new ObjectId(dto.getId()))
   }
   
-  def buildDto(workflowitem: WorkflowitemScala): WorkflowitemDto = {
+  def buildDto(workflowitem: Workflowitem): WorkflowitemDto = {
 
     val res = buildDtoNonRecursive(workflowitem)
 
@@ -52,7 +52,7 @@ class WorkflowitemBuilder {
     res
   }
 
-  def buildDtoNonRecursive(workflowitem: WorkflowitemScala) = {
+  def buildDtoNonRecursive(workflowitem: Workflowitem) = {
     val dto = new WorkflowitemDto
     dto.setId(workflowitem.id.get.toString())
     dto.setName(workflowitem.name)

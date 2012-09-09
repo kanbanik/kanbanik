@@ -2,11 +2,11 @@ package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
 
-class TaskScalaTest extends BaseIntegrationTest {
+class TaskTest extends BaseIntegrationTest {
   describe("Task should support all the basic CRUD operations") {
 
     it("should be possible to retrieve entity using ID") {
-      val loaded = TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val loaded = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       assert(loaded.name === "task name")
       assert(loaded.description === "task description")
       assert(loaded.classOfService === 1)
@@ -14,13 +14,13 @@ class TaskScalaTest extends BaseIntegrationTest {
     }
 
     it("should be possible to store a new entity") {
-      val stored = new TaskScala(
+      val stored = new Task(
         None,
         "other name",
         "other description",
         2,
         "ticket id",
-        WorkflowitemScala.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))).store
+        Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))).store
 
       assert(stored.name === "other name")
       assert(stored.description === "other description")
@@ -28,35 +28,35 @@ class TaskScalaTest extends BaseIntegrationTest {
     }
 
     it("should be possible to update the content of the entity") {
-      val loaded = TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val loaded = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       loaded.name = "changed name"
       loaded.description = "changed description"
       loaded.classOfService = 3
       loaded.store
 
-      val changed = TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val changed = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       assert(changed.name === "changed name")
       assert(changed.description === "changed description")
       assert(changed.classOfService === 3)
     }
 
     it("should be possible to delete a task") {
-      val task = TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val task = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       task.delete
       intercept[IllegalArgumentException] {
-        TaskScala.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+        Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       }
     }
     
     it("should fail when triing to create with a non existing workflow") {
       intercept[IllegalArgumentException] {
-        new TaskScala(
+        new Task(
           None,
           "other name",
           "other description",
           2,
           "",
-          new WorkflowitemScala(None, "", 1, "H", None, None, null)).store
+          new Workflowitem(None, "", 1, "H", None, None, null)).store
       }
     }
   }

@@ -1,13 +1,13 @@
 package com.googlecode.kanbanik.builders
 import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.model.BoardScala
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 
 class BoardBuilder {
 
-  def buildDto(board: BoardScala): BoardDto = {
+  def buildDto(board: Board): BoardDto = {
     val res = buildShallowDto(board)
     if (board.workflowitems.isDefined) {
       res.setRootWorkflowitem(findRootWorkflowitem(board, board.workflowitems))
@@ -16,7 +16,7 @@ class BoardBuilder {
     res
   }
 
-  private[builders] def findRootWorkflowitem(board: BoardScala, workflowitems: Option[List[WorkflowitemScala]]): WorkflowitemDto = {
+  private[builders] def findRootWorkflowitem(board: Board, workflowitems: Option[List[Workflowitem]]): WorkflowitemDto = {
     if (!workflowitems.isDefined || workflowitems.get.size == 0) {
       return null;
     }
@@ -30,7 +30,7 @@ class BoardBuilder {
     throw new IllegalStateException("The board + " + board.id.get.toString() + " has no root workflowitem")
   }
 
-  private def isRoot(candidate: WorkflowitemScala, workflowitems: List[WorkflowitemScala]): Boolean = {
+  private def isRoot(candidate: Workflowitem, workflowitems: List[Workflowitem]): Boolean = {
     for (potentialParent <- workflowitems) {
       if (potentialParent.nextItem.isDefined) {
         if (potentialParent.nextItem.get.id.get == candidate.id.get) {
@@ -42,15 +42,15 @@ class BoardBuilder {
     return true
   }
 
-  def buildShallowDto(board: BoardScala): BoardDto = {
+  def buildShallowDto(board: Board): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
     res.setId(board.id.get.toString())
     res
   }
 
-  def buildEntity(boardDto: BoardDto): BoardScala = {
-    new BoardScala(
+  def buildEntity(boardDto: BoardDto): Board = {
+    new Board(
       detrmineId(boardDto),
       boardDto.getName(),
       None

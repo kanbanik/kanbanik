@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 import org.scalatest.BeforeAndAfter
 import org.scalatest.Spec
 import com.googlecode.kanbanik.model.DataLoader
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.mongodb.casbah.commons.MongoDBObject

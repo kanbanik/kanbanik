@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoConnection
 
-object DataLoader extends KanbanikEntity {
+object DataLoader extends HasMongoConnection {
 
   val workflowitems = createConnection("kanbanik")("workflowitems")
   val boards = createConnection("kanbanik")("boards")

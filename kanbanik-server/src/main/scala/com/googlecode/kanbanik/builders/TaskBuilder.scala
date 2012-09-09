@@ -2,14 +2,14 @@ package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.ClassOfService
 import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.model.TaskScala
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Task
+import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.commands.TaskManipulation
-import com.googlecode.kanbanik.model.ProjectScala
+import com.googlecode.kanbanik.model.Project
 
 class TaskBuilder extends TaskManipulation {
 
-  def buildDto(task: TaskScala): TaskDto = {
+  def buildDto(task: Task): TaskDto = {
     val dto = new TaskDto
     dto.setId(task.id.get.toString())
     dto.setName(task.name)
@@ -17,19 +17,19 @@ class TaskBuilder extends TaskManipulation {
     dto.setClassOfService(ClassOfService.fromId(task.classOfService))
     dto.setWorkflowitem(workflowitemBuilder.buildDtoNonRecursive(task.workflowitem))
     dto.setTicketId(task.ticketId)
-    val project: ProjectScala = findProjectForTask(task).getOrElse(throw new IllegalStateException("No project for task: '" + task.id + "' found!"))
+    val project: Project = findProjectForTask(task).getOrElse(throw new IllegalStateException("No project for task: '" + task.id + "' found!"))
     dto.setProject(projectBuilder.buildShallowDto(project))
     dto
   }
 
-  def buildEntity(taskDto: TaskDto): TaskScala = {
-    new TaskScala(
+  def buildEntity(taskDto: TaskDto): Task = {
+    new Task(
       determineId(taskDto),
       taskDto.getName(),
       taskDto.getDescription(),
       taskDto.getClassOfService().getId(),
       determineTicketId(taskDto),
-      WorkflowitemScala.byId(new ObjectId(taskDto.getWorkflowitem().getId())));
+      Workflowitem.byId(new ObjectId(taskDto.getWorkflowitem().getId())));
   }
   
   private def determineId(taskDto: TaskDto): Option[ObjectId]= {

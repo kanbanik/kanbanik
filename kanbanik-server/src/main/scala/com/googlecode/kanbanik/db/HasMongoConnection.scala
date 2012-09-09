@@ -3,11 +3,11 @@ import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
 import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.WriteConcern
 
-trait KanbanikEntity extends ResourceManipulation {
+trait HasMongoConnection extends ResourceManipulation {
 
   def createConnection = {
-    KanbanikEntity.initConnection
-    KanbanikEntity.connection
+    HasMongoConnection.initConnection
+    HasMongoConnection.connection
   }
 
   object Coll extends Enumeration {
@@ -19,12 +19,12 @@ trait KanbanikEntity extends ResourceManipulation {
   }
 
   def coll(connection: MongoConnection, collName: Coll.Value) = {
-    connection(KanbanikEntity.dbName)(collName.toString())
+    connection(HasMongoConnection.dbName)(collName.toString())
   }
 
 }
 
-object KanbanikEntity {
+object HasMongoConnection {
 
   var connection: MongoConnection = null
   def initConnection {

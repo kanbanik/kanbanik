@@ -1,23 +1,23 @@
 package com.googlecode.kanbanik.commands
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-import com.googlecode.kanbanik.model.KanbanikEntity
-import com.googlecode.kanbanik.model.ProjectScala
-import com.googlecode.kanbanik.model.TaskScala
+import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.Task
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
 
-trait TaskManipulation extends KanbanikEntity {
+trait TaskManipulation extends HasMongoConnection {
 
-  def removeTaskFromProject(task: TaskScala, project: ProjectScala) {
+  def removeTaskFromProject(task: Task, project: Project) {
     if (project.tasks.isDefined) {
       project.tasks = Some(project.tasks.get.filter(_.id != task.id))
       project.store
     }
   }
 
-  def addTaskToProject(task: TaskScala, project: ProjectScala) {
+  def addTaskToProject(task: Task, project: Project) {
     if (project.tasks.isDefined) {
       project.tasks = Some(task :: project.tasks.get)
       project.store
@@ -27,13 +27,13 @@ trait TaskManipulation extends KanbanikEntity {
     }
   }
 
-  def findProjectForTask(task: TaskScala): Option[ProjectScala] = {
-    var definedOnProject: Option[ProjectScala] = None
+  def findProjectForTask(task: Task): Option[Project] = {
+    var definedOnProject: Option[Project] = None
 
     breakable {
-      for (project <- ProjectScala.all()) {
+      for (project <- Project.all()) {
         if (project.tasks.isDefined) {
-          val tasksForProject: List[TaskScala] = project.tasks.get
+          val tasksForProject: List[Task] = project.tasks.get
           if (tasksForProject.exists(_.id == task.id)) {
             definedOnProject = Some(project)
             break

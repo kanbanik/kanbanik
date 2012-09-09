@@ -4,12 +4,12 @@ import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.Spec
-import com.googlecode.kanbanik.model.WorkflowitemScala
+import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.ItemType
 import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.model.BoardScala
+import com.googlecode.kanbanik.model.Board
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowitemBuilderTest extends Spec with MockitoSugar {
@@ -87,8 +87,8 @@ class WorkflowitemBuilderTest extends Spec with MockitoSugar {
 
   }
 
-  def mockWorkflowitem(id: String, name: String, wip: Int, nextItem: Option[WorkflowitemScala], child: Option[WorkflowitemScala]) = {
-    val item = mock[WorkflowitemScala]
+  def mockWorkflowitem(id: String, name: String, wip: Int, nextItem: Option[Workflowitem], child: Option[Workflowitem]) = {
+    val item = mock[Workflowitem]
     when(item.id).thenReturn(Some(new ObjectId(id)))
     when(item.name).thenReturn(name)
     when(item.wipLimit).thenReturn(wip)
@@ -110,7 +110,7 @@ class WorkflowitemBuilderTest extends Spec with MockitoSugar {
     override def boardBuilder = new SimpleBoardBuilder
     
     class SimpleBoardBuilder extends BoardBuilder {
-      override def buildShallowDto(board: BoardScala): BoardDto = new BoardDto
+      override def buildShallowDto(board: Board): BoardDto = new BoardDto
     }
   }
 }
