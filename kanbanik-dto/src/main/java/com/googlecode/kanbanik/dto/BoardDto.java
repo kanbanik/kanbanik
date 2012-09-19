@@ -9,6 +9,8 @@ public class BoardDto implements KanbanikDto {
 	private String name;
 	
 	private String id;
+	
+	private int version;
 
 	private WorkflowitemDto rootWorkflowitem;
 	
@@ -34,6 +36,14 @@ public class BoardDto implements KanbanikDto {
 
 	public void setRootWorkflowitem(WorkflowitemDto rootWorkflowitem) {
 		this.rootWorkflowitem = rootWorkflowitem;
+	}
+	
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	@Override

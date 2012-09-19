@@ -109,7 +109,8 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("8a48e10644ae3742baa2d0d9"),
       "name" -> "board1 name",
-      "workflowitems" -> null)
+      "workflowitems" -> null,
+      "version" -> 1)
 
     workflowitems += MongoDBObject(
       "_id" -> new ObjectId("1c48e10644ae3742baa2d0d9"),
@@ -125,6 +126,7 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("2f48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> List(
         new ObjectId("3f48e10644ae3742baa2d0b9"),
         new ObjectId("4f48e10644ae3742baa2d0b9")))
@@ -147,11 +149,13 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("1f48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> null)
 
     boards += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0d0"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> List(
         new ObjectId("4d48e10644ae3742baa2d0d9"),
         new ObjectId("5d48e10644ae3742baa2d0d9"),
@@ -195,6 +199,7 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("1e48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> null)
 
     workflowitems += MongoDBObject(
@@ -226,6 +231,7 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("1c48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> null)
 
     workflowitems += MongoDBObject(
@@ -280,6 +286,7 @@ object DataLoader extends HasMongoConnection {
     boards += MongoDBObject(
       "_id" -> new ObjectId("1d48e10644ae3742baa2d0b9"),
       "name" -> "board1 name",
+      "version" -> 1,
       "workflowitems" -> null)
 
     workflowitems += MongoDBObject(

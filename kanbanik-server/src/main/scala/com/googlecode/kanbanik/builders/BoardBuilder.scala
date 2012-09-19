@@ -46,17 +46,26 @@ class BoardBuilder {
     val res = new BoardDto
     res.setName(board.name)
     res.setId(board.id.get.toString())
+    res.setVersion(board.version)
     res
   }
 
   def buildEntity(boardDto: BoardDto): Board = {
-    new Board(
-      detrmineId(boardDto),
-      boardDto.getName(),
-      None
-    )
-  }
+    if (boardDto.getId() == null) {
+      new Board(
+        detrmineId(boardDto),
+        boardDto.getName(),
+        boardDto.getVersion(),
+        None)
+    } else {
+      // an ugly way because I'm too lazy to fetch the correct ones according to the root workflowitem
+      val storedBoard = Board.byId(new ObjectId(boardDto.getId()))
+      storedBoard.name = boardDto.getName()
+      storedBoard.version = boardDto.getVersion()
+      storedBoard
+    }
 
+  }
 
   private def detrmineId(boardDto: BoardDto): Option[ObjectId] = {
     if (boardDto.getId() == null) {

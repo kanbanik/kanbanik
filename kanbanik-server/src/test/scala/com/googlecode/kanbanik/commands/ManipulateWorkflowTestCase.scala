@@ -42,6 +42,7 @@ class ManipulateWorkflowTestCase extends Spec with BeforeAndAfter  {
     dto.setName("")
     dto.setItemType(ItemType.HORIZONTAL)
     val board = new BoardDto
+    board.setVersion(1)
     board.setId("1e48e10644ae3742baa2d0b9")
     dto.setBoard(board)
     dto

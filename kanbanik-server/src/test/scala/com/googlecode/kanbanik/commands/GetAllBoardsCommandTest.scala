@@ -96,6 +96,7 @@ class GetAllBoardsCommandTest extends Spec with MockitoSugar {
     for (boardId <- boardIds) {
       val boardDto = new BoardDto()
       boardDto.setId(boardId)
+      boardDto.setVersion(1)
       projectDto.addBoard(boardDto)
 
     }
@@ -107,6 +108,7 @@ class GetAllBoardsCommandTest extends Spec with MockitoSugar {
   private def createBoard(boardWithProjectsList: ListDto[BoardWithProjectsDto], id: String) {
     val board = new BoardDto()
     board.setId(id)
+    board.setVersion(1)
     boardWithProjectsList.addItem(new BoardWithProjectsDto(board))
   }
 }

@@ -67,12 +67,12 @@ class BoardTest extends BaseIntegrationTest {
     }
 
     it("should be possible to store board without workflow") {
-      val stored = new Board(None, "stored", None).store
+      val stored = new Board(None, "stored", 1, None).store
       assert(Board.byId(stored.id.getOrElse(notSet)).name === "stored")
     }
 
     it("should be possible to store board with workflow") {
-      val stored = new Board(None, "stored",
+      val stored = new Board(None, "stored", 1,
         Some(List(
           Workflowitem.byId(new ObjectId("1f48e10644ae3742baa2d0d9")),
           Workflowitem.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))))).store
@@ -116,6 +116,16 @@ class BoardTest extends BaseIntegrationTest {
       board.store
       val withOneWorkflowitemOnly = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
       assert(withOneWorkflowitemOnly.workflowitems.get.size === 3)
+    }
+    
+    it("should throw exception on mid-air collision") {
+      val board1 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      val board2 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      
+      board1.store
+      intercept[MidAirCollisionException] {
+    	  board2.store
+      }
     }
 
   }

@@ -4,8 +4,10 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
@@ -31,14 +33,19 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<SimpleParams<BoardDto>>> invokeCommand(
 				ServerCommand.SAVE_BOARD,
 				new SimpleParams<BoardDto>(toStore),
-				new KanbanikAsyncCallback<SimpleParams<BoardDto>>() {
+				new KanbanikAsyncCallback<FailableResult<SimpleParams<BoardDto>>>() {
 
 					@Override
-					public void success(SimpleParams<BoardDto> result) {
-						MessageBus.sendMessage(new BoardCreatedMessage( result.getPayload(), BoardCreatingComponent.this));
+					public void success(FailableResult<SimpleParams<BoardDto>> result) {
+						if (result.isSucceeded()) {
+							MessageBus.sendMessage(new BoardCreatedMessage( result.getPayload().getPayload(), BoardCreatingComponent.this));	
+						} else {
+							new ErrorDialog(result.getMessage()).center();
+						}
+						
 					}
 				});
 		}});

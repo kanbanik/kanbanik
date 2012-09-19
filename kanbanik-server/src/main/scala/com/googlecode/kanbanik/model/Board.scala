@@ -10,6 +10,7 @@ import java.util.ArrayList
 class Board(
   var id: Option[ObjectId],
   var name: String,
+  var version: Int,
   var workflowitems: Option[List[Workflowitem]]) extends HasMongoConnection {
 
   def store: Board = {
@@ -25,16 +26,22 @@ class Board(
     val idObject = MongoDBObject(Board.Fields.id.toString() -> idToUpdate)
 
     using(createConnection) { conn =>
-      coll(conn, Coll.Boards).update(idObject, $set(Board.Fields.name.toString() -> name))
-      coll(conn, Coll.Boards).update(idObject, $set(Board.Fields.workflowitems.toString() -> {
-        if (workflowitems.isDefined) {
-          for { x <- workflowitems.get } yield x.id
-        } else {
-          null
-        }
-      }))
+      
+      var query = (MongoDBObject(Board.Fields.id.toString() -> id)) ++ ($or((Board.Fields.version.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.version.toString() -> version)))
+      
+      val update = $set(
+        Board.Fields.version.toString() -> { version + 1 },
+        Board.Fields.name.toString() -> name,
+        Board.Fields.workflowitems.toString() -> {
+          if (workflowitems.isDefined) {
+            for { x <- workflowitems.get } yield x.id
+          } else {
+            null
+          }
+        })
 
-      return Board.byId(idToUpdate)
+      val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
+      Board.asEntity(res.getOrElse(throw new MidAirCollisionException))
     }
 
   }
@@ -73,6 +80,14 @@ object Board extends HasMongoConnection {
       Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
       {
+        val res = dbObject.get(Board.Fields.version.toString())
+        if (res == null) {
+          1
+        } else {
+          res.asInstanceOf[Int]
+        }
+      },
+      {
         if (dbObject.get(Board.Fields.workflowitems.toString()).isInstanceOf[BasicDBList]) {
           Some(for { x <- dbObject.get(Board.Fields.workflowitems.toString()).asInstanceOf[BasicDBList].toArray().toList } yield Workflowitem.byId(x.asInstanceOf[ObjectId]))
         } else {
@@ -85,6 +100,7 @@ object Board extends HasMongoConnection {
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
       Board.Fields.name.toString() -> entity.name,
+      Board.Fields.version.toString() -> entity.version,
       Board.Fields.workflowitems.toString() -> {
         if (!entity.workflowitems.isDefined) {
           null

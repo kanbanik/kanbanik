@@ -268,13 +268,15 @@ class Workflowitem(
   }
 
   def unregisterFromBoard() {
+    realBoard = Board.byId(boardId)
     val newReferences = board.workflowitems.getOrElse(List()).filter(!_.id.equals(id))
     if (newReferences != null && newReferences.size > 0) {
       board.workflowitems = Some(newReferences)
     } else {
       board.workflowitems = None
     }
-    board.store
+    
+    realBoard = board.store
   }
 
   private def initChildIdInternal(child: Option[Workflowitem]) {
@@ -408,20 +410,22 @@ class Workflowitem(
     val isInBoard = findIfIsInBoard(board, currentEntity)
     val hasNewParent = context.isDefined
 
+    realBoard = Board.byId(boardId)
     if (isInBoard && hasNewParent) {
       if (board.workflowitems.isDefined) {
         board.workflowitems = Some(board.workflowitems.get.filter(_.id != currentEntity.id))
-        board.store
+        realBoard = board.store
       }
     } else if (!isInBoard && !hasNewParent) {
       if (board.workflowitems.isDefined) {
         board.workflowitems = Some(currentEntity :: board.workflowitems.get)
-        board.store
+        realBoard = board.store
       } else {
         board.workflowitems = Some(List(currentEntity))
-        board.store
+        realBoard = board.store
       }
     }
+    
   }
 
   private def findIfIsInBoard(board: Board, workflowitem: Workflowitem): Boolean = {
