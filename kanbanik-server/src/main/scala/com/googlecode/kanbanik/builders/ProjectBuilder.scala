@@ -28,7 +28,6 @@ class ProjectBuilder {
   }
 
   def buildEntity(projectDto: ProjectDto): Project = {
-    // only shallow for now
     new Project(
       {
         if (projectDto.getId() == null) {
@@ -38,6 +37,7 @@ class ProjectBuilder {
         }
       },
       projectDto.getName(),
+      projectDto.getVersion(),
       {
         dtosToEntities[Board, BoardDto](projectDto.getBoards(), {board => Board.byId(new ObjectId(board.getId()))})
       },
@@ -64,6 +64,7 @@ class ProjectBuilder {
     val res = new ProjectDto
     res.setId(project.id.get.toString())
     res.setName(project.name)
+    res.setVersion(project.version)
     res
   }
 

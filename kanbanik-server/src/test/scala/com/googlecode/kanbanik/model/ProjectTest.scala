@@ -46,6 +46,7 @@ class ProjectTest extends BaseIntegrationTest {
     it("should be possible to create a new entity without boards and without tasks") {
       val stored = new Project(None,
         "some name",
+        1,
         None,
         None).store
 
@@ -55,6 +56,7 @@ class ProjectTest extends BaseIntegrationTest {
     it("should be possible to create a new entity without boards and with tasks") {
       val stored = new Project(None,
         "some name",
+        1,
         None,
         Some(List(
           Task.byId(new ObjectId("4f48e10644ae3742baa2d0a9")),
@@ -66,6 +68,7 @@ class ProjectTest extends BaseIntegrationTest {
     it("should be possible to create a new entity with boards and without tasks") {
       val stored = new Project(None,
         "some name",
+        1,
         Some(List(
           Board.byId(new ObjectId("1b48e10644ae3742baa2d0d9")),
           Board.byId(new ObjectId("2b48e10644ae3742baa2d0d9")))),
@@ -82,6 +85,18 @@ class ProjectTest extends BaseIntegrationTest {
       }
     }
 
+    it("should detect mid air collistion") {
+      val loaded = Project.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val loaded2 = Project.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      loaded.name = "new name"
+      loaded.store
+      
+      intercept[MidAirCollisionException] {
+    	  loaded2.store
+      }
+      
+    }
+    
     it("should be possible to update the name of the project") {
       val loaded = Project.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
       loaded.name = "new name"

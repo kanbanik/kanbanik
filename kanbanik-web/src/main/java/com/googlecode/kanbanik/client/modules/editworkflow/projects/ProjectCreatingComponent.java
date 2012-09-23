@@ -10,6 +10,7 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.client.services.ServerCommandInvokerAsync;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
@@ -33,14 +34,14 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<SimpleParams<ProjectDto>>> invokeCommand(
 				ServerCommand.SAVE_PROJECT,
 				new SimpleParams<ProjectDto>(project),
-				new ResourceClosingAsyncCallback<SimpleParams<ProjectDto>>(ProjectCreatingComponent.this) {
+				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<ProjectDto>>>(ProjectCreatingComponent.this) {
 
 					@Override
-					public void success(SimpleParams<ProjectDto> result) {
-						MessageBus.sendMessage(new ProjectAddedMessage(result.getPayload(), ProjectCreatingComponent.this));
+					public void success(FailableResult<SimpleParams<ProjectDto>> result) {
+						MessageBus.sendMessage(new ProjectAddedMessage(result.getPayload().getPayload(), ProjectCreatingComponent.this));
 					}
 				});
 					}});

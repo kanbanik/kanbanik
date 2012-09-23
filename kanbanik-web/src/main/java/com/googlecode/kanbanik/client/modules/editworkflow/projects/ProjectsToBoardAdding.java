@@ -228,6 +228,13 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 	}
 	
 	public void activated() {
+		if (!MessageBus.listens(ProjectAddedMessage.class, projectChangedListener)) {
+			MessageBus.registerListener(ProjectAddedMessage.class, projectChangedListener);	
+		}
+		
+		if (!MessageBus.listens(ProjectDeletedMessage.class, projectChangedListener)) {
+			MessageBus.registerListener(ProjectDeletedMessage.class, projectChangedListener);	
+		}
 	}
 
 	public void deactivated() {

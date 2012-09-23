@@ -84,11 +84,14 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 			return;
 		}
 		
+		dto = message.getPayload();
 		projectName.setText(message.getPayload().getName());
 	}
 
 	public void activated() {
-		
+		if (!MessageBus.listens(ProjectEditedMessage.class, this)) {
+			MessageBus.registerListener(ProjectEditedMessage.class, this);	
+		}
 	}
 
 	public void deactivated() {

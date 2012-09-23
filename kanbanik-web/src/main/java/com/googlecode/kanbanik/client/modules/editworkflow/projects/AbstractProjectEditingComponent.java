@@ -54,7 +54,6 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 		onOkClicked(project);
 	}
 
-	@Override
 	public void close() {
 		dialog.close();
 	}

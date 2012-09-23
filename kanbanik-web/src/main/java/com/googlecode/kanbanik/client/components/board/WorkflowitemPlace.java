@@ -19,7 +19,8 @@ import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
-public class WorkflowitemPlace extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener {
+public class WorkflowitemPlace extends Composite implements
+		MessageListener<TaskDto>, ModulesLifecycleListener {
 
 	@UiField
 	Label stateName;
@@ -29,7 +30,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 
 	@UiField(provided = true)
 	Widget contentPanel;
-	
+
 	interface MyUiBinder extends UiBinder<Widget, WorkflowitemPlace> {
 	}
 
@@ -39,13 +40,13 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 
 	private final DragController dragController;
 
-	private final ProjectDto projectDto;
+	private final String projectDtoId;
 
 	public WorkflowitemPlace(WorkflowitemDto workflowitemDto,
 			ProjectDto projectDto, Widget body, DragController dragController) {
 
 		this.workflowitemDto = workflowitemDto;
-		this.projectDto = projectDto;
+		this.projectDtoId = projectDto.getId();
 		contentPanel = body;
 		this.dragController = dragController;
 		initWidget(uiBinder.createAndBindUi(this));
@@ -57,11 +58,11 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 			wipLimit.setVisible(false);
 		}
 		stateName.setText(workflowitemDto.getName());
-		
+
 		setupWipLimit();
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
-		
+
 		MessageBus.registerListener(TaskAddedMessage.class, this);
 		MessageBus.registerListener(TaskDeletionSavedMessage.class, this);
 
@@ -70,7 +71,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 	private void setupWipLimit() {
 		int wipLimitValue = workflowitemDto.getWipLimit();
 		if (wipLimitValue <= 0) {
-			wipLimit.setText("( - )");	
+			wipLimit.setText("( - )");
 		} else {
 			wipLimit.setText("(" + Integer.toString(wipLimitValue) + ")");
 		}
@@ -83,11 +84,11 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 		}
 
 		TaskDto taskDto = message.getPayload();
-		
+
 		if (!isThisPlace(taskDto)) {
 			return;
 		}
-		
+
 		if (message instanceof TaskDeletionSavedMessage) {
 			((TaskContainer) contentPanel).removeTask(taskDto);
 		} else if (message instanceof TaskAddedMessage) {
@@ -111,7 +112,7 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 				return false;
 			}
 
-			return projectDto.getId().equals(taskDto.getProject().getId());
+			return projectDtoId.equals(taskDto.getProject().getId());
 		}
 
 		return false;
@@ -119,11 +120,11 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 
 	public void activated() {
 		if (!MessageBus.listens(TaskAddedMessage.class, this)) {
-			MessageBus.registerListener(TaskAddedMessage.class, this);	
+			MessageBus.registerListener(TaskAddedMessage.class, this);
 		}
-		
-	if (!MessageBus.listens(TaskDeletionSavedMessage.class, this)) {
-			MessageBus.registerListener(TaskDeletionSavedMessage.class, this);	
+
+		if (!MessageBus.listens(TaskDeletionSavedMessage.class, this)) {
+			MessageBus.registerListener(TaskDeletionSavedMessage.class, this);
 		}
 	}
 

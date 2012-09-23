@@ -15,6 +15,8 @@ public class ProjectDto implements KanbanikDto {
 	
 	private List<TaskDto> tasks = new ArrayList<TaskDto>();
 
+	private int version;
+	
 	public ProjectDto() {
 	}
 	
@@ -56,6 +58,14 @@ public class ProjectDto implements KanbanikDto {
 
 	public void setTasks(List<TaskDto> tasks) {
 		this.tasks = tasks;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	@Override

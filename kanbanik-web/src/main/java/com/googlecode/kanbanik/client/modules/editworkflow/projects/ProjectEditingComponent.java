@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectEditedMessage;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
@@ -31,15 +32,15 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent {
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<SimpleParams<ProjectDto>>> invokeCommand(
 				ServerCommand.SAVE_PROJECT,
 				new SimpleParams<ProjectDto>(project),
-				new ResourceClosingAsyncCallback<SimpleParams<ProjectDto>>(ProjectEditingComponent.this) {
+				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<ProjectDto>>>(ProjectEditingComponent.this) {
 
 					@Override
-					public void success(SimpleParams<ProjectDto> result) {
-						projectDto.setName(project.getName());
-						MessageBus.sendMessage(new ProjectEditedMessage(result.getPayload(), ProjectEditingComponent.this));
+					public void success(FailableResult<SimpleParams<ProjectDto>> result) {
+						projectDto = result.getPayload().getPayload();
+						MessageBus.sendMessage(new ProjectEditedMessage(result.getPayload().getPayload(), ProjectEditingComponent.this));
 					}
 				});
 		}});
@@ -53,6 +54,7 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent {
 		project.setId(projectDto.getId());
 		project.setBoards(projectDto.getBoards());
 		project.setTasks(projectDto.getTasks());
+		project.setVersion(projectDto.getVersion());
 		return project;
 	}
 	

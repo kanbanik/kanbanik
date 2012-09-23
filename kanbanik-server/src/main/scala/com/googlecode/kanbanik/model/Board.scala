@@ -24,8 +24,6 @@ class Board(
       return Board.asEntity(obj)
     })
 
-    val idObject = MongoDBObject(Board.Fields.id.toString() -> idToUpdate)
-
     using(createConnection) { conn =>
 
       val update = $set(
@@ -39,13 +37,13 @@ class Board(
           }
         })
 
-      Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(id, version), update))
+      Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
     }
 
   }
 
   def delete {
-    versionedDelete(Coll.Boards, versionedQuery(id, version))
+    versionedDelete(Coll.Boards, versionedQuery(id.get, version))
   }
 
 }

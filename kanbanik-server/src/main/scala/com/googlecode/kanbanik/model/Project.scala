@@ -1,16 +1,17 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
-
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
+import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 
 class Project(
   var id: Option[ObjectId],
   var name: String,
+  var version: Int,
   var boards: Option[List[Board]],
-  var tasks: Option[List[Task]]) extends HasMongoConnection {
+  var tasks: Option[List[Task]]) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store: Project = {
     val idToUpdate = id.getOrElse({
@@ -21,21 +22,17 @@ class Project(
       return Project.asEntity(obj)
     })
 
-    val idObject = MongoDBObject(Project.Fields.id.toString() -> idToUpdate)
-
-    using(createConnection) { conn =>
-      coll(conn, Coll.Projects).update(idObject, $set(
+    val update = $set(
         Project.Fields.name.toString() -> name,
+        Project.Fields.version.toString() -> { version + 1 },
         Project.Fields.boards.toString() -> Project.toIdList[Board](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
-        Project.Fields.tasks.toString() -> Project.toIdList[Task](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!")))))
-    }
-    Project.byId(idToUpdate)
+        Project.Fields.tasks.toString() -> Project.toIdList[Task](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
+    
+    Project.asEntity(versionedUpdate(Coll.Projects, versionedQuery(idToUpdate, version), update))
   }
 
   def delete {
-    using(createConnection) { conn =>
-      coll(conn, Coll.Projects).remove(MongoDBObject(Project.Fields.id.toString() -> id))
-    }
+     versionedDelete(Coll.Projects, versionedQuery(id.get, version))
   }
 
 }
@@ -66,6 +63,7 @@ object Project extends HasMongoConnection {
     MongoDBObject(
       Project.Fields.id.toString() -> new ObjectId,
       Project.Fields.name.toString() -> entity.name,
+      Project.Fields.version.toString() -> entity.version,
       Project.Fields.boards.toString() -> toIdList[Board](entity.boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
       Project.Fields.tasks.toString() -> toIdList[Task](entity.tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
 
@@ -75,6 +73,14 @@ object Project extends HasMongoConnection {
     new Project(
       Some(dbObject.get(Project.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Project.Fields.name.toString()).asInstanceOf[String],
+      {
+        val res = dbObject.get(Project.Fields.version.toString())
+        if (res == null) {
+          1
+        } else {
+          res.asInstanceOf[Int]
+        }
+      },
       {
         toEntityList(dbObject.get(Project.Fields.boards.toString()), Board.byId(_))
       },

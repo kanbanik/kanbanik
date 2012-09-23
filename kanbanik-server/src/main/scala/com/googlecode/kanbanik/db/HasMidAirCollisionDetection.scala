@@ -10,7 +10,7 @@ import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.casbah.Imports._
 
 trait HasMidAirCollisionDetection extends HasMongoConnection {
-  def versionedQuery(id: Option[ObjectId], version: Int) = {
+  def versionedQuery(id: ObjectId, version: Int) = {
     // the "$exists" is due to a bug in casbah - will be removed when moving to newer version
     (MongoDBObject(SimpleField.id.toString() -> id)) ++ ($or((SimpleField.version.toString() -> MongoDBObject("$exists" -> false)), (SimpleField.version.toString() -> version)))
   }
