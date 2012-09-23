@@ -182,19 +182,18 @@ public class BoardsBox extends Composite {
 		}
 
 		private void refreshBoard(BoardDto dto) {
-			int toRefresh = idOfBoard(dto);
+			int toRefresh = indexOfBoard(dto);
 			boards.get(toRefresh).setBoard(dto);
 		}
 
 		private void editBoard(BoardDto dto) {
-			int toEdit = idOfBoard(dto);
-			boards.get(toEdit).getBoard().setName(dto.getName());
-			setItemText(toEdit, dto.getName());
+			refreshBoard(dto);
+			setItemText(indexOfBoard(dto), dto.getName());
 			onChange();
 		}
 
 		private void removeBoard(BoardDto dto) {
-			int toRemove = idOfBoard(dto);
+			int toRemove = indexOfBoard(dto);
 			boards.remove(toRemove);
 			removeItem(toRemove);
 			if (boards.size() > 0) {
@@ -208,20 +207,20 @@ public class BoardsBox extends Composite {
 			}
 		}
 
-		private int idOfBoard(BoardDto dto) {
-			int idOfBoard = -1;
+		private int indexOfBoard(BoardDto dto) {
+			int indexOfBoard = -1;
 			for (int i = 0; i < boards.size(); i++) {
 				
 				String id = boards.get(i).getBoard().getId();
 				if (id != null && id.equals(dto.getId())) {
-					idOfBoard = i;
+					indexOfBoard = i;
 					break;
 				}
 			}
-			if (idOfBoard == -1) {
+			if (indexOfBoard == -1) {
 				throw new IllegalStateException("Did not find the board which has been deleted");
 			}
-			return idOfBoard;
+			return indexOfBoard;
 		}
 
 		private void addNewBoard(BoardDto dto) {

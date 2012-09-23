@@ -33,16 +33,13 @@ public class BoardDeletingComponent extends AbstractDeletingComponent {
 
 	@Override
 	protected void onOkClicked() {
-
-		final BoardDto toDelete = new BoardDto();
-		toDelete.setId(boardDto.getId());
 		new KanbanikServerCaller(
 				new Runnable() {
 
 					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<VoidParams>> invokeCommand(
 				ServerCommand.DELETE_BOARD,
-				new SimpleParams<BoardDto>(toDelete),
+				new SimpleParams<BoardDto>(boardDto),
 				new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(BoardDeletingComponent.this) {
 
 					@Override

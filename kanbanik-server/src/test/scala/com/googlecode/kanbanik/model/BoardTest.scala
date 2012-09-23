@@ -101,6 +101,15 @@ class BoardTest extends BaseIntegrationTest {
         Board.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
       }
     }
+    
+    it("should fail when deleteing a modified board") {
+      val board = Board.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
+      val boardToModify = Board.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
+      board.store
+      intercept[MidAirCollisionException] {
+    	  board.delete
+      }
+    }
 
     it("should be possible to remove workflow from the board") {
       val board = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))

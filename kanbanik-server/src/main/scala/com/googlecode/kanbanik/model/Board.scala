@@ -27,8 +27,6 @@ class Board(
 
     using(createConnection) { conn =>
       
-      var query = (MongoDBObject(Board.Fields.id.toString() -> id)) ++ ($or((Board.Fields.version.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.version.toString() -> version)))
-      
       val update = $set(
         Board.Fields.version.toString() -> { version + 1 },
         Board.Fields.name.toString() -> name,
@@ -48,9 +46,14 @@ class Board(
 
   def delete {
     using(createConnection) { conn =>
-      coll(conn, Coll.Boards).remove(MongoDBObject(Board.Fields.id.toString() -> id))
+      val res = coll(conn, Coll.Boards).findAndModify(query, null, null, true, null, true, false)
+      if (!res.isDefined) { 
+        throw new MidAirCollisionException
+      }
     }
   }
+  
+  def query = (MongoDBObject(Board.Fields.id.toString() -> id)) ++ ($or((Board.Fields.version.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.version.toString() -> version)))
 
 }
 
