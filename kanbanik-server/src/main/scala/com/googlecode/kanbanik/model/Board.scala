@@ -6,12 +6,13 @@ import com.mongodb.BasicDBList
 import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 import com.mongodb.casbah.Imports._
 import java.util.ArrayList
+import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 
 class Board(
   var id: Option[ObjectId],
   var name: String,
   var version: Int,
-  var workflowitems: Option[List[Workflowitem]]) extends HasMongoConnection {
+  var workflowitems: Option[List[Workflowitem]]) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store: Board = {
     val idToUpdate = id.getOrElse({
@@ -26,7 +27,7 @@ class Board(
     val idObject = MongoDBObject(Board.Fields.id.toString() -> idToUpdate)
 
     using(createConnection) { conn =>
-      
+
       val update = $set(
         Board.Fields.version.toString() -> { version + 1 },
         Board.Fields.name.toString() -> name,
@@ -38,22 +39,14 @@ class Board(
           }
         })
 
-      val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
-      Board.asEntity(res.getOrElse(throw new MidAirCollisionException))
+      Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(id, version), update))
     }
 
   }
 
   def delete {
-    using(createConnection) { conn =>
-      val res = coll(conn, Coll.Boards).findAndModify(query, null, null, true, null, true, false)
-      if (!res.isDefined) { 
-        throw new MidAirCollisionException
-      }
-    }
+    versionedDelete(Coll.Boards, versionedQuery(id, version))
   }
-  
-  def query = (MongoDBObject(Board.Fields.id.toString() -> id)) ++ ($or((Board.Fields.version.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.version.toString() -> version)))
 
 }
 
