@@ -3,8 +3,8 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
@@ -36,7 +36,7 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, SimpleParams<ProjectDto>> invokeCommand(
 				ServerCommand.SAVE_PROJECT,
 				new SimpleParams<ProjectDto>(project),
-				new KanbanikAsyncCallback<SimpleParams<ProjectDto>>() {
+				new ResourceClosingAsyncCallback<SimpleParams<ProjectDto>>(ProjectCreatingComponent.this) {
 
 					@Override
 					public void success(SimpleParams<ProjectDto> result) {

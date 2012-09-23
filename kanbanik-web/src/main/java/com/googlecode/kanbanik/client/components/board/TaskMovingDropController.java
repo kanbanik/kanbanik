@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.client.components.board;
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
@@ -49,7 +49,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, SimpleParams<TaskDto>> invokeCommand(
 				ServerCommand.MOVE_TASK,
 				new MoveTaskParams(task.getDto(), project),
-				new KanbanikAsyncCallback<SimpleParams<TaskDto>>() {
+				new BaseAsyncCallback<SimpleParams<TaskDto>>() {
 
 					@Override
 					public void success(SimpleParams<TaskDto> result) {

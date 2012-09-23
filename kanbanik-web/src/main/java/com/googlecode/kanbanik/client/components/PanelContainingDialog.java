@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class PanelContainingDialog extends DialogBox {
+public class PanelContainingDialog extends DialogBox implements Closable {
 	
 	private Panel contentPanel;
 	
@@ -77,8 +77,6 @@ public class PanelContainingDialog extends DialogBox {
 	class OKButtonHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
-			hide();
-	
 			if (listeners == null) {
 				return;
 			}
@@ -99,6 +97,11 @@ public class PanelContainingDialog extends DialogBox {
 		void okClicked(PanelContainingDialog dialog);
 		
 		void cancelClicked(PanelContainingDialog dialog);
+	}
+
+	@Override
+	public void close() {
+		hide();
 	}
 	
 }

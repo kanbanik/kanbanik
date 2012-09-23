@@ -8,11 +8,12 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.dto.ProjectDto;
 
-public abstract class AbstractProjectEditingComponent implements PanelContainingDialolgListener {
+public abstract class AbstractProjectEditingComponent implements PanelContainingDialolgListener, Closable {
 	
 	private Panel panel = new HorizontalPanel();
 
@@ -53,6 +54,11 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 		onOkClicked(project);
 	}
 
+	@Override
+	public void close() {
+		dialog.close();
+	}
+	
 	public void cancelClicked(PanelContainingDialog dialog) {
 		
 	}

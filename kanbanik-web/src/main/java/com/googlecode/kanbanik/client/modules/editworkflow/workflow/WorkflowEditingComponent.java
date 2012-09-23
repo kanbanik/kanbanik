@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
@@ -333,7 +333,7 @@ public class WorkflowEditingComponent extends Composite implements
 				.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
 						ServerCommand.GET_BOARD,
 						new SimpleParams<BoardDto>(boardDto),
-						new KanbanikAsyncCallback<SimpleParams<BoardDto>>() {
+						new BaseAsyncCallback<SimpleParams<BoardDto>>() {
 
 							@Override
 							public void success(SimpleParams<BoardDto> result) {

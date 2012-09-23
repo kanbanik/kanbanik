@@ -6,10 +6,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 
-public abstract class AbstractDeletingComponent implements ClickHandler {
+public abstract class AbstractDeletingComponent implements ClickHandler, Closable {
 
 	private PanelContainingDialog yesNoDialog;
 
@@ -27,6 +28,11 @@ public abstract class AbstractDeletingComponent implements ClickHandler {
 		yesNoDialog.center();	
 	}
 
+	@Override
+	public void close() {
+		yesNoDialog.close();
+	}
+	
 	protected abstract String getMessageSpecificPart();
 	protected abstract void onOkClicked();
 

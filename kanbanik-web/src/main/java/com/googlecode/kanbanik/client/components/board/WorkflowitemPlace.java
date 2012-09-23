@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage;
 import com.googlecode.kanbanik.client.components.task.TaskDeletionSavedMessage;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -123,14 +122,14 @@ public class WorkflowitemPlace extends Composite implements MessageListener<Task
 			MessageBus.registerListener(TaskAddedMessage.class, this);	
 		}
 		
-		if (!MessageBus.listens(TaskDeleteRequestedMessage.class, this)) {
-			MessageBus.registerListener(TaskDeleteRequestedMessage.class, this);	
+	if (!MessageBus.listens(TaskDeletionSavedMessage.class, this)) {
+			MessageBus.registerListener(TaskDeletionSavedMessage.class, this);	
 		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(TaskAddedMessage.class, this);
-		MessageBus.unregisterListener(TaskDeleteRequestedMessage.class, this);
+		MessageBus.unregisterListener(TaskDeletionSavedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 }

@@ -2,10 +2,9 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.BoardEditedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -42,15 +41,11 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<SimpleParams<BoardDto>>> invokeCommand(
 				ServerCommand.SAVE_BOARD,
 				new SimpleParams<BoardDto>(toStore),
-				new KanbanikAsyncCallback<FailableResult<SimpleParams<BoardDto>>>() {
+				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<BoardDto>>>(BoardEditingComponent.this) {
 
 					@Override
 					public void success(FailableResult<SimpleParams<BoardDto>> result) {
-						if (result.isSucceeded()) {
-							MessageBus.sendMessage(new BoardEditedMessage(result.getPayload().getPayload(), this));
-						} else {
-							new ErrorDialog(result.getMessage()).center();
-						}
+						MessageBus.sendMessage(new BoardEditedMessage(result.getPayload().getPayload(), this));
 					}
 				});
 		}});

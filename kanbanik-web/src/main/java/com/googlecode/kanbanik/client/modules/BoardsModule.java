@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
@@ -20,9 +20,6 @@ import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
-import com.googlecode.kanbanik.client.components.task.TaskChangedMessage;
-import com.googlecode.kanbanik.client.components.task.TaskDeleteRequestedMessage;
-import com.googlecode.kanbanik.client.components.task.TaskSaver;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
@@ -41,9 +38,6 @@ public class BoardsModule {
 	private static final BoardStyle style = KanbanikResources.INSTANCE.boardStyle();
 	
 	static {
-		TaskSaver taskSaver = new TaskSaver();
-		MessageBus.registerListener(TaskChangedMessage.class, taskSaver);
-		MessageBus.registerListener(TaskDeleteRequestedMessage.class, taskSaver);
 		style.ensureInjected();
 	}
 	
@@ -130,7 +124,7 @@ public class BoardsModule {
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
 				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
 				new VoidParams(),
-				new KanbanikAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
+				new BaseAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
 
 					@Override
 					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {

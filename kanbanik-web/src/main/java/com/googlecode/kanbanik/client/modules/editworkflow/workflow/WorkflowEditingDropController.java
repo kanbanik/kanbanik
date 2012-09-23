@@ -5,10 +5,9 @@ import com.allen_sauer.gwt.dnd.client.VetoDragException;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
@@ -87,17 +86,21 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 				.<EditWorkflowParams, FailableResult<SimpleParams<WorkflowitemDto>>> invokeCommand(
 						ServerCommand.EDIT_WORKFLOW,
 						new EditWorkflowParams(droppedItem, contextItem),
-						new KanbanikAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>() {
+						new BaseAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>() {
 
 							@Override
 							public void success(
 									FailableResult<SimpleParams<WorkflowitemDto>> result) {
-								if (!result.isSucceeded()) {
-									new ErrorDialog(result.getMessage()).center();
-								}
 								MessageBus
 										.sendMessage(new RefreshBoardsRequestMessage(
 												"", this));
+							}
+							
+							@Override
+							public void failure(FailableResult<SimpleParams<WorkflowitemDto>> result) {
+								MessageBus
+								.sendMessage(new RefreshBoardsRequestMessage(
+										"", this));
 							}
 						});
 		}});

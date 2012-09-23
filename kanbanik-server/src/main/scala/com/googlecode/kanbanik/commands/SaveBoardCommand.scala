@@ -18,7 +18,7 @@ class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableRes
       storedBoard = boardBuilder.buildEntity(params.getPayload()).store
     } catch {
       case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard)), false, "Mid Air Collistion Exception. Please refresh your browser to get the accurate data.")
+        return new FailableResult(new SimpleParams(), false, "Mid Air Collistion Exception. Please refresh your browser to get the accurate data.")
     }
 
     new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard)))

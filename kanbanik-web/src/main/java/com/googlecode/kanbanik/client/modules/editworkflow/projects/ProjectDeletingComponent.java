@@ -2,10 +2,9 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.AbstractDeletingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectDeletedMessage;
@@ -38,15 +37,11 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<VoidParams>> invokeCommand(
 				ServerCommand.DELETE_PROJECT,
 				new SimpleParams<ProjectDto>(projectDto),
-				new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
+				new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(ProjectDeletingComponent.this) {
 
 					@Override
 					public void success(FailableResult<VoidParams> result) {
-						if (!result.isSucceeded()) {
-							new ErrorDialog(result.getMessage()).center();
-						} else {
-							MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
-						}	
+						MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
 					}
 				});
 		}});

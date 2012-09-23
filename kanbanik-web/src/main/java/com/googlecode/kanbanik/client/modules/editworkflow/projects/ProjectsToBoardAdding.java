@@ -13,11 +13,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -147,14 +146,11 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, FailableResult<VoidParams>> invokeCommand(
 				command,
 				new SimpleParams<BoardWithProjectsDto>(toStore),
-				new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
+				new BaseAsyncCallback<FailableResult<VoidParams>>() {
 
 					@Override
-					public void success(FailableResult<VoidParams> result) {
-						if (!result.isSucceeded()) {
-							new ErrorDialog(result.getMessage()).center();
-							rollbackAfterFail(dtos, command);
-						}
+					public void failure(FailableResult<VoidParams> result) {
+						rollbackAfterFail(dtos, command);
 					}
 
 				});

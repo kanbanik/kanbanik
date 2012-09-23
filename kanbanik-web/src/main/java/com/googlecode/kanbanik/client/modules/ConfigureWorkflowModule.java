@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
@@ -37,7 +37,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
 				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
 				new VoidParams(),
-				new KanbanikAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
+				new BaseAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
 
 					@Override
 					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
@@ -78,7 +78,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ProjectDto>>> invokeCommand(
 				ServerCommand.GET_ALL_PROJECTS,
 				new VoidParams(),
-				new KanbanikAsyncCallback<SimpleParams<ListDto<ProjectDto>>>() {
+				new BaseAsyncCallback<SimpleParams<ListDto<ProjectDto>>>() {
 
 					@Override
 					public void success(SimpleParams<ListDto<ProjectDto>> result) {

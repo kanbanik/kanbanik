@@ -12,11 +12,18 @@ import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.dto.ClassOfService;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public abstract class AbstractTaskEditingComponent {
 	
@@ -148,8 +155,34 @@ public abstract class AbstractTaskEditingComponent {
 	
 	class AddTaskButtonHandler implements PanelContainingDialolgListener {
 
-		public void okClicked(PanelContainingDialog dialog) {
-			MessageBus.sendMessage(new TaskChangedMessage(createTaskDTO(), AbstractTaskEditingComponent.this));
+		public void okClicked(final PanelContainingDialog dialog) {
+			
+			final TaskDto taskDto = createTaskDTO();
+			
+			new KanbanikServerCaller(
+					new Runnable() {
+
+						public void run() {
+							final boolean isNew = taskDto.getId() == null;
+							ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
+									ServerCommand.SAVE_TASK,
+									new SimpleParams<TaskDto>(taskDto),
+									new ResourceClosingAsyncCallback<FailableResult<SimpleParams<TaskDto>>>(dialog) {
+
+										@Override
+										public void success(FailableResult<SimpleParams<TaskDto>> result) {
+											if (isNew) {
+												MessageBus.sendMessage(new TaskAddedMessage(result.getPayload().getPayload(), AbstractTaskEditingComponent.this));
+											} else {
+												MessageBus.sendMessage(new TaskEditSavedMessage(result.getPayload().getPayload(), AbstractTaskEditingComponent.this));
+											}
+										}
+									});
+							
+						}
+					}
+			);
+			
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {

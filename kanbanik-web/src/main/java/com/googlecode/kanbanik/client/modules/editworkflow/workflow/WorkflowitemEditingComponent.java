@@ -3,8 +3,8 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
@@ -53,7 +53,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		
 	}
 
-	public void okClicked(PanelContainingDialog dialog) {
+	public void okClicked(final PanelContainingDialog dialog) {
 		flushDto();
 		
 		new KanbanikServerCaller(
@@ -62,7 +62,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, VoidParams> invokeCommand(
 				ServerCommand.EDIT_WORKFLOWITEM_DATA,
 				new SimpleParams<WorkflowitemDto>(dto),
-				new KanbanikAsyncCallback<VoidParams>() {
+				new ResourceClosingAsyncCallback<VoidParams>(dialog) {
 
 					@Override
 					public void success(VoidParams result) {

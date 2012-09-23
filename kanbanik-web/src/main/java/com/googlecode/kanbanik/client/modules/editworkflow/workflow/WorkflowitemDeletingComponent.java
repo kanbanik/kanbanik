@@ -5,10 +5,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.googlecode.kanbanik.client.KanbanikAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
+import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -18,7 +18,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class WorkflowitemDeletingComponent implements ClickHandler {
+public class WorkflowitemDeletingComponent implements ClickHandler, Closable {
 
 	private PanelContainingDialog yesNoDialog;
 	
@@ -41,6 +41,11 @@ public class WorkflowitemDeletingComponent implements ClickHandler {
 		yesNoDialog.addListener(new YesNoDialogListener());
 		yesNoDialog.center();
 	}
+	
+	@Override
+	public void close() {
+		yesNoDialog.close();
+	}
 
 class YesNoDialogListener implements PanelContainingDialolgListener {
 		
@@ -55,15 +60,11 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 			ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, FailableResult<VoidParams>> invokeCommand(
 					ServerCommand.DELETE_WORKFLOWITEM,
 					new SimpleParams<WorkflowitemDto>(dto),
-					new KanbanikAsyncCallback<FailableResult<VoidParams>>() {
+					new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(WorkflowitemDeletingComponent.this) {
 
 						@Override
 						public void success(FailableResult<VoidParams> result) {
-							if (!result.isSucceeded()) {
-								new ErrorDialog(result.getMessage()).center();
-							} else {
-								MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
-							}
+							MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
 						}
 					});
 			}});
@@ -73,4 +74,5 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 		}
 	}
+
 }

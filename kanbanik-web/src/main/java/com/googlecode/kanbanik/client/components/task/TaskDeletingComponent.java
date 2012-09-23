@@ -6,12 +6,19 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class TaskDeletingComponent implements ClickHandler {
+public class TaskDeletingComponent implements ClickHandler, Closable {
 
 	private TaskGui taskGui;
 
@@ -35,6 +42,11 @@ public class TaskDeletingComponent implements ClickHandler {
 		yesNoDialog.addListener(new YesNoDialogListener(taskGui.getDto()));
 		yesNoDialog.center();	
 	}
+
+	@Override
+	public void close() {
+		yesNoDialog.close();
+	}
 	
 class YesNoDialogListener implements PanelContainingDialolgListener {
 		
@@ -45,7 +57,25 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
-			MessageBus.sendMessage(new TaskDeleteRequestedMessage(taskDto, TaskDeletingComponent.class));
+			new KanbanikServerCaller(
+					new Runnable() {
+
+						public void run() {
+							
+							ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, VoidParams> invokeCommand(
+									ServerCommand.DELETE_TASK,
+									new SimpleParams<TaskDto>(taskDto),
+									new ResourceClosingAsyncCallback<VoidParams>(TaskDeletingComponent.this) {
+
+										@Override
+										public void success(VoidParams result) {
+											MessageBus.sendMessage(new TaskDeletionSavedMessage(taskDto, TaskDeletingComponent.this));	
+										}
+									});
+											
+						}
+					}
+			);
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {
