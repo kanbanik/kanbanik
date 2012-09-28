@@ -8,11 +8,12 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.components.task.TaskDeletionSavedMessage;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -64,7 +65,7 @@ public class WorkflowitemPlace extends Composite implements
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 
 		MessageBus.registerListener(TaskAddedMessage.class, this);
-		MessageBus.registerListener(TaskDeletionSavedMessage.class, this);
+		MessageBus.registerListener(TaskDeletedMessage.class, this);
 
 	}
 
@@ -89,7 +90,7 @@ public class WorkflowitemPlace extends Composite implements
 			return;
 		}
 
-		if (message instanceof TaskDeletionSavedMessage) {
+		if (message instanceof TaskDeletedMessage) {
 			((TaskContainer) contentPanel).removeTask(taskDto);
 		} else if (message instanceof TaskAddedMessage) {
 			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
@@ -123,14 +124,14 @@ public class WorkflowitemPlace extends Composite implements
 			MessageBus.registerListener(TaskAddedMessage.class, this);
 		}
 
-		if (!MessageBus.listens(TaskDeletionSavedMessage.class, this)) {
-			MessageBus.registerListener(TaskDeletionSavedMessage.class, this);
+		if (!MessageBus.listens(TaskDeletedMessage.class, this)) {
+			MessageBus.registerListener(TaskDeletedMessage.class, this);
 		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(TaskAddedMessage.class, this);
-		MessageBus.unregisterListener(TaskDeletionSavedMessage.class, this);
+		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 }

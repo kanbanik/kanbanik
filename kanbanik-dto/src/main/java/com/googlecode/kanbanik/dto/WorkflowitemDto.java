@@ -1,6 +1,6 @@
 package com.googlecode.kanbanik.dto;
 
-public class WorkflowitemDto implements KanbanikDto {
+public class WorkflowitemDto implements IdentifiableDto {
 
 	private static final long serialVersionUID = 1343045359919670502L;
 

@@ -25,6 +25,9 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -302,9 +305,13 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private void registerListeners() {
-		if (!MessageBus.listens(RefreshBoardsRequestMessage.class, this)) {
+		if (!MessageBus.listens(BoardsRefreshRequestMessage.class, this)) {
 			MessageBus
-					.registerListener(RefreshBoardsRequestMessage.class, this);
+					.registerListener(BoardsRefreshRequestMessage.class, this);
+		}
+		
+		if (!MessageBus.listens(BoardChangedMessage.class, this)) {
+			MessageBus.registerListener(BoardChangedMessage.class, this);	
 		}
 	}
 
@@ -314,7 +321,8 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 	
 	public void unregisterListeners() {
-		MessageBus.unregisterListener(RefreshBoardsRequestMessage.class, this);
+		MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, this);
+		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}
 
 	public void messageArrived(Message<BoardDto> message) {
@@ -339,6 +347,7 @@ public class WorkflowEditingComponent extends Composite implements
 							public void success(SimpleParams<BoardDto> result) {
 								boardDto = result.getPayload();
 								MessageBus.sendMessage(new BoardRefreshedMessage(boardDto, WorkflowEditingComponent.this));
+								// can not sent a refresh request - it would reload the whole again
 								renderBoard();
 							}
 

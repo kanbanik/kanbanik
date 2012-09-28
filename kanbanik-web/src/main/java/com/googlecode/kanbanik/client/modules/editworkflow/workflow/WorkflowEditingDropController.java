@@ -9,6 +9,7 @@ import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
@@ -92,14 +93,14 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 							public void success(
 									FailableResult<SimpleParams<WorkflowitemDto>> result) {
 								MessageBus
-										.sendMessage(new RefreshBoardsRequestMessage(
+										.sendMessage(new BoardsRefreshRequestMessage(
 												"", this));
 							}
 							
 							@Override
 							public void failure(FailableResult<SimpleParams<WorkflowitemDto>> result) {
 								MessageBus
-								.sendMessage(new RefreshBoardsRequestMessage(
+								.sendMessage(new BoardsRefreshRequestMessage(
 										"", this));
 							}
 						});

@@ -20,14 +20,15 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ProjectsToBoardAdding extends Composite implements ModulesLifecycleListener {
@@ -143,13 +144,22 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 		new KanbanikServerCaller(
 				new Runnable() {
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, FailableResult<VoidParams>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardWithProjectsDto>, FailableResult<SimpleParams<BoardWithProjectsDto>>> invokeCommand(
 				command,
 				new SimpleParams<BoardWithProjectsDto>(toStore),
-				new BaseAsyncCallback<FailableResult<VoidParams>>() {
+				new BaseAsyncCallback<FailableResult<SimpleParams<BoardWithProjectsDto>>>() {
 
 					@Override
-					public void failure(FailableResult<VoidParams> result) {
+					public void success(FailableResult<SimpleParams<BoardWithProjectsDto>> result) {
+						super.success(result);
+
+						for (ProjectDto project : result.getPayload().getPayload().getProjectsOnBoard()) {
+							MessageBus.sendMessage(new ProjectChangedMessage(project, ProjectsToBoardAdding.this));
+						}
+					}
+					
+					@Override
+					public void failure(FailableResult<SimpleParams<BoardWithProjectsDto>> result) {
 						rollbackAfterFail(dtos, command);
 					}
 
@@ -240,5 +250,6 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectAddedMessage.class, projectChangedListener);
 		MessageBus.unregisterListener(ProjectDeletedMessage.class, projectChangedListener);
+		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 }

@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.dto;
 
 
 
-public class BoardDto implements KanbanikDto {
+public class BoardDto implements IdentifiableDto {
 
 	private static final long serialVersionUID = -4409696591604175858L;
 

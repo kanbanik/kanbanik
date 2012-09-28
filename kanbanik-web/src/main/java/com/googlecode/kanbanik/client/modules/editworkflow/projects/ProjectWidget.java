@@ -16,7 +16,8 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectEditedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.ProjectDto;
@@ -49,7 +50,10 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		
 		initWidget(uiBinder.createAndBindUi(this));
+		
 		MessageBus.registerListener(ProjectEditedMessage.class, this);
+		MessageBus.registerListener(ProjectChangedMessage.class, this);
+		
 		projectName.setText(project.getName());
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
@@ -79,6 +83,10 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 	}
 
 	public void messageArrived(Message<ProjectDto> message) {
+		if (message.getPayload() == null) {
+			return;
+		}
+		
 		String payloadId = message.getPayload().getId();
 		if (payloadId == null || !payloadId.equals(dto.getId())) {
 			return;
@@ -92,9 +100,15 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 		if (!MessageBus.listens(ProjectEditedMessage.class, this)) {
 			MessageBus.registerListener(ProjectEditedMessage.class, this);	
 		}
+		
+		if (!MessageBus.listens(ProjectChangedMessage.class, this)) {
+			MessageBus.registerListener(ProjectChangedMessage.class, this);	
+		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectEditedMessage.class, this);
+		MessageBus.unregisterListener(ProjectChangedMessage.class, this);
+		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 }

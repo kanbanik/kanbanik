@@ -3,15 +3,18 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.AbstractDeletingComponent;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectDeletedMessage;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.messages.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -27,6 +30,8 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 		this.projectDto = projectDto;
 		
 		MessageBus.registerListener(ProjectEditedMessage.class, this);
+		MessageBus.registerListener(ProjectChangedMessage.class, this);
+		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 	@Override
@@ -57,13 +62,23 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 		if (!MessageBus.listens(ProjectEditedMessage.class, this)) {
 			MessageBus.registerListener(ProjectEditedMessage.class, this);	
 		}
+		
+		if (!MessageBus.listens(ProjectChangedMessage.class, this)) {
+			MessageBus.registerListener(ProjectChangedMessage.class, this);	
+		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectEditedMessage.class, this);
+		MessageBus.unregisterListener(ProjectChangedMessage.class, this);
+		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 	public void messageArrived(Message<ProjectDto> message) {
+		if (message.getPayload() == null) {
+			return;
+		}
+		
 		if (message.getPayload().equals(projectDto)) {
 			projectDto = message.getPayload();
 		}

@@ -12,6 +12,7 @@ import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -64,7 +65,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 						@Override
 						public void success(FailableResult<VoidParams> result) {
-							MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
+							MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
 						}
 					});
 			}});

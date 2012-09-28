@@ -100,7 +100,7 @@ public class MessageBusTest {
 
 
 
-class Message1 extends DefaultMessage<String> {
+class Message1 extends BaseMessage<String> {
 
 	public Message1(String payload, String source) {
 		super(payload, source);
@@ -108,7 +108,7 @@ class Message1 extends DefaultMessage<String> {
 	
 }
 
-class Message2 extends DefaultMessage<String> {
+class Message2 extends BaseMessage<String> {
 
 	public Message2(String payload, String source) {
 		super(payload, source);

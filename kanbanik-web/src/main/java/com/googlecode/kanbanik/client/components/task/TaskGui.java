@@ -18,6 +18,8 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.ClassOfService;
 import com.googlecode.kanbanik.dto.TaskDto;
 
@@ -56,7 +58,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
 		
 		this.taskDto = taskDto;
-		MessageBus.registerListener(TaskEditSavedMessage.class, this);
+		MessageBus.registerListener(TaskEditedMessage.class, this);
+		MessageBus.registerListener(TaskChangedMessage.class, this);
 		
 		setupClassOfServiceToCSS();
 

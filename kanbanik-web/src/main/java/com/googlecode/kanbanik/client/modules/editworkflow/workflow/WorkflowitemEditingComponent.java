@@ -9,6 +9,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
@@ -66,7 +67,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 
 					@Override
 					public void success(VoidParams result) {
-						MessageBus.sendMessage(new RefreshBoardsRequestMessage("", this));
+						MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
 					}
 				}); 
 		}});		

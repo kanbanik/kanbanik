@@ -1,23 +1,28 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.VoidParams
+import com.googlecode.kanbanik.dto.ProjectDto
+import com.googlecode.kanbanik.dto.shell.SimpleParams
 
 class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand {
 
-  override def executeSpecific(board: Board, project: Project): FailableResult[VoidParams] = {
+  private val builder = new ProjectBuilder()
+
+  override def executeSpecific(board: Board, project: Project): FailableResult[SimpleParams[ProjectDto]] = {
 
     val (deletable, msg) = canBeRemoved(project, board)
 
     if (project.boards.isDefined) {
       if (!deletable) {
-        return new FailableResult(new VoidParams, false, msg)
+        return new FailableResult(new SimpleParams, false, msg)
       }
       project.boards = Some(project.boards.get.filter(_.id != board.id))
-      project.store
+      new FailableResult(new SimpleParams(builder.buildDto(project.store)))
     }
 
-    new FailableResult(new VoidParams)
+    new FailableResult(new SimpleParams)
   }
 }

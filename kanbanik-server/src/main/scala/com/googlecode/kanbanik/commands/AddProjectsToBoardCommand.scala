@@ -6,18 +6,20 @@ import com.googlecode.kanbanik.dto.BoardWithProjectsDto
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.shell.FailableResult
+import com.googlecode.kanbanik.builders.ProjectBuilder
+import com.googlecode.kanbanik.dto.ProjectDto
 
 class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
-  override def executeSpecific(board: Board, project: Project): FailableResult[VoidParams] = {
+  private val builder = new ProjectBuilder()
+  
+  override def executeSpecific(board: Board, project: Project): FailableResult[SimpleParams[ProjectDto]] = {
     if (project.boards.isDefined) {
       project.boards = Some(board :: project.boards.get)
-      project.store
     } else {
       project.boards = Some(List(board))
-      project.store
     }
-    
-    new FailableResult(new VoidParams)
+
+    new FailableResult(new SimpleParams(builder.buildDto(project.store)))
   }
 }

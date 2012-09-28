@@ -6,9 +6,9 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.ModuleActivatedMessage;
-import com.googlecode.kanbanik.client.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleActivatedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 
 public class ControlPanelModule extends TabPanel implements SelectionHandler<Integer> {

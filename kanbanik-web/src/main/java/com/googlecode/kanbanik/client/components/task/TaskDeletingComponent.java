@@ -13,6 +13,7 @@ import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
@@ -69,7 +70,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 										@Override
 										public void success(VoidParams result) {
-											MessageBus.sendMessage(new TaskDeletionSavedMessage(taskDto, TaskDeletingComponent.this));	
+											MessageBus.sendMessage(new TaskDeletedMessage(taskDto, TaskDeletingComponent.this));	
 										}
 									});
 											

@@ -1,6 +1,6 @@
 package com.googlecode.kanbanik.dto;
 
-public class TaskDto implements KanbanikDto {
+public class TaskDto implements IdentifiableDto {
 
 	private static final long serialVersionUID = -853427196900411746L;
 

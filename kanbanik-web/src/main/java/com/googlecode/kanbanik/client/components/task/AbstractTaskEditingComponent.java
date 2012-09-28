@@ -17,8 +17,9 @@ import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.client.components.board.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.ClassOfService;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
@@ -174,7 +175,7 @@ public abstract class AbstractTaskEditingComponent {
 											if (isNew) {
 												MessageBus.sendMessage(new TaskAddedMessage(result.getPayload().getPayload(), AbstractTaskEditingComponent.this));
 											} else {
-												MessageBus.sendMessage(new TaskEditSavedMessage(result.getPayload().getPayload(), AbstractTaskEditingComponent.this));
+												MessageBus.sendMessage(new TaskEditedMessage(result.getPayload().getPayload(), AbstractTaskEditingComponent.this));
 											}
 										}
 									});

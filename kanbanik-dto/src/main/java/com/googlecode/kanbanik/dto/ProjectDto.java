@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectDto implements KanbanikDto {
+public class ProjectDto implements IdentifiableDto {
 	
 	private static final long serialVersionUID = 3986919835518304209L;
 

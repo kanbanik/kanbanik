@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.modules.lifecyclelisteners;
 
-import com.googlecode.kanbanik.client.ModuleActivatedMessage;
-import com.googlecode.kanbanik.client.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleActivatedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleDeactivatedMessage;
 
 public class ModulesLyfecycleListenerHandler {
 	
