@@ -7,9 +7,12 @@ import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -46,16 +49,11 @@ public class TaskMovingDropController extends FlowPanelDropController {
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, SimpleParams<TaskDto>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
 				ServerCommand.MOVE_TASK,
 				new MoveTaskParams(task.getDto(), project),
-				new BaseAsyncCallback<SimpleParams<TaskDto>>() {
+				new BaseAsyncCallback<FailableResult<SimpleParams<TaskDto>>>() {
 
-					@Override
-					public void success(SimpleParams<TaskDto> result) {
-						// do nothing, the worflowitem has already been updated
-					}
-					
 					@Override
 					public void onFailure(Throwable caught) {
 						super.onFailure(caught);
@@ -63,8 +61,22 @@ public class TaskMovingDropController extends FlowPanelDropController {
 						// TODO move the item really back to its prev place
 						task.getDto().setWorkflowitem(prevWorkflowitem);
 						task.getDto().setProject(prevProject);
+						
+						MessageBus.sendMessage(new TaskChangedMessage(task.getDto(), TaskMovingDropController.this));
 					}
 
+					@Override
+					public void success(FailableResult<SimpleParams<TaskDto>> result) {
+						super.success(result);
+						
+						MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskMovingDropController.this));
+					}
+					
+					@Override
+					public void failure(FailableResult<SimpleParams<TaskDto>> result) {
+						super.failure(result);
+						MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskMovingDropController.this));
+					}
 				});
 		}});
 		

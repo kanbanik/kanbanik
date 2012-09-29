@@ -15,6 +15,8 @@ public class TaskDto implements IdentifiableDto {
 	private String ticketId;
 
 	private WorkflowitemDto workflowitem;
+	
+	private int version;
 
 	private ProjectDto project;
 	
@@ -72,6 +74,14 @@ public class TaskDto implements IdentifiableDto {
 
 	public void setTicketId(String ticketId) {
 		this.ticketId = ticketId;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	@Override

@@ -52,5 +52,10 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 		taskDTO.setWorkflowitem(inputQueue);
 		return taskDTO;
 	}
+
+	@Override
+	protected int getVersion() {
+		return 0;
+	}
 	
 }

@@ -15,6 +15,7 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelCont
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -63,13 +64,13 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 						public void run() {
 							
-							ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, VoidParams> invokeCommand(
+							ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, FailableResult<VoidParams>> invokeCommand(
 									ServerCommand.DELETE_TASK,
 									new SimpleParams<TaskDto>(taskDto),
-									new ResourceClosingAsyncCallback<VoidParams>(TaskDeletingComponent.this) {
+									new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(TaskDeletingComponent.this) {
 
 										@Override
-										public void success(VoidParams result) {
+										public void success(FailableResult<VoidParams> result) {
 											MessageBus.sendMessage(new TaskDeletedMessage(taskDto, TaskDeletingComponent.this));	
 										}
 									});

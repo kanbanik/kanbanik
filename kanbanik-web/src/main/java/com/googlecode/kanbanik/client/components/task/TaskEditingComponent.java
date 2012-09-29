@@ -50,4 +50,9 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 		return taskGui.getDto();
 	}
 
+	@Override
+	protected int getVersion() {
+		return taskGui.getDto().getVersion();
+	}
+
 }

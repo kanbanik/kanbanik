@@ -28,21 +28,17 @@ trait TaskManipulation extends HasMongoConnection {
   }
 
   def findProjectForTask(task: Task): Option[Project] = {
-    var definedOnProject: Option[Project] = None
-
-    breakable {
-      for (project <- Project.all()) {
+     for (project <- Project.all()) {
         if (project.tasks.isDefined) {
           val tasksForProject: List[Task] = project.tasks.get
           if (tasksForProject.exists(_.id == task.id)) {
-            definedOnProject = Some(project)
-            break
+            return Some(project)
+            
           }
         }
       }
-    }
 
-    definedOnProject
+    None
 
   }
 

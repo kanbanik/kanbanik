@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 
+import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.DBObject
@@ -11,7 +12,8 @@ class Task(
   var description: String,
   var classOfService: Int,
   var ticketId: String,
-  var workflowitem: Workflowitem) extends HasMongoConnection {
+  var version: Int,
+  var workflowitem: Workflowitem) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store: Task = {
     val idToUpdate = id.getOrElse({
@@ -22,24 +24,21 @@ class Task(
       return Task.asEntity(obj)
     })
 
-    val idObject = MongoDBObject(Task.Fields.id.toString() -> idToUpdate)
-
     using(createConnection) { conn =>
-      coll(conn, Coll.Tasks).update(idObject, $set(
+      val update = $set(
+        Task.Fields.version.toString() -> { version + 1 },
         Task.Fields.name.toString() -> name,
         Task.Fields.description.toString() -> description,
         Task.Fields.classOfService.toString() -> classOfService,
         Task.Fields.ticketId.toString() -> ticketId,
-        Task.Fields.workflowitem.toString() -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem"))))
-
-      Task.byId(idToUpdate)
+        Task.Fields.workflowitem.toString() -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
+      
+      Task.asEntity(versionedUpdate(Coll.Tasks, versionedQuery(idToUpdate, version), update))
     }
   }
 
   def delete {
-    using(createConnection) { conn =>
-      coll(conn, Coll.Tasks).remove(MongoDBObject(Task.Fields.id.toString() -> id))
-    }
+    versionedDelete(Coll.Tasks, versionedQuery(id.get, version))
   }
 
 }
@@ -67,6 +66,7 @@ object Task extends HasMongoConnection {
       Task.Fields.description.toString() -> entity.description,
       Task.Fields.classOfService.toString() -> entity.classOfService,
       Task.Fields.ticketId.toString() -> entity.ticketId,
+      Task.Fields.version.toString() -> entity.version,
       Task.Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
   }
 
@@ -77,6 +77,14 @@ object Task extends HasMongoConnection {
       dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
       dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
       dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String],
+      {
+    	  val res = dbObject.get(Board.Fields.version.toString())
+    	  if (res == null) {
+    		  1
+    	  } else {
+    		  res.asInstanceOf[Int]
+    	  }
+      },
       Workflowitem.byId(dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]))
   }
 }

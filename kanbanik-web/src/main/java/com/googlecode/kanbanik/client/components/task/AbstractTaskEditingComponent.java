@@ -119,15 +119,17 @@ public abstract class AbstractTaskEditingComponent {
 	protected abstract String getTaskName();
 	protected abstract String getDescription();
 	protected abstract String getId();
+	protected abstract int getVersion();
 
 	private TaskDto createTaskDTO() {
-		TaskDto taskDTO = createBasicDTO();
-		taskDTO.setName(taskName.getText());
-		taskDTO.setDescription(richTextArea.getHTML());
-		taskDTO.setClassOfService(ClassOfService.STANDARD);
-		taskDTO.setId(getId());
-		taskDTO.setClassOfService(getClassOfService());
-		return taskDTO;
+		TaskDto taskDto = createBasicDTO();
+		taskDto.setName(taskName.getText());
+		taskDto.setDescription(richTextArea.getHTML());
+		taskDto.setClassOfService(ClassOfService.STANDARD);
+		taskDto.setId(getId());
+		taskDto.setClassOfService(getClassOfService());
+		taskDto.setVersion(getVersion());
+		return taskDto;
 	}
 
 	protected abstract TaskDto createBasicDTO();

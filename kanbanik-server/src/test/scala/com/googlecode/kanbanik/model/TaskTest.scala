@@ -20,6 +20,7 @@ class TaskTest extends BaseIntegrationTest {
         "other description",
         2,
         "ticket id",
+        1,
         Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))).store
 
       assert(stored.name === "other name")
@@ -48,6 +49,26 @@ class TaskTest extends BaseIntegrationTest {
       }
     }
     
+    it("should throw exception on mid-air collision") {
+      val task1 = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val task2 = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      
+      task1.store
+      intercept[MidAirCollisionException] {
+        task2.store
+      }
+    }
+    
+    it("should fail when deleteing a modified task") {
+      val task = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      val taskToModify = Task.byId(new ObjectId("1a48e10644ae3742baa2d0d9"))
+      
+      task.store
+      intercept[MidAirCollisionException] {
+    	  taskToModify.delete
+      }
+    }
+    
     it("should fail when triing to create with a non existing workflow") {
       intercept[IllegalArgumentException] {
         new Task(
@@ -56,6 +77,7 @@ class TaskTest extends BaseIntegrationTest {
           "other description",
           2,
           "",
+          1,
           new Workflowitem(None, "", 1, "H", None, None, null)).store
       }
     }

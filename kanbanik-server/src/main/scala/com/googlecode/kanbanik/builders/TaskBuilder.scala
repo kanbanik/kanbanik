@@ -17,6 +17,7 @@ class TaskBuilder extends TaskManipulation {
     dto.setClassOfService(ClassOfService.fromId(task.classOfService))
     dto.setWorkflowitem(workflowitemBuilder.buildDtoNonRecursive(task.workflowitem))
     dto.setTicketId(task.ticketId)
+    dto.setVersion(task.version)
     val project: Project = findProjectForTask(task).getOrElse(throw new IllegalStateException("No project for task: '" + task.id + "' found!"))
     dto.setProject(projectBuilder.buildShallowDto(project))
     dto
@@ -29,6 +30,7 @@ class TaskBuilder extends TaskManipulation {
       taskDto.getDescription(),
       taskDto.getClassOfService().getId(),
       determineTicketId(taskDto),
+      taskDto.getVersion(),
       Workflowitem.byId(new ObjectId(taskDto.getWorkflowitem().getId())));
   }
   
