@@ -20,7 +20,7 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand {
         return new FailableResult(new SimpleParams, false, msg)
       }
       project.boards = Some(project.boards.get.filter(_.id != board.id))
-      new FailableResult(new SimpleParams(builder.buildDto(project.store)))
+      return new FailableResult(new SimpleParams(builder.buildDto(project.store)))
     }
 
     new FailableResult(new SimpleParams)
