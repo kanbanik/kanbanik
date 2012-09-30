@@ -326,6 +326,8 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	public void messageArrived(Message<BoardDto> message) {
+		boardDto = message.getPayload();
+		
 		if (boardDto == null) {
 			return;
 		}
