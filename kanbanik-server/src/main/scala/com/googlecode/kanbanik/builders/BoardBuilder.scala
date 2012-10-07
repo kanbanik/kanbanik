@@ -47,6 +47,8 @@ class BoardBuilder {
     res.setName(board.name)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
+    res.setWorkflowVersion(board.workflowVersion)
+    res.setWorkflowLocked(board.workflowLocked)
     res
   }
 
@@ -56,12 +58,16 @@ class BoardBuilder {
         detrmineId(boardDto),
         boardDto.getName(),
         boardDto.getVersion(),
+        boardDto.getWorkflowVersion(),
+        boardDto.isWorkflowLocked(),
         None)
     } else {
       // an ugly way because I'm too lazy to fetch the correct ones according to the root workflowitem
       val storedBoard = Board.byId(new ObjectId(boardDto.getId()))
       storedBoard.name = boardDto.getName()
       storedBoard.version = boardDto.getVersion()
+      storedBoard.workflowVersion = boardDto.getWorkflowVersion()
+      storedBoard.workflowLocked = boardDto.isWorkflowLocked()
       storedBoard
     }
 

@@ -67,12 +67,12 @@ class BoardTest extends BaseIntegrationTest {
     }
 
     it("should be possible to store board without workflow") {
-      val stored = new Board(None, "stored", 1, None).store
+      val stored = new Board(None, "stored", 1, 1, false, None).store
       assert(Board.byId(stored.id.getOrElse(notSet)).name === "stored")
     }
 
     it("should be possible to store board with workflow") {
-      val stored = new Board(None, "stored", 1,
+      val stored = new Board(None, "stored", 1, 1, false,
         Some(List(
           Workflowitem.byId(new ObjectId("1f48e10644ae3742baa2d0d9")),
           Workflowitem.byId(new ObjectId("2f48e10644ae3742baa2d0d9"))))).store

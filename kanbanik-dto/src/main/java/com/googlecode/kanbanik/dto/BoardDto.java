@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.dto;
 
-
-
 public class BoardDto implements IdentifiableDto {
 
 	private static final long serialVersionUID = -4409696591604175858L;
@@ -11,6 +9,10 @@ public class BoardDto implements IdentifiableDto {
 	private String id;
 	
 	private int version;
+	
+	private int workflowVersion;
+	
+	private boolean workflowLocked;
 
 	private WorkflowitemDto rootWorkflowitem;
 	
@@ -52,6 +54,22 @@ public class BoardDto implements IdentifiableDto {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
+	}
+
+	public int getWorkflowVersion() {
+		return workflowVersion;
+	}
+
+	public void setWorkflowVersion(int workflowVersion) {
+		this.workflowVersion = workflowVersion;
+	}
+
+	public boolean isWorkflowLocked() {
+		return workflowLocked;
+	}
+
+	public void setWorkflowLocked(boolean workflowLocked) {
+		this.workflowLocked = workflowLocked;
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
+import javax.swing.text.Position.Bias;
+
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
@@ -43,6 +45,8 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
 		toStore.setVersion(boardDto.getVersion());
+		toStore.setWorkflowLocked(boardDto.isWorkflowLocked());
+		toStore.setWorkflowVersion(boardDto.getWorkflowVersion());
 		
 		new KanbanikServerCaller(
 				new Runnable() {
