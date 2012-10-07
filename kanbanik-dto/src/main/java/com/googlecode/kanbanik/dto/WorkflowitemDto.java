@@ -17,6 +17,8 @@ public class WorkflowitemDto implements IdentifiableDto {
 	private WorkflowitemDto nextItem;
 	
 	private BoardDto board;
+	
+	private int version;
 
 	public String getName() {
 		return name;
@@ -73,4 +75,13 @@ public class WorkflowitemDto implements IdentifiableDto {
 	public void setBoard(BoardDto board) {
 		this.board = board;
 	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	
 }

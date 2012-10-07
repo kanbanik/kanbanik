@@ -16,6 +16,7 @@ trait HasMongoConnection extends ResourceManipulation {
     val Tasks = Value("tasks")
     val Projects = Value("projects")
     val TaskId = Value("taskid")
+    val WorkflowitemLocks = Value("workflowitemLocks")
   }
 
   def coll(connection: MongoConnection, collName: Coll.Value) = {

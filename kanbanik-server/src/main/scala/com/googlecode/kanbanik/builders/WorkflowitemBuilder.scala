@@ -15,6 +15,7 @@ class WorkflowitemBuilder {
         dto.getName(),
         dto.getWipLimit(),
         dto.getItemType().asStringValue(),
+        dto.getVersion(),
         findWorkflowitem(dto.getChild()),
         findWorkflowitem(dto.getNextItem()),
         Board.byId(new ObjectId(dto.getBoard().getId()))
@@ -59,6 +60,7 @@ class WorkflowitemBuilder {
     dto.setWipLimit(workflowitem.wipLimit)
     dto.setItemType(ItemType.asItemType(workflowitem.itemType))
     dto.setBoard(boardBuilder.buildShallowDto(workflowitem.board))
+    dto.setVersion(workflowitem.version)
     dto
   }
   

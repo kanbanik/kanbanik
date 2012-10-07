@@ -6,7 +6,7 @@ class WorkflowitemTest extends BaseIntegrationTest {
 
     it("should be able to store also nextItem") {
       val nextItem = Some(Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9")))
-      var stored = new Workflowitem(None, "name1", 1, "H", None, nextItem, Board.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
+      var stored = new Workflowitem(None, "name1", 1, "H", 1, None, nextItem, Board.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
       stored = stored.store
       val loaded = Workflowitem.byId(stored.id.getOrElse(notSet))
       val nextItemId = loaded.nextItem.getOrElse(notSet).id.get
@@ -14,7 +14,7 @@ class WorkflowitemTest extends BaseIntegrationTest {
     }
     
     it("should be able to find what it stored") {
-      val stored = new Workflowitem(None, "name1", 1, "H", None, None, board).store
+      val stored = new Workflowitem(None, "name1", 1, "H", 1, None, None, board).store
       val loaded = Workflowitem.byId(stored.id.getOrElse(notSet))
       assert(stored.name === loaded.name)
       assert(stored.wipLimit === loaded.wipLimit)
@@ -29,7 +29,7 @@ class WorkflowitemTest extends BaseIntegrationTest {
     }
 
     it("should be able to store subworkflows") {
-      val stored = new Workflowitem(None, "name1", 1, "H",
+      val stored = new Workflowitem(None, "name1", 1, "H", 1, 
           Some(Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))), None, board).store
 
       val child = Workflowitem.byId(stored.id.getOrElse(notSet)).child.getOrElse(notSet)
@@ -37,7 +37,7 @@ class WorkflowitemTest extends BaseIntegrationTest {
     }
 
     it("should be able to update the primitive parts of the item") {
-      val stored = new Workflowitem(Some(new ObjectId("4f48e10644ae3742baa2d0d9")), "other name", 2, "H", None, None, board).store
+      val stored = new Workflowitem(Some(new ObjectId("4f48e10644ae3742baa2d0d9")), "other name", 2, "H", 1, None, None, board).store
       val loaded = Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0d9"))
       assert(loaded.name === "other name")
       assert(loaded.wipLimit === 2)
@@ -166,7 +166,7 @@ class WorkflowitemTest extends BaseIntegrationTest {
 
     it("should be possible add new children") {
       val loaded = Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))
-      val newChild = new Workflowitem(None, "added", 1, "H", None, None, Board.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
+      val newChild = new Workflowitem(None, "added", 1, "H", 1, None, None, Board.byId(new ObjectId("1d48e10644ae3742baa2d0b9")))
       loaded.child = Some(newChild.store)
       loaded.store
       val toBeChanged = Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))

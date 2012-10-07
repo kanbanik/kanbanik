@@ -6,16 +6,19 @@ import com.mongodb.casbah.Imports.MongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
+import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 
 class Workflowitem(
   var id: Option[ObjectId],
   var name: String,
   var wipLimit: Int,
   var itemType: String,
+  var version: Int,
   private var _child: Option[Workflowitem],
   private var _nextItem: Option[Workflowitem],
   private var realBoard: Board)
-  extends HasMongoConnection {
+  extends HasMongoConnection 
+  with HasMidAirCollisionDetection {
 
   private var boardId: ObjectId = null
 
@@ -133,11 +136,14 @@ class Workflowitem(
     }
   }
 
-  def storeData() {
-    using(createConnection) { conn =>
-      val idObject = MongoDBObject(Workflowitem.Fields.id.toString() -> id.get)
-      coll(conn, Coll.Workflowitems).update(idObject, $set(Workflowitem.Fields.name.toString() -> name, Workflowitem.Fields.wipLimit.toString() -> wipLimit, Workflowitem.Fields.itemType.toString() -> itemType))
-    }
+  def storeData() = {
+      val update = $set(
+          Workflowitem.Fields.version.toString() -> { version + 1 },
+          Workflowitem.Fields.name.toString() -> name, 
+          Workflowitem.Fields.wipLimit.toString() -> wipLimit, 
+          Workflowitem.Fields.itemType.toString() -> itemType)
+      
+      Workflowitem.asEntity(versionedUpdate(Coll.Workflowitems, versionedQuery(id.get, version), update))
   }
 
   private def moveVertically(
@@ -479,6 +485,7 @@ object Workflowitem extends HasMongoConnection {
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.wipLimit.toString()).asInstanceOf[Int],
       dbObject.get(Fields.itemType.toString()).asInstanceOf[String],
+      dbObject.get(Fields.version.toString()).asInstanceOf[Int],
       null,
       null,
       null)
@@ -509,6 +516,7 @@ object Workflowitem extends HasMongoConnection {
       Fields.name.toString() -> entity.name,
       Fields.wipLimit.toString() -> entity.wipLimit,
       Fields.itemType.toString() -> entity.itemType,
+      Fields.version.toString() -> entity.version,
       Fields.childId.toString() -> entity.childIdInternal,
       Fields.nextItemId.toString() -> entity.nextItemIdInternal,
       Fields.boardId.toString() -> entity.board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))

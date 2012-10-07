@@ -78,7 +78,7 @@ class TaskTest extends BaseIntegrationTest {
           2,
           "",
           1,
-          new Workflowitem(None, "", 1, "H", None, None, null)).store
+          new Workflowitem(None, "", 1, "H", 1, None, None, null)).store
       }
     }
   }
