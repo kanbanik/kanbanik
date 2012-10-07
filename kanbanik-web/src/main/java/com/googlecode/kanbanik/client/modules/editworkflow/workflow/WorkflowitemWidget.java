@@ -13,9 +13,13 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.messaging.Message;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
-public class WorkflowitemWidget extends Composite implements HasDragHandle {
+public class WorkflowitemWidget extends Composite implements HasDragHandle, MessageListener<WorkflowitemDto> {
 	
 	@UiField
 	PushButton editButton;
@@ -37,17 +41,23 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 
 	private Widget child;
 
-	private final WorkflowitemDto workflowitem;
+	private WorkflowitemDto workflowitem;
 	
 	public WorkflowitemWidget(WorkflowitemDto workflowitem) {
 		this.workflowitem = workflowitem;
 		initWidget(uiBinder.createAndBindUi(this));
-		workflowitemName.setText(createHeader(workflowitem));
+		refreshWorkflowitemName();
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
 		
 		new WorkflowitemDeletingComponent(workflowitem, deleteButton);
 		new WorkflowitemEditingComponent(workflowitem, editButton);
+		
+		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
+	}
+
+	private void refreshWorkflowitemName() {
+		workflowitemName.setText(createHeader(workflowitem));
 	}
 
 	private String createHeader(WorkflowitemDto workflowitem) {
@@ -75,6 +85,13 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle {
 
 	public WorkflowitemDto getWorkflowitem() {
 		return workflowitem;
+	}
+
+	public void messageArrived(Message<WorkflowitemDto> message) {
+		if (workflowitem.getId() != null && workflowitem.getId().equals(message.getPayload().getId())) {
+			workflowitem = message.getPayload();
+			refreshWorkflowitemName();
+		}
 	}
 	
 }

@@ -1,22 +1,31 @@
 package com.googlecode.kanbanik.commands;
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
-import com.googlecode.kanbanik.model.HasMongoConnection
-import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.dto.shell.VoidParams
-import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 
-class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[WorkflowitemDto], VoidParams] with HasMongoConnection {
-  def execute(params: SimpleParams[WorkflowitemDto]): VoidParams = {
-    val id = params.getPayload().getId();
-    val workflowitem = Workflowitem.byId(new ObjectId(id))
+import com.googlecode.kanbanik.dto.shell.FailableResult
+import com.googlecode.kanbanik.dto.shell.SimpleParams
+import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.builders.WorkflowitemBuilder
+
+class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
+  
+  val builder = new WorkflowitemBuilder
+  
+  def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[SimpleParams[WorkflowitemDto]] = {
+    val workflowitem = builder.buildEntity(params.getPayload())
 
     workflowitem.name = params.getPayload().getName()
     workflowitem.wipLimit = params.getPayload().getWipLimit()
     workflowitem.itemType = params.getPayload().getItemType().asStringValue()
 
-    workflowitem.storeData
-    new VoidParams
+    try {
+    	new FailableResult(new SimpleParams(builder.buildDto(workflowitem.storeData)))
+    } catch {
+      case e: MidAirCollisionException =>
+        return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)
+    }
   }
 }

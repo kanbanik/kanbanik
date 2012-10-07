@@ -8,14 +8,16 @@ import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler {
+public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler, MessageListener<WorkflowitemDto> {
 
 	private WorkflowItemEditPanel panel;
 
@@ -27,14 +29,19 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		super();
 		this.dto = dto;
 		clickHandlers.addClickHandler(this);
+		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
 	private WorkflowItemEditPanel toPanel() {
 		WorkflowItemEditPanel panel = new WorkflowItemEditPanel();
+		renderDto(panel);
+		return panel;
+	}
+
+	private void renderDto(WorkflowItemEditPanel panel) {
 		panel.setName(dto.getName());
 		panel.setWipLimit(dto.getWipLimit());
 		panel.setType(dto.getItemType());
-		return panel;
 	}
 	
 	private void flushDto() {
@@ -60,16 +67,22 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		new KanbanikServerCaller(
 				new Runnable() {
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, VoidParams> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, FailableResult<SimpleParams<WorkflowitemDto>>> invokeCommand(
 				ServerCommand.EDIT_WORKFLOWITEM_DATA,
 				new SimpleParams<WorkflowitemDto>(dto),
-				new ResourceClosingAsyncCallback<VoidParams>(dialog) {
+				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>(dialog) {
 
 					@Override
-					public void success(VoidParams result) {
-						MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+					public void success(FailableResult<SimpleParams<WorkflowitemDto>> result) {
+						MessageBus.sendMessage(new WorkflowitemChangedMessage(result.getPayload().getPayload(), this));
 					}
 				}); 
 		}});		
+	}
+
+	public void messageArrived(Message<WorkflowitemDto> message) {
+		if (dto.getId() != null && dto.getId().equals(message.getPayload().getId())) {
+			dto = message.getPayload();
+		}
 	}
 }

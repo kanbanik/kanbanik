@@ -65,6 +65,8 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private BoardDto boardDto;
 
+	private BoardsRefreshRequestMessageListener boardsRefreshRequestMessageListener;
+	
 	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
@@ -305,10 +307,8 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private void registerListeners() {
-		if (!MessageBus.listens(BoardsRefreshRequestMessage.class, this)) {
-			MessageBus
-					.registerListener(BoardsRefreshRequestMessage.class, this);
-		}
+		boardsRefreshRequestMessageListener = new BoardsRefreshRequestMessageListener();
+		MessageBus.registerListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
 		
 		if (!MessageBus.listens(BoardChangedMessage.class, this)) {
 			MessageBus.registerListener(BoardChangedMessage.class, this);	
@@ -321,7 +321,10 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 	
 	public void unregisterListeners() {
-		MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, this);
+		if (boardsRefreshRequestMessageListener != null) {
+			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
+		}
+		
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}
 
@@ -332,6 +335,10 @@ public class WorkflowEditingComponent extends Composite implements
 			return;
 		}
 		
+		refreshBoards();
+	}
+	
+	private void refreshBoards() {
 		// I know, this is not really efficient...
 		// One day it should be improved
 		new KanbanikServerCaller(
@@ -357,4 +364,12 @@ public class WorkflowEditingComponent extends Composite implements
 		}});
 	}
 
+	class BoardsRefreshRequestMessageListener implements MessageListener<String> {
+
+		public void messageArrived(Message<String> message) {
+			refreshBoards();
+		}
+		
+	}
 }
+

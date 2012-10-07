@@ -8,8 +8,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
@@ -17,10 +20,10 @@ import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class WorkflowEditingDropController extends FlowPanelDropController {
-	private final WorkflowitemDto contextItem;
+public class WorkflowEditingDropController extends FlowPanelDropController implements MessageListener<WorkflowitemDto> {
+	private WorkflowitemDto contextItem;
 
-	private final WorkflowitemDto currentItem;
+	private WorkflowitemDto currentItem;
 
 	private final Position position;
 
@@ -31,6 +34,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 		this.contextItem = contextItem;
 		this.currentItem = currentItem;
 		this.position = position;
+		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
 	@Override
@@ -117,5 +121,15 @@ public class WorkflowEditingDropController extends FlowPanelDropController {
 			return null;
 		}
 
+	}
+
+	public void messageArrived(Message<WorkflowitemDto> message) {
+		if (contextItem != null && message.getPayload().getId().equals(contextItem.getId())) {
+			contextItem = message.getPayload();
+		}
+		
+		if (currentItem != null && message.getPayload().getId().equals(currentItem.getId())) {
+			currentItem = message.getPayload();
+		}
 	}
 }

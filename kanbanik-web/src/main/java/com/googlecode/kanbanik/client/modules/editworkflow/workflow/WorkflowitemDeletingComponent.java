@@ -11,26 +11,30 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class WorkflowitemDeletingComponent implements ClickHandler, Closable {
+public class WorkflowitemDeletingComponent implements ClickHandler, Closable, MessageListener<WorkflowitemDto> {
 
 	private PanelContainingDialog yesNoDialog;
 	
 	private HorizontalPanel warningPanel = new HorizontalPanel();
 
-	private final WorkflowitemDto dto;
+	private WorkflowitemDto dto;
 	
 	public WorkflowitemDeletingComponent(WorkflowitemDto dto, HasClickHandlers clickHandler) {
 		this.dto = dto;
 		clickHandler.addClickHandler(this);
 		warningPanel.add(new Label("Are you sure to delete this workflowitem '" + dto.getName() + "' ?"));
+		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
 	public void onClick(ClickEvent event) {
@@ -73,6 +77,12 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 		public void cancelClicked(PanelContainingDialog dialog) {
 
+		}
+	}
+
+	public void messageArrived(Message<WorkflowitemDto> message) {
+		if (dto.getId() != null && dto.getId().equals(message.getPayload().getId())) {
+			dto = message.getPayload();
 		}
 	}
 
