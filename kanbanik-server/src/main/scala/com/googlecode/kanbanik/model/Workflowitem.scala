@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 
 import com.mongodb.casbah.Imports.$set
-import com.mongodb.casbah.Imports.MongoConnection
+import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject

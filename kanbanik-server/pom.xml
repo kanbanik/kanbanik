@@ -15,9 +15,9 @@
 
 	<repositories>
 		<repository>
-			<id>scala-tools.org</id>
+			<id>scala-tools</id>
 			<name>Scala-tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
+			<url>https://oss.sonatype.org/content/groups/scala-tools</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -53,9 +53,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.mongodb.casbah</groupId>
+			<groupId>org.mongodb</groupId>
 			<artifactId>casbah_2.9.0-1</artifactId>
-			<version>2.1.5.0</version>
+			<version>3.0.0-M2</version>
 			<type>pom</type>
 		</dependency>
 
