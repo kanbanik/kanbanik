@@ -30,6 +30,7 @@ class ManipulateWorkflowTestCase extends Spec with BeforeAndAfter  {
   
   def checkOrder(expectedIdOrder: String*) {
     expectedIdOrder.tail.foldLeft(expectedIdOrder.head)((curr: String, next: String) => {
+      println(curr + " -> " + next)
       assert(Workflowitem.byId(new ObjectId(curr)).nextItem.get.id.get.toString() === next, curr + " should have a next: " + next)
       next
     });
@@ -37,12 +38,14 @@ class ManipulateWorkflowTestCase extends Spec with BeforeAndAfter  {
     assert(Workflowitem.byId(new ObjectId(expectedIdOrder.last)).nextItem.isDefined === false, expectedIdOrder.last + " should not have a next")
   }
   
-   def createFilledDto() = {
+   def createFilledDto(): WorkflowitemDto = createFilledDto(1)
+   
+   def createFilledDto(version: Int): WorkflowitemDto = {
     val dto = new WorkflowitemDto
     dto.setName("")
     dto.setItemType(ItemType.HORIZONTAL)
     val board = new BoardDto
-    board.setVersion(1)
+    board.setWorkflowVersion(version)
     board.setId("1e48e10644ae3742baa2d0b9")
     dto.setBoard(board)
     dto

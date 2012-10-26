@@ -136,8 +136,37 @@ class BoardTest extends BaseIntegrationTest {
     	  board2.store
       }
     }
+    
+    it("throw an exception when two locked") {
+      val board1 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      board1.acquireLock
+      
+      intercept[ResourceLockedException] {
+    	  board1.acquireLock
+      }
+    }
+    
+    it("release lock should work") {
+      val board1 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      board1.acquireLock
+      board1.releaseLock
+      board1.acquireLock
+    }
+    
+    it("release lock should increment the workflow version") {
+      val board1 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      val board2 = Board.byId(new ObjectId("2f48e10644ae3742baa2d0b9"))
+      board1.acquireLock
+      // workflowiem version incremented
+      board1.releaseLock
+      intercept[ResourceLockedException] {
+        // old version
+    	  board2.acquireLock
+      }
+      
+    }
 
   }
-
+  
   def notSet = throw new IllegalStateException("Required value not set");
 }

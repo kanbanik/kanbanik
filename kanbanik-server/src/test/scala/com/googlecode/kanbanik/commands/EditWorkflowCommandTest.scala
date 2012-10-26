@@ -19,7 +19,7 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
   val command = new EditWorkflowCommand
 
   describe("This command should take care of editing of the workflow") {
-    
+ 
     it("should be able to move the workflowitem from outside to inside to first") {
       moveAndCheck(
         "1f48e10644ae3742baa2d0b9",
@@ -409,7 +409,6 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         "childId" -> None,
         "nextItemId" -> None,
         "boardId" -> new ObjectId("1e48e10644ae3742baa2d0b9"))
-
       moveAndCheck(
         "6f48e10644ae3742baa2d0b9",
         null,
@@ -420,15 +419,15 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
         "3f48e10644ae3742baa2d0b9",
         "6f48e10644ae3742baa2d0b9")
         
-        moveAndCheck(
-        "1f48e10644ae3742baa2d0b9",
-        null,
-        null,
-
-        "2f48e10644ae3742baa2d0b9",
-        "3f48e10644ae3742baa2d0b9",
-        "6f48e10644ae3742baa2d0b9",
-        "1f48e10644ae3742baa2d0b9")
+        
+        val item = Workflowitem.byId(new ObjectId("1f48e10644ae3742baa2d0b9"))
+        move("1f48e10644ae3742baa2d0b9", null, null, item.version, 2);
+        
+      	checkOrder( "2f48e10644ae3742baa2d0b9",
+	        "3f48e10644ae3742baa2d0b9",
+	        "6f48e10644ae3742baa2d0b9",
+	        "1f48e10644ae3742baa2d0b9")
+	        
     }
 
     it("should be able to add new entity as the only to deeper workflow") {
@@ -465,14 +464,19 @@ class EditWorkflowCommandTest extends ManipulateWorkflowTestCase {
     checkOrder(expectedIdOrder.toList: _*)
   }
 
-  private def move(currentId: String, nextId: String, contextId: String) = {
-    val current = createFilledDto()
+  private def move(currentId: String, nextId: String, contextId: String): WorkflowitemDto = {
+    move(currentId, nextId, contextId, 1, 1)
+  }
+  
+  private def move(currentId: String, nextId: String, contextId: String, itemVersion: Int, workflowVersion: Int): WorkflowitemDto = {
+    val current = createFilledDto(workflowVersion)
     current.setId(currentId)
+    current.setVersion(itemVersion)
 
-    val next = createFilledDto()
+    val next = createFilledDto(workflowVersion)
     next.setId(nextId)
-
-    val context = createFilledDto()
+    
+    val context = createFilledDto(workflowVersion)
     context.setId(contextId)
 
     current.setNextItem(next)

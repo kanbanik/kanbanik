@@ -24,7 +24,6 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
   lazy val boardBuilder = new BoardBuilder
   
   def execute(params: EditWorkflowParams): FailableResult[SimpleParams[WorkflowitemDto]] = {
-
     val currenDto = params.getCurrent()
     val contextDto = params.getContext()
 
@@ -57,7 +56,6 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     } else {
       currentEntity = currentEntity.store
     }
-
     
     new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity)))
   }

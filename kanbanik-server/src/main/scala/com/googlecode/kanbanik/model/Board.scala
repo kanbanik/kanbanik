@@ -49,20 +49,20 @@ class Board(
   // not to lock it. But this is only a write lock for the editing of the workflow, which has to be explicitly called,
   // it does not lock all the worflowitems interaction such as task moving etc.
   def acquireLock() {
-    println("going to lock the board with: " + workflowVersion)
-    
-	val query = (MongoDBObject(SimpleField.id.toString() -> id)) ++ 
-			($or((Board.Fields.workflowVersion.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.workflowVersion.toString() -> workflowVersion))) ++
-			($or((Board.Fields.workflowLocked.toString() -> MongoDBObject("$exists" -> false)), (Board.Fields.workflowLocked.toString() -> false)))
+//    val query = ("_id.serviceName" $in serviceNames) ++ ($or(("element" -> MongoDBObject("$exists" -> false)), ("element" -> "value")))
+	val query = MongoDBObject("$and" -> ( 
+					(MongoDBObject(SimpleField.id.toString() -> id.get)),
+					($or((Board.Fields.workflowLocked.toString() $exists false), MongoDBObject(Board.Fields.workflowLocked.toString() -> false))),
+					($or((Board.Fields.workflowVersion.toString() $exists false), MongoDBObject(Board.Fields.workflowVersion.toString() -> workflowVersion)))
+				)
+			)
 
-	println(query.toString())
-	
 	val update = $set(Board.Fields.workflowLocked.toString() -> true)
 
 	using(createConnection) { conn =>
 		val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
-		if (!res.isDefined) {
-		  throw new ResourceLockedException
+		if(!res.isDefined) {
+			throw new ResourceLockedException
 		}
 	}
   }
@@ -77,7 +77,11 @@ class Board(
 
 	using(createConnection) { conn =>
 		val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
+		if (res.isDefined) {
+		  workflowVersion = workflowVersion + 1
+		}
 	}
+    
   }
   
   def delete {
