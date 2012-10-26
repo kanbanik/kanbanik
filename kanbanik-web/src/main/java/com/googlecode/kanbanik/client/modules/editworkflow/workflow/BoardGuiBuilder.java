@@ -34,6 +34,7 @@ public abstract class BoardGuiBuilder {
 		while (true) {
 			if (currentItem.getChild() != null) {
 				FlexTable childTable = new FlexTable();
+				childTable.setWidth("100%");
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);

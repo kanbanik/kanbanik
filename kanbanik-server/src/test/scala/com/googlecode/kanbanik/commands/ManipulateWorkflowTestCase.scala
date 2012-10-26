@@ -30,7 +30,6 @@ class ManipulateWorkflowTestCase extends Spec with BeforeAndAfter  {
   
   def checkOrder(expectedIdOrder: String*) {
     expectedIdOrder.tail.foldLeft(expectedIdOrder.head)((curr: String, next: String) => {
-      println(curr + " -> " + next)
       assert(Workflowitem.byId(new ObjectId(curr)).nextItem.get.id.get.toString() === next, curr + " should have a next: " + next)
       next
     });
