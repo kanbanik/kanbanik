@@ -1,8 +1,6 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
-import javax.swing.text.Position.Bias;
-
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;

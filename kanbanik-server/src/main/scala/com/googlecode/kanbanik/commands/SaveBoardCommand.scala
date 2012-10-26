@@ -19,6 +19,8 @@ class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableRes
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(), false, ServerMessages.midAirCollisionException)
+      case e: IllegalArgumentException =>
+        return new FailableResult(new SimpleParams(), false, ServerMessages.entityDeletedMessage("board"))
     }
 
     new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard)))

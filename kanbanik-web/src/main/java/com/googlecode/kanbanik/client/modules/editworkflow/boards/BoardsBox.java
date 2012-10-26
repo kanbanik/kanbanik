@@ -14,15 +14,20 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
@@ -31,6 +36,8 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycl
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class BoardsBox extends Composite {
 
@@ -62,7 +69,7 @@ public class BoardsBox extends Composite {
 	
 	interface MyUiBinder extends UiBinder<Widget, BoardsBox> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-
+	
 	public BoardsBox(ConfigureWorkflowModule configureWorkflowModule) {
 		boardsList = new BoardsListBox(configureWorkflowModule);
 		initWidget(uiBinder.createAndBindUi(this));
@@ -95,11 +102,14 @@ public class BoardsBox extends Composite {
 
 		private ConfigureWorkflowModule configureWorkflowModule;
 
+		private BoardsRefreshRequestMessageListener refreshRequestListener = new BoardsRefreshRequestMessageListener(this);
+		
 		public BoardsListBox(ConfigureWorkflowModule configureWorkflowModule) {
 			this.configureWorkflowModule = configureWorkflowModule;
 			addChangeHandler(this);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 			MessageBus.registerListener(BoardCreatedMessage.class, this);
+			MessageBus.registerListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
 		}
 
 		public void setContent(List<BoardWithProjectsDto> boards) {
@@ -247,6 +257,11 @@ public class BoardsBox extends Composite {
 			if (!MessageBus.listens(BoardRefreshedMessage.class, this)) {
 				MessageBus.registerListener(BoardRefreshedMessage.class, this);	
 			}
+			
+			if (!MessageBus.listens(BoardsRefreshRequestMessage.class, this)) {
+				MessageBus.registerListener(BoardsRefreshRequestMessage.class, refreshRequestListener);	
+			} 	
+			
 		}
 
 		public void deactivated() {
@@ -254,8 +269,10 @@ public class BoardsBox extends Composite {
 			MessageBus.unregisterListener(BoardDeletedMessage.class, this);
 			MessageBus.unregisterListener(BoardEditedMessage.class, this);
 			MessageBus.unregisterListener(BoardRefreshedMessage.class, this);
+			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, this);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
+		
 	}
 	
 	public void editBoard(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
@@ -271,4 +288,37 @@ public class BoardsBox extends Composite {
 		}
 	}
 
+	class BoardsRefreshRequestMessageListener implements MessageListener<String> {
+		
+		private final BoardsListBox boardsBox;
+		
+		public BoardsRefreshRequestMessageListener(BoardsListBox boardsBox) {
+			this.boardsBox = boardsBox;
+		}
+		
+		@Override
+		public void messageArrived(Message<String> message) {
+			new KanbanikServerCaller(
+					new Runnable() {
+
+						public void run() {
+			ServerCommandInvokerManager
+					.getInvoker()
+					.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
+							ServerCommand.GET_BOARD,
+							new SimpleParams<BoardDto>(boardsBox.getSelectedBoard()),
+							new BaseAsyncCallback<SimpleParams<BoardDto>>() {
+
+								@Override
+								public void success(SimpleParams<BoardDto> result) {
+									boardsBox.refreshBoard(result.getPayload());
+									MessageBus.sendMessage(new BoardChangedMessage(result.getPayload(), this));
+								}
+
+							});
+			}});
+		}
+		
+	}
 }
+

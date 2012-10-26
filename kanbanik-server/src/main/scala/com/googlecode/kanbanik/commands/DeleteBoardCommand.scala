@@ -17,8 +17,15 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
   val boardBuilder = new BoardBuilder
   
   def execute(params: SimpleParams[BoardDto]): FailableResult[VoidParams] = {
-
     val boardId = new ObjectId(params.getPayload().getId())
+
+    try {
+    	Board.byId(boardId)
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("board"))
+    }
+    
     if (isOnProject(boardId)) {
       return new FailableResult(new VoidParams, false, "There are projects on this board. Please remove them from the board first and than delete this board.")
     }

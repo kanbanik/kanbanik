@@ -9,6 +9,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.model.Task
+import com.googlecode.kanbanik.messages.ServerMessages
 
 class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection {
   
@@ -17,6 +18,13 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[VoidParams] = {
 
     val id = new ObjectId(params.getPayload().getId())
+    
+    try {
+    	Workflowitem.byId(id)
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("workflowitem"))
+    }
     
     if (hasTasksOnWorkflowitem(id)) {
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")

@@ -16,9 +16,17 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
   private lazy val taskBuilder = new TaskBuilder()
 
   def execute(params: MoveTaskParams): FailableResult[SimpleParams[TaskDto]] = {
+	try {
+	  Task.byId(new ObjectId(params.getTask().getId()))
+	} catch {
+		case e: IllegalArgumentException =>
+	  		return new FailableResult(new SimpleParams(params.getTask()), false, ServerMessages.entityDeletedMessage("task"))
+	}
+	  
     val task = taskBuilder.buildEntity(params.getTask())
     val project = Project.byId(new ObjectId(params.getProject().getId()));
 
+    
     val definedOnProject = findProjectForTask(task).getOrElse(throw new IllegalStateException("The task '" + task.id + "' is defined on NO project!"))
 
     if (project.id == definedOnProject.id) {

@@ -16,6 +16,8 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.model.ResourceLockedException
+import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.MidAirCollisionException
 
 class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
 
@@ -27,6 +29,14 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     val currenDto = params.getCurrent()
     val contextDto = params.getContext()
 
+    // hack just to test if the board still exists
+    try {
+    	Board.byId(new ObjectId(currenDto.getBoard().getId()))
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getBoard().getName()))
+    }
+    
     val currentBoard = boardBuilder.buildEntity(currenDto.getBoard())
     
     try {
@@ -38,6 +48,9 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     
     try {
     	return doExecute(currenDto, contextDto)
+    } catch {
+      case e: MidAirCollisionException =>
+        return new FailableResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
     } finally {
     	currentBoard.releaseLock()
     }

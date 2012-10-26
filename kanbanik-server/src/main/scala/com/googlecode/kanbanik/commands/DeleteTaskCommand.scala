@@ -14,7 +14,6 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
   def execute(params: SimpleParams[TaskDto]): FailableResult[VoidParams] = {
     val task = taskBuilder.buildEntity(params.getPayload())
     
-    
     val project = findProjectForTask(task).getOrElse(throw new IllegalStateException("The task '" + task.id + "' is defined on NO project!"))
     
     try {
