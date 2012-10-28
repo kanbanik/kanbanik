@@ -195,6 +195,7 @@ public class BoardsBox extends Composite {
 		private void refreshBoard(BoardDto dto) {
 			int toRefresh = indexOfBoard(dto);
 			boards.get(toRefresh).setBoard(dto);
+			setItemText(indexOfBoard(dto), dto.getName());
 		}
 
 		private void editBoard(BoardDto dto) {
@@ -311,8 +312,13 @@ public class BoardsBox extends Composite {
 
 								@Override
 								public void success(SimpleParams<BoardDto> result) {
-									boardsBox.refreshBoard(result.getPayload());
-									MessageBus.sendMessage(new BoardChangedMessage(result.getPayload(), this));
+									// it has been deleted
+									if (result.getPayload() == null) {
+										MessageBus.sendMessage(new BoardDeletedMessage(boardsBox.getSelectedBoard(), this));
+									} else {
+										boardsBox.refreshBoard(result.getPayload());
+										MessageBus.sendMessage(new BoardChangedMessage(result.getPayload(), this));
+									}
 								}
 
 							});

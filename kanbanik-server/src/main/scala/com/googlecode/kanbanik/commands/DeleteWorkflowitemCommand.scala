@@ -10,10 +10,16 @@ import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.model.ResourceLockedException
+import com.googlecode.kanbanik.builders.BoardBuilder
 
 class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection {
   
   lazy val workflowitemBuilder = new WorkflowitemBuilder
+  
+  lazy val boardBuilder = new BoardBuilder
   
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[VoidParams] = {
 
@@ -33,9 +39,32 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
     if (Workflowitem.byId(id).child.isDefined) {
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a child workflowitem.")
     }
+
+    try {
+    	Board.byId(new ObjectId(params.getPayload().getBoard().getId()))
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getBoard().getName()))
+    }
+
+    val currentBoard = boardBuilder.buildEntity(params.getPayload().getBoard())
     
-    val entity = workflowitemBuilder.buildEntity(params.getPayload())
-    entity.delete
+    try {
+    	currentBoard.acquireLock()
+    } catch {
+      case e: ResourceLockedException =>
+            return new FailableResult(new VoidParams, false, "Your workflow is not up to date. Please refresh your browser to get the current data")
+    }
+    
+    try {
+    	val entity = workflowitemBuilder.buildEntity(params.getPayload())
+    	entity.delete
+    } catch {
+      case e: MidAirCollisionException =>
+        return new FailableResult(new VoidParams, false, ServerMessages.midAirCollisionException)
+    } finally {
+    	currentBoard.releaseLock()
+    }
     
     return new FailableResult(new VoidParams, true, "")
   }

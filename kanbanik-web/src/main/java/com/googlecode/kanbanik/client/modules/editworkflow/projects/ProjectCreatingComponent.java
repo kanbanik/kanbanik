@@ -20,7 +20,7 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 	final ServerCommandInvokerAsync serverCommandInvoker = GWT.create(ServerCommandInvoker.class);
 	
 	public ProjectCreatingComponent(HasClickHandlers clickHandlers) {
-		super(clickHandlers);
+		super(clickHandlers, "Add Project");
 	}
 
 	@Override

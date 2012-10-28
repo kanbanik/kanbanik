@@ -8,6 +8,8 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.model.MidAirCollisionException
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.Workflowitem
+import org.bson.types.ObjectId
 
 class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {
   
@@ -16,6 +18,13 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
   def execute(params: SimpleParams[TaskDto]): FailableResult[SimpleParams[TaskDto]] = {
     if (params.getPayload().getWorkflowitem() == null) {
       return new FailableResult(null, false, "At least one workflowitem must exist to create a task!")
+    }
+    
+    try {
+    	Workflowitem.byId(new ObjectId(params.getPayload().getWorkflowitem().getId))
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new SimpleParams(params.getPayload()), false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
     }
     
     val task = taskBuilder.buildEntity(params.getPayload())

@@ -10,7 +10,16 @@ class GetBoardCommand extends ServerCommand[SimpleParams[BoardDto], SimpleParams
   lazy val boardBuilder = new BoardBuilder()
 
   def execute(params: SimpleParams[BoardDto]): SimpleParams[BoardDto] = {
-    val board = Board.byId(new ObjectId(params.getPayload().getId()))
-    new SimpleParams(boardBuilder.buildDto(board))
+    
+	try {
+    	val board = Board.byId(new ObjectId(params.getPayload().getId()))
+    	new SimpleParams(boardBuilder.buildDto(board))
+    } catch {
+      case e: IllegalArgumentException =>
+        // board does not exists
+        return new SimpleParams(null)
+    }
+    
+    
   }
 }

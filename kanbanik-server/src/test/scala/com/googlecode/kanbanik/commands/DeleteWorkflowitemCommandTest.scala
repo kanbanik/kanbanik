@@ -6,6 +6,8 @@ import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.mongodb.casbah.commons.MongoDBObject
+import com.googlecode.kanbanik.dto.shell.FailableResult
+import com.googlecode.kanbanik.dto.shell.VoidParams
 
 class DeleteWorkflowitemCommandTest extends ManipulateWorkflowTestCase {
 
@@ -15,8 +17,8 @@ class DeleteWorkflowitemCommandTest extends ManipulateWorkflowTestCase {
 
     it("should be able to delete the first top-level item") {
       delete("8f48e10644ae3742baa2d0b9")
-      delete("7f48e10644ae3742baa2d0b9")
-      val res = delete("1f48e10644ae3742baa2d0b9")
+      delete("7f48e10644ae3742baa2d0b9", 2)
+      val res = delete("1f48e10644ae3742baa2d0b9", 3)
 
       assert(res.isSucceeded() === true)
 
@@ -65,7 +67,7 @@ class DeleteWorkflowitemCommandTest extends ManipulateWorkflowTestCase {
 
     it("should be able to delete the middle bottom-level item") {
       delete("9f48e10644ae3742baa2d0b9")
-      val res = delete("5f48e10644ae3742baa2d0b9")
+      val res = delete("5f48e10644ae3742baa2d0b9", 2)
 
       assert(res.isSucceeded() === true)
 
@@ -99,9 +101,13 @@ class DeleteWorkflowitemCommandTest extends ManipulateWorkflowTestCase {
     }
 
   }
-
-  private def delete(id: String) = {
-    val toDelete = createFilledDto()
+  
+  private def delete(id: String): FailableResult[VoidParams] = {
+    delete(id, 1)
+  }
+  
+  private def delete(id: String, boardVersion: Int): FailableResult[VoidParams] = {
+    val toDelete = createFilledDto(boardVersion)
     toDelete.setId(id)
     deleteCommand.execute(new SimpleParams(toDelete))
   }

@@ -23,7 +23,7 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent imp
 	private ProjectDto projectDto;
 	
 	public ProjectEditingComponent(ProjectDto projectDto, HasClickHandlers clickHandlers) {
-		super(clickHandlers);
+		super(clickHandlers, "Edit Project");
 		this.projectDto = projectDto;
 		
 		MessageBus.registerListener(ProjectChangedMessage.class, this);

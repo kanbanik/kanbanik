@@ -25,11 +25,11 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 	
 	private HasClickHandlers clickHandlers;
 
-	public AbstractProjectEditingComponent(HasClickHandlers clickHandlers) {
+	public AbstractProjectEditingComponent(HasClickHandlers clickHandlers, String title) {
 		this.clickHandlers = clickHandlers;
 		panel.add(projectNameLabel);
 		panel.add(projectNameText);
-		dialog = new PanelContainingDialog("Add Project", panel);
+		dialog = new PanelContainingDialog(title, panel);
 		dialog.addListener(this);
 		this.clickHandlers.addClickHandler(new ShowDialogHandler());
 	}
