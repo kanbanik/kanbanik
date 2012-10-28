@@ -18,8 +18,7 @@ public class BaseAsyncCallback<T> implements AsyncCallback<T> {
 		if (result instanceof FailableResult<?>) {
 			FailableResult<?> failableResult = (FailableResult<?>) result;
 			if (!failableResult.isSucceeded()) {
-				new ErrorDialog(failableResult.getMessage()).center();
-				failure(result);
+				handleFaildResult(failableResult);
 			} else {
 				beforeSuccess(result);
 				success(result);
@@ -29,6 +28,11 @@ public class BaseAsyncCallback<T> implements AsyncCallback<T> {
 			success(result);
 		}
 		
+	}
+
+	protected void handleFaildResult(FailableResult<?> failableResult) {
+		new ErrorDialog(failableResult.getMessage()).center();
+		failure((T) failableResult);
 	}
 
 	/**

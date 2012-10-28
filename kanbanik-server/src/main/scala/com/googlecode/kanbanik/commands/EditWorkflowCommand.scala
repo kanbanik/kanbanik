@@ -13,6 +13,7 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.FailableResult
+import com.googlecode.kanbanik.dto.shell.MidAirCollisionResult
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.model.ResourceLockedException
@@ -34,7 +35,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     	Board.byId(new ObjectId(currenDto.getBoard().getId()))
     } catch {
       case e: IllegalArgumentException =>
-        return new FailableResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getBoard().getName()))
+        return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getBoard().getName()))
     }
     
     val currentBoard = boardBuilder.buildEntity(currenDto.getBoard())
@@ -43,14 +44,14 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     	currentBoard.acquireLock()
     } catch {
       case e: ResourceLockedException =>
-            return new FailableResult(new SimpleParams(currenDto), false, "Your workflow is not up to date. Please refresh your browser to get the current data")
+            return new MidAirCollisionResult(new SimpleParams(currenDto), false, "Your workflow is not up to date. Please refresh your browser to get the current data")
     }
     
     try {
     	return doExecute(currenDto, contextDto)
     } catch {
       case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
+        return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
     } finally {
     	currentBoard.releaseLock()
     }

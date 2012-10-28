@@ -24,7 +24,7 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
     
     val task = taskBuilder.buildEntity(params.getPayload())
     
-    val project = findProjectForTask(task).getOrElse(return new FailableResult(new VoidParams(), false, "The task is defined on no project - it has possibly been deleted by a different user. Please refresh your browser to get the accurate data."))
+    val project = findProjectForTask(task).getOrElse(return new FailableResult(new VoidParams(), false, "The task is defined on no project - it has possibly been deleted by a different user. Please refresh your browser to get the current data."))
     
     try {
     	task.delete

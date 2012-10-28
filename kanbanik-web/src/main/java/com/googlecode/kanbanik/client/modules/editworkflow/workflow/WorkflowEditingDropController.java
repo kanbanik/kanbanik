@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -17,6 +18,7 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEdit
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.MidAirCollisionResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
@@ -102,11 +104,13 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 							}
 							
 							@Override
-							public void failure(
-									FailableResult<SimpleParams<WorkflowitemDto>> result) {
-								MessageBus
-								.sendMessage(new BoardsRefreshRequestMessage(
-										"", this));
+							protected void handleFaildResult(FailableResult<?> failableResult) {
+								if (failableResult instanceof MidAirCollisionResult) {
+									new ErrorDialog("The workflow has been modified by a different user. Your change has been discarded and the workflow has been refreshed automatically.").center();
+									MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+								} else {
+									super.handleFaildResult(failableResult);
+								}
 							}
 							
 						});
