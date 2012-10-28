@@ -101,6 +101,14 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 												"", this));
 							}
 							
+							@Override
+							public void failure(
+									FailableResult<SimpleParams<WorkflowitemDto>> result) {
+								MessageBus
+								.sendMessage(new BoardsRefreshRequestMessage(
+										"", this));
+							}
+							
 						});
 		}});
 	}
