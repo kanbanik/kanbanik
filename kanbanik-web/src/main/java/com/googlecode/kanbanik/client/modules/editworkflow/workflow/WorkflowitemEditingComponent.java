@@ -11,6 +11,7 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelCont
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
@@ -75,6 +76,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 					@Override
 					public void success(FailableResult<SimpleParams<WorkflowitemDto>> result) {
 						MessageBus.sendMessage(new WorkflowitemChangedMessage(result.getPayload().getPayload(), this));
+						MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
 					}
 				}); 
 		}});		
