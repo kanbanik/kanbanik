@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.client.components;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -9,6 +11,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ErrorDialog extends DialogBox implements ClickHandler {
 
+	private Button closeButton;
+	
 	public ErrorDialog(Throwable throwable) {
 		this(throwable.getMessage());
 	}
@@ -21,16 +25,28 @@ public class ErrorDialog extends DialogBox implements ClickHandler {
 		setModal(true);
 		
 		VerticalPanel panel = new VerticalPanel();
-		Button closeButton = new Button("close");
+		closeButton = new Button("close");
 		closeButton.addClickHandler(this);
 		panel.add(new Label(message));
 		panel.add(closeButton);
-		panel.setWidth("300px");
-		panel.setHeight("200px");
+		panel.setWidth("200px");
 		add(panel);
 	}
 
 	public void onClick(ClickEvent event) {
 		hide();
+	}
+	
+	@Override
+	public void center() {
+		super.center();
+
+		// it has to be scheduled deferred because the focus has to be taken after the button takes it
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				closeButton.setFocus(true);
+			}
+		});
 	}
 }

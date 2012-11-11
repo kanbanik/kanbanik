@@ -26,7 +26,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	public AbstractBoardEditingComponent(HasClickHandlers hasClickHandler, String title) {
 		panel.add(boardNameLabel);
 		panel.add(boardNameText);
-		dialog = new PanelContainingDialog(title, panel);
+		dialog = new PanelContainingDialog(title, panel, boardNameText);
 		dialog.addListener(this);
 		hasClickHandler.addClickHandler(new ShowDialogHandler());
 	}

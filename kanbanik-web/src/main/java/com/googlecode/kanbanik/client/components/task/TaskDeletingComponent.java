@@ -4,14 +4,13 @@ package com.googlecode.kanbanik.client.components.task;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.components.WarningPanel;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
@@ -26,13 +25,13 @@ public class TaskDeletingComponent implements ClickHandler, Closable {
 
 	private PanelContainingDialog yesNoDialog;
 	
-	private SimplePanel warningPanel = new SimplePanel();
+	private WarningPanel warningPanel;
 	
 	public TaskDeletingComponent(TaskGui taskGui, HasClickHandlers clicklHandler) {
 		super();
 		this.taskGui = taskGui;
 		clicklHandler.addClickHandler(this);
-		warningPanel.add(new Label("Are you sure you want to delete task with id + ' " + taskGui.getDto().getTicketId() + "'?"));
+		warningPanel = new WarningPanel("Are you sure you want to delete task with id + ' " + taskGui.getDto().getTicketId() + "'?");
 	}
 
 	public void onClick(ClickEvent event) {

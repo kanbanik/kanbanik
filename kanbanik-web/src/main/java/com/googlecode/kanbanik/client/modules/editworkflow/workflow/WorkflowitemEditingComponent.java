@@ -53,7 +53,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 
 	public void onClick(ClickEvent event) {
 		panel = toPanel();
-		dialog = new PanelContainingDialog("Edit Workflow Item", panel);
+		dialog = new PanelContainingDialog("Edit Workflow Item", panel, panel.getDefaultFocusWidget());
 		dialog.addListener(this);
 		dialog.center();
 	}

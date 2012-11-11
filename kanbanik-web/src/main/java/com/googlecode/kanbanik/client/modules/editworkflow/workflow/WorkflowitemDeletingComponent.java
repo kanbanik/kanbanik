@@ -11,6 +11,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.components.WarningPanel;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -26,14 +27,14 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 
 	private PanelContainingDialog yesNoDialog;
 	
-	private HorizontalPanel warningPanel = new HorizontalPanel();
+	private WarningPanel warningPanel;
 
 	private WorkflowitemDto dto;
 	
 	public WorkflowitemDeletingComponent(WorkflowitemDto dto, HasClickHandlers clickHandler) {
 		this.dto = dto;
 		clickHandler.addClickHandler(this);
-		warningPanel.add(new Label("Are you sure to delete this workflowitem '" + dto.getName() + "' ?"));
+		warningPanel = new WarningPanel("Are you sure to delete this workflowitem '" + dto.getName() + "' ?");
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 

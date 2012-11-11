@@ -29,7 +29,7 @@ public abstract class AbstractProjectEditingComponent implements PanelContaining
 		this.clickHandlers = clickHandlers;
 		panel.add(projectNameLabel);
 		panel.add(projectNameText);
-		dialog = new PanelContainingDialog(title, panel);
+		dialog = new PanelContainingDialog(title, panel, projectNameText);
 		dialog.addListener(this);
 		this.clickHandlers.addClickHandler(new ShowDialogHandler());
 	}

@@ -73,7 +73,7 @@ public abstract class AbstractTaskEditingComponent {
 		
 		setupValues();
 		
-		dialog = new PanelContainingDialog(name, panel);
+		dialog = new PanelContainingDialog(name, panel, taskName);
 		dialog.addListener(new AddTaskButtonHandler());
 		clickHandler.addClickHandler(new ShowDialogHandler());
 	}

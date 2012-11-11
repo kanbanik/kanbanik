@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -36,6 +37,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		
 		wipLimitEnabled.addClickHandler(new WipLimitEnabledClickHandler());
 		panel.add(wipLimitEnabled);
+		setWidth("223px");
 		
 	}
 
@@ -71,6 +73,10 @@ public class WorkflowItemEditPanel extends FlowPanel {
 			}
 		}
 		
+	}
+	
+	public FocusWidget getDefaultFocusWidget() {
+		return nameBox;
 	}
 	
 	public void setName(String name) {

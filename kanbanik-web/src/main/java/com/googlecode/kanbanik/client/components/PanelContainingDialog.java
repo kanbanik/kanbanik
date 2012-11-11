@@ -3,27 +3,52 @@ package com.googlecode.kanbanik.client.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class PanelContainingDialog extends DialogBox implements Closable {
-	
-	private Panel contentPanel;
-	
-	private Panel mainPanel = new VerticalPanel();
-	
-	private Panel buttonPanel = new HorizontalPanel();
+
+	interface MyUiBinder extends UiBinder<Widget, PanelContainingDialog> {
+	}
+
+	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
 	private List<PanelContainingDialolgListener> listeners;
+
+	private final FocusWidget focusWidget;
+
+	@UiField
+	Button cancelButton;
+	
+	@UiField
+	Button okButton;
+
+	@UiField
+	FlowPanel contentWrapper;
 	
 	public PanelContainingDialog(String title, Panel contentPanel) {
+		this(title, contentPanel, null);
+	}
+	
+	public PanelContainingDialog(String title, Panel contentPanel, FocusWidget focusWidget) {
 		super();
-		this.contentPanel = contentPanel;
+		
+		setWidget(uiBinder.createAndBindUi(this));
+		
+		this.focusWidget = focusWidget;
+		
+		contentWrapper.add(contentPanel);
 		
 		setupButtons();
 		
@@ -31,22 +56,14 @@ public class PanelContainingDialog extends DialogBox implements Closable {
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		
-		mainPanel.add(contentPanel);
-		mainPanel.add(buttonPanel);
-		contentPanel.setWidth("300px");
-		contentPanel.setHeight("200px");
-		add(mainPanel);
 	}
 
 	private void setupButtons() {
-		Button okButton = new Button("OK");
 		okButton.addClickHandler(new OKButtonHandler());
+		okButton.setText(" OK ");
 		
-		Button cancelButton = new Button("cancel");
 		cancelButton.addClickHandler(new CancelButtonHandler());
-		
-		buttonPanel.add(okButton);
-		buttonPanel.add(cancelButton);
+		cancelButton.setText(" Cancel ");
 	}
 	
 	public void addListener(PanelContainingDialolgListener listener) {
@@ -88,10 +105,6 @@ public class PanelContainingDialog extends DialogBox implements Closable {
 		
 	}
 
-	public Panel getContentPanel() {
-		return contentPanel;
-	}
-
 	public static interface PanelContainingDialolgListener {
 		
 		void okClicked(PanelContainingDialog dialog);
@@ -102,6 +115,23 @@ public class PanelContainingDialog extends DialogBox implements Closable {
 	@Override
 	public void close() {
 		hide();
+	}
+	
+	@Override
+	public void center() {
+		super.center();
+		
+		// it has to be scheduled deferred because the focus has to be taken after the button takes it
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				if (focusWidget != null) {
+					focusWidget.setFocus(true);
+				} else {
+					cancelButton.setFocus(true);
+				}
+			}
+		});
 	}
 	
 }
