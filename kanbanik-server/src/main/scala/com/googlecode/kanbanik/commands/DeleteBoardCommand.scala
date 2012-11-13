@@ -8,7 +8,7 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.HasMongoConnection
 import com.googlecode.kanbanik.model.Project
 import com.mongodb.casbah.commons.MongoDBObject
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.BoardBuilder
 

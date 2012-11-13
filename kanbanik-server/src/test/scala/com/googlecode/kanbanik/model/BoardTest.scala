@@ -1,8 +1,9 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
-
 import com.mongodb.casbah.commons.MongoDBObject
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.ResourceLockedException
 
 class BoardTest extends BaseIntegrationTest {
 

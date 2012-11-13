@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
 import com.mongodb.casbah.commons.MongoDBObject
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
 class ProjectTest extends BaseIntegrationTest {
   describe("Project should be able to do all the basic CRUD operations") {

@@ -4,7 +4,7 @@ import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.dto.shell.FailableResult
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId

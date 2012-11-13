@@ -7,6 +7,7 @@ import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 import com.mongodb.casbah.Imports._
 import java.util.ArrayList
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
+import com.googlecode.kanbanik.exceptions.ResourceLockedException
 
 class Board(
   var id: Option[ObjectId],

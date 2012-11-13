@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
 class TaskTest extends BaseIntegrationTest {
   describe("Task should support all the basic CRUD operations") {

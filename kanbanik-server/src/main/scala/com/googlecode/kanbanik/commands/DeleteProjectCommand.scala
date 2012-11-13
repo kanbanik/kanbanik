@@ -7,7 +7,7 @@ import com.googlecode.kanbanik.model.Project
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
 

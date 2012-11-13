@@ -16,9 +16,9 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.MidAirCollisionResult
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.model.ResourceLockedException
+import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
 class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
 

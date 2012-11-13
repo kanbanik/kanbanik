@@ -8,7 +8,7 @@ import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.dto.shell.FailableResult
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 
 class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {

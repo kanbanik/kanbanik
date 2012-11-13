@@ -4,7 +4,7 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import scala.collection.JavaConversions._
 import com.googlecode.kanbanik.model.Board
 import org.bson.types.ObjectId

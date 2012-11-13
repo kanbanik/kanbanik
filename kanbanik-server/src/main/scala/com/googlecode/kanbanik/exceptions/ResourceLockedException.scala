@@ -1,3 +1,3 @@
-package com.googlecode.kanbanik.model
+package com.googlecode.kanbanik.exceptions
 
 class ResourceLockedException extends RuntimeException;

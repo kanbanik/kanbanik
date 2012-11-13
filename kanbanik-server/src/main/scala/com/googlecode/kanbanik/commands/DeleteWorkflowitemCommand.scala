@@ -11,8 +11,8 @@ import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.MidAirCollisionException
-import com.googlecode.kanbanik.model.ResourceLockedException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.builders.BoardBuilder
 
 class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection {

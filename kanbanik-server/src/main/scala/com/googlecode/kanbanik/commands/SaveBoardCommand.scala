@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 
 class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableResult[SimpleParams[BoardDto]]] {

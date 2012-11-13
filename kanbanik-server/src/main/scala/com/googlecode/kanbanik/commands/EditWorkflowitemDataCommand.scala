@@ -6,7 +6,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.HasMongoConnection
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 

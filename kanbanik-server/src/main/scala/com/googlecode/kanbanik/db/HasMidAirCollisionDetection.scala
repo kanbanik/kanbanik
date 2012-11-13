@@ -4,7 +4,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.model.HasMongoConnection
 import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.DBObject
-import com.googlecode.kanbanik.model.MidAirCollisionException
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.casbah.Imports._
