@@ -9,9 +9,10 @@ class BoardBuilder {
 
   def buildDto(board: Board): BoardDto = {
     val res = buildShallowDto(board)
-    if (board.workflowitems.isDefined) {
-      res.setRootWorkflowitem(findRootWorkflowitem(board, board.workflowitems))
-    }
+//    TODO-ref
+//    if (board.workflowitems.isDefined) {
+//      res.setRootWorkflowitem(findRootWorkflowitem(board, board.workflowitems))
+//    }
 
     res
   }
@@ -31,13 +32,14 @@ class BoardBuilder {
   }
 
   private def isRoot(candidate: Workflowitem, workflowitems: List[Workflowitem]): Boolean = {
-    for (potentialParent <- workflowitems) {
-      if (potentialParent.nextItem.isDefined) {
-        if (potentialParent.nextItem.get.id.get == candidate.id.get) {
-          return false
-        }
-      }
-    }
+    //    TODO-ref
+//    for (potentialParent <- workflowitems) {
+//      if (potentialParent.nextItem.isDefined) {
+//        if (potentialParent.nextItem.get.id.get == candidate.id.get) {
+//          return false
+//        }
+//      }
+//    }
 
     return true
   }
@@ -47,30 +49,32 @@ class BoardBuilder {
     res.setName(board.name)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
-    res.setWorkflowVersion(board.workflowVersion)
-    res.setWorkflowLocked(board.workflowLocked)
+        //    TODO-ref
+//    res.setWorkflowVersion(board.workflowVersion)
+//    res.setWorkflowLocked(board.workflowLocked)
     res
   }
 
   def buildEntity(boardDto: BoardDto): Board = {
-    if (boardDto.getId() == null) {
-      new Board(
-        detrmineId(boardDto),
-        boardDto.getName(),
-        boardDto.getVersion(),
-        boardDto.getWorkflowVersion(),
-        boardDto.isWorkflowLocked(),
-        None)
-    } else {
-      // an ugly way because I'm too lazy to fetch the correct ones according to the root workflowitem
-      val storedBoard = Board.byId(new ObjectId(boardDto.getId()))
-      storedBoard.name = boardDto.getName()
-      storedBoard.version = boardDto.getVersion()
-      storedBoard.workflowVersion = boardDto.getWorkflowVersion()
-      storedBoard.workflowLocked = boardDto.isWorkflowLocked()
-      storedBoard
-    }
-
+    //    TODO-ref
+//    if (boardDto.getId() == null) {
+//      new Board(
+//        detrmineId(boardDto),
+//        boardDto.getName(),
+//        boardDto.getVersion(),
+//        boardDto.getWorkflowVersion(),
+//        boardDto.isWorkflowLocked(),
+//        None)
+//    } else {
+//      // an ugly way because I'm too lazy to fetch the correct ones according to the root workflowitem
+//      val storedBoard = Board.byId(new ObjectId(boardDto.getId()))
+//      storedBoard.name = boardDto.getName()
+//      storedBoard.version = boardDto.getVersion()
+//      storedBoard.workflowVersion = boardDto.getWorkflowVersion()
+//      storedBoard.workflowLocked = boardDto.isWorkflowLocked()
+//      storedBoard
+//    }
+null
   }
 
   private def detrmineId(boardDto: BoardDto): Option[ObjectId] = {

@@ -1,10 +1,12 @@
 package com.googlecode.kanbanik.model
+
 import org.bson.types.ObjectId
 
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
+import com.googlecode.kanbanik.db.HasMongoConnection
+import com.mongodb.DBObject
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.DBObject
 
 class Task(
   var id: Option[ObjectId],
@@ -85,6 +87,7 @@ object Task extends HasMongoConnection {
     		  res.asInstanceOf[Int]
     	  }
       },
-      Workflowitem.byId(dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]))
+      null)
+//      Workflowitem.byId(dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]))
   }
 }

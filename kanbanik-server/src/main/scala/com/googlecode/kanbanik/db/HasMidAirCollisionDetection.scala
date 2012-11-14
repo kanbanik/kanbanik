@@ -1,13 +1,15 @@
 package com.googlecode.kanbanik.db
+
 import org.bson.types.ObjectId
-import com.mongodb.casbah.commons.MongoDBObject
-import com.googlecode.kanbanik.model.HasMongoConnection
+
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.DBObject
-import com.googlecode.kanbanik.exceptions.MidAirCollisionException
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.DocumentField
-import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.Imports.$or
+import com.mongodb.casbah.Imports.ConcreteDBObjectOk
+import com.mongodb.casbah.Imports.mongoQueryStatements
+import com.mongodb.casbah.Imports.wrapDBObj
+import com.mongodb.casbah.commons.MongoDBObject
 
 trait HasMidAirCollisionDetection extends HasMongoConnection {
   def versionedQuery(id: ObjectId, version: Int) = {

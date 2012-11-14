@@ -172,11 +172,11 @@ class WorkflowitemTest extends BaseIntegrationTest {
       val toBeChanged = Workflowitem.byId(new ObjectId("4f48e10644ae3742baa2d0a9"))
       assert(loaded.child.get.name === "added")
     }
-
-    it("should remove reference from board to workflow when the workflow is deleted") {
-      Board.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get(0).delete
-      assert(Board.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get.size === 2)
-    }
+//
+//    it("should remove reference from board to workflow when the workflow is deleted") {
+//      Board.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get(0).delete
+//      assert(Board.byId(new ObjectId("4f48e10644ae3742baa2d0d0")).workflowitems.get.size === 2)
+//    }
 
     def workflowitemOf(id: String) = Some(Workflowitem.byId(new ObjectId(id)))
 

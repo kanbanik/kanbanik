@@ -6,7 +6,7 @@ import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.Board
@@ -41,7 +41,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     val currentBoard = boardBuilder.buildEntity(currenDto.getBoard())
     
     try {
-    	currentBoard.acquireLock()
+          //    TODO-ref
+//    	currentBoard.acquireLock()
     } catch {
       case e: ResourceLockedException =>
             return new MidAirCollisionResult(new SimpleParams(currenDto), false, "Your workflow is not up to date. Please refresh your browser to get the current data")
@@ -53,7 +54,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
       case e: MidAirCollisionException =>
         return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
     } finally {
-    	currentBoard.releaseLock()
+          //    TODO-ref
+//    	currentBoard.releaseLock()
     }
     
   }
@@ -66,9 +68,10 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     var currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
     if (contextDto != null) {
-    	currentEntity = currentEntity.store(Some(Workflowitem.byId(new ObjectId(contextDto.getId()))))  
+      //    TODO-ref
+//    	currentEntity = currentEntity.store(Some(Workflowitem.byId(new ObjectId(contextDto.getId()))))  
     } else {
-      currentEntity = currentEntity.store
+//      currentEntity = currentEntity.store
     }
     
     new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity)))

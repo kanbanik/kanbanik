@@ -10,24 +10,26 @@ import com.googlecode.kanbanik.model.Workflowitem
 class WorkflowitemBuilder {
 
   def buildEntity(dto: WorkflowitemDto): Workflowitem = {
-    new Workflowitem(
-        findId(dto),
-        dto.getName(),
-        dto.getWipLimit(),
-        dto.getItemType().asStringValue(),
-        dto.getVersion(),
-        findWorkflowitem(dto.getChild()),
-        findWorkflowitem(dto.getNextItem()),
-        Board.byId(new ObjectId(dto.getBoard().getId()))
-    )
+    //    TODO-ref
+//    new Workflowitem(
+//        findId(dto),
+//        dto.getName(),
+//        dto.getWipLimit(),
+//        dto.getItemType().asStringValue(),
+//        dto.getVersion(),
+//        findWorkflowitem(dto.getChild()),
+//        findWorkflowitem(dto.getNextItem()),
+//        Board.byId(new ObjectId(dto.getBoard().getId()))
+//    )
+    null
   }
   
   def findWorkflowitem(dto: WorkflowitemDto): Option[Workflowitem] = {
     if (dto == null || dto.getId() == null) {
       return None
     }
-    
-    return Some(Workflowitem.byId(new ObjectId(dto.getId())))
+    null
+//    return Some(Workflowitem.byId(new ObjectId(dto.getId())))
   }
   
   def findId(dto: WorkflowitemDto): Option[ObjectId] = {
@@ -41,14 +43,14 @@ class WorkflowitemBuilder {
   def buildDto(workflowitem: Workflowitem): WorkflowitemDto = {
 
     val res = buildDtoNonRecursive(workflowitem)
-
-    if (workflowitem.child.isDefined) {
-      res.setChild(buildDto(workflowitem.child.get))
-    }
-
-    if (workflowitem.nextItem.isDefined) {
-      res.setNextItem(buildDto(workflowitem.nextItem.get))
-    }
+//    TODO-ref
+//    if (workflowitem.child.isDefined) {
+//      res.setChild(buildDto(workflowitem.child.get))
+//    }
+//
+//    if (workflowitem.nextItem.isDefined) {
+//      res.setNextItem(buildDto(workflowitem.nextItem.get))
+//    }
 
     res
   }
@@ -59,7 +61,7 @@ class WorkflowitemBuilder {
     dto.setName(workflowitem.name)
     dto.setWipLimit(workflowitem.wipLimit)
     dto.setItemType(ItemType.asItemType(workflowitem.itemType))
-    dto.setBoard(boardBuilder.buildShallowDto(workflowitem.board))
+//    dto.setBoard(boardBuilder.buildShallowDto(workflowitem.board))
     dto.setVersion(workflowitem.version)
     dto
   }

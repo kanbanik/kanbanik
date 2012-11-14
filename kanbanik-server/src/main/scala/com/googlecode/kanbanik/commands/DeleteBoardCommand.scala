@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.model.Project
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
@@ -31,9 +31,10 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
     }
 
     val board = boardBuilder.buildEntity(params.getPayload())
-    if (board.workflowitems.isDefined) {
-      return new FailableResult(new VoidParams, false, "There are workflowitems on this board. Please delete them first and than delete this board.")
-    }
+    //    TODO-ref
+//    if (board.workflowitems.isDefined) {
+//      return new FailableResult(new VoidParams, false, "There are workflowitems on this board. Please delete them first and than delete this board.")
+//    }
 
     try {
     	board.delete

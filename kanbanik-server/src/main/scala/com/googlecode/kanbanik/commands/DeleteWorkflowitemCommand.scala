@@ -4,7 +4,7 @@ import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.Workflowitem
@@ -36,9 +36,10 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")
     }
     
-    if (Workflowitem.byId(id).child.isDefined) {
-      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a child workflowitem.")
-    }
+    //    TODO-ref
+//    if (Workflowitem.byId(id).child.isDefined) {
+//      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a child workflowitem.")
+//    }
 
     try {
     	Board.byId(new ObjectId(params.getPayload().getBoard().getId()))
@@ -50,7 +51,8 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
     val currentBoard = boardBuilder.buildEntity(params.getPayload().getBoard())
     
     try {
-    	currentBoard.acquireLock()
+          //    TODO-ref
+//    	currentBoard.acquireLock()
     } catch {
       case e: ResourceLockedException =>
             return new FailableResult(new VoidParams, false, "Your workflow is not up to date. Please refresh your browser to get the current data")
@@ -63,7 +65,8 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       case e: MidAirCollisionException =>
         return new FailableResult(new VoidParams, false, ServerMessages.midAirCollisionException)
     } finally {
-    	currentBoard.releaseLock()
+          //    TODO-ref
+//    	currentBoard.releaseLock()
     }
     
     return new FailableResult(new VoidParams, true, "")

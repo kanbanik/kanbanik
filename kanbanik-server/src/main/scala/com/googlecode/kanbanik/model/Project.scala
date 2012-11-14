@@ -5,6 +5,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
+import com.googlecode.kanbanik.db.HasMongoConnection
 
 class Project(
   var id: Option[ObjectId],

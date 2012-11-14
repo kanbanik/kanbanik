@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
@@ -17,12 +17,14 @@ class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[Workflowite
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[SimpleParams[WorkflowitemDto]] = {
     val workflowitem = builder.buildEntity(params.getPayload())
 
-    workflowitem.name = params.getPayload().getName()
-    workflowitem.wipLimit = params.getPayload().getWipLimit()
-    workflowitem.itemType = params.getPayload().getItemType().asStringValue()
-
+    val name = params.getPayload().getName()
+    val wipLimit = params.getPayload().getWipLimit()
+    val itemType = params.getPayload().getItemType().asStringValue()
+    
+    val updated = workflowitem.withName(name).withWipLimit(wipLimit).withItemType(itemType)
+    
     try {
-    	new FailableResult(new SimpleParams(builder.buildDto(workflowitem.storeData)))
+    	new FailableResult(new SimpleParams(builder.buildDto(updated.store)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)

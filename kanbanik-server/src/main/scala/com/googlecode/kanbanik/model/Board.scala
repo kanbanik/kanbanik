@@ -8,19 +8,29 @@ import com.mongodb.casbah.Imports._
 import java.util.ArrayList
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.exceptions.ResourceLockedException
+import com.googlecode.kanbanik.db.HasMongoConnection
 
 class Board(
-  var id: Option[ObjectId],
-  var name: String,
-  var version: Int,
-  var workflowVersion: Int,
-  var workflowLocked: Boolean,
-  var workflowitems: Option[List[Workflowitem]]
-) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val id: Option[ObjectId],
+  val name: String,
+  val version: Int,
+  val workflow: Workflow) extends HasMongoConnection with HasMidAirCollisionDetection {
+
+  def this(
+    id: Option[ObjectId],
+    name: String,
+    version: Int) = this(id, name, version, new Workflow(None, List()))
+
+  def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
+    val removed = workflow.removeItem(item)
+    val added = removed.addItem(item, beforeItem, destWorkflow)
+
+    new Board(id, name, version, added)
+  }
 
   def store: Board = {
     val idToUpdate = id.getOrElse({
-      val obj = Board.asDBObject(this)
+      val obj = asDbObject
       using(createConnection) {
         connection => coll(connection, Coll.Boards) += obj
       }
@@ -33,58 +43,30 @@ class Board(
       val update = $set(
         Board.Fields.version.toString() -> { version + 1 },
         Board.Fields.name.toString() -> name,
-        Board.Fields.workflowitems.toString() -> {
-          if (workflowitems.isDefined) {
-            for { x <- workflowitems.get } yield x.id
-          } else {
-            null
-          }
-        })
+        Board.Fields.workflow.toString() -> workflow.asDbObject)
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
     }
 
   }
 
-  // The editing of the workflow is quite complex so it is far from being atomic. It would be dengerous to
-  // not to lock it. But this is only a write lock for the editing of the workflow, which has to be explicitly called,
-  // it does not lock all the worflowitems interaction such as task moving etc.
-  def acquireLock() {
-//    val query = ("_id.serviceName" $in serviceNames) ++ ($or(("element" -> MongoDBObject("$exists" -> false)), ("element" -> "value")))
-	val query = MongoDBObject("$and" -> ( 
-					(MongoDBObject(SimpleField.id.toString() -> id.get)),
-					($or((Board.Fields.workflowLocked.toString() $exists false), MongoDBObject(Board.Fields.workflowLocked.toString() -> false))),
-					($or((Board.Fields.workflowVersion.toString() $exists false), MongoDBObject(Board.Fields.workflowVersion.toString() -> workflowVersion)))
-				)
-			)
+  def withName(name: String) =
+    new Board(id, name, version, workflow)
 
-	val update = $set(Board.Fields.workflowLocked.toString() -> true)
+  def withVersion(version: Int) =
+    new Board(id, name, version, workflow)
 
-	using(createConnection) { conn =>
-		val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
-		if(!res.isDefined) {
-			throw new ResourceLockedException
-		}
-	}
+  def withWorkflow(workflow: Workflow) =
+    new Board(id, name, version, workflow)
+
+  private def asDbObject(): DBObject = {
+    MongoDBObject(
+      Board.Fields.id.toString() -> new ObjectId,
+      Board.Fields.name.toString() -> name,
+      Board.Fields.version.toString() -> version,
+      Board.Fields.workflow.toString() -> workflow.asDbObject)
   }
-  
-  def releaseLock() {
-    val query = (MongoDBObject(SimpleField.id.toString() -> id))
 
-	val update = $set(
-	    Board.Fields.workflowLocked.toString() -> false,
-	    Board.Fields.workflowVersion.toString() -> {workflowVersion + 1}
-	    )
-
-	using(createConnection) { conn =>
-		val res = coll(conn, Coll.Boards).findAndModify(query, null, null, false, update, true, false)
-		if (res.isDefined) {
-		  workflowVersion = workflowVersion + 1
-		}
-	}
-    
-  }
-  
   def delete {
     versionedDelete(Coll.Boards, versionedQuery(id.get, version))
   }
@@ -94,17 +76,13 @@ class Board(
 object Board extends HasMongoConnection {
 
   object Fields extends DocumentField {
-    val workflowitems = Value("workflowitems")
-    val workflowVersion = Value("workflowVersion")
-    val workflowLocked = Value("workflowLocked")
+    val workflow = Value("workflow")
   }
 
   def all(): List[Board] = {
-    var allBoards = List[Board]()
     using(createConnection) { conn =>
-      coll(conn, Coll.Boards).find().foreach(board => allBoards = asEntity(board) :: allBoards)
+      coll(conn, Coll.Boards).find().map(asEntity(_)).toList
     }
-    allBoards
   }
 
   def byId(id: ObjectId): Board = {
@@ -119,46 +97,16 @@ object Board extends HasMongoConnection {
       Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
       determineVersion(dbObject.get(Board.Fields.version.toString())),
-      determineVersion(dbObject.get(Board.Fields.workflowVersion.toString())),
-      {
-    	val res = dbObject.get(Board.Fields.workflowLocked.toString())
-    	
-    	if (res == null) {
-    		false
-    	} else {
-    		res.asInstanceOf[Boolean]
-    	}
-      },
-      {
-        if (dbObject.get(Board.Fields.workflowitems.toString()).isInstanceOf[BasicDBList]) {
-          Some(for { x <- dbObject.get(Board.Fields.workflowitems.toString()).asInstanceOf[BasicDBList].toArray().toList } yield Workflowitem.byId(x.asInstanceOf[ObjectId]))
-        } else {
-          None
-        }
-      })
-  }
-  
-  private def determineVersion(res: Object) = {
-	  if (res == null) {
-		  1
-	  } else {
-		  res.asInstanceOf[Int]
-	  }
+      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject])
+    )
   }
 
-  private def asDBObject(entity: Board): DBObject = {
-    MongoDBObject(
-      Board.Fields.id.toString() -> new ObjectId,
-      Board.Fields.name.toString() -> entity.name,
-      Board.Fields.version.toString() -> entity.version,
-      Board.Fields.workflowVersion.toString() -> entity.workflowVersion,
-      Board.Fields.workflowLocked.toString() -> entity.workflowLocked,
-      Board.Fields.workflowitems.toString() -> {
-        if (!entity.workflowitems.isDefined) {
-          null
-        } else {
-          for { x <- entity.workflowitems.get } yield x.id
-        }
-      })
+  private def determineVersion(res: Object) = {
+    if (res == null) {
+      1
+    } else {
+      res.asInstanceOf[Int]
+    }
   }
+
 }

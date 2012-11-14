@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.commands
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-import com.googlecode.kanbanik.model.HasMongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.Task
 import com.mongodb.casbah.Imports.$set

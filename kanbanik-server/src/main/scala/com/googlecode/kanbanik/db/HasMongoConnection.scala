@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.model
+package com.googlecode.kanbanik.db
 import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
 import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.WriteConcern
@@ -12,6 +12,7 @@ trait HasMongoConnection extends ResourceManipulation {
 
   object Coll extends Enumeration {
     val Workflowitems = Value("workflowitems")
+	val Workflow = Value("workflow")
     val Boards = Value("boards")
     val Tasks = Value("tasks")
     val Projects = Value("projects")
