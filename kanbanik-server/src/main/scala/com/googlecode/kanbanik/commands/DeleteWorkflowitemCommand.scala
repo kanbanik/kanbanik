@@ -42,13 +42,13 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
 //    }
 
     try {
-    	Board.byId(new ObjectId(params.getPayload().getBoard().getId()))
+    	Board.byId(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId()))
     } catch {
       case e: IllegalArgumentException =>
-        return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getBoard().getName()))
+        return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
     }
 
-    val currentBoard = boardBuilder.buildEntity(params.getPayload().getBoard())
+    val currentBoard = boardBuilder.buildEntity(params.getPayload().getParentWorkflow().getBoard())
     
     try {
           //    TODO-ref

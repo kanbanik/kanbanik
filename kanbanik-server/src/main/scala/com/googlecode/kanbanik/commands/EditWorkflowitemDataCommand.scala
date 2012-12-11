@@ -24,7 +24,7 @@ class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[Workflowite
     val updated = workflowitem.withName(name).withWipLimit(wipLimit).withItemType(itemType)
     
     try {
-    	new FailableResult(new SimpleParams(builder.buildDto(updated.store)))
+    	new FailableResult(new SimpleParams(builder.buildDto(updated.store, None)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)

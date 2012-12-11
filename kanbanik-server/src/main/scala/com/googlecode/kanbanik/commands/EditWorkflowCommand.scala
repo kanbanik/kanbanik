@@ -32,13 +32,13 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 
     // hack just to test if the board still exists
     try {
-    	Board.byId(new ObjectId(currenDto.getBoard().getId()))
+    	Board.byId(new ObjectId(currenDto.getParentWorkflow().getBoard().getId()))
     } catch {
       case e: IllegalArgumentException =>
-        return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getBoard().getName()))
+        return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getParentWorkflow().getBoard().getName()))
     }
     
-    val currentBoard = boardBuilder.buildEntity(currenDto.getBoard())
+    val currentBoard = boardBuilder.buildEntity(currenDto.getParentWorkflow().getBoard())
     
     try {
           //    TODO-ref
@@ -74,7 +74,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 //      currentEntity = currentEntity.store
     }
     
-    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity)))
+    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity, None)))
   }
 
   private def hasTasks(contextDto : WorkflowitemDto) : Boolean = {

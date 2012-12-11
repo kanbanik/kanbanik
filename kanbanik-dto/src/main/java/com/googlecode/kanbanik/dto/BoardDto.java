@@ -10,11 +10,7 @@ public class BoardDto implements IdentifiableDto {
 	
 	private int version;
 	
-	private int workflowVersion;
-	
-	private boolean workflowLocked;
-
-	private WorkflowitemDto rootWorkflowitem;
+	private WorkflowDto workflow;
 	
 	public String getName() {
 		return name;
@@ -32,14 +28,6 @@ public class BoardDto implements IdentifiableDto {
 		this.name = name;
 	}
 
-	public WorkflowitemDto getRootWorkflowitem() {
-		return rootWorkflowitem;
-	}
-
-	public void setRootWorkflowitem(WorkflowitemDto rootWorkflowitem) {
-		this.rootWorkflowitem = rootWorkflowitem;
-	}
-	
 	public int getVersion() {
 		return version;
 	}
@@ -56,20 +44,12 @@ public class BoardDto implements IdentifiableDto {
 		return result;
 	}
 
-	public int getWorkflowVersion() {
-		return workflowVersion;
+	public WorkflowDto getWorkflow() {
+		return workflow;
 	}
 
-	public void setWorkflowVersion(int workflowVersion) {
-		this.workflowVersion = workflowVersion;
-	}
-
-	public boolean isWorkflowLocked() {
-		return workflowLocked;
-	}
-
-	public void setWorkflowLocked(boolean workflowLocked) {
-		this.workflowLocked = workflowLocked;
+	public void setWorkflow(WorkflowDto workflow) {
+		this.workflow = workflow;
 	}
 
 	@Override

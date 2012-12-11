@@ -12,14 +12,12 @@ public class WorkflowitemDto implements IdentifiableDto {
 
 	private ItemType itemType;
 
-	private WorkflowitemDto child;
-
-	private WorkflowitemDto nextItem;
-	
-	private BoardDto board;
-	
 	private int version;
 
+	private WorkflowDto nestedWorkflow;
+	
+	private WorkflowDto parentWorkflow;
+	
 	public String getName() {
 		return name;
 	}
@@ -44,22 +42,6 @@ public class WorkflowitemDto implements IdentifiableDto {
 		this.wipLimit = wipLimit;
 	}
 
-	public WorkflowitemDto getChild() {
-		return child;
-	}
-
-	public void setChild(WorkflowitemDto child) {
-		this.child = child;
-	}
-
-	public WorkflowitemDto getNextItem() {
-		return nextItem;
-	}
-
-	public void setNextItem(WorkflowitemDto nextItem) {
-		this.nextItem = nextItem;
-	}
-
 	public ItemType getItemType() {
 		return itemType;
 	}
@@ -68,20 +50,28 @@ public class WorkflowitemDto implements IdentifiableDto {
 		this.itemType = itemType;
 	}
 
-	public BoardDto getBoard() {
-		return board;
-	}
-
-	public void setBoard(BoardDto board) {
-		this.board = board;
-	}
-
 	public int getVersion() {
 		return version;
 	}
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+
+	public WorkflowDto getNestedWorkflow() {
+		return nestedWorkflow;
+	}
+
+	public void setNestedWorkflow(WorkflowDto nestedWorkflow) {
+		this.nestedWorkflow = nestedWorkflow;
+	}
+
+	public WorkflowDto getParentWorkflow() {
+		return parentWorkflow;
+	}
+
+	public void setParentWorkflow(WorkflowDto parentWorkflow) {
+		this.parentWorkflow = parentWorkflow;
 	}
 	
 }

@@ -1,14 +1,15 @@
 package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
-
 import com.googlecode.kanbanik.dto.ItemType
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.dto.WorkflowDto
 
 
 class WorkflowitemBuilder {
 
+  
   def buildEntity(dto: WorkflowitemDto): Workflowitem = {
     //    TODO-ref
 //    new Workflowitem(
@@ -39,33 +40,27 @@ class WorkflowitemBuilder {
 
     Some(new ObjectId(dto.getId()))
   }
-  
-  def buildDto(workflowitem: Workflowitem): WorkflowitemDto = {
 
-    val res = buildDtoNonRecursive(workflowitem)
-//    TODO-ref
-//    if (workflowitem.child.isDefined) {
-//      res.setChild(buildDto(workflowitem.child.get))
-//    }
-//
-//    if (workflowitem.nextItem.isDefined) {
-//      res.setNextItem(buildDto(workflowitem.nextItem.get))
-//    }
-
-    res
-  }
-
-  def buildDtoNonRecursive(workflowitem: Workflowitem) = {
+  def buildDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     val dto = new WorkflowitemDto
     dto.setId(workflowitem.id.get.toString())
     dto.setName(workflowitem.name)
     dto.setWipLimit(workflowitem.wipLimit)
     dto.setItemType(ItemType.asItemType(workflowitem.itemType))
-//    dto.setBoard(boardBuilder.buildShallowDto(workflowitem.board))
     dto.setVersion(workflowitem.version)
+    dto.setNestedWorkflow(workflowBuilder.buildDto(workflowitem.nestedWorkflow, parentBoard(parentWorkflow)))
+    dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
     dto
   }
   
-  private[builders] def boardBuilder = new BoardBuilder
+  def parentBoard(parentWorkflow: Option[WorkflowDto]) = {
+    if (!parentWorkflow.isDefined) {
+      None
+    } else {
+      Some(parentWorkflow.get.getBoard())
+    }
+  }
+  
+  def workflowBuilder = new WorkflowBuilder
 }
   

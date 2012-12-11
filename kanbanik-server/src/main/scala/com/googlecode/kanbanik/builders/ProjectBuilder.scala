@@ -17,7 +17,7 @@ class ProjectBuilder {
     val boards = project.boards.getOrElse(List[Board]())
     val tasks = project.tasks.getOrElse(List[Task]())
 
-    boards.foreach(board => res.addBoard(boardBuilder.buildDto(board)))
+    boards.foreach(board => res.addBoard(boardBuilder.buildDto(board, None)))
     tasks.foreach(task => {
       val taskDto = taskBuilder.buildDto(task)
       taskDto.setProject(res)

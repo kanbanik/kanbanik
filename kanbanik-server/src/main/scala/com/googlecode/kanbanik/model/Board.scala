@@ -19,7 +19,9 @@ class Board(
   def this(
     id: Option[ObjectId],
     name: String,
-    version: Int) = this(id, name, version, new Workflow(None, List()))
+    version: Int) = {
+    this(id, name, version, new Workflow(None, List(), None))
+  }
 
   def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
     val removed = workflow.removeItem(item)
@@ -74,11 +76,13 @@ class Board(
 }
 
 object Board extends HasMongoConnection {
-
+  
   object Fields extends DocumentField {
     val workflow = Value("workflow")
   }
 
+  def apply() = new Board(Some(new ObjectId()), "", 1)
+  
   def all(): List[Board] = {
     using(createConnection) { conn =>
       coll(conn, Coll.Boards).find().map(asEntity(_)).toList
@@ -92,13 +96,14 @@ object Board extends HasMongoConnection {
     }
   }
 
-  private def asEntity(dbObject: DBObject) = {
-    new Board(
+  def asEntity(dbObject: DBObject) = {
+    val board = new Board(
       Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
       determineVersion(dbObject.get(Board.Fields.version.toString())),
-      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject])
-    )
+      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]))
+    
+    board.withWorkflow(board.workflow.withBoard(Some(board)))
   }
 
   private def determineVersion(res: Object) = {

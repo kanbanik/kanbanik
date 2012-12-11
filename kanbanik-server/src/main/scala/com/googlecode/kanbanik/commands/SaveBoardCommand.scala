@@ -23,6 +23,6 @@ class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableRes
         return new FailableResult(new SimpleParams(), false, ServerMessages.entityDeletedMessage("board"))
     }
 
-    new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard)))
+    new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard, None)))
   }
 }

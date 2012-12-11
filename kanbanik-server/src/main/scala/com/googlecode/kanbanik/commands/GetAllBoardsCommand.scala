@@ -19,7 +19,7 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
 
   def execute(params: VoidParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
     val res = new ListDto[BoardWithProjectsDto]()
-    Board.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board))) })
+    Board.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board, None))) })
 
     buildProjectsForBoard(res)
     

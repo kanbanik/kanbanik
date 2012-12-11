@@ -7,6 +7,7 @@ import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
+import com.googlecode.kanbanik.dto.ItemType
 
 class Workflowitem(
   val id: Option[ObjectId],
@@ -15,11 +16,26 @@ class Workflowitem(
   val itemType: String,
   val version: Int,
   val nestedWorkflow: Workflow,
-  val _board: Board)
+  val _parentWorkflow: Option[Workflow])
   extends HasMongoConnection
   with HasMidAirCollisionDetection with Equals {
 
-  def board: Board = if (_board.isInstanceOf[LazyBoard]) _board.asInstanceOf[LazyBoard].lazyLoad else _board
+  def this(id: Option[ObjectId],
+    name: String,
+    wipLimit: Int,
+    itemType: String,
+    version: Int,
+    nestedWorkflow: Workflow) = this(id, name, wipLimit, itemType, version, nestedWorkflow, None)
+
+  def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow)
+
+  private def loadWorkflow(): Workflow = {
+    using(createConnection) { conn =>
+      val dbWorkflow = coll(conn, Coll.Workflow).findOne(
+        MongoDBObject(Workflow.Fields.workflowitems.toString -> MongoDBObject(Workflowitem.Fields.id.toString -> id.get))).getOrElse(throw new IllegalStateException("The workflowitem has to exist on a board!"))
+      Workflow.asEntity(dbWorkflow)
+    }
+  }
 
   // it has to be possible to do this in some cleaner way
   def withName(name: String) =
@@ -30,7 +46,7 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      _board);
+      _parentWorkflow);
 
   def withWipLimit(wipLimit: Int) =
     new Workflowitem(
@@ -40,7 +56,7 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      _board);
+      _parentWorkflow);
 
   def withItemType(itemType: String) =
     new Workflowitem(
@@ -50,7 +66,7 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      _board);
+      _parentWorkflow);
 
   def withVersion(version: Int) =
     new Workflowitem(
@@ -60,7 +76,7 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      _board);
+      _parentWorkflow);
 
   def withWorkflow(newWorkflow: Workflow) =
     new Workflowitem(
@@ -70,9 +86,9 @@ class Workflowitem(
       itemType,
       version,
       newWorkflow,
-      _board);
+      _parentWorkflow);
 
-  def withBoard(board: Board) =
+  def withParentWorkflow(parentWorkflow: Workflow) =
     new Workflowitem(
       id,
       name,
@@ -80,10 +96,19 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      board);
-
+      Some(parentWorkflow));
+  
   def store: Workflowitem = {
-    null
+    using(createConnection) { conn =>
+      val update = $set(
+        Workflowitem.Fields.version.toString() -> { version + 1 },
+        Workflowitem.Fields.name.toString() -> name,
+        Workflowitem.Fields.wipLimit.toString() -> wipLimit,
+        Workflowitem.Fields.itemType.toString() -> itemType,
+        Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow)
+
+      Workflowitem.asEntity(versionedUpdate(Coll.Workflowitems, versionedQuery(id.getOrElse(throw new UnsupportedOperationException("It is not possible to create a standalone workflowitem - it has to belong to a board")), version), update))
+    }
   }
 
   def storeData: Workflowitem = {
@@ -98,7 +123,7 @@ class Workflowitem(
   }
 
   def delete {
-    // TODO
+    versionedDelete(Coll.Workflowitems, versionedQuery(id.get, version))
   }
 
   def asDbObject(): DBObject = {
@@ -108,8 +133,7 @@ class Workflowitem(
       Workflowitem.Fields.wipLimit.toString() -> wipLimit,
       Workflowitem.Fields.itemType.toString() -> itemType,
       Workflowitem.Fields.version.toString() -> version,
-      Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow.asDbObject,
-      Workflowitem.Fields.boardId.toString() -> _board.id.getOrElse(throw new IllegalStateException("can not store a workflowitem without an existing board")))
+      Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow.asDbObject)
   }
 
   def canEqual(other: Any) = {
@@ -137,10 +161,11 @@ object Workflowitem extends HasMongoConnection {
   object Fields extends DocumentField {
     val wipLimit = Value("wipLimit")
     val itemType = Value("itemType")
-    val boardId = Value("boardId")
     val nestedWorkflow = Value("nestedWorkflow")
   }
 
+  def apply() = new Workflowitem(Some(new ObjectId()), "", -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+  
   def all(): List[Workflowitem] = {
     using(createConnection) { conn =>
       coll(conn, Coll.Workflowitems).find().map(asEntity(_)).toList
@@ -154,7 +179,7 @@ object Workflowitem extends HasMongoConnection {
     }
   }
 
-  def asEntity(dbObject: DBObject): Workflowitem = {
+  def asEntity(dbObject: DBObject, workflow: Option[Workflow]): Workflowitem = {
     new Workflowitem(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
@@ -162,22 +187,14 @@ object Workflowitem extends HasMongoConnection {
       dbObject.get(Fields.itemType.toString()).asInstanceOf[String],
       dbObject.get(Fields.version.toString()).asInstanceOf[Int],
       {
-        val nestedWorkflow = dbObject.get(Fields.id.toString()).asInstanceOf[DBObject]
+        val nestedWorkflow = dbObject.get(Fields.nestedWorkflow.toString()).asInstanceOf[DBObject]
         Workflow.asEntity(nestedWorkflow)
       },
-      new LazyBoard(dbObject.get(Fields.boardId.toString()).asInstanceOf[ObjectId]))
+      workflow)
   }
 
-}
-
-case class LazyBoard(
-  override val id: Option[ObjectId],
-  override val name: String,
-  override val version: Int,
-  override val workflow: Workflow) extends Board(id, name, version, workflow) {
-
-  def this(id: ObjectId) = this(Some(id), "", -1, Workflow())
-
-  def lazyLoad = Board.byId(id.get)
+  def asEntity(dbObject: DBObject): Workflowitem = {
+    asEntity(dbObject, None)
+  }
 
 }

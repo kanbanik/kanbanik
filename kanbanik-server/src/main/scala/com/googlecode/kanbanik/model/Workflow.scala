@@ -8,17 +8,18 @@ import com.mongodb.BasicDBList
 
 class Workflow(
   val id: Option[ObjectId],
-  val workflowitems: List[Workflowitem]) extends HasMongoConnection {
+  val workflowitems: List[Workflowitem],
+  val _board: Option[Board]) extends HasMongoConnection {
 
   def addItem(item: Workflowitem, nextItem: Option[Workflowitem], destWorkflow: Workflow): Workflow = {
 
     def addInThisWorkflow = {
       if (!nextItem.isDefined) {
-        new Workflow(id, workflowitems ++ List(item))
+        new Workflow(id, workflowitems ++ List(item), _board)
       } else {
         val indexOfNext = workflowitems indexOf (nextItem.get)
         val added = workflowitems.take(indexOfNext) ++ List(item) ++ workflowitems.drop(indexOfNext)
-        new Workflow(id, added)
+        new Workflow(id, added, _board)
       }
     }
 
@@ -34,7 +35,7 @@ class Workflow(
     if (destWorkflow == this) {
       addInThisWorkflow
     } else {
-      new Workflow(id, addInInnerWorkflow(workflowitems))
+      new Workflow(id, addInInnerWorkflow(workflowitems), _board)
     }
 
   }
@@ -50,15 +51,28 @@ class Workflow(
           else
             x.withWorkflow(new Workflow(
               x.nestedWorkflow.id,
-              removeItem(x.nestedWorkflow.workflowitems))) :: removeItem(xs)
+              removeItem(x.nestedWorkflow.workflowitems), _board)) :: removeItem(xs)
       }
     }
 
-    new Workflow(id, removeItem(workflowitems))
+    new Workflow(id, removeItem(workflowitems), _board)
+  }
+
+  def board = _board.getOrElse(loadBoard)
+
+  def loadBoard = {
+    using(createConnection) { conn =>
+      val dbBoard = coll(conn, Coll.Boards).findOne(
+        MongoDBObject(Board.Fields.workflow.toString -> MongoDBObject(Workflow.Fields.id.toString -> id.get))).getOrElse(throw new IllegalStateException("The workflow has to exist!"))
+      Board.asEntity(dbBoard)
+    }
   }
 
   def withWorkflowitems(workflowitems: List[Workflowitem]) =
-    new Workflow(id, workflowitems)
+    new Workflow(id, workflowitems, _board)
+
+  def withBoard(board: Option[Board]) =
+    new Workflow(id, workflowitems, board)
 
   def asDbObject(): DBObject = {
     MongoDBObject(
@@ -82,7 +96,6 @@ class Workflow(
     prime + id.hashCode
   }
 
-  //  def asDBObject() = Workflow.asDBObject(this)
 }
 
 object Workflow extends HasMongoConnection {
@@ -91,25 +104,32 @@ object Workflow extends HasMongoConnection {
     val workflowitems = Value("workflowitems")
   }
 
-  def apply() = new Workflow(Some(new ObjectId()), List())
-  def apply(items: List[Workflowitem]) = new Workflow(Some(new ObjectId()), items)
-  def apply(id: ObjectId, items: List[Workflowitem]) = new Workflow(Some(id), items)
+  def apply() = new Workflow(Some(new ObjectId()), List(), None)
+  def apply(items: List[Workflowitem]) = new Workflow(Some(new ObjectId()), items, None)
+  def apply(id: ObjectId, items: List[Workflowitem]) = new Workflow(Some(id), items, None)
 
-  //  def byId(id: ObjectId): Workflow = {
-  //    using(createConnection) { conn =>
-  //      val dbWorkflow = coll(conn, Coll.Workflow).findOne(MongoDBObject(Fields.id.toString() -> id)).getOrElse(throw new IllegalArgumentException("No such workflow with id: " + id))
-  //      asEntity(dbWorkflow)
-  //    }
-  //  }
-  //
   def asEntity(dbObject: DBObject): Workflow = {
+    asEntity(dbObject, None)
+  }
 
-    new Workflow(
+  def asEntity(dbObject: DBObject, board: Option[Board]): Workflow = {
+
+    val workflow = new Workflow(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       {
-        val list = dbObject.get(Fields.workflowitems.toString()).asInstanceOf[List[DBObject]]
-        list.map(Workflowitem.asEntity(_))
-      })
+        val loadedWorkflowitems = dbObject.get(Fields.workflowitems.toString())
+        if (loadedWorkflowitems.isInstanceOf[BasicDBList]) {
+          val list = dbObject.get(Fields.workflowitems.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
+          list.map(Workflowitem.asEntity(_))
+        } else {
+          List()
+        }
+      },
+      board)
+
+    // it is filled in the second phase to avoid circular dependency 
+    workflow.withWorkflowitems(workflow.workflowitems.map(_.withParentWorkflow(workflow)))
+
   }
 
 }

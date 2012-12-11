@@ -18,7 +18,7 @@ trait ProjectValidation {
       return (true, "")
     }
 
-    val tasks = project.tasks.get.filter(_.workflowitem.board.id == board.id)
+    val tasks = project.tasks.get.filter(_.workflowitem.parentWorkflow.board.id == board.id)
     if (tasks.size == 0) {
       return (true, "")
     }
@@ -30,7 +30,7 @@ trait ProjectValidation {
 
     var msg = "There are some tasks associated with this project. Please delete them first and than try to do this action again. The tasks: [";
     for (task <- tasks) {
-      msg += task.ticketId + " on board: " + task.workflowitem.board.name + ", ";
+      msg += task.ticketId + " on board: " + task.workflowitem.parentWorkflow.board.name + ", ";
     }
     msg = msg.substring(0, msg.length() - 2);
     msg += "]";

@@ -4,54 +4,23 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.dto.WorkflowDto
 
 class BoardBuilder {
 
+  val workflowBuilder = new WorkflowBuilder
+  
   def buildDto(board: Board): BoardDto = {
-    val res = buildShallowDto(board)
-//    TODO-ref
-//    if (board.workflowitems.isDefined) {
-//      res.setRootWorkflowitem(findRootWorkflowitem(board, board.workflowitems))
-//    }
-
-    res
+    buildDto(board, None)
   }
-
-  private[builders] def findRootWorkflowitem(board: Board, workflowitems: Option[List[Workflowitem]]): WorkflowitemDto = {
-    if (!workflowitems.isDefined || workflowitems.get.size == 0) {
-      return null;
-    }
-
-    for (candidate <- workflowitems.get) {
-      if (isRoot(candidate, workflowitems.get)) {
-        return workflowitemBuilder.buildDto(candidate)
-      }
-    }
-
-    throw new IllegalStateException("The board + " + board.id.get.toString() + " has no root workflowitem")
-  }
-
-  private def isRoot(candidate: Workflowitem, workflowitems: List[Workflowitem]): Boolean = {
-    //    TODO-ref
-//    for (potentialParent <- workflowitems) {
-//      if (potentialParent.nextItem.isDefined) {
-//        if (potentialParent.nextItem.get.id.get == candidate.id.get) {
-//          return false
-//        }
-//      }
-//    }
-
-    return true
-  }
-
-  def buildShallowDto(board: Board): BoardDto = {
+  
+  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
-        //    TODO-ref
-//    res.setWorkflowVersion(board.workflowVersion)
-//    res.setWorkflowLocked(board.workflowLocked)
+    res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
+    
     res
   }
 
