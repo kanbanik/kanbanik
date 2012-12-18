@@ -5,42 +5,23 @@ import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.dto.WorkflowDto
+import com.googlecode.kanbanik.model.Workflow
 
 
-class WorkflowitemBuilder {
-
+class WorkflowitemBuilder extends BaseBuilder {
   
-  def buildEntity(dto: WorkflowitemDto): Workflowitem = {
-    //    TODO-ref
-//    new Workflowitem(
-//        findId(dto),
-//        dto.getName(),
-//        dto.getWipLimit(),
-//        dto.getItemType().asStringValue(),
-//        dto.getVersion(),
-//        findWorkflowitem(dto.getChild()),
-//        findWorkflowitem(dto.getNextItem()),
-//        Board.byId(new ObjectId(dto.getBoard().getId()))
-//    )
-    null
+  def buildEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
+    new Workflowitem(
+        determineId(dto),
+        dto.getName(),
+        dto.getWipLimit(),
+        dto.getItemType().asStringValue(),
+        dto.getVersion(),
+        workflowBuilder.buildEntity(dto.getNestedWorkflow(), board), 
+        parentWorkflow
+    )
   }
   
-  def findWorkflowitem(dto: WorkflowitemDto): Option[Workflowitem] = {
-    if (dto == null || dto.getId() == null) {
-      return None
-    }
-    null
-//    return Some(Workflowitem.byId(new ObjectId(dto.getId())))
-  }
-  
-  def findId(dto: WorkflowitemDto): Option[ObjectId] = {
-    if (dto.getId() == null) {
-      return None
-    } 
-
-    Some(new ObjectId(dto.getId()))
-  }
-
   def buildDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     val dto = new WorkflowitemDto
     dto.setId(workflowitem.id.get.toString())

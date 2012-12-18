@@ -36,10 +36,9 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")
     }
     
-    //    TODO-ref
-//    if (Workflowitem.byId(id).child.isDefined) {
-//      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a child workflowitem.")
-//    }
+    if (Workflowitem.byId(id).nestedWorkflow.workflowitems.size > 0) {
+      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a nested workflow. Please delete it first")
+    }
 
     try {
     	Board.byId(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId()))
@@ -50,23 +49,15 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
 
     val currentBoard = boardBuilder.buildEntity(params.getPayload().getParentWorkflow().getBoard())
     
+   
     try {
-          //    TODO-ref
-//    	currentBoard.acquireLock()
-    } catch {
-      case e: ResourceLockedException =>
-            return new FailableResult(new VoidParams, false, "Your workflow is not up to date. Please refresh your browser to get the current data")
-    }
-    
-    try {
-    	val entity = workflowitemBuilder.buildEntity(params.getPayload())
-    	entity.delete
+    	val workflowitem = workflowitemBuilder.buildEntity(params.getPayload(), None, None)
+    	val board = workflowitem.parentWorkflow.board
+    	workflowitem.delete
+    	board.withWorkflow(board.workflow.removeItem(workflowitem)).store
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new VoidParams, false, ServerMessages.midAirCollisionException)
-    } finally {
-          //    TODO-ref
-//    	currentBoard.releaseLock()
     }
     
     return new FailableResult(new VoidParams, true, "")

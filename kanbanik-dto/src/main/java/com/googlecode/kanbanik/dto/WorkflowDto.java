@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkflowDto implements IdentifiableDto {
@@ -8,10 +9,10 @@ public class WorkflowDto implements IdentifiableDto {
 	
 	private String id;
 	
-	private List<WorkflowitemDto> workflowitems;
+	private List<WorkflowitemDto> workflowitems = new ArrayList<WorkflowitemDto>();
 	
 	private BoardDto board;
-
+	
 	public String getId() {
 		return id;
 	}

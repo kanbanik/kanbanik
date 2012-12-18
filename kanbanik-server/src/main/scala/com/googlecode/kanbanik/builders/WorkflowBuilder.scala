@@ -5,12 +5,23 @@ import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.BoardDto
+import com.googlecode.kanbanik.model.Board
 
-class WorkflowBuilder {
+class WorkflowBuilder extends BaseBuilder {
 
+  def buildEntity(workflow: WorkflowDto, board: Option[Board]): Workflow = {
+    val res = new Workflow(
+        determineId(workflow),
+        workflow.getWorkflowitems().toArray.toList.map(item => workflowitemBuilder.buildEntity(item.asInstanceOf[WorkflowitemDto], None, board)),
+        board
+    )
+    
+    res.withWorkflowitems(res.workflowitems.map(_.withParentWorkflow(res)))
+  }
+  
   def buildDto(workflow: Workflow, board: Option[BoardDto]) = {
     val res = new WorkflowDto
-    
+    res.setId(workflow.id.get.toString())
 	res.setBoard(board.getOrElse(boardBuilder.buildDto(workflow.board, Some(res))))
     val workflowitems = workflow.workflowitems.map(workflowitemBuilder.buildDto(_, Some(res)))
     val javaList = new java.util.ArrayList[WorkflowitemDto](workflowitems.size)

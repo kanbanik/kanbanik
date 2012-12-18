@@ -31,8 +31,7 @@ class TaskBuilder extends TaskManipulation {
       taskDto.getClassOfService().getId(),
       determineTicketId(taskDto),
       taskDto.getVersion(),
-      null)
-//      Workflowitem.byId(new ObjectId(taskDto.getWorkflowitem().getId())))
+      workflowitemBuilder.buildEntity(taskDto.getWorkflowitem(), None, None))
   }
   
   private def determineId(taskDto: TaskDto): Option[ObjectId]= {

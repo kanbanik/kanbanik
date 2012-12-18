@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.dto.shell;
 
+import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class EditWorkflowParams implements Params {
@@ -8,11 +9,16 @@ public class EditWorkflowParams implements Params {
 
 	private WorkflowitemDto current;
 	
-	private WorkflowitemDto context;
+	private WorkflowitemDto next;
 	
-	public EditWorkflowParams(WorkflowitemDto current, WorkflowitemDto context) {
+	private WorkflowDto destContext;
+	
+	public EditWorkflowParams(WorkflowitemDto current, WorkflowitemDto next,
+			WorkflowDto destContext) {
+		super();
 		this.current = current;
-		this.context = context;
+		this.next = next;
+		this.destContext = destContext;
 	}
 
 	public EditWorkflowParams() {
@@ -26,12 +32,20 @@ public class EditWorkflowParams implements Params {
 		this.current = current;
 	}
 
-	public WorkflowitemDto getContext() {
-		return context;
+	public WorkflowitemDto getNext() {
+		return next;
 	}
 
-	public void setContext(WorkflowitemDto context) {
-		this.context = context;
+	public void setNext(WorkflowitemDto next) {
+		this.next = next;
 	}
-	
+
+	public WorkflowDto getDestContext() {
+		return destContext;
+	}
+
+	public void setDestContext(WorkflowDto destContext) {
+		this.destContext = destContext;
+	}
+
 }

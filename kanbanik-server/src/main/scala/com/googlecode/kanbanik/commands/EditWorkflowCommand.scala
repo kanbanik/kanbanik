@@ -19,69 +19,67 @@ import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.dto.WorkflowDto
+import com.googlecode.kanbanik.builders.WorkflowBuilder
 
 class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
 
   lazy val workflowitemBuilder = new WorkflowitemBuilder
 
+  lazy val workflowBuilder = new WorkflowBuilder
+
   lazy val boardBuilder = new BoardBuilder
-  
+
   def execute(params: EditWorkflowParams): FailableResult[SimpleParams[WorkflowitemDto]] = {
     val currenDto = params.getCurrent()
-    val contextDto = params.getContext()
+    val nextDto = params.getNext()
+    val destContextDto = params.getDestContext()
 
     // hack just to test if the board still exists
     try {
-    	Board.byId(new ObjectId(currenDto.getParentWorkflow().getBoard().getId()))
+      Board.byId(new ObjectId(currenDto.getParentWorkflow().getBoard().getId()))
     } catch {
       case e: IllegalArgumentException =>
         return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getParentWorkflow().getBoard().getName()))
     }
-    
+
     val currentBoard = boardBuilder.buildEntity(currenDto.getParentWorkflow().getBoard())
-    
+
     try {
-          //    TODO-ref
-//    	currentBoard.acquireLock()
-    } catch {
-      case e: ResourceLockedException =>
-            return new MidAirCollisionResult(new SimpleParams(currenDto), false, "Your workflow is not up to date. Please refresh your browser to get the current data")
-    }
-    
-    try {
-    	return doExecute(currenDto, contextDto)
+      return doExecute(currenDto, nextDto, destContextDto)
     } catch {
       case e: MidAirCollisionException =>
         return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
-    } finally {
-          //    TODO-ref
-//    	currentBoard.releaseLock()
     }
-    
-  }
-  
-  private def doExecute(currenDto: WorkflowitemDto, contextDto: WorkflowitemDto): FailableResult[SimpleParams[WorkflowitemDto]] = {
-    if (hasTasks(contextDto)) {
-    	return new FailableResult(new SimpleParams(currenDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
-    }
-    
-    var currentEntity = workflowitemBuilder.buildEntity(currenDto)
 
-    if (contextDto != null) {
-      //    TODO-ref
-//    	currentEntity = currentEntity.store(Some(Workflowitem.byId(new ObjectId(contextDto.getId()))))  
-    } else {
-//      currentEntity = currentEntity.store
-    }
-    
-    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(currentEntity, None)))
   }
 
-  private def hasTasks(contextDto : WorkflowitemDto) : Boolean = {
+  private def doExecute(currenDto: WorkflowitemDto, nextDto: WorkflowitemDto, destContextDto: WorkflowDto): FailableResult[SimpleParams[WorkflowitemDto]] = {
+    if (hasTasks(nextDto)) {
+      return new FailableResult(new SimpleParams(currenDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
+    }
+
+    val currentEntity = workflowitemBuilder.buildEntity(currenDto, None, None)
+    val nextEntity = {
+      if (nextDto == null) {
+        None
+      } else {
+        Some(workflowitemBuilder.buildEntity(nextDto, None, None))
+      }
+    }
+    val contextEntity = workflowBuilder.buildEntity(destContextDto, None)
+
+    val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
+    
+
+    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(Workflowitem.byId(currentEntity.id.get), None)))
+  }
+
+  private def hasTasks(contextDto: WorkflowitemDto): Boolean = {
     if (contextDto == null) {
       return false;
     }
-   
+
     using(createConnection) { conn =>
       return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> new ObjectId(contextDto.getId()))).isDefined
     }

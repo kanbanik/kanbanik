@@ -1,13 +1,15 @@
 package com.googlecode.kanbanik.model
+
 import org.bson.types.ObjectId
-import com.mongodb.casbah.Imports.$set
-import com.mongodb.casbah.MongoConnection
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.BasicDBList
-import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dto.ItemType
+import com.mongodb.DBObject
+import com.mongodb.casbah.Imports.$set
+import com.mongodb.casbah.MongoConnection
+import com.mongodb.casbah.commons.MongoDBList
+import com.mongodb.casbah.commons.MongoDBObject
+import org.bson.types.BasicBSONList
 
 class Workflowitem(
   val id: Option[ObjectId],
@@ -174,8 +176,19 @@ object Workflowitem extends HasMongoConnection {
 
   def byId(id: ObjectId): Workflowitem = {
     using(createConnection) { conn =>
-      val dbWorkflow = coll(conn, Coll.Workflowitems).findOne(MongoDBObject(Fields.id.toString() -> id)).getOrElse(throw new IllegalArgumentException("No such workflowitem with id: " + id))
-      asEntity(dbWorkflow)
+      
+      val unwind = "$" + Coll.Workflow.toString() + "." + Coll.Workflowitems.toString()
+      val workflowitemId = Coll.Workflow.toString() + "." + Coll.Workflowitems.toString() + "." + Fields.id.toString()
+      val pipebuilder = MongoDBList.newBuilder
+      pipebuilder += MongoDBObject("$unwind" -> unwind)
+      pipebuilder += MongoDBObject("$match" -> MongoDBObject(workflowitemId -> id))
+      
+      val boardWithWorkflowitems = conn(HasMongoConnection.dbName).command(MongoDBObject("aggregate" -> Coll.Boards.toString(), "pipeline" -> pipebuilder.result)).get("result")
+      val board  = boardWithWorkflowitems.asInstanceOf[BasicBSONList].get(0)
+      val workflow = board.asInstanceOf[DBObject].get(Board.Fields.workflow.toString())
+      val workflowitem = workflow.asInstanceOf[DBObject].get(Workflow.Fields.workflowitems.toString())
+      
+      asEntity(workflowitem.asInstanceOf[DBObject])
     }
   }
 

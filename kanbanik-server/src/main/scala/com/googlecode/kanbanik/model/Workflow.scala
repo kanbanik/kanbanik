@@ -63,9 +63,15 @@ class Workflow(
   def loadBoard = {
     using(createConnection) { conn =>
       val dbBoard = coll(conn, Coll.Boards).findOne(
-        MongoDBObject(Board.Fields.workflow.toString -> MongoDBObject(Workflow.Fields.id.toString -> id.get))).getOrElse(throw new IllegalStateException("The workflow has to exist!"))
+        MongoDBObject(Board.Fields.workflow.toString + "." + Workflow.Fields.id.toString -> id.get)).getOrElse(
+            throwEx
+            )
       Board.asEntity(dbBoard)
     }
+  }
+  
+  def throwEx = {
+	  throw new IllegalStateException("The workflow : " + id + "has to have a board")
   }
 
   def withWorkflowitems(workflowitems: List[Workflowitem]) =

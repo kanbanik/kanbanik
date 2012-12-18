@@ -27,28 +27,11 @@ class BaseWorkflowManipulatingTest extends FlatSpec with BeforeAndAfter with Has
   val workflow0 = Workflow(List(a, b0, c))
   val board1 = new Board(None, "", 1, workflow0)
 
-  val workflowitems = createConnection("kanbanik")("workflowitems")
-  val boards = createConnection("kanbanik")("boards")
-  val tasks = createConnection("kanbanik")("tasks")
-  val projects = createConnection("kanbanik")("projects")
+  
   
   after {
 	  // cleanup database
-    workflowitems.find().foreach {
-      workflowitems.remove(_)
-    }
-
-    boards.find().foreach {
-      boards.remove(_)
-    }
-
-    tasks.find().foreach {
-      tasks.remove(_)
-    }
-    
-    projects.find().foreach {
-      projects.remove(_)
-    }
+    DbCleaner.clearDb
   }
   
   def mkWorkflowItem(id: ObjectId, nestedWorkflow: Workflow) = {

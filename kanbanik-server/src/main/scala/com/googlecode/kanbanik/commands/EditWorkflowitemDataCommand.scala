@@ -15,7 +15,7 @@ class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[Workflowite
   val builder = new WorkflowitemBuilder
   
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[SimpleParams[WorkflowitemDto]] = {
-    val workflowitem = builder.buildEntity(params.getPayload())
+    val workflowitem = builder.buildEntity(params.getPayload(), None, None)
 
     val name = params.getPayload().getName()
     val wipLimit = params.getPayload().getWipLimit()
