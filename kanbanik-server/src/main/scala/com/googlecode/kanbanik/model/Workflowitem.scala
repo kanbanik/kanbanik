@@ -99,35 +99,17 @@ class Workflowitem(
       version,
       nestedWorkflow,
       Some(parentWorkflow));
+
+  def withId(id: ObjectId) =
+    new Workflowitem(
+      Some(id),
+      name,
+      wipLimit,
+      itemType,
+      version,
+      nestedWorkflow,
+      Some(parentWorkflow));
   
-  def store: Workflowitem = {
-    using(createConnection) { conn =>
-      val update = $set(
-        Workflowitem.Fields.version.toString() -> { version + 1 },
-        Workflowitem.Fields.name.toString() -> name,
-        Workflowitem.Fields.wipLimit.toString() -> wipLimit,
-        Workflowitem.Fields.itemType.toString() -> itemType,
-        Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow)
-
-      Workflowitem.asEntity(versionedUpdate(Coll.Workflowitems, versionedQuery(id.getOrElse(throw new UnsupportedOperationException("It is not possible to create a standalone workflowitem - it has to belong to a board")), version), update))
-    }
-  }
-
-  def storeData: Workflowitem = {
-    val update = $set(
-      Workflowitem.Fields.version.toString() -> { version + 1 },
-      Workflowitem.Fields.name.toString() -> name,
-      Workflowitem.Fields.wipLimit.toString() -> wipLimit,
-      Workflowitem.Fields.itemType.toString() -> itemType,
-      Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow.asDbObject)
-
-    Workflowitem.asEntity(versionedUpdate(Coll.Workflowitems, versionedQuery(id.get, version), update))
-  }
-
-  def delete {
-    versionedDelete(Coll.Workflowitems, versionedQuery(id.get, version))
-  }
-
   def asDbObject(): DBObject = {
     MongoDBObject(
       Workflowitem.Fields.id.toString() -> id.getOrElse(new ObjectId),
@@ -168,30 +150,6 @@ object Workflowitem extends HasMongoConnection {
 
   def apply() = new Workflowitem(Some(new ObjectId()), "", -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
   
-  def all(): List[Workflowitem] = {
-    using(createConnection) { conn =>
-      coll(conn, Coll.Workflowitems).find().map(asEntity(_)).toList
-    }
-  }
-
-  def byId(id: ObjectId): Workflowitem = {
-    using(createConnection) { conn =>
-      
-      val unwind = "$" + Coll.Workflow.toString() + "." + Coll.Workflowitems.toString()
-      val workflowitemId = Coll.Workflow.toString() + "." + Coll.Workflowitems.toString() + "." + Fields.id.toString()
-      val pipebuilder = MongoDBList.newBuilder
-      pipebuilder += MongoDBObject("$unwind" -> unwind)
-      pipebuilder += MongoDBObject("$match" -> MongoDBObject(workflowitemId -> id))
-      
-      val boardWithWorkflowitems = conn(HasMongoConnection.dbName).command(MongoDBObject("aggregate" -> Coll.Boards.toString(), "pipeline" -> pipebuilder.result)).get("result")
-      val board  = boardWithWorkflowitems.asInstanceOf[BasicBSONList].get(0)
-      val workflow = board.asInstanceOf[DBObject].get(Board.Fields.workflow.toString())
-      val workflowitem = workflow.asInstanceOf[DBObject].get(Workflow.Fields.workflowitems.toString())
-      
-      asEntity(workflowitem.asInstanceOf[DBObject])
-    }
-  }
-
   def asEntity(dbObject: DBObject, workflow: Option[Workflow]): Workflowitem = {
     new Workflowitem(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),

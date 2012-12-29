@@ -71,8 +71,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 
     val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
     
-
-    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(Workflowitem.byId(currentEntity.id.get), None)))
+    val realCurrentEntity = res.workflow.findItem(currentEntity).get
+    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(realCurrentEntity, None)))
   }
 
   private def hasTasks(contextDto: WorkflowitemDto): Boolean = {

@@ -1,10 +1,11 @@
 package com.googlecode.kanbanik.model
 
-import com.mongodb.DBObject
 import org.bson.types.ObjectId
-import com.mongodb.casbah.commons.MongoDBObject
+
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.BasicDBList
+import com.mongodb.DBObject
+import com.mongodb.casbah.commons.MongoDBObject
 
 class Workflow(
   val id: Option[ObjectId],
@@ -39,35 +40,69 @@ class Workflow(
     }
 
   }
-
+  
   def addItem(item: Workflowitem, nextItem: Option[Workflowitem]): Workflow = addItem(item, nextItem, this)
-
+  
+  def replaceItem(item: Workflowitem): Workflow = {
+	modifyWorkflow(item)((x, xs) => item :: xs)
+  }
+  
   def removeItem(item: Workflowitem): Workflow = {
-    def removeItem(items: List[Workflowitem]): List[Workflowitem] = {
+    modifyWorkflow(item)((x, xs) => xs)
+  }
+
+  def containsItem(item: Workflowitem): Boolean = {
+   findItem(item).isDefined
+  }
+  
+  def findItem(item: Workflowitem): Option[Workflowitem] = {
+    // boooo, mutability :(
+    var found: Option[Workflowitem] = None
+    modifyWorkflow(item)((x, xs) => {found = Some(x); x :: xs})
+    found
+  }
+  
+  private def modifyWorkflow(item: Workflowitem)(found: (Workflowitem, List[Workflowitem]) => List[Workflowitem]): Workflow = {
+    def modifyWorkflow(items: List[Workflowitem]): List[Workflowitem] = {
       items match {
         case Nil => Nil
         case x :: xs =>
-          if (x == item) xs
+          if (x == item) found(x, xs)
           else
             x.withWorkflow(new Workflow(
               x.nestedWorkflow.id,
-              removeItem(x.nestedWorkflow.workflowitems), _board)) :: removeItem(xs)
+              modifyWorkflow(x.nestedWorkflow.workflowitems), _board)) :: modifyWorkflow(xs)
       }
     }
 
-    new Workflow(id, removeItem(workflowitems), _board)
+    new Workflow(id, modifyWorkflow(workflowitems), _board)
   }
-
+  
   def board = _board.getOrElse(loadBoard)
 
   def loadBoard = {
-    using(createConnection) { conn =>
-      val dbBoard = coll(conn, Coll.Boards).findOne(
-        MongoDBObject(Board.Fields.workflow.toString + "." + Workflow.Fields.id.toString -> id.get)).getOrElse(
-            throwEx
-            )
-      Board.asEntity(dbBoard)
+    
+    def containsThisWorkflowInItems(workflowitems: List[Workflowitem]): Boolean = {
+        workflowitems match {
+          case Nil => false
+          case x :: xs => 
+            containsThisWorkflow(x.nestedWorkflow) ||  containsThisWorkflowInItems(xs)
+        }
     }
+    
+    def containsThisWorkflow(workflow: Workflow): Boolean = {
+      if (workflow == this) {
+        true
+      } else {
+        containsThisWorkflowInItems(workflow.workflowitems)
+      }
+    }
+    
+    // quite a heavy operation
+    val board = Board.all.find(board => containsThisWorkflow(board.workflow))
+    
+	board.getOrElse(throw new IllegalStateException("The workflow with id: '" + id + "' does not exist!"))
+    
   }
   
   def throwEx = {

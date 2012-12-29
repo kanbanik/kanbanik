@@ -25,8 +25,12 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
 
     val id = new ObjectId(params.getPayload().getId())
     
+    val board = Board.byId(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId))
+    
+    val item = Workflowitem().withId(id)
+    
     try {
-    	Workflowitem.byId(id)
+    	board.workflow.containsItem(item)
     } catch {
       case e: IllegalArgumentException =>
         return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("workflowitem"))
@@ -36,7 +40,8 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")
     }
     
-    if (Workflowitem.byId(id).nestedWorkflow.workflowitems.size > 0) {
+    val foundItem = board.workflow.findItem(item)
+    if (foundItem.isDefined && foundItem.get.nestedWorkflow.workflowitems.size > 0) {
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a nested workflow. Please delete it first")
     }
 
@@ -46,15 +51,9 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       case e: IllegalArgumentException =>
         return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
     }
-
-    val currentBoard = boardBuilder.buildEntity(params.getPayload().getParentWorkflow().getBoard())
-    
    
     try {
-    	val workflowitem = workflowitemBuilder.buildEntity(params.getPayload(), None, None)
-    	val board = workflowitem.parentWorkflow.board
-    	workflowitem.delete
-    	board.withWorkflow(board.workflow.removeItem(workflowitem)).store
+    	board.withWorkflow(board.workflow.removeItem(foundItem.get)).store
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new VoidParams, false, ServerMessages.midAirCollisionException)

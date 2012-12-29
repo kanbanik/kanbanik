@@ -20,7 +20,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
   val builder = new BoardBuilder()
 
   "buildDto() " should "be able to build a board without workflow" in {
-    val board = Board().withName("someName").withVersion(2)
+    val board = Board().withName("someName").withVersion(2).withWorkflow(Workflow())
     val res = builder.buildDto(board)
 
     assert(res.getName() === "someName")
@@ -135,12 +135,6 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
     assert(res.version === 2)
     assert(res.workflow.workflowitems.map(_.name) == List("upper1", "upper2", "upper3"))
     assert(res.workflow.workflowitems.tail.head.nestedWorkflow.workflowitems.map(_.name) == List("unter1", "unter2", "unter3"))
-  }
-  
-  def itemDtoWithName(name: String, parentWorkflow: WorkflowDto): WorkflowitemDto = {
-    val item = itemDtoWithName(name)
-    item.setParentWorkflow(parentWorkflow)
-    item
   }
   
   def asNamesList(res: WorkflowDto) = res.getWorkflowitems().toArray.toList.map(_.asInstanceOf[WorkflowitemDto].getName())

@@ -10,6 +10,7 @@ import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
+import com.googlecode.kanbanik.model.Board
 
 class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {
   
@@ -21,7 +22,10 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     }
     
     try {
-    	Workflowitem.byId(new ObjectId(params.getPayload().getWorkflowitem().getId))
+      val boardId = params.getPayload().getWorkflowitem().getParentWorkflow().getBoard().getId()
+      val board = Board.byId(new ObjectId(boardId))
+      val workdlowitemId = new ObjectId(params.getPayload().getWorkflowitem().getId())
+      board.workflow.findItem(Workflowitem().withId(workdlowitemId)).getOrElse(throw new IllegalArgumentException())
     } catch {
       case e: IllegalArgumentException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")

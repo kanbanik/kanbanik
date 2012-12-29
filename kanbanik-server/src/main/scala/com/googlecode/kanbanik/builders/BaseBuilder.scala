@@ -5,7 +5,7 @@ import org.bson.types.ObjectId
 
 class BaseBuilder {
   def determineId(entity: IdentifiableDto): Option[ObjectId] = {
-    if (entity.getId() == null) {
+    if (entity == null || entity.getId() == null) {
       None
     } else {
       Some(new ObjectId(entity.getId()))
