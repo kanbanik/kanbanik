@@ -30,6 +30,8 @@ import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commands.DeleteTaskCommand
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
+import com.googlecode.kanbanik.commands.DeleteProjectCommand
+import com.googlecode.kanbanik.commands.DeleteBoardCommand
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -68,16 +70,16 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     editWorkflow(item3, null, workflow)
     
     assert(loadAllBoards.map(dto => dto.getBoard.getName()) === List("board1"))
-    assert(loadAllBoards.head.getProjectsOnBoard().get(0).getName() === "project1")
+    assert(loadProject().getName() === "project1")
 
-    assert(asWorkflowList(loadAllBoards.head.getBoard().getWorkflow()).map(_.getName()) === List("item1", "item2", "item3"))
+    assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item1", "item2", "item3"))
     
     val taskDto = new TaskDto()
     taskDto.setName("taskName1")
     taskDto.setDescription("desc")
     taskDto.setClassOfService(ClassOfService.EXPEDITE)
     taskDto.setProject(storedProject.getPayload().getPayload())
-    taskDto.setWorkflowitem(loadAllBoards.head.getBoard().getWorkflow().getWorkflowitems().get(0))
+    taskDto.setWorkflowitem(loadWorkflow.getWorkflowitems().get(0))
     
     val storedTask = new SaveTaskCommand().execute(new SimpleParams(taskDto))
     assert(storedTask.getPayload().getPayload().getName() === "taskName1")
@@ -86,31 +88,31 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
 
     // edit workflow
     editWorkflow(item3, item1, workflow)
-    assert(asWorkflowList(loadAllBoards.head.getBoard().getWorkflow()).map(_.getName()) === List("item3", "item1", "item2"))
+    assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1", "item2"))
 
     // edit workflowitem
-    val itemToEdit = loadAllBoards().head.getBoard().getWorkflow().getWorkflowitems().get(1)
+    val itemToEdit = loadItem(1)
     itemToEdit.setName("item1_renamed")
     new EditWorkflowitemDataCommand().execute(new SimpleParams(itemToEdit))
-    assert(asWorkflowList(loadAllBoards.head.getBoard().getWorkflow()).map(_.getName()) === List("item3", "item1_renamed", "item2"))
+    assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     
     // edit task
-    val taskToMove = loadAllBoards.head.getProjectsOnBoard().get(0).getTasks().get(0)
-    taskToMove.setWorkflowitem(loadAllBoards.head.getBoard().getWorkflow().getWorkflowitems().get(2))
-    val moveTaskParams = new MoveTaskParams(taskToMove, loadAllBoards.head.getProjectsOnBoard().get(0))
+    val taskToMove = loadProject().getTasks().get(0)
+    taskToMove.setWorkflowitem(loadWorkflow.getWorkflowitems().get(2))
+    val moveTaskParams = new MoveTaskParams(taskToMove, loadProject())
     val movedTask = new MoveTaskCommand().execute(moveTaskParams)
     assert(movedTask.getPayload().getPayload().getWorkflowitem().getName() === "item2")
     
     // edit board
-    val boardToEdit = loadAllBoards().head.getBoard()
+    val boardToEdit = loadBoard()
     boardToEdit.setName("board1_renamed")
     val editedBoard = new SaveBoardCommand().execute(new SimpleParams(boardToEdit))
     assert(editedBoard.getPayload().getPayload().getName() === "board1_renamed")
     // verify it did not destroy the workflow
-    assert(asWorkflowList(loadAllBoards.head.getBoard().getWorkflow()).map(_.getName()) === List("item3", "item1_renamed", "item2"))
+    assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     
     // edit project
-    val projectToEdit = loadAllBoards.head.getProjectsOnBoard().get(0)
+    val projectToEdit = loadProject()
     projectToEdit.setName("project1_renamed")
     val editProject = new SaveProjectCommand().execute(new SimpleParams(projectToEdit))
     assert(editProject.getPayload().getPayload().getName() === "project1_renamed")
@@ -119,16 +121,40 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     
     // delete task
     new DeleteTaskCommand().execute(new SimpleParams(movedTask.getPayload().getPayload()))
-    assert(loadAllBoards.head.getProjectsOnBoard().get(0).getTasks().size() === 0)
+    assert(loadProject().getTasks().size() === 0)
     
     // delete workflowitems
-//    DeleteWorkflowitemCommand()
-    loadAllBoards().head.getBoard().getWorkflow().getWorkflowitems().get(0)
+    val loadedItem1 = loadItem(0)
+    val loadedItem2 = loadItem(1)
+    val loadedItem3 = loadItem(2)
+    
+    new DeleteWorkflowitemCommand().execute(new SimpleParams(loadedItem1))
+    new DeleteWorkflowitemCommand().execute(new SimpleParams(loadedItem2))
+    new DeleteWorkflowitemCommand().execute(new SimpleParams(loadedItem3))
+    
+    assert(loadWorkflowitems().size() === 0)
+    
+    // delete project
+    new DeleteProjectCommand().execute(new SimpleParams(loadProject))
+    assert(loadAllBoards.head.getProjectsOnBoard().size() === 0)
+    
+    // delete board
+    new DeleteBoardCommand().execute(new SimpleParams(loadBoard))
+    assert(loadAllBoards.size === 0)
+    
   }
   
-//  def loadItem(item: Int): WorkflowitemDto = {
-//    
-//  }
+  def loadProject() = loadAllBoards.head.getProjectsOnBoard().get(0)
+  
+  def loadBoard() = loadAllBoards().head.getBoard()
+  
+  def loadWorkflow() = loadAllBoards.head.getBoard().getWorkflow()
+
+  def loadWorkflowitems() = loadBoard().getWorkflow().getWorkflowitems()
+  
+  def loadItem(item: Int): WorkflowitemDto = {
+    loadWorkflowitems().get(item)
+  }
   
   def loadAllBoards() = {
 	  new GetAllBoardsCommand().execute(new VoidParams).getPayload().getList().toArray().toList.asInstanceOf[List[BoardWithProjectsDto]]    
