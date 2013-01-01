@@ -1,8 +1,8 @@
 package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
-
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoConnection
+import com.googlecode.kanbanik.db.HasMongoConnection
 
 object DataLoader extends HasMongoConnection {
 

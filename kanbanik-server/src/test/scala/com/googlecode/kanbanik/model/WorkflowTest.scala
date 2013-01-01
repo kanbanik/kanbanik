@@ -60,7 +60,7 @@ class WorkflowTest extends BaseWorkflowManipulatingTest with BeforeAndAfter {
     assert(resLast.workflowitems(1).nestedWorkflow.workflowitems === List(item1, item2))
   }
 
-  "addItem() first leve" should "be able to add an item at the beginning" in {
+  "addItem() first level" should "be able to add an item at the beginning" in {
     val res = someWorkflow.addItem(item1_1, Some(item1))
 
     assert(res.workflowitems === List(item1_1, item1, item2, item3))
@@ -103,5 +103,15 @@ class WorkflowTest extends BaseWorkflowManipulatingTest with BeforeAndAfter {
     val res = workflow_1.addItem(itemToAdd, Some(item2), someWorkflow)
     
     assert(res.workflowitems(1).nestedWorkflow.workflowitems === List(item1, itemToAdd, item2, item3))
+  }
+  
+  "findItem()" should "be able to find an item on first level" in {
+    val res = workflow_1.findItem(item1_1)
+    assert(res.get === item1_1)
+  }
+  
+  it should "be able to find an item on second level" in {
+//    val res = workflow_1.findItem(item1)
+//    assert(res.get === item1)
   }
 }

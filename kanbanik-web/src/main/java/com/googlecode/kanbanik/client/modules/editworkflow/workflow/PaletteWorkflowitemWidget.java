@@ -16,7 +16,8 @@ public class PaletteWorkflowitemWidget extends WorkflowitemWidget {
 		WorkflowitemDto dto = new WorkflowitemDto();
 		dto.setName(getWorkflowitem().getName());
 		dto.setItemType(getWorkflowitem().getItemType());
-		dto.setBoard(getWorkflowitem().getBoard());
+		dto.setParentWorkflow(getWorkflowitem().getParentWorkflow());
+		dto.setNestedWorkflow(getWorkflowitem().getNestedWorkflow());
 		dto.setWipLimit(getWorkflowitem().getWipLimit());
 		return new PaletteWorkflowitemWidget(dto, getChild());
 	}

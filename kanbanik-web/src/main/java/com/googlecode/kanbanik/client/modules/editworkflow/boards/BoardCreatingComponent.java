@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -29,6 +30,7 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(null);
 		toStore.setName(dto.getName());
+		toStore.setWorkflow(new WorkflowDto());
 		
 		new KanbanikServerCaller(
 				new Runnable() {

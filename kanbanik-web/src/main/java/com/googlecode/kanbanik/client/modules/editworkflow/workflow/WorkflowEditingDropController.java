@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.VetoDragException;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
@@ -15,6 +17,7 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
+import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
@@ -23,14 +26,15 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class WorkflowEditingDropController extends FlowPanelDropController implements MessageListener<WorkflowitemDto> {
-	private WorkflowitemDto contextItem;
+	
+	private WorkflowDto contextItem;
 
 	private WorkflowitemDto currentItem;
 
 	private final Position position;
 
 	public WorkflowEditingDropController(FlowPanel dropTarget,
-			WorkflowitemDto contextItem, WorkflowitemDto currentItem,
+			WorkflowDto contextItem, WorkflowitemDto currentItem,
 			Position position) {
 		super(dropTarget);
 		this.contextItem = contextItem;
@@ -80,9 +84,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 
 		final WorkflowitemDto droppedItem = ((WorkflowitemWidget) w)
 				.getWorkflowitem();
-		WorkflowitemDto nextItem = findNextItem();
-
-		droppedItem.setNextItem(nextItem);
+		final WorkflowitemDto nextItem = findNextItem();
 
 		new KanbanikServerCaller(
 				new Runnable() {
@@ -92,7 +94,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 				.getInvoker()
 				.<EditWorkflowParams, FailableResult<SimpleParams<WorkflowitemDto>>> invokeCommand(
 						ServerCommand.EDIT_WORKFLOW,
-						new EditWorkflowParams(droppedItem, contextItem),
+						new EditWorkflowParams(droppedItem, nextItem, contextItem),
 						new BaseAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>() {
 
 							@Override
@@ -121,7 +123,14 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 		if (position == Position.BEFORE) {
 			return currentItem;
 		} else if (position == Position.AFTER) {
-			return currentItem.getNextItem();
+			List<WorkflowitemDto> workflowitems = currentItem.getParentWorkflow().getWorkflowitems();
+			int index = currentItem.getParentWorkflow().getWorkflowitems().indexOf(currentItem);
+			boolean isLastItem = workflowitems.size() == index + 1;
+			if (isLastItem) {
+				return null;
+			} else {
+				return workflowitems.get(index + 1);
+			}
 		} else {
 			// this can happen only if it has no children => has no next item
 			return null;
@@ -130,9 +139,10 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 	}
 
 	public void messageArrived(Message<WorkflowitemDto> message) {
-		if (contextItem != null && message.getPayload().getId().equals(contextItem.getId())) {
-			contextItem = message.getPayload();
-		}
+		// TODO ref - check if this is still needed
+//		if (contextItem != null && message.getPayload().getId().equals(contextItem.getId())) {
+//			contextItem = message.getPayload();
+//		}
 		
 		if (currentItem != null && message.getPayload().getId().equals(currentItem.getId())) {
 			currentItem = message.getPayload();

@@ -12,7 +12,13 @@ class WorkflowitemBuilder extends BaseBuilder {
   
   def buildEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
     new Workflowitem(
-        determineId(dto),
+        {
+          if (dto.getId() == null) {
+            Some(new ObjectId)
+          } else {
+            Some(new ObjectId(dto.getId()))
+          }
+        },
         dto.getName(),
         dto.getWipLimit(),
         dto.getItemType().asStringValue(),

@@ -1,71 +1,141 @@
 package com.googlecode.kanbanik.builders
+
+import java.util.ArrayList
+import java.util.Arrays
+
 import org.bson.types.ObjectId
 import org.junit.runner.RunWith
-import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.BeforeAndAfter
-import org.scalatest.Spec
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Workflowitem
+
+import com.googlecode.kanbanik.dto.BoardDto
+import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.model.BaseWorkflowManipulatingTest
+import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Workflow
+import com.googlecode.kanbanik.model.Workflowitem
 
-@RunWith(classOf[JUnitRunner])
-class BoardBuilderTest extends Spec with MockitoSugar {
+class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTestManipulation {
 
-  describe("BoardBuilder should be able to build DTOs from entity objects and vice versa") {
+  val builder = new BoardBuilder()
 
-//    it("should handle board without workflow") {
-//      val board = mock[Board]
-//
-//      when(board.name).thenReturn("boardName")
-//      when(board.id).thenReturn(Some(new ObjectId("4f48e10644ae3742baa2d0a9")))
-//      when(board.workflowitems).thenReturn(None)
-//
-//      val builder = new BoardBuilder
-//      val dto = builder.buildDto(board)
-//      assert(dto.getName() === "boardName")
-//      assert(dto.getId() === "4f48e10644ae3742baa2d0a9")
-//      assert(dto.getRootWorkflowitem() === null)
-//
-//    }
-//
-//    it("should find the correct workflowitem") {
-//      val item1 = mockWorkflowitem("1f48e10644ae3742baa2d0a9");
-//      val item2 = mockWorkflowitem("2f48e10644ae3742baa2d0a9");
-//      val item3 = mockWorkflowitem("3f48e10644ae3742baa2d0a9");
-//
-//      when(item1.nextItem).thenReturn(Some(item2))
-//      when(item2.nextItem).thenReturn(Some(item3))
-//      when(item3.nextItem).thenReturn(None)
-//
-//      val board = mock[Board]
-//      when(board.id).thenReturn(Some(new ObjectId("1f48e10644ae3742baa2d0a9")))
-//      
-//      val builder = new TestedBuilder
-//
-//      assert(builder.findRootWorkflowitem(board, Some(List(item1, item2, item3))).getId() === "1f48e10644ae3742baa2d0a9")
-//      assert(builder.findRootWorkflowitem(board, Some(List(item3, item2, item1))).getId() === "1f48e10644ae3742baa2d0a9")
-//      assert(builder.findRootWorkflowitem(board, Some(List(item2, item3, item1))).getId() === "1f48e10644ae3742baa2d0a9")
-//
-//    }
-//
-//    def mockWorkflowitem(id: String) = {
-//      val item = mock[Workflowitem]
-//      when(item.id).thenReturn(Some(new ObjectId(id)))
-//      item
-//    }
+  "buildDto() " should "be able to build a board without workflow" in {
+    val board = Board().withName("someName").withVersion(2).withWorkflow(Workflow())
+    val res = builder.buildDto(board)
+
+    assert(res.getName() === "someName")
+    assert(res.getVersion() === 2)
+    assert(res.getWorkflow().getWorkflowitems().size() === 0)
   }
-}
 
-class TestedBuilder extends BoardBuilder {
-  override def workflowitemBuilder = new SimpleWorkflowitemBuilder
+  it should "be able to build a board without one level workflow" in {
+    val workflow = Workflow(
+      List(
+        Workflowitem().withName("name1"),
+        Workflowitem().withName("name2"),
+        Workflowitem().withName("name3")))
+    val board = Board().withName("someName").withVersion(2).withWorkflow(workflow)
 
-  class SimpleWorkflowitemBuilder extends WorkflowitemBuilder {
-    override def buildDto(workflowitem: Workflowitem): WorkflowitemDto = {
-      val dto = new WorkflowitemDto
-      dto.setId(workflowitem.id.get.toString())
-      dto
-    }
+    val res = builder.buildDto(board)
+
+    assert(res.getName() === "someName")
+    assert(res.getVersion() === 2)
+    assert(res.getWorkflow().getWorkflowitems().size() === 3)
+    assert(asNamesList(res.getWorkflow()) === List("name1", "name2", "name3"))
+
   }
+
+  it should "be able to build a board without two level workflow" in {
+    val workflow = Workflow(
+      List(
+        Workflowitem().withName("name1"),
+        Workflowitem().withName("name2").withWorkflow(
+          Workflow(
+            List(
+              Workflowitem().withName("inner1"),
+              Workflowitem().withName("inner2"),
+              Workflowitem().withName("inner3")))),
+        Workflowitem().withName("name3")))
+    
+        val board = Board().withName("someName").withVersion(2).withWorkflow(workflow)
+    val res = builder.buildDto(board)
+    
+    assert(res.getName() === "someName")    
+    assert(res.getWorkflow().getWorkflowitems().size() === 3)
+    assert(asNamesList(res.getWorkflow()) === List("name1", "name2", "name3"))
+    
+    assert(asNamesList(res.getWorkflow().getWorkflowitems().get(1).getNestedWorkflow()) === List("inner1", "inner2", "inner3"))
+  }
+  
+  "buildEntity() " should "be able to build a board without a workflow" in {
+    val board = new BoardDto()
+    board.setName("some name")
+    board.setVersion(2)
+    board.setId(new ObjectId().toString())
+    board.setWorkflow(new WorkflowDto())
+    
+    val res = builder.buildEntity(board)
+    assert(res.name === "some name")
+    assert(res.version === 2)
+    assert(res.workflow.workflowitems == List())
+    
+  }
+  
+  "buildEntity() " should "be able to build a board without a one level workflow" in {
+    val board = new BoardDto()
+    board.setName("some name")
+    board.setVersion(2)
+    board.setId(new ObjectId().toString())
+    
+    
+    val firstLevelWorkflow = new WorkflowDto()
+    firstLevelWorkflow.setWorkflowitems(new ArrayList(Arrays.asList(
+    		itemDtoWithName("upper1"),
+    		itemDtoWithName("upper2"),
+    		itemDtoWithName("upper3")
+    )))
+    
+    board.setWorkflow(firstLevelWorkflow)
+    
+    val res = builder.buildEntity(board)
+    assert(res.name === "some name")
+    assert(res.version === 2)
+    assert(res.workflow.workflowitems.map(_.name) == List("upper1", "upper2", "upper3"))
+  }
+  
+  "buildEntity() " should "be able to build a board without a two level workflow" in {
+    val board = new BoardDto()
+    board.setName("some name")
+    board.setVersion(2)
+    board.setId(new ObjectId().toString())
+    
+    val secondLevelWorkflow = new WorkflowDto()
+    
+    val middleWorkflowitem = itemDtoWithName("upper2")
+    middleWorkflowitem.setNestedWorkflow(secondLevelWorkflow)
+    
+    
+    val firstLevelWorkflow = new WorkflowDto()
+    firstLevelWorkflow.setWorkflowitems(new ArrayList(Arrays.asList(
+    		itemDtoWithName("upper1"),
+    		middleWorkflowitem,
+    		itemDtoWithName("upper3")
+    )))
+    
+    secondLevelWorkflow.setWorkflowitems(new ArrayList(Arrays.asList(
+    		itemDtoWithName("unter1", firstLevelWorkflow),
+    		itemDtoWithName("unter2", firstLevelWorkflow),
+    		itemDtoWithName("unter3", firstLevelWorkflow)
+    )))
+    
+    board.setWorkflow(firstLevelWorkflow)
+    
+    val res = builder.buildEntity(board)
+    assert(res.name === "some name")
+    assert(res.version === 2)
+    assert(res.workflow.workflowitems.map(_.name) == List("upper1", "upper2", "upper3"))
+    assert(res.workflow.workflowitems.tail.head.nestedWorkflow.workflowitems.map(_.name) == List("unter1", "unter2", "unter3"))
+  }
+  
+  def asNamesList(res: WorkflowDto) = res.getWorkflowitems().toArray.toList.map(_.asInstanceOf[WorkflowitemDto].getName())
 }

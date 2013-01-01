@@ -43,8 +43,7 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
 		toStore.setVersion(boardDto.getVersion());
-		toStore.setWorkflowLocked(boardDto.isWorkflowLocked());
-		toStore.setWorkflowVersion(boardDto.getWorkflowVersion());
+		toStore.setWorkflow(boardDto.getWorkflow());
 		
 		new KanbanikServerCaller(
 				new Runnable() {

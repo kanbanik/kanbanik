@@ -34,6 +34,7 @@ import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ItemType;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -85,13 +86,15 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 		
 		WorkflowitemDto horizontal = new WorkflowitemDto();
-		horizontal.setBoard(boardDto);
+		horizontal.setParentWorkflow(boardDto.getWorkflow());
+		horizontal.setNestedWorkflow(createNestedWorkflow());
 		horizontal.setItemType(ItemType.HORIZONTAL);
 		horizontal.setName("Horizontal Item");
 		horizontal.setWipLimit(-1);
 		
 		WorkflowitemDto vertical = new WorkflowitemDto();
-		vertical.setBoard(boardDto);
+		vertical.setParentWorkflow(boardDto.getWorkflow());
+		vertical.setNestedWorkflow(createNestedWorkflow());
 		vertical.setItemType(ItemType.VERTICAL);
 		vertical.setName("Vertical Item");
 		vertical.setWipLimit(-1);
@@ -115,6 +118,12 @@ public class WorkflowEditingComponent extends Composite implements
 		mainContentPanel.add(designPanel);
 	}
 
+	private WorkflowDto createNestedWorkflow() {
+		WorkflowDto dto = new WorkflowDto();
+		dto.setBoard(boardDto);
+		return dto;
+	}
+	
 	private Panel imageResourceAsPanel(ImageResource image) {
 		Panel panel = new FlowPanel();
 		panel.add(new Image(image));
@@ -146,16 +155,16 @@ public class WorkflowEditingComponent extends Composite implements
 		mainContentPanel.add(tableDesignPanel);
 		panelWithDraggabls.add(mainContentPanel);
 
-		buildBoard(null, boardDto.getRootWorkflowitem(), null, table,
+		buildBoard(null, boardDto.getWorkflow(), null, table,
 				dragController, 0, 0);
 
 		// default DTO
-		if (boardDto.getRootWorkflowitem() == null) {
+		if (boardDto.getWorkflow().getWorkflowitems().size() == 0) {
 			table.setWidget(
 					0,
 					0,
 					createDropTarget(dragController, 
-							null,
+							createNestedWorkflow(),
 							null, 
 							Position.BEFORE,
 							KanbanikResources.INSTANCE.insideDropArrowImage()));
@@ -165,38 +174,39 @@ public class WorkflowEditingComponent extends Composite implements
 		initAndAddPalette(dragController, mainContentPanel);
 	}
 
-	public void buildBoard(WorkflowitemDto parentWorkflowitem,
-			WorkflowitemDto workflowitem, ProjectDto project, FlexTable table,
+	public void buildBoard(WorkflowDto parentWorkflow,
+			WorkflowDto currentWorkflow, ProjectDto project, FlexTable table,
 			PickupDragController dragController, int row, int column) {
-		if (workflowitem == null) {
+		if (currentWorkflow == null || currentWorkflow.getWorkflowitems().size() == 0) {
 			return;
 		}
-		WorkflowitemDto currentItem = workflowitem;
 
-		if (currentItem.getItemType() == ItemType.HORIZONTAL) {
+		WorkflowitemDto current = currentWorkflow.getWorkflowitems().get(0);
+		
+		if (current.getItemType() == ItemType.HORIZONTAL) {
 			table.setWidget(
 					row,
 					column,
-					createDropTarget(dragController, parentWorkflowitem,
-							currentItem, Position.BEFORE,
+					createDropTarget(dragController, currentWorkflow,
+							current, Position.BEFORE,
 							KanbanikResources.INSTANCE.rightDropArrowImage()));
 			column++;
-		} else if (currentItem.getItemType() == ItemType.VERTICAL) {
+		} else if (current.getItemType() == ItemType.VERTICAL) {
 			table.setWidget(
 					row,
 					column,
-					createDropTarget(dragController, parentWorkflowitem,
-							currentItem, Position.BEFORE,
+					createDropTarget(dragController, currentWorkflow,
+							current, Position.BEFORE,
 							KanbanikResources.INSTANCE.downDropArrowImage()));
 
 			row++;
 		} else {
 			throw new IllegalStateException("Unsupported item type: '"
-					+ currentItem.getItemType() + "'");
+					+ current.getItemType() + "'");
 		}
 
-		while (true) {
-			if (currentItem.getChild() != null) {
+		for(WorkflowitemDto currentItem : currentWorkflow.getWorkflowitems()) {
+			if (currentItem.getNestedWorkflow().getWorkflowitems().size() != 0) {
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
 				FlexTable childTable = new FlexTable();
@@ -206,13 +216,13 @@ public class WorkflowEditingComponent extends Composite implements
 						column,
 						createWorkflowitemPlace(dragController, currentItem,
 								project, childTable));
-				buildBoard(currentItem, currentItem.getChild(), project,
+				buildBoard(currentWorkflow, currentItem.getNestedWorkflow(), project,
 						childTable, dragController, 0, 0);
 			} else {
 				// this one does not have a child yet, so create a drop target
 				// so it can have in the future
 				Panel dropTarget = createDropTarget(dragController,
-						currentItem, null, Position.INSIDE,
+						currentItem.getNestedWorkflow(), null, Position.INSIDE,
 						KanbanikResources.INSTANCE.insideDropArrowImage());
 				table.setWidget(
 						row,
@@ -226,7 +236,7 @@ public class WorkflowEditingComponent extends Composite implements
 				table.setWidget(
 						row,
 						column,
-						createDropTarget(dragController, parentWorkflowitem,
+						createDropTarget(dragController, currentWorkflow,
 								currentItem, Position.AFTER, KanbanikResources.INSTANCE.rightDropArrowImage()));
 				column++;
 			} else if (currentItem.getItemType() == ItemType.VERTICAL) {
@@ -234,7 +244,7 @@ public class WorkflowEditingComponent extends Composite implements
 				table.setWidget(
 						row,
 						column,
-						createDropTarget(dragController, parentWorkflowitem,
+						createDropTarget(dragController, currentWorkflow,
 								currentItem, Position.AFTER, KanbanikResources.INSTANCE.downDropArrowImage()));
 				row++;
 			} else {
@@ -242,17 +252,12 @@ public class WorkflowEditingComponent extends Composite implements
 						+ currentItem.getItemType() + "'");
 			}
 
-			currentItem = currentItem.getNextItem();
-			if (currentItem == null) {
-				break;
-			}
-
 		}
 
 	}
 
 	private Panel createDropTarget(PickupDragController dragController,
-			WorkflowitemDto contextItem, WorkflowitemDto currentItem,
+			WorkflowDto contextItem, WorkflowitemDto currentItem,
 			Position position, ImageResource image) {
 		FlowPanel dropTarget = new FlowPanel();
 		dropTarget.setStyleName(style.dropTargetStyle());

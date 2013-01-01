@@ -98,9 +98,9 @@ public class BoardsModule {
 			boardTable.setWidget(row, 0, new ProjectHeader(board, project));
 			FlexTable projectTable = new FlexTable();
 			projectTable.setStyleName(style.board());
-			WorkflowitemDto rootWorkflowitem = board.getRootWorkflowitem();
-			if (rootWorkflowitem != null) {
-				boardBuilder.buildBoard(rootWorkflowitem, project, projectTable, dragController, 0, 0);
+			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
+			if (hasWorkflow) {
+				boardBuilder.buildBoard(board.getWorkflow(), project, projectTable, dragController, 0, 0);
 				boardTable.setWidget(row, 1, projectTable);
 			} else {
 				boardTable.setWidth("100%");

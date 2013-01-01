@@ -73,7 +73,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 
     val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
     
-    val realCurrentEntity = res.workflow.findItem(currentEntity).get
+    val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
     new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(realCurrentEntity, None)))
   }
 

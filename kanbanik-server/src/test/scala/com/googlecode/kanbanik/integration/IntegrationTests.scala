@@ -40,6 +40,7 @@ import com.googlecode.kanbanik.commands.DeleteBoardCommand
 @RunWith(classOf[JUnitRunner])
 class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTestManipulation {
   "Kanbanik" should "be able to create a new setup from scratch" in {
+      val start = System.currentTimeMillis()
     // creation phase
     
     // create board
@@ -141,7 +142,6 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // delete board
     new DeleteBoardCommand().execute(new SimpleParams(loadBoard))
     assert(loadAllBoards.size === 0)
-    
   }
   
   def loadProject() = loadAllBoards.head.getProjectsOnBoard().get(0)

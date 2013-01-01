@@ -31,7 +31,8 @@ public class ProjectHeader extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		projectName.setText(project.getName());
-		WorkflowitemDto rootDto = board.getRootWorkflowitem();
+		WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
+		
 		if (rootDto != null) {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
 		} else {
@@ -41,7 +42,7 @@ public class ProjectHeader extends Composite {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addDisabledButtonImage()));
 		}
 		
-		new TaskAddingComponent(project, getInputQueue(board.getRootWorkflowitem()), addButton);
+		new TaskAddingComponent(project, getInputQueue(rootDto), addButton);
 	}
 
 	
@@ -49,10 +50,13 @@ public class ProjectHeader extends Composite {
 		if (root == null) {
 			return null;
 		}
-		if (root.getChild() == null) {
+		
+		
+		if (root.getNestedWorkflow().getWorkflowitems().size() == 0) {
 			return root;
 		} else {
-			return getInputQueue(root.getChild());
+			return getInputQueue(root.getNestedWorkflow().getWorkflowitems().get(0));
 		}
 	}
+	
 }
