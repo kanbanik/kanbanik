@@ -21,6 +21,7 @@ import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.builders.WorkflowBuilder
+import com.googlecode.kanbanik.model.Workflow
 
 class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
 
@@ -55,7 +56,8 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
   }
 
   private def doExecute(currenDto: WorkflowitemDto, nextDto: WorkflowitemDto, destContextDto: WorkflowDto): FailableResult[SimpleParams[WorkflowitemDto]] = {
-    if (hasTasks(nextDto)) {
+   
+    if (hasTasks(destContextDto)) {
       return new FailableResult(new SimpleParams(currenDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
     }
 
@@ -75,13 +77,17 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(realCurrentEntity, None)))
   }
 
-  private def hasTasks(contextDto: WorkflowitemDto): Boolean = {
-    if (contextDto == null) {
-      return false;
+  private def hasTasks(destContextDto: WorkflowDto): Boolean = {
+    val board = Board.byId(new ObjectId(destContextDto.getBoard().getId()))
+    val destWorkflow = Workflow().withId(new ObjectId(destContextDto.getId()))
+    if (board.workflow == destWorkflow) {
+      return false
     }
-
+    
+    val destPasrentItem = board.workflow.findParentItem(destWorkflow).getOrElse(throw new IllegalStateException("The workflow: " + destContextDto.getId() + " is defined on no item."))
+    
     using(createConnection) { conn =>
-      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> new ObjectId(contextDto.getId()))).isDefined
+      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> destPasrentItem.id)).isDefined
     }
   }
 

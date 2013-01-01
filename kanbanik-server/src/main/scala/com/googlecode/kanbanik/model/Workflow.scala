@@ -44,38 +44,76 @@ class Workflow(
   def addItem(item: Workflowitem, nextItem: Option[Workflowitem]): Workflow = addItem(item, nextItem, this)
   
   def replaceItem(item: Workflowitem): Workflow = {
-	modifyWorkflow(item)((x, xs) => item :: xs)
+    traverseForModify(item)((x, xs) => item :: xs)
   }
   
   def removeItem(item: Workflowitem): Workflow = {
-    modifyWorkflow(item)((x, xs) => xs)
+    traverseForModify(item)((x, xs) => xs)
   }
 
   def containsItem(item: Workflowitem): Boolean = {
    findItem(item).isDefined
   }
   
-  def findItem(item: Workflowitem): Option[Workflowitem] = {
-    // boooo, mutability :(
-    var found: Option[Workflowitem] = None
-    modifyWorkflow(item)((x, xs) => {found = Some(x); x :: xs})
-    found
+  def findParentItem(nestedWorkflow: Workflow) = {
+    traverseForFind(_.nestedWorkflow == nestedWorkflow)
   }
   
-  private def modifyWorkflow(item: Workflowitem)(found: (Workflowitem, List[Workflowitem]) => List[Workflowitem]): Workflow = {
-    def modifyWorkflow(items: List[Workflowitem]): List[Workflowitem] = {
+  def findItem(item: Workflowitem) = {
+    traverseForFind(_ == item)
+  }
+  
+  private def traverseForModify(item: Workflowitem)(foundAction: (Workflowitem, List[Workflowitem]) => List[Workflowitem]) = {
+    traverseWorkflow[Workflowitem, Workflow](item == _)(foundAction)(createWorkflow)(createWorkflowResult)
+  }
+  
+  private def traverseForFind(foundPredicate: Workflowitem => Boolean) = {
+    traverseWorkflow[Option[Workflowitem], Option[Workflowitem]](foundPredicate)((x, xs) => List(Some(x)))(findNotFoundAction)(findCreateResult)
+  }
+
+  def findCreateResult(items: List[Option[Workflowitem]]) = {
+    items.find(_.isDefined).getOrElse(None)
+  }
+  
+  def findNotFoundAction(item: Workflowitem, nested: List[Option[Workflowitem]]) = {
+    None
+  }
+  
+  def findFoundAction(item: Workflowitem, rest: List[Workflowitem]) = {
+    Some(item)
+  }
+  
+  def createWorkflow(item: Workflowitem, nested: List[Workflowitem]) = {
+	  item.withWorkflow(
+			  new Workflow(
+					  item.nestedWorkflow.id,
+					  nested, _board)
+			  )
+  } 
+
+  def createWorkflowResult(items: List[Workflowitem]) = {
+    new Workflow(id, items, _board)
+  }
+  
+  private def traverseWorkflow[T,U]
+  	(matchPredicate: Workflowitem => Boolean)
+  	(matchedAction: (Workflowitem, List[Workflowitem]) => List[T])
+  	(notMatchedAction: (Workflowitem, List[T]) => T)
+  	(makeResult: List[T] => U)
+  	: U = {
+    def traverseWorkflow(items: List[Workflowitem]): List[T] = {
       items match {
         case Nil => Nil
         case x :: xs =>
-          if (x == item) found(x, xs)
-          else
-            x.withWorkflow(new Workflow(
-              x.nestedWorkflow.id,
-              modifyWorkflow(x.nestedWorkflow.workflowitems), _board)) :: modifyWorkflow(xs)
+          if (matchPredicate(x)) {
+            matchedAction(x, xs)
+          } else {
+            notMatchedAction(x, traverseWorkflow(x.nestedWorkflow.workflowitems)) :: traverseWorkflow(xs)
+          }
       }
     }
 
-    new Workflow(id, modifyWorkflow(workflowitems), _board)
+    makeResult(traverseWorkflow(workflowitems))
   }
   
   def board = _board.getOrElse(loadBoard)
@@ -112,6 +150,10 @@ class Workflow(
   def withWorkflowitems(workflowitems: List[Workflowitem]) =
     new Workflow(id, workflowitems, _board)
 
+  def withId(id: ObjectId) =
+    new Workflow(Some(id), workflowitems, _board)
+
+  
   def withBoard(board: Option[Board]) =
     new Workflow(id, workflowitems, board)
 

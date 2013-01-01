@@ -28,7 +28,7 @@ class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[Workflowite
     
     try {
     	val storedBoard = board.withWorkflow(board.workflow.replaceItem(updated)).store	
-    	new FailableResult(new SimpleParams(builder.buildDto(updated, None)))
+    	new FailableResult(new SimpleParams(builder.buildDto(storedBoard.workflow.findItem(updated).get, None)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)

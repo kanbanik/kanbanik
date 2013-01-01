@@ -32,11 +32,8 @@ class Workflowitem(
   def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow)
 
   private def loadWorkflow(): Workflow = {
-    using(createConnection) { conn =>
-      val dbWorkflow = coll(conn, Coll.Workflow).findOne(
-        MongoDBObject(Workflow.Fields.workflowitems.toString -> MongoDBObject(Workflowitem.Fields.id.toString -> id.get))).getOrElse(throw new IllegalStateException("The workflowitem has to exist on a board!"))
-      Workflow.asEntity(dbWorkflow)
-    }
+    val parentBoard = Board.all().find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
+    parentBoard.workflow.findItem(this).get.parentWorkflow
   }
 
   // it has to be possible to do this in some cleaner way
@@ -108,7 +105,7 @@ class Workflowitem(
       itemType,
       version,
       nestedWorkflow,
-      Some(parentWorkflow));
+      _parentWorkflow);
   
   def asDbObject(): DBObject = {
     MongoDBObject(

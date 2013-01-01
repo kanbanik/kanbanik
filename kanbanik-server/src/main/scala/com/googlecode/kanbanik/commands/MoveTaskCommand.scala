@@ -25,7 +25,6 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
 	  
     val task = taskBuilder.buildEntity(params.getTask())
     val project = Project.byId(new ObjectId(params.getProject().getId()));
-
     
     val definedOnProject = findProjectForTask(task).getOrElse(throw new IllegalStateException("The task '" + task.id + "' is defined on NO project!"))
 

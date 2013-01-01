@@ -9,13 +9,13 @@ import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 
 class Task(
-  var id: Option[ObjectId],
-  var name: String,
-  var description: String,
-  var classOfService: Int,
-  var ticketId: String,
-  var version: Int,
-  var workflowitem: Workflowitem) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val id: Option[ObjectId],
+  val name: String,
+  val description: String,
+  val classOfService: Int,
+  val ticketId: String,
+  val version: Int,
+  val workflowitem: Workflowitem) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store: Task = {
     val idToUpdate = id.getOrElse({
@@ -39,6 +39,18 @@ class Task(
     }
   }
 
+  def withWorkflowitem(workflowitem: Workflowitem) = {
+    new Task(
+    		id,
+    		name,
+    		description,
+    		classOfService,
+    		ticketId,
+    		version,
+    		workflowitem
+    )
+  }
+  
   def delete {
     versionedDelete(Coll.Tasks, versionedQuery(id.get, version))
   }
@@ -73,7 +85,7 @@ object Task extends HasMongoConnection {
   }
 
   private def asEntity(dbObject: DBObject) = {
-    new Task(
+    val task = new Task(
       Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
@@ -88,6 +100,12 @@ object Task extends HasMongoConnection {
     	  }
       },
       null)
-//      Workflowitem.byId(dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]))
+    
+    val workflowitemId = dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]
+    val board = Board.all().find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(throwEx(task, workflowitemId))
+    val workflowitem = board.workflow.findItem(Workflowitem().withId(workflowitemId))
+    task.withWorkflowitem(workflowitem.get)
   }
+  
+  def throwEx(task: Task, workflowitemId: ObjectId) = throw new IllegalStateException("The task " + task.id + " which is on workflowitem: " + workflowitemId + " does not exist on any board" )
 }
