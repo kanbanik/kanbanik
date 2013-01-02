@@ -9,26 +9,21 @@ import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.Workflowitem
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.builders.BoardBuilder
 
 class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
   
-  val builder = new WorkflowitemBuilder
+  val workflowitemBuilder = new WorkflowitemBuilder
+  
+  val boardBuilder = new BoardBuilder
   
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[SimpleParams[WorkflowitemDto]] = {
-    val workflowitem = builder.buildEntity(params.getPayload(), None, None)
-
-    val name = params.getPayload().getName()
-    val wipLimit = params.getPayload().getWipLimit()
-    val itemType = params.getPayload().getItemType().asStringValue()
-    
-    val updated = workflowitem.withName(name).withWipLimit(wipLimit).withItemType(itemType)
-    
-    val boardId = updated.parentWorkflow.board.id.get
-    val board = Board.byId(boardId)
+    val builtBoard = boardBuilder.buildEntity(params.getPayload().getParentWorkflow().getBoard())
+    val workflowitem = workflowitemBuilder.buildEntity(params.getPayload(), None, Some(builtBoard))
     
     try {
-    	val storedBoard = board.withWorkflow(board.workflow.replaceItem(updated)).store	
-    	new FailableResult(new SimpleParams(builder.buildDto(storedBoard.workflow.findItem(updated).get, None)))
+    	val storedBoard = builtBoard.store	
+    	new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)

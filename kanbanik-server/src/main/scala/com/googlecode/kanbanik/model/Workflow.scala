@@ -56,7 +56,7 @@ class Workflow(
   }
   
   def findParentItem(nestedWorkflow: Workflow) = {
-    traverseForFind(_.nestedWorkflow == nestedWorkflow)
+    traverseForFind(item => item != null && item.nestedWorkflow == nestedWorkflow)
   }
   
   def findItem(item: Workflowitem) = {
@@ -68,15 +68,15 @@ class Workflow(
   }
   
   private def traverseForFind(foundPredicate: Workflowitem => Boolean) = {
-    traverseWorkflow[Option[Workflowitem], Option[Workflowitem]](foundPredicate)((x, xs) => List(Some(x)))(findNotFoundAction)(findCreateResult)
+    traverseWorkflow[Option[Workflowitem], Option[Workflowitem]](foundPredicate)((x, xs) => List(Some(x)))(findNotFoundAction(foundPredicate))(findCreateResult)
   }
 
   def findCreateResult(items: List[Option[Workflowitem]]) = {
     items.find(_.isDefined).getOrElse(None)
   }
   
-  def findNotFoundAction(item: Workflowitem, nested: List[Option[Workflowitem]]) = {
-    None
+  def findNotFoundAction(foundPredicate: Workflowitem => Boolean)(item: Workflowitem, nested: List[Option[Workflowitem]]) = {
+    nested.find(candidate => foundPredicate(candidate.getOrElse(null))).getOrElse(None)
   }
   
   def findFoundAction(item: Workflowitem, rest: List[Workflowitem]) = {
@@ -104,12 +104,13 @@ class Workflow(
     def traverseWorkflow(items: List[Workflowitem]): List[T] = {
       items match {
         case Nil => Nil
-        case x :: xs =>
+        case x :: xs => {
           if (matchPredicate(x)) {
             matchedAction(x, xs)
           } else {
             notMatchedAction(x, traverseWorkflow(x.nestedWorkflow.workflowitems)) :: traverseWorkflow(xs)
           }
+        }
       }
     }
 

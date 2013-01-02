@@ -110,8 +110,18 @@ class WorkflowTest extends BaseWorkflowManipulatingTest with BeforeAndAfter {
     assert(res.get === item1_1)
   }
   
-  it should "be able to find an item on second level" in {
-//    val res = workflow_1.findItem(item1)
-//    assert(res.get === item1)
+  it should "be able to find the first item on second level" in {
+    val res = workflow_1.findItem(item1)
+    assert(res.get === item1)
+  }
+  
+  it should "be able to find the last item on second level" in {
+    val res = workflow_1.findItem(item3)
+    assert(res.get === item3)
+  }
+  
+  it should "be able to find the middle item on second level" in {
+    val res = workflow_1.findItem(item2)
+    assert(res.get === item2)
   }
 }
