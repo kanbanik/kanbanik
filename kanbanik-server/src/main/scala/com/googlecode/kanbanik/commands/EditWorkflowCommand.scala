@@ -47,7 +47,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     val currentBoard = boardBuilder.buildEntity(currenDto.getParentWorkflow().getBoard())
 
     try {
-      return doExecute(currenDto, nextDto, destContextDto)
+      return doExecute(currenDto, nextDto, destContextDto, currentBoard)
     } catch {
       case e: MidAirCollisionException =>
         return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.midAirCollisionException)
@@ -55,13 +55,16 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 
   }
 
-  private def doExecute(currenDto: WorkflowitemDto, nextDto: WorkflowitemDto, destContextDto: WorkflowDto): FailableResult[SimpleParams[WorkflowitemDto]] = {
+  private def doExecute(currentDto: WorkflowitemDto, nextDto: WorkflowitemDto, destContextDto: WorkflowDto, currentBoard: Board): FailableResult[SimpleParams[WorkflowitemDto]] = {
    
     if (hasTasks(destContextDto)) {
-      return new FailableResult(new SimpleParams(currenDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
+      return new FailableResult(new SimpleParams(currentDto), false, "The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out.")
     }
 
-    val currentEntity = workflowitemBuilder.buildEntity(currenDto, None, None)
+    val currentWorkflow = workflowBuilder.buildEntity(currentDto.getParentWorkflow(), Some(currentBoard))
+    val currentEntityId = if (currentDto.getId() == null) new ObjectId else new ObjectId(currentDto.getId()) 
+    val currentEntityIfExists = currentWorkflow.findItem(Workflowitem().withId(currentEntityId))
+    val currentEntity = currentEntityIfExists.getOrElse(workflowitemBuilder.buildEntity(currentDto, Some(currentWorkflow), Some(currentBoard)))
     val nextEntity = {
       if (nextDto == null) {
         None
@@ -69,16 +72,26 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
         Some(workflowitemBuilder.buildEntity(nextDto, None, None))
       }
     }
-    val contextEntity = workflowBuilder.buildEntity(destContextDto, None)
+    val contextEntity = workflowBuilder.buildEntity(destContextDto, Some(currentBoard))
 
-    val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
+    try {
+    	val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
+    	val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
+    	return new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(realCurrentEntity, None)))
+    } catch {
+      case e: MidAirCollisionException =>
+        return new MidAirCollisionResult(new SimpleParams(currentDto), false, ServerMessages.midAirCollisionException)
+    }
     
-    val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
-    new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(realCurrentEntity, None)))
+    return new MidAirCollisionResult(new SimpleParams(currentDto), false, "Something went wrong - please see logs for more details")
   }
 
   private def hasTasks(destContextDto: WorkflowDto): Boolean = {
     val board = Board.byId(new ObjectId(destContextDto.getBoard().getId()))
+    if (destContextDto.getId() == null) {
+      return false
+    }
+    
     val destWorkflow = Workflow().withId(new ObjectId(destContextDto.getId()))
     if (board.workflow == destWorkflow) {
       return false

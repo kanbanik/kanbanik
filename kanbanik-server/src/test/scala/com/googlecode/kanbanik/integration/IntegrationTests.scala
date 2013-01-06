@@ -66,9 +66,9 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     val item2 = itemDtoWithName("item2", storedBoardWithProjects.getBoard().getWorkflow())
     val item3 = itemDtoWithName("item3", storedBoardWithProjects.getBoard().getWorkflow())
     
-    editWorkflow(item1, null, workflow)
-    editWorkflow(item2, null, workflow)
-    editWorkflow(item3, null, workflow)
+    editWorkflow(itemDtoWithName("item1", loadWorkflow), null, loadWorkflow)
+    editWorkflow(itemDtoWithName("item2", loadWorkflow), null, loadWorkflow)
+    editWorkflow(itemDtoWithName("item3", loadWorkflow), null, loadWorkflow)
     
     assert(loadAllBoards.map(dto => dto.getBoard.getName()) === List("board1"))
     assert(loadProject().getName() === "project1")
@@ -88,7 +88,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // edit phase
 
     // edit workflow
-    editWorkflow(item3, item1, workflow)
+    editWorkflow(loadItem(2), loadItem(0), loadWorkflow)
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1", "item2"))
 
     // edit workflowitem

@@ -53,7 +53,9 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
     }
    
     try {
-    	board.withWorkflow(board.workflow.removeItem(foundItem.get)).store
+    	board.withWorkflow(board.workflow.removeItem(foundItem.getOrElse(
+    			return new FailableResult(new VoidParams, false, "This workflowitem has been deleted by a different user. Please refresh your browser to get the current data")
+    	))).store
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new VoidParams, false, ServerMessages.midAirCollisionException)

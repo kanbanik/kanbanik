@@ -164,7 +164,7 @@ public class WorkflowEditingComponent extends Composite implements
 					0,
 					0,
 					createDropTarget(dragController, 
-							createNestedWorkflow(),
+							boardDto.getWorkflow(),
 							null, 
 							Position.BEFORE,
 							KanbanikResources.INSTANCE.insideDropArrowImage()));

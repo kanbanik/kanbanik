@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.commands
 import org.bson.types.ObjectId
-
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
@@ -10,6 +9,7 @@ import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.Board
 
 class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {
 
@@ -24,7 +24,18 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
 	}
 	  
     val task = taskBuilder.buildEntity(params.getTask())
-    val project = Project.byId(new ObjectId(params.getProject().getId()));
+    
+    try {
+    	val realBoard = Board.byId(task.workflowitem.parentWorkflow.board.id.get)
+    	realBoard.workflow.findItem(task.workflowitem).getOrElse(
+    			return new FailableResult(new SimpleParams(params.getTask()), false, "The workflowitem on which this task existed does not exist any more - possibly has been deleted by a different user")    
+    	)
+    	Project.byId(new ObjectId(params.getProject().getId()))
+    } catch {
+      case e: IllegalArgumentException => return new FailableResult(new SimpleParams(params.getTask()), false, "Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the currrent data.") 
+    }
+    
+    val project = Project.byId(new ObjectId(params.getProject().getId()))
     
     val definedOnProject = findProjectForTask(task).getOrElse(throw new IllegalStateException("The task '" + task.id + "' is defined on NO project!"))
 
