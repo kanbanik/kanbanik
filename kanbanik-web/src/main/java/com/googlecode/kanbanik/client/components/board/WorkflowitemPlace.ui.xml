@@ -16,15 +16,25 @@
 		
 		.contentPanelStyle {
 		}
+		.wrappingTable {
+			width: 100%;
+			height: 100%;
+		}
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="{style.mainPanel}">
-		<g:FlowPanel addStyleNames="{style.headerPanel}">
-			<g:Label ui:field="stateName" />
-			<g:Label ui:field="wipLimit"/>
-		</g:FlowPanel>
-		
-		<g:Widget ui:field="contentPanel" addStyleNames="{style.contentPanelStyle}" />
-	</g:FlowPanel>
+	<g:HTMLPanel addStyleNames="{style.mainPanel}">
+	<!-- I know that it is an evil to format using tables but I just did not find an another reliable solution to style this-->
+		<table style="width: 100%; height: 100%">
+			<tr style="width: 100%; height: 35px"><td>
+				<g:FlowPanel addStyleNames="{style.headerPanel}">
+					<g:Label ui:field="stateName" />
+					<g:Label ui:field="wipLimit"/>
+				</g:FlowPanel>
+			</td></tr>
+			<tr style="width: 100%; height: 100%"><td>
+				<g:Widget ui:field="contentPanel" addStyleNames="{style.contentPanelStyle}" />
+			</td></tr>
+		</table>
+	</g:HTMLPanel>
 
 </ui:UiBinder>
