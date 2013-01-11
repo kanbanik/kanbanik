@@ -366,3 +366,7 @@ textarea {
 	background: #717171;
 	border-color: #B9968F #B9968F #B9968F #B9968F;
 }
+
+.cw-RichText {
+	width: 100%;
+}
