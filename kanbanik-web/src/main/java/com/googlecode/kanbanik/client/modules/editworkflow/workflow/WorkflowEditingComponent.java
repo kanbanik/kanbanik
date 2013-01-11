@@ -66,7 +66,7 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private BoardDto boardDto;
 
-	private BoardsRefreshRequestMessageListener boardsRefreshRequestMessageListener;
+	private BoardsRefreshRequestMessageListener boardsRefreshRequestMessageListener = new BoardsRefreshRequestMessageListener();
 	
 	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -312,8 +312,9 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private void registerListeners() {
-		boardsRefreshRequestMessageListener = new BoardsRefreshRequestMessageListener();
-		MessageBus.registerListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
+		if (!MessageBus.listens(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener)) {
+			MessageBus.registerListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
+		}
 		
 		if (!MessageBus.listens(BoardChangedMessage.class, this)) {
 			MessageBus.registerListener(BoardChangedMessage.class, this);	
@@ -326,9 +327,7 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 	
 	public void unregisterListeners() {
-		if (boardsRefreshRequestMessageListener != null) {
-			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
-		}
+		MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
 		
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}

@@ -26,28 +26,9 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		add(boardsContent, "Boards");
 		add(configureWorkflowContent, "Configure Workflow");
 		
-		boardsModule.initialize(new BoardsModuleInitialized());
 		addSelectionHandler(this);
+		selectTab(0);
 		setWidth("100%");
-	}
-
-	class BoardsModuleInitialized implements ModuleInitializeCallback  {
-
-		public void initialized(Widget widget) {
-			boardsContent.add(widget);
-			configureWorkflowModule.initialize(new ConfigureWorkflowModuleInitialized());
-			selectTab(0);
-		}
-	}
-	
-	class ConfigureWorkflowModuleInitialized implements ModuleInitializeCallback  {
-
-		public void initialized(Widget widget) {
-			configureWorkflowContent.add(widget);
-			MessageBus.sendMessage(new ModuleActivatedMessage(BoardsModule.class, this));
-			MessageBus.sendMessage(new ModuleActivatedMessage(ControlPanelModule.class, this));
-			selectTab(0);
-		}
 	}
 
 	class BoardsRefreshed implements ModuleInitializeCallback {

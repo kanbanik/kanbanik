@@ -270,7 +270,7 @@ public class BoardsBox extends Composite {
 			MessageBus.unregisterListener(BoardDeletedMessage.class, this);
 			MessageBus.unregisterListener(BoardEditedMessage.class, this);
 			MessageBus.unregisterListener(BoardRefreshedMessage.class, this);
-			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, this);
+			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
 		
