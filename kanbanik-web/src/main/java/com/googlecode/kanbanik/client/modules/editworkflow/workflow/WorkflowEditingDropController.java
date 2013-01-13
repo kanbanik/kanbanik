@@ -111,6 +111,7 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 									new ErrorDialog("The workflow has been modified by a different user. Your change has been discarded and the workflow has been refreshed automatically.").center();
 									MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
 								} else {
+									MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
 									super.handleFaildResult(failableResult);
 								}
 							}

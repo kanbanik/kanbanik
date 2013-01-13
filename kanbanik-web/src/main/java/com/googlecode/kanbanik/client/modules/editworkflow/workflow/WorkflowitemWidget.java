@@ -61,7 +61,7 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 	}
 
 	private String createHeader(WorkflowitemDto workflowitem) {
-		String wip = workflowitem.getWipLimit() == -1 ? "" : "(" + workflowitem.getWipLimit() + ")";
+		String wip = workflowitem.getWipLimit() == -1 ? "" : " (" + workflowitem.getWipLimit() + ")";
 		return workflowitem.getName() + wip;
 	}
 	

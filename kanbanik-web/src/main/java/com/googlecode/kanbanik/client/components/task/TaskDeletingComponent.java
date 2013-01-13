@@ -31,7 +31,7 @@ public class TaskDeletingComponent implements ClickHandler, Closable {
 		super();
 		this.taskGui = taskGui;
 		clicklHandler.addClickHandler(this);
-		warningPanel = new WarningPanel("Are you sure you want to delete task with id + ' " + taskGui.getDto().getTicketId() + "'?");
+		warningPanel = new WarningPanel("Are you sure you want to delete task with id '" + taskGui.getDto().getTicketId() + "'?");
 	}
 
 	public void onClick(ClickEvent event) {

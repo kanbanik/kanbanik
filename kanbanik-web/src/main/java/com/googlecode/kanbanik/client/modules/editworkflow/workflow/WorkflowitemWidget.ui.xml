@@ -9,6 +9,7 @@
 			margin-right: 2px;
 			width: 100%;
 			text-align: right;
+			border-bottom: 1px solid black;
 		}
 		
 		.workflowitem-header {
