@@ -67,6 +67,19 @@
 			<version>1.2.1</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.shiro</groupId>
+    		<artifactId>shiro-all</artifactId>
+    		<version>1.2.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

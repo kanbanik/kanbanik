@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.server;
 
+import org.apache.shiro.SecurityUtils;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand;
@@ -8,15 +10,16 @@ import com.googlecode.kanbanik.commands.DeleteProjectCommand;
 import com.googlecode.kanbanik.commands.DeleteTaskCommand;
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowCommand;
+import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
 import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
+import com.googlecode.kanbanik.commands.LoginCommand;
 import com.googlecode.kanbanik.commands.GetBoardCommand;
 import com.googlecode.kanbanik.commands.MoveTaskCommand;
 import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
 import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
-import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -28,6 +31,18 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 	// well... Anybody an idea how to get rid of this huge if-else statement?
 	@SuppressWarnings("unchecked")
 	public <P extends Params, R extends Result> R invokeCommand(ServerCommand command, P params) {
+		
+		boolean isLoggedIn = SecurityUtils.getSubject().isAuthenticated();
+		
+		// the only command which is enabled for a non logged in user
+		if (command == ServerCommand.LOGIN_COMMAND) {
+			return (R) new LoginCommand().execute(params);
+		}
+		
+		if (!isLoggedIn) {
+			throw new SecurityException("Not logged in user is not can not access any command except the login command");
+		}
+		
 		if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
 			return (R) new GetAllBoardsCommand().execute(params);
 		} else if (command == ServerCommand.MOVE_TASK) {

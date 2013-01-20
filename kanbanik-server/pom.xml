@@ -58,6 +58,12 @@
 			<version>3.0.0-M2</version>
 			<type>pom</type>
 		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.shiro</groupId>
+    		<artifactId>shiro-all</artifactId>
+    		<version>1.2.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
