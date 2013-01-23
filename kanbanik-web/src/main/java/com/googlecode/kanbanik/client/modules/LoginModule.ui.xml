@@ -4,16 +4,24 @@
 	<ui:style>
 		.loginModuleStyle {
 			border-style: 1px solid black;
-			margin:0px auto;
-			width: 100px;
+			width: 220px;
+			position: absolute;
+			top: 45%;
+			left: 45%;
+			border: 1px solid black;			
 		}
 		
 		
 		.labelStyle,.nameStyle,.passStyle,.buttonStyle {
 			float: left;
+			margin-left: 10px;
 		}
 		
 		.labelStyle {
+			font-size: 16px;
+			font-weight: bold;
+			text-align: center;
+			margin-left: 35px;
 		}
 		
 		.nameStyle {
@@ -23,12 +31,15 @@
 		}
 		
 		.buttonStyle {
+			margin-top: 2px;
 		}
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.loginModuleStyle}">
 		<g:Label text="Log in to Kanbanik" addStyleNames="{style.labelStyle}" />
+		<g:Label text="Username" />
 		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
+		<g:Label text="Password" />
 		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" />
 		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" />
 	</g:FlowPanel>
