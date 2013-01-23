@@ -27,11 +27,12 @@ public class MessageBus {
 		notifyListeners(message, listenersForType);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void notifyListeners(Message<?> message,
 			List<MessageListener<?>> listenersForType) {
 		
 		// the shallow copy is done because the reaction for a sent message can be the calling of unregister something which would lead to concurrent modification exception
-		for (MessageListener listener : new ArrayList<MessageListener<?>>(listenersForType)) {
+		for (@SuppressWarnings("rawtypes") MessageListener listener : new ArrayList<MessageListener<?>>(listenersForType)) {
 			listener.messageArrived(message);
 		}
 	}
@@ -73,6 +74,14 @@ public class MessageBus {
 		listenersOfType.remove(listener);
 	}
 	
+	public static void removeAllListeners() {
+		if (listeners == null) {
+			return;
+		}
+		
+		listeners.clear();
+	}
+	
 	public static boolean listens(Class<?> messageType, MessageListener<?> toFindOut) {
 		if (listeners == null) {
 			return false;
@@ -82,7 +91,7 @@ public class MessageBus {
 			return false;
 		}
 		
-		for (MessageListener listener : listeners.get(messageType)) {
+		for (@SuppressWarnings("rawtypes") MessageListener listener : listeners.get(messageType)) {
 
 			// yes, I'm asking for the specific instance
 			if (listener == toFindOut) {

@@ -243,34 +243,8 @@ td .project-gui {
 	font-weight: bold;
 }
 
-.task-holder>tbody>tr>td,.task-holder>tbody>tr,.sub-task-holder>tbody>tr>td,.sub-task-holder>tbody>tr
-	{
-	height: 100px;
-}
-
-.task-holder>tbody>tr:last-of-type,.task-holder>tbody>tr:last-of-type>td,.sub-task-holder>tbody>tr:last-of-type,.sub-task-holder>tbody>tr:last-of-type>td
-	{
-	height: 100%;
-}
-
-.task-holder {
-	border-left: 1px solid black;
-	width: 220px;
-	height: 100px;
-	vertical-align: top;
-	background-color: #f2f4f9;
-	border-bottom-width: 0px;
-	border-top-width: 2px;
-}
-
-.sub-task-holder {
-	border-left: 1px solid black;
-	width: 110px;
-	height: 100px;
-	vertical-align: top;
-	background-color: #f2f4f9;
-	border-bottom-width: 0px;
-	border-top-width: 2px;
+.control-panel-style {
+	float: left;
 }
 
 textarea {

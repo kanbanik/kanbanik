@@ -8,8 +8,12 @@ import org.apache.shiro.SecurityUtils
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.builders.UserBuilder
 
 class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[SimpleParams[UserDto]]] {
+  
+  lazy val userBuilder = new UserBuilder
+  
   def execute(params: SimpleParams[LoginDto]): FailableResult[SimpleParams[UserDto]] = {
     val currentUser = SecurityUtils.getSubject()
     try {
@@ -21,6 +25,6 @@ class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[
     
     val principal = currentUser.getPrincipal().asInstanceOf[User]
     // TODO do this builder
-    return new FailableResult(new SimpleParams(new UserDto(principal.name)))
+    return new FailableResult(new SimpleParams(userBuilder.buildDto(principal)))
   }
 }

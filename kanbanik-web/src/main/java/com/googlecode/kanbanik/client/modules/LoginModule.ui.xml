@@ -1,0 +1,36 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.loginModuleStyle {
+			border-style: 1px solid black;
+			margin:0px auto;
+			width: 100px;
+		}
+		
+		
+		.labelStyle,.nameStyle,.passStyle,.buttonStyle {
+			float: left;
+		}
+		
+		.labelStyle {
+		}
+		
+		.nameStyle {
+		}
+		
+		.passStyle {
+		}
+		
+		.buttonStyle {
+		}
+	</ui:style>
+
+	<g:FlowPanel addStyleNames="{style.loginModuleStyle}">
+		<g:Label text="Log in to Kanbanik" addStyleNames="{style.labelStyle}" />
+		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
+		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" />
+		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" />
+	</g:FlowPanel>
+
+</ui:UiBinder>

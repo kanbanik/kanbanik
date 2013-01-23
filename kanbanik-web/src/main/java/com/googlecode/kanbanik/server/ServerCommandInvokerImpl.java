@@ -19,7 +19,9 @@ import com.googlecode.kanbanik.commands.MoveTaskCommand;
 import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
 import com.googlecode.kanbanik.commands.SaveProjectCommand;
+import com.googlecode.kanbanik.commands.LogoutCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
+import com.googlecode.kanbanik.commands.GetCurrentUserCommand;
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -34,16 +36,23 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		
 		boolean isLoggedIn = SecurityUtils.getSubject().isAuthenticated();
 		
-		// the only command which is enabled for a non logged in user
+		// unsecure zone - anyone can call this commands whatever the user is logged in or not
 		if (command == ServerCommand.LOGIN_COMMAND) {
 			return (R) new LoginCommand().execute(params);
+		} else if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
+			return (R) new GetCurrentUserCommand().execute(params);
 		}
+		
 		
 		if (!isLoggedIn) {
 			throw new SecurityException("Not logged in user is not can not access any command except the login command");
 		}
 		
-		if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
+		// secure zone - unly logged in users can call this commands
+		
+		if (command == ServerCommand.LOGOUT_COMMAND) {
+			return (R) new LogoutCommand().execute(params);
+		}else if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
 			return (R) new GetAllBoardsCommand().execute(params);
 		} else if (command == ServerCommand.MOVE_TASK) {
 			return (R) new MoveTaskCommand().execute(params);

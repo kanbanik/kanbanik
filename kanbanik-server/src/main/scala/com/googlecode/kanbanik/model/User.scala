@@ -8,6 +8,7 @@ import org.apache.shiro.crypto.hash.Sha512Hash
 class User(
   val name: String,
   val password: String,
+  val realName: String,
   val salt: ByteSource) {
 
 }
@@ -19,19 +20,19 @@ object User {
   def byId(name: String) = {
 
     if (name == "user1") {
-      makeUser("user1", "pass1")
+      makeUser("user1", "pass1", "Real de Name I")
     } else if (name == "user2") {
-      makeUser("user2", "pass2")
+      makeUser("user2", "pass2", "Real von Name II")
     } else {
       throw new IllegalArgumentException("No such task with name: " + name)
     }
 
   }
 
-  def makeUser(name: String, pass: String) = {
+  def makeUser(name: String, pass: String, realName: String) = {
     val salt = rng.nextBytes()
     val hashedPasswordBase64 = new Sha512Hash(pass, salt, 1024).toBase64()
-    new User(name, hashedPasswordBase64, salt)
+    new User(name, hashedPasswordBase64, realName, salt)
 
   }
 }

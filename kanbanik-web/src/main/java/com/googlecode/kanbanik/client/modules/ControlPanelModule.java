@@ -29,6 +29,8 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		addSelectionHandler(this);
 		selectTab(0);
 		setWidth("100%");
+		
+		setStyleName("control-panel-style");
 	}
 
 	class BoardsRefreshed implements ModuleInitializeCallback {
