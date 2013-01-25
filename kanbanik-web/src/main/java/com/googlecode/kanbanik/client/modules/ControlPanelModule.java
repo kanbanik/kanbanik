@@ -21,10 +21,13 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 	
 	private SimplePanel configureWorkflowContent = new SimplePanel();
 	
+	private SimplePanel securityContent = new SimplePanel();
+	
 	public ControlPanelModule() {
 		
 		add(boardsContent, "Boards");
 		add(configureWorkflowContent, "Configure Workflow");
+		add(securityContent, "Security");
 		
 		addSelectionHandler(this);
 		selectTab(0);

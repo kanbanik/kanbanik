@@ -3,6 +3,8 @@ import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Task
 
+
+// todo check if can be removed
 trait ProjectValidation {
 
   def canBeDeleted(project: Project): (Boolean, String) = {

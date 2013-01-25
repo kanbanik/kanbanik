@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.db
 
-import org.bson.types.ObjectId
-
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.DBObject
@@ -12,7 +10,7 @@ import com.mongodb.casbah.Imports.wrapDBObj
 import com.mongodb.casbah.commons.MongoDBObject
 
 trait HasMidAirCollisionDetection extends HasMongoConnection {
-  def versionedQuery(id: ObjectId, version: Int) = {
+  def versionedQuery(id: Any, version: Int) = {
     (MongoDBObject(SimpleField.id.toString() -> id)) ++ 
     ($or((SimpleField.version.toString() $exists false), MongoDBObject(SimpleField.version.toString() -> version)))
   }

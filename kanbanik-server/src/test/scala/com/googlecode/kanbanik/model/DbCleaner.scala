@@ -2,15 +2,16 @@ package com.googlecode.kanbanik.model
 
 import com.googlecode.kanbanik.db.HasMongoConnection
 
-object DbCleaner extends HasMongoConnection  {
-  
+object DbCleaner extends HasMongoConnection {
+
   val workflowitems = createConnection("kanbanik")("workflowitems")
   val boards = createConnection("kanbanik")("boards")
   val tasks = createConnection("kanbanik")("tasks")
   val projects = createConnection("kanbanik")("projects")
-  
-	def clearDb() {
-	  workflowitems.find().foreach {
+  val users = createConnection("kanbanik")("users")
+
+  def clearDb() {
+    workflowitems.find().foreach {
       workflowitems.remove(_)
     }
 
@@ -21,9 +22,13 @@ object DbCleaner extends HasMongoConnection  {
     tasks.find().foreach {
       tasks.remove(_)
     }
-    
+
     projects.find().foreach {
       projects.remove(_)
     }
-	}
+
+    users.find().foreach {
+      users.remove(_)
+    }
+  }
 }

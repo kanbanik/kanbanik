@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.model.User
 
 class UserBuilder {
 
-  def buildDto(user: User) = new UserDto(user.name, user.realName)
+  def buildDto(user: User) = new UserDto(user.name, user.realName, user.version)
   
   
 }

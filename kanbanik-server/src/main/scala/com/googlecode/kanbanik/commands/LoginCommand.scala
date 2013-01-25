@@ -24,7 +24,6 @@ class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[
     }
     
     val principal = currentUser.getPrincipal().asInstanceOf[User]
-    // TODO do this builder
-    return new FailableResult(new SimpleParams(userBuilder.buildDto(principal)))
+    new FailableResult(new SimpleParams(userBuilder.buildDto(principal)))
   }
 }

@@ -8,14 +8,17 @@ public class UserDto implements KanbanikDto {
 
 	private String realName;
 	
+	private int version;
+	
 	public UserDto() {
 		
 	}
 	
-	public UserDto(String userName, String realName) {
+	public UserDto(String userName, String realName, int version) {
 		super();
 		this.userName = userName;
 		this.realName = realName;
+		this.version = version;
 	}
 
 	public String getUserName() {
@@ -33,6 +36,13 @@ public class UserDto implements KanbanikDto {
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
-	
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
 	
 }

@@ -46,11 +46,9 @@ object Project extends HasMongoConnection {
   }
 
   def all(): List[Project] = {
-    var allProjects = List[Project]()
     using(createConnection) { conn =>
-      coll(conn, Coll.Projects).find().foreach(project => allProjects = asEntity(project) :: allProjects)
+      coll(conn, Coll.Projects).find().map(asEntity(_)).toList
     }
-    allProjects
   }
 
   def byId(id: ObjectId): Project = {

@@ -1,12 +1,15 @@
 package com.googlecode.kanbanik.security
 
-import org.apache.shiro.realm.AuthenticatingRealm
-import org.apache.shiro.authc.AuthenticationToken
 import org.apache.shiro.authc.AuthenticationInfo
-import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.authc.AuthenticationToken
 import org.apache.shiro.authc.SimpleAuthenticationInfo
-import com.googlecode.kanbanik.model.User
+import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher
+import org.apache.shiro.realm.AuthenticatingRealm
+import org.apache.shiro.util.ByteSource
+import com.googlecode.kanbanik.model.User
+import org.apache.shiro.codec.Base64
+import org.apache.shiro.codec.CodecSupport
 
 class KanbanikRealm extends AuthenticatingRealm {
 
@@ -20,10 +23,13 @@ class KanbanikRealm extends AuthenticatingRealm {
     return token.isInstanceOf[UsernamePasswordToken]
   }
   
-  protected def doGetAuthenticationInfo(token: AuthenticationToken): AuthenticationInfo = {
+  def doGetAuthenticationInfo(token: AuthenticationToken): AuthenticationInfo = {
     val usernamePasswordToken = token.asInstanceOf[UsernamePasswordToken]
     val user = User.byId(usernamePasswordToken.getUsername())
-    new SimpleAuthenticationInfo(user, user.password, user.salt, getName())
+    
+    val salt = ByteSource.Util.bytes(CodecSupport.toBytes(user.salt))
+    
+    new SimpleAuthenticationInfo(user, user.password, salt, getName())
   }
 
 }
