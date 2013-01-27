@@ -9,6 +9,13 @@ public class ListDto<T extends KanbanikDto> implements KanbanikDto {
 
 	private List<T> list = new ArrayList<T>();
 
+	public ListDto() {
+	}
+
+	public ListDto(List<T> list) {
+		this.list = list;
+	}
+	
 	public List<T> getList() {
 		return list;
 	}

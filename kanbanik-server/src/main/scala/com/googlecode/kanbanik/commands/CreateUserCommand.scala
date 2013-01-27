@@ -10,8 +10,6 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 
 class CreateUserCommand extends ServerCommand[SimpleParams[ManipulateUserDto], FailableResult[SimpleParams[UserDto]]] with CredentialsUtils with HasMongoConnection {
 
-  
-
   lazy val userBuilder = new UserBuilder
   
   def execute(params: SimpleParams[ManipulateUserDto]): FailableResult[SimpleParams[UserDto]] = {

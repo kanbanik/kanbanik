@@ -11,6 +11,8 @@ import com.googlecode.kanbanik.model.User
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.commands.EditUserCommand
 import com.googlecode.kanbanik.commands.DeleteUserCommand
+import com.googlecode.kanbanik.commands.GetAllUsersCommand
+import com.googlecode.kanbanik.dto.shell.VoidParams
 
 @RunWith(classOf[JUnitRunner])
 class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
@@ -50,9 +52,12 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
     val createExistingUserRes = new CreateUserCommand().execute(new SimpleParams(userDto))
     assert(createExistingUserRes.isSucceeded() === false)
 
+    assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 1)
+    
     // delete this user
     new DeleteUserCommand().execute(new SimpleParams(userDto))
-    assert(User(userDto.getUserName()).exists === false)
+    
+    assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 0)
   }
 
   after {

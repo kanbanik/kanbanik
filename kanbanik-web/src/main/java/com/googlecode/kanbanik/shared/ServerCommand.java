@@ -21,6 +21,7 @@ public enum ServerCommand implements Serializable {
 	
 	LOGIN_COMMAND,
 	LOGOUT_COMMAND,
-	GET_CURRENT_USER_COMMAND
+	GET_CURRENT_USER_COMMAND,
+	GET_ALL_USERS_COMMAND
 	
 }
