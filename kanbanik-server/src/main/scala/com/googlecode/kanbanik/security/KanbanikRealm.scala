@@ -10,6 +10,7 @@ import org.apache.shiro.util.ByteSource
 import com.googlecode.kanbanik.model.User
 import org.apache.shiro.codec.Base64
 import org.apache.shiro.codec.CodecSupport
+import org.apache.shiro.crypto.hash.Sha512Hash
 
 class KanbanikRealm extends AuthenticatingRealm {
 
@@ -26,9 +27,9 @@ class KanbanikRealm extends AuthenticatingRealm {
   def doGetAuthenticationInfo(token: AuthenticationToken): AuthenticationInfo = {
     val usernamePasswordToken = token.asInstanceOf[UsernamePasswordToken]
     val user = User.byId(usernamePasswordToken.getUsername())
-    
-    val salt = ByteSource.Util.bytes(CodecSupport.toBytes(user.salt))
-    
+
+    val salt = ByteSource.Util.bytes(user.salt.toCharArray())
+
     new SimpleAuthenticationInfo(user, user.password, salt, getName())
   }
 

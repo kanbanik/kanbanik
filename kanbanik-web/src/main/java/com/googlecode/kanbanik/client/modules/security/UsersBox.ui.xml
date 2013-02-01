@@ -1,0 +1,52 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.button-toolbar {
+			border-bottom-style: solid;
+			border-bottom-width: 1px;
+			padding-bottom: 7px;
+			margin-bottom: 4px;
+			margin-top: 2px;
+			margin-right: 2px;
+			width: 100%;
+			text-align: right;
+		}
+		
+		.label-style {
+			font-weight: bold;
+		}
+		
+		.listBoxStyle {
+			text-align: center;
+			width: 100%;
+		}
+		
+		.boardsBoxStyle {
+			width: 220px;
+			padding-right: 5px;
+		}
+	</ui:style>
+
+	<g:HTMLPanel styleName="{style.boardsBoxStyle}">
+		<div
+			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right; width: 212px;">
+			<g:HTMLPanel>
+				<span style="text-align: center;">
+					<g:Label styleName="{style.label-style}" text="Board" />
+					<g:ListBox styleName="{style.listBoxStyle}" ui:field="boardsList" />
+				</span>
+			</g:HTMLPanel>
+			<g:HorizontalPanel styleName="{style.button-toolbar}">
+				<g:PushButton styleName="imageButtonStyle" ui:field="addButton"
+					text="Add" title="New User" />
+				<g:PushButton styleName="imageButtonStyle" ui:field="editButton"
+					text="Edit" title="Edit User" />
+				<g:PushButton styleName="imageButtonStyle" ui:field="deleteButton"
+					text="Delete" title="Delete User" />
+			</g:HorizontalPanel>
+		</div>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

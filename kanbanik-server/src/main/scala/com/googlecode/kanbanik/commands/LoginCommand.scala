@@ -20,6 +20,7 @@ class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[
       currentUser.login(new UsernamePasswordToken(params.getPayload().getUserName(), params.getPayload().getPassword()))
     } catch {
       case e: Exception =>
+        println(e)
         return new FailableResult(new SimpleParams, false, "Login not successful!")
     }
     

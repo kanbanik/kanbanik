@@ -17,6 +17,7 @@ trait HasMongoConnection extends ResourceManipulation {
     val Tasks = Value("tasks")
     val Projects = Value("projects")
     val TaskId = Value("taskid")
+    val KanbanikVersion = Value("kanbanikVersion")
     val Users = Value("users")
     val WorkflowitemLocks = Value("workflowitemLocks")
   }

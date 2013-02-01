@@ -9,12 +9,12 @@ import com.googlecode.kanbanik.model.User
 
 trait CredentialsUtils {
 
-  val rng = new SecureRandomNumberGenerator();
+  val rng = new SecureRandomNumberGenerator()
 
   val realm = new KanbanikRealm()
 
   def hashPassword(password: String): (String, String) = {
-    val salt = rng.nextBytes().toString()
+    val salt = rng.nextBytes().toBase64()
 
     (hash(password, salt), salt)
   }
@@ -24,5 +24,5 @@ trait CredentialsUtils {
     hash(password, user.salt) == user.password
   }
   
-  def hash(password: String, salt: String) = new Sha512Hash(password, salt, 1024).toString()
+  def hash(password: String, salt: String) = new Sha512Hash(password, salt, 1024).toBase64()
 }

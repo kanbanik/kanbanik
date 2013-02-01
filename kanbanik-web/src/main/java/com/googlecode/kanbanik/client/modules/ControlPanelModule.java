@@ -16,6 +16,8 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 	private final BoardsModule boardsModule = new BoardsModule();
 	
 	private final ConfigureWorkflowModule configureWorkflowModule = new ConfigureWorkflowModule();
+	
+	private final SecurityModule securityModule = new SecurityModule();
 
 	private SimplePanel boardsContent = new SimplePanel();
 	
@@ -56,11 +58,27 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		}
 	}
 	
+	class SecurityModuleRefreshed implements ModuleInitializeCallback {
+
+		@Override
+		public void initialized(Widget widget) {
+			securityContent.clear();
+			securityContent.add(widget);
+			
+			MessageBus.sendMessage(new ModuleDeactivatedMessage(BoardsModule.class, this));
+			MessageBus.sendMessage(new ModuleActivatedMessage(BoardsModule.class, this));
+			// no events in users so far
+		}
+		
+	}
+	
 	public void onSelection(SelectionEvent<Integer> event) {
 		if (event.getSelectedItem() == 0) {
 			boardsModule.initialize(new BoardsRefreshed());
 		} else if (event.getSelectedItem() == 1) {
 			configureWorkflowModule.initialize(new ConfigureWorkflowRefreshed());
+		} else if (event.getSelectedItem() == 2) {
+			securityModule.initialize(new SecurityModuleRefreshed());
 		}
 	}
 	

@@ -34,6 +34,11 @@
 		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener
 		</listener-class>
 	</listener>
+	
+	<listener>
+		<listener-class>com.googlecode.kanbanik.server.MigrateDbListener
+		</listener-class>
+	</listener>
 
  <listener>
      <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
