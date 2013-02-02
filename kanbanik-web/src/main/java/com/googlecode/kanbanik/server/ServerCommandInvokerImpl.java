@@ -22,6 +22,7 @@ import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.LogoutCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
 import com.googlecode.kanbanik.commands.GetCurrentUserCommand;
+import com.googlecode.kanbanik.commands.GetAllUsersCommand;
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -82,6 +83,8 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new DeleteWorkflowitemCommand().execute(params);
 		} else if (command == ServerCommand.EDIT_WORKFLOWITEM_DATA) {
 			return (R) new EditWorkflowitemDataCommand().execute(params);
+		} else if (command == ServerCommand.GET_ALL_USERS_COMMAND) {
+			return (R) new GetAllUsersCommand().execute(params);
 		}
 		return null;
 	}
