@@ -1,0 +1,49 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.mainPanel {
+				
+		}
+		
+		.listBoxStyle {
+			text-align: center;
+			width: 100%;
+		}
+		
+		.headerPanel {
+			text-align: center;
+		}
+		
+		.button-toolbar {
+			border-bottom-style: solid;
+			border-bottom-width: 1px;
+			padding-bottom: 25px;
+		}
+		
+		.imageButtonStyle {
+			float: left;
+			width: 30%;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			padding-left: 5px;
+		}
+	</ui:style>
+
+	<g:FlowPanel addStyleNames="{style.mainPanel}">
+		<g:FlowPanel addStyleNames="{style.headerPanel}">
+			<g:Label ui:field="subjectLabel" />
+			<g:ListBox addStyleNames="{style.listBoxStyle}" ui:field="listBox" />
+		</g:FlowPanel>
+		
+		<g:FlowPanel addStyleNames="{style.button-toolbar}">
+				<g:PushButton styleName="imageButtonStyle" addStyleNames="{style.imageButtonStyle}" ui:field="addButton"
+					text="Add" title="New" />
+				<g:PushButton styleName="imageButtonStyle" addStyleNames="{style.imageButtonStyle}" ui:field="editButton"
+					text="Edit" title="Edit" />
+				<g:PushButton styleName="imageButtonStyle" addStyleNames="{style.imageButtonStyle}" ui:field="deleteButton"
+					text="Delete" title="Delete" />
+			</g:FlowPanel>
+	</g:FlowPanel>
+
+</ui:UiBinder>

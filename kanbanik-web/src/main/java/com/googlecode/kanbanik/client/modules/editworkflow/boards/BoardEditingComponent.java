@@ -14,6 +14,7 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessag
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -23,8 +24,16 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	public BoardEditingComponent(HasClickHandlers hasClickHandler) {
 		super(hasClickHandler, "Edit Board");
 		
+		registerListeners();
+	}
+
+	private void registerListeners() {
 		MessageBus.registerListener(BoardChangedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
+	}
+	
+	public BoardEditingComponent() {
+		registerListeners();
 	}
 
 	private BoardDto boardDto;
@@ -63,8 +72,9 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		
 	}
 
-	public void setBoardDto(BoardDto boardDto) {
-		this.boardDto = boardDto;
+	@Override
+	public void setDto(BoardWithProjectsDto dto) {
+		this.boardDto = dto.getBoard();
 	}
 
 	@Override

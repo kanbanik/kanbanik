@@ -1,16 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -19,6 +15,7 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -42,16 +39,7 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 public class BoardsBox extends Composite {
 
 	@UiField(provided=true)
-	BoardsListBox boardsList;
-
-	@UiField
-	PushButton addBoardButton;
-	
-	@UiField
-	PushButton deleteButton;
-	
-	@UiField
-	PushButton editButton;
+	ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsList;
 
 	@UiField
 	PushButton addProjectButton;
@@ -60,32 +48,73 @@ public class BoardsBox extends Composite {
 	SimplePanel projectsToBoardAddingContainer;
 	
 	private ProjectsToBoardAdding projectToBoardAdding;
-
-	private BoardDeletingComponent boardDeletingComponent;
-	
-	private BoardEditingComponent boardEditingComponent;
-	
-	private static int lastSelectedIndex = 0;
 	
 	interface MyUiBinder extends UiBinder<Widget, BoardsBox> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
-	public BoardsBox(ConfigureWorkflowModule configureWorkflowModule) {
-		boardsList = new BoardsListBox(configureWorkflowModule);
+	public BoardsBox(final ConfigureWorkflowModule configureWorkflowModule) {
+		
+		class IdProvider implements ListBoxWithAddEditDelete.IdProvider<BoardWithProjectsDto> {
+
+			@Override
+			public String getId(BoardWithProjectsDto dto) {
+				return dto.getBoard().getId();
+			}
+			
+		}
+		
+		class LabelProvider implements ListBoxWithAddEditDelete.LabelProvider<BoardWithProjectsDto> {
+
+			@Override
+			public String getLabel(BoardWithProjectsDto dto) {
+				return dto.getBoard().getName();
+			}
+			
+		}
+		
+		class Refresher implements ListBoxWithAddEditDelete.Refresher<BoardWithProjectsDto> {
+
+			@Override
+			public void refrehs(List<BoardWithProjectsDto> items,
+					BoardWithProjectsDto newItem, int index) {
+				items.get(index).setBoard(newItem.getBoard());
+			}
+			
+		}
+		
+		class OnChangeListener implements ListBoxWithAddEditDelete.OnChangeListener<BoardWithProjectsDto> {
+
+			@Override
+			public void onChanged(List<BoardWithProjectsDto> items,
+					BoardWithProjectsDto selectedItem) {
+				if (items.size() == 0) {
+					if (projectToBoardAdding != null) {
+						projectToBoardAdding.disable();
+					}
+				} else {
+					 configureWorkflowModule.selectedBoardChanged(selectedItem);
+				}
+			}
+			
+		}
+		
+		
+		boardsList = new ListBoxWithAddEditDelete<BoardWithProjectsDto>(
+				new IdProvider(), 
+				new LabelProvider(),
+				new BoardCreatingComponent(),
+				new BoardEditingComponent(),
+				new BoardDeletingComponent(),
+				new Refresher());
+		
+		boardsList.setOnChangeListener(new OnChangeListener());
+		
+		new MessageListeners();
+		
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		deleteButton.setEnabled(false);
-		editButton.setEnabled(false);
 		addProjectButton.setEnabled(true);
-		
-		addBoardButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
-		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonDisabledImage()));
-		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonDisabledImage()));
-		
 		addProjectButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
-		new BoardCreatingComponent(addBoardButton);
-		boardDeletingComponent = new BoardDeletingComponent(deleteButton);
-		boardEditingComponent = new BoardEditingComponent(editButton);
 		new ProjectCreatingComponent(addProjectButton);
 		
 	}
@@ -93,153 +122,30 @@ public class BoardsBox extends Composite {
 	public void setBoards(List<BoardWithProjectsDto> allBoards) {
 		boardsList.setContent(allBoards);
 	}
+	
+	class MessageListeners implements MessageListener<BoardDto>, ModulesLifecycleListener {
 
-	class BoardsListBox extends ListBox implements ChangeHandler, MessageListener<BoardDto>, ModulesLifecycleListener {
-
-		private List<BoardWithProjectsDto> boards;
-
-		private BoardWithProjectsDto selectedDto = null;
-
-		private ConfigureWorkflowModule configureWorkflowModule;
-
-		private BoardsRefreshRequestMessageListener refreshRequestListener = new BoardsRefreshRequestMessageListener(this);
+		private BoardsRefreshRequestMessageListener refreshRequestListener = new BoardsRefreshRequestMessageListener(boardsList);
 		
-		public BoardsListBox(ConfigureWorkflowModule configureWorkflowModule) {
-			this.configureWorkflowModule = configureWorkflowModule;
-			addChangeHandler(this);
+		public MessageListeners() {
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 			MessageBus.registerListener(BoardCreatedMessage.class, this);
 			MessageBus.registerListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
-		}
-
-		public void setContent(List<BoardWithProjectsDto> boards) {
-			if (boards == null || boards.size() == 0) {
-				this.boards = new ArrayList<BoardWithProjectsDto>();
-				return;
-			}
-			
-			int tmpSelectedBoard = lastSelectedIndex;
-			clear();
-			this.boards = boards;
-			for (BoardWithProjectsDto board : boards) {
-				addItem(board.getBoard().getName());
-			}
-
-			setupSelectedDto();
-			lastSelectedIndex = tmpSelectedBoard;
-			resetButtonAvailability();
-		}
-
-		private void setupSelectedDto() {
-			if (boards == null) {
-				// TODO handle this better, it means the boards has not been initialized
-				return;
-			}
-
-			int index = getSelectedIndex();
-			if (boards.size() != 0 && index >= 0 && index  < boards.size()) {
-				selectedDto = boards.get(index);	
-			} else { 
-				selectedDto = null;
-			}
-			
-			lastSelectedIndex = index;
-			if (selectedDto != null) {
-				boardDeletingComponent.setBoardDto(selectedDto.getBoard());
-				boardEditingComponent.setBoardDto(selectedDto.getBoard());
-			}
-		}
-
-		public void onChange(ChangeEvent event) {
-			onChange();
-		}
-
-		void onChange() {
-			setupSelectedDto();
-			configureWorkflowModule.selectedBoardChanged(selectedDto);
-			resetButtonAvailability();
-		}
-
-		private void resetButtonAvailability() {
-			editButton.setEnabled(selectedDto != null);
-			deleteButton.setEnabled(selectedDto != null);
-			
-			if (selectedDto != null) {
-				editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
-				deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
-			} else {
-				editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonDisabledImage()));
-				deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonDisabledImage()));
-			}
-		}
-
-		public BoardDto getSelectedBoard() {
-			return selectedDto.getBoard();
 		}
 
 		public void messageArrived(Message<BoardDto> message) {
 			BoardDto dto = message.getPayload();
 			
 			if (message instanceof BoardCreatedMessage) {
-				addNewBoard(dto);	
+				boardsList.addNewItem(new BoardWithProjectsDto(dto));	
 			} else if (message instanceof BoardDeletedMessage) {
-				removeBoard(dto);
+				boardsList.removeItem(new BoardWithProjectsDto(dto));
 			} else if (message instanceof BoardEditedMessage) {
-				editBoard(dto);
+				boardsList.editItem(new BoardWithProjectsDto(dto));
 			} else if (message instanceof BoardRefreshedMessage) {
-				refreshBoard(dto);
+				boardsList.refresh(new BoardWithProjectsDto(dto));
 			}
 			
-		}
-
-		private void refreshBoard(BoardDto dto) {
-			int toRefresh = indexOfBoard(dto);
-			boards.get(toRefresh).setBoard(dto);
-			setItemText(indexOfBoard(dto), dto.getName());
-		}
-
-		private void editBoard(BoardDto dto) {
-			refreshBoard(dto);
-			setItemText(indexOfBoard(dto), dto.getName());
-			onChange();
-		}
-
-		private void removeBoard(BoardDto dto) {
-			int toRemove = indexOfBoard(dto);
-			boards.remove(toRemove);
-			removeItem(toRemove);
-			if (boards.size() > 0) {
-				setSelectedIndex(0);
-				onChange();
-			} else {
-				if (projectToBoardAdding != null) {
-					projectToBoardAdding.disable();
-				}
-				onChange();
-			}
-		}
-
-		private int indexOfBoard(BoardDto dto) {
-			int indexOfBoard = -1;
-			for (int i = 0; i < boards.size(); i++) {
-				
-				String id = boards.get(i).getBoard().getId();
-				if (id != null && id.equals(dto.getId())) {
-					indexOfBoard = i;
-					break;
-				}
-			}
-			if (indexOfBoard == -1) {
-				throw new IllegalStateException("Did not find the board which has been deleted");
-			}
-			return indexOfBoard;
-		}
-
-		private void addNewBoard(BoardDto dto) {
-			boards.add(new BoardWithProjectsDto(dto));
-			addItem(dto.getName());
-			setSelectedIndex(boards.size()-1);
-			onChange();
 		}
 
 		public void activated() {
@@ -273,7 +179,7 @@ public class BoardsBox extends Composite {
 			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
-		
+
 	}
 	
 	public void editBoard(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
@@ -283,17 +189,18 @@ public class BoardsBox extends Composite {
 		
 		projectToBoardAdding = new ProjectsToBoardAdding(boardWithProjects, allProjects);
 		projectsToBoardAddingContainer.add(projectToBoardAdding);
-		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
-			boardsList.setSelectedIndex(lastSelectedIndex);
-			boardsList.onChange();	
-		}
+		// TODO why was this here?
+//		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
+//			boardsList.setSelectedIndex(lastSelectedIndex);
+//			boardsList.onChange();	
+//		}
 	}
 
 	class BoardsRefreshRequestMessageListener implements MessageListener<String> {
 		
-		private final BoardsListBox boardsBox;
+		private final ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsBox;
 		
-		public BoardsRefreshRequestMessageListener(BoardsListBox boardsBox) {
+		public BoardsRefreshRequestMessageListener(ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsBox) {
 			this.boardsBox = boardsBox;
 		}
 		
@@ -307,16 +214,16 @@ public class BoardsBox extends Composite {
 					.getInvoker()
 					.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
 							ServerCommand.GET_BOARD,
-							new SimpleParams<BoardDto>(boardsBox.getSelectedBoard()),
+							new SimpleParams<BoardDto>(boardsBox.getSelectedDto().getBoard()),
 							new BaseAsyncCallback<SimpleParams<BoardDto>>() {
 
 								@Override
 								public void success(SimpleParams<BoardDto> result) {
 									// it has been deleted
 									if (result.getPayload() == null) {
-										MessageBus.sendMessage(new BoardDeletedMessage(boardsBox.getSelectedBoard(), this));
+										MessageBus.sendMessage(new BoardDeletedMessage(boardsBox.getSelectedDto().getBoard(), this));
 									} else {
-										boardsBox.refreshBoard(result.getPayload());
+										boardsBox.refresh(new BoardWithProjectsDto(result.getPayload()));
 										MessageBus.sendMessage(new BoardChangedMessage(result.getPayload(), this));
 									}
 								}

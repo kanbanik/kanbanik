@@ -9,11 +9,13 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.googlecode.kanbanik.client.components.Closable;
+import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 
-public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener, Closable {
+public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener, Closable, Component<BoardWithProjectsDto> {
 	
 	private Panel panel = new HorizontalPanel();
 
@@ -24,11 +26,20 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	private PanelContainingDialog dialog;
 	
 	public AbstractBoardEditingComponent(HasClickHandlers hasClickHandler, String title) {
+		setup(hasClickHandler, title);
+	}
+	
+	public AbstractBoardEditingComponent() {
+		
+	}
+	
+	@Override
+	public void setup(HasClickHandlers hasClickHandler, String title) {
 		panel.add(boardNameLabel);
 		panel.add(boardNameText);
 		dialog = new PanelContainingDialog(title, panel, boardNameText);
 		dialog.addListener(this);
-		hasClickHandler.addClickHandler(new ShowDialogHandler());
+		hasClickHandler.addClickHandler(new ShowDialogHandler());		
 	}
 	
 	class ShowDialogHandler implements ClickHandler {
@@ -48,6 +59,11 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 	
 	public void cancelClicked(PanelContainingDialog dialog) {
+		
+	}
+	
+	@Override
+	public void setDto(BoardWithProjectsDto dto) {
 		
 	}
 	

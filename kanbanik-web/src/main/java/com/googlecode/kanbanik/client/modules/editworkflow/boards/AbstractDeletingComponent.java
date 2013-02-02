@@ -18,6 +18,10 @@ public abstract class AbstractDeletingComponent implements ClickHandler, Closabl
 	public AbstractDeletingComponent(HasClickHandlers hasClickHandler) {
 		hasClickHandler.addClickHandler(this);
 	}
+	
+	public AbstractDeletingComponent() {
+		
+	}
 
 	public void onClick(ClickEvent event) {
 		warningPanel = new WarningPanel("Are you sure you want to delete " + getMessageSpecificPart() + "?");

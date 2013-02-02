@@ -19,6 +19,10 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	public BoardCreatingComponent(HasClickHandlers hasClickHandler) {
 		super(hasClickHandler, "Add Board");
 	}
+	
+	public BoardCreatingComponent() {
+		
+	}
 
 	@Override
 	protected String getBoardName() {
