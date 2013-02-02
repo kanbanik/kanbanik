@@ -52,7 +52,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 
 	private final LabelProvider<T> labelProvider;
 
-	public ListBoxWithAddEditDelete(IdProvider<T> idProvider,
+	public ListBoxWithAddEditDelete(String label, IdProvider<T> idProvider,
 			LabelProvider<T> labelProvider, Component<T> creatingComponent,
 			Component<T> editingComponent, Component<T> deletingComponent,
 			Refresher<T> refresher) {
@@ -68,6 +68,8 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		
 		initWidget(uiBinder.createAndBindUi(this));
 
+		subjectLabel.setText(label);
+		
 		deleteButton.setEnabled(false);
 		editButton.setEnabled(false);
 		editButton.setEnabled(true);

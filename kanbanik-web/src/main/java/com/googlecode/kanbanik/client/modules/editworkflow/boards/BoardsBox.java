@@ -100,6 +100,7 @@ public class BoardsBox extends Composite {
 		
 		
 		boardsList = new ListBoxWithAddEditDelete<BoardWithProjectsDto>(
+				"Board",
 				new IdProvider(), 
 				new LabelProvider(),
 				new BoardCreatingComponent(),
