@@ -23,6 +23,10 @@ import com.googlecode.kanbanik.commands.LogoutCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
 import com.googlecode.kanbanik.commands.GetCurrentUserCommand;
 import com.googlecode.kanbanik.commands.GetAllUsersCommand;
+import com.googlecode.kanbanik.commands.EditUserCommand;
+import com.googlecode.kanbanik.commands.CreateUserCommand;
+import com.googlecode.kanbanik.commands.DeleteUserCommand;
+
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -46,7 +50,7 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		
 		
 		if (!isLoggedIn) {
-			throw new SecurityException("Not logged in user is not can not access any command except the login command");
+			throw new SecurityException("Not logged in user is not can not access any command except the login command. Accessed command: " + command);
 		}
 		
 		// secure zone - unly logged in users can call this commands
@@ -85,7 +89,13 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new EditWorkflowitemDataCommand().execute(params);
 		} else if (command == ServerCommand.GET_ALL_USERS_COMMAND) {
 			return (R) new GetAllUsersCommand().execute(params);
-		}
+		} else if (command == ServerCommand.EDIT_USER_COMMAND) {
+			return (R) new EditUserCommand().execute(params);
+		} else if (command == ServerCommand.CREATE_USER_COMMAND) {
+			return (R) new CreateUserCommand().execute(params);
+		} else if (command == ServerCommand.DELETE_USER_COMMAND) {
+			return (R) new DeleteUserCommand().execute(params);
+		} 
 		return null;
 	}
 

@@ -3,6 +3,9 @@ package com.googlecode.kanbanik.client.modules;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -22,10 +25,10 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 public class LoginModule extends Composite {
 	
 	@UiField
-	TextBox name = new TextBox();
+	TextBox name;
 
 	@UiField
-	TextBox password = new TextBox();
+	TextBox password;
 
 	@UiField
 	PushButton loginButton = new PushButton("login");
@@ -38,35 +41,54 @@ public class LoginModule extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		loginButton.addClickHandler(new ClickHandler() {
-
 			@Override
 			public void onClick(ClickEvent event) {
-
-				new KanbanikServerCaller(new Runnable() {
-
-					public void run() {
-						ServerCommandInvokerManager
-								.getInvoker()
-								.<SimpleParams<LoginDto>, FailableResult<SimpleParams<UserDto>>> invokeCommand(
-										ServerCommand.LOGIN_COMMAND,
-										new SimpleParams<LoginDto>(
-												new LoginDto(name.getText(),
-														password.getText())),
-										new BaseAsyncCallback<FailableResult<SimpleParams<UserDto>>>() {
-
-											public void success(
-													FailableResult<SimpleParams<UserDto>> result) {
-												CurrentUser.getInstance()
-														.login(result
-																.getPayload()
-																.getPayload());
-											}
-										});
-
-					}
-				});
+				doLogin();
 			}
+		});
+		
+		password.addKeyDownHandler(new KeyDownHandler() {
+			
+			@Override
+			public void onKeyDown(KeyDownEvent event) {
+				if(KeyCodes.KEY_ENTER == event.getNativeKeyCode()) {
+					doLogin();
+				}
+			}
+		});
+	}
+	
+	private void doLogin() {
+		new KanbanikServerCaller(new Runnable() {
 
+			public void run() {
+				ServerCommandInvokerManager
+						.getInvoker()
+						.<SimpleParams<LoginDto>, FailableResult<SimpleParams<UserDto>>> invokeCommand(
+								ServerCommand.LOGIN_COMMAND,
+								new SimpleParams<LoginDto>(
+										new LoginDto(name.getText(),
+												password.getText())),
+								new BaseAsyncCallback<FailableResult<SimpleParams<UserDto>>>() {
+
+									@Override
+									public void failure(
+											FailableResult<SimpleParams<UserDto>> result) {
+										super.failure(result);
+										
+										password.setText("");
+									}
+									
+									public void success(
+											FailableResult<SimpleParams<UserDto>> result) {
+										CurrentUser.getInstance()
+												.login(result
+														.getPayload()
+														.getPayload());
+									}
+								});
+
+			}
 		});
 	}
 }

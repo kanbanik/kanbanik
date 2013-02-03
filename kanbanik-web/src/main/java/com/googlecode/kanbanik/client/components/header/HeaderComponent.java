@@ -9,12 +9,12 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.messaging.Message;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.UserDto;
 
 public class HeaderComponent extends Composite implements ClickHandler {
 
@@ -30,27 +30,31 @@ public class HeaderComponent extends Composite implements ClickHandler {
 	public HeaderComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		loggedInUserLabel.setText(CurrentUser.getInstance().getUser().getRealName());
+		MessageBus.registerListener(UserEditedMessage.class, new MessageListener<UserDto>() {
+
+			@Override
+			public void messageArrived(Message<UserDto> message) {
+				if (message.getPayload().getUserName().equals(CurrentUser.getInstance().getUser().getUserName())) {
+					setupLabel(message.getPayload());
+				}
+			}
+		});
+		
+		setupLabel(CurrentUser.getInstance().getUser());
 		
 		logoutButton.addClickHandler(this);
+	}
+	
+	private void setupLabel(UserDto user) {
+		if (user.getRealName() != null && !user.getRealName().isEmpty()) {
+			loggedInUserLabel.setText(user.getRealName());	
+		} else {
+			loggedInUserLabel.setText(user.getUserName());
+		}
 	}
 
 	@Override
 	public void onClick(ClickEvent event) {
-		new KanbanikServerCaller(new Runnable() {
-
-			public void run() {
-				ServerCommandInvokerManager.getInvoker().<VoidParams, VoidParams> invokeCommand(
-								ServerCommand.LOGOUT_COMMAND,
-								new VoidParams(),
-								new BaseAsyncCallback<VoidParams>() {
-									
-									public void success(VoidParams res) {
-										CurrentUser.getInstance().logout();
-									}
-								});
-
-			}
-		});
+		CurrentUser.getInstance().logout();
 	}
 }

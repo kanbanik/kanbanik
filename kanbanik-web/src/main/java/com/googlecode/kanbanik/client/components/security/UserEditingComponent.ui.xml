@@ -1,0 +1,52 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.labelStyle,.textboxStyle {
+		}
+		
+		.warningMessage {
+			font-weight: bold;
+			color: red;
+		}
+		
+		
+		.labels,.values {
+			width: 140px;
+			float: left;
+			line-height: 31px;
+		}
+
+		.values,.textboxStyle {
+			width: 290px;
+		}
+		
+		.mainPanel {
+			width: 440px;
+		}
+	
+	</ui:style>
+
+	<g:FlowPanel addStyleNames="{style.mainPanel}" ui:field="mainPanel">
+		<g:FlowPanel addStyleNames="{style.labels}">
+			<g:Label addStyleNames="{style.labelStyle}" text="Username: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Real Name: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Password: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Change Also Password: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="New Password: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="New Password(again): "/>
+		</g:FlowPanel>
+		
+		<g:FlowPanel addStyleNames="{style.values}">
+			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
+			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />
+			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password" />
+			<g:CheckBox addStyleNames="{style.textboxStyle}" ui:field="toChangePassword" />
+			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword" />
+			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword2" />
+		</g:FlowPanel>
+		
+		<g:HTML addStyleNames="{style.warningMessage}" ui:field="messages" />
+	</g:FlowPanel>
+
+</ui:UiBinder>

@@ -120,6 +120,7 @@
 					<noServer>true</noServer>
 					<gen>gen</gen>
 					<copyWebapp>true</copyWebapp>
+					<!--style>PRETTY</style-->
 					<compileSourcesArtifacts>
 						<compileSourcesArtifact>${project.groupId}:web</compileSourcesArtifact>
 						<compileSourcesArtifact>${project.groupId}:dto</compileSourcesArtifact>

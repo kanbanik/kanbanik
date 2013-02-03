@@ -33,6 +33,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 	@UiField(provided = true)
 	ListBoxWithAddEditDeleteListBox listBox;
 
+	@SuppressWarnings("rawtypes")
 	interface MyUiBinder extends UiBinder<Widget, ListBoxWithAddEditDelete> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
@@ -100,6 +101,9 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 	
 	public void refresh(T dto) {
 		listBox.refresh(dto);
+		creatingComponent.setDto(dto);
+		editingComponent.setDto(dto);
+		deletingComponent.setDto(dto);
 	}
 	
 	public void editItem(T dto) {
@@ -113,11 +117,15 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 	public void addNewItem(T dto) {
 		listBox.addNewItem(dto);
 	}
+
+	public void setSelectedDto(T dto) {
+		listBox.setSelectedDto(dto);
+	}
 	
 	public void setOnChangeListener(OnChangeListener<T> onChangeListener) {
 		this.onChangeListener = onChangeListener;
 	}
-
+	
 	class ListBoxWithAddEditDeleteListBox extends ListBox implements ChangeHandler {
 
 		private List<T> items;
@@ -171,7 +179,9 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 
 		void onChange() {
 			setupSelectedDto();
-			onChangeListener.onChanged(items, selectedDto);
+			if (onChangeListener != null) {
+				onChangeListener.onChanged(items, selectedDto);
+			}
 			resetButtonAvailability();
 		}
 
@@ -201,6 +211,13 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			return selectedDto;
 		}
 
+		public void setSelectedDto(T dto) {
+			selectedDto = dto;
+			int toSelect = indexOf(dto);
+			setSelectedIndex(toSelect);
+			onChange();
+		}
+		
 		private void refresh(T dto) {
 			int toRefresh = indexOf(dto);
 			refresher.refrehs(items, dto, toRefresh);
@@ -265,4 +282,5 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 	public static interface OnChangeListener<T> {
 		void onChanged(List<T> items, T selectedItem);
 	}
+
 }

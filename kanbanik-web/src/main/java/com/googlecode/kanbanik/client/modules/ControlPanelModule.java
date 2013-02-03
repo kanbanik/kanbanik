@@ -13,11 +13,11 @@ import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCal
 
 public class ControlPanelModule extends TabPanel implements SelectionHandler<Integer> {
 	
-	private final BoardsModule boardsModule = new BoardsModule();
+	private static final BoardsModule boardsModule = new BoardsModule();
 	
-	private final ConfigureWorkflowModule configureWorkflowModule = new ConfigureWorkflowModule();
+	private static final ConfigureWorkflowModule configureWorkflowModule = new ConfigureWorkflowModule();
 	
-	private final SecurityModule securityModule = new SecurityModule();
+	private static final SecurityModule securityModule = new SecurityModule();
 
 	private SimplePanel boardsContent = new SimplePanel();
 	

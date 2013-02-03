@@ -14,7 +14,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusWidget;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class PanelContainingDialog extends DialogBox implements Closable {
@@ -37,11 +36,11 @@ public class PanelContainingDialog extends DialogBox implements Closable {
 	@UiField
 	FlowPanel contentWrapper;
 	
-	public PanelContainingDialog(String title, Panel contentPanel) {
+	public PanelContainingDialog(String title, Widget contentPanel) {
 		this(title, contentPanel, null);
 	}
 	
-	public PanelContainingDialog(String title, Panel contentPanel, FocusWidget focusWidget) {
+	public PanelContainingDialog(String title, Widget contentPanel, FocusWidget focusWidget) {
 		super();
 		
 		setWidget(uiBinder.createAndBindUi(this));

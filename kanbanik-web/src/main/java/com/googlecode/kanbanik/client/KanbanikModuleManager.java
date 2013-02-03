@@ -17,6 +17,11 @@ import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class KanbanikModuleManager {
+	
+	private LoginListener loginListener = new LoginListener();
+	
+	private LogoutListener logoutListener = new LogoutListener();
+	
 	public void initialize() {
 
 		registerListeners();
@@ -69,17 +74,16 @@ public class KanbanikModuleManager {
 	}
 	
 	private void autologout() {
-		CurrentUser.getInstance().logout();
+		CurrentUser.getInstance().logoutFrontend();
 	}
 
 	private void refreshListeners() {
-		MessageBus.removeAllListeners();
-		registerListeners();
+//		registerListeners();
 	}
 	
 	private void registerListeners() {
-		MessageBus.registerListener(LoginEvent.class, new LoginListener());
-		MessageBus.registerListener(LogoutEvent.class, new LogoutListener());
+		MessageBus.registerListener(LoginEvent.class, loginListener);
+		MessageBus.registerListener(LogoutEvent.class, logoutListener);
 	}
 
 	class LoginListener implements MessageListener<UserDto> {

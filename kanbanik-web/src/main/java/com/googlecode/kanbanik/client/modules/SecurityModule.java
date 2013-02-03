@@ -3,22 +3,30 @@ package com.googlecode.kanbanik.client.modules;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
+import com.googlecode.kanbanik.client.components.security.UserAddingComponent;
+import com.googlecode.kanbanik.client.components.security.UserDeletingComponent;
+import com.googlecode.kanbanik.client.components.security.UserEditingComponent;
+import com.googlecode.kanbanik.client.messaging.Message;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.UserDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class SecurityModule extends Composite implements KanbanikModule {
+public class SecurityModule extends Composite implements KanbanikModule, MessageListener<UserDto> {
 
 	@UiField(provided=true)
 	ListBoxWithAddEditDelete<UserDto> usersList;
@@ -27,13 +35,18 @@ public class SecurityModule extends Composite implements KanbanikModule {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
 	public SecurityModule() {
+		
+		MessageBus.registerListener(UserAddedMessage.class, this);
+		MessageBus.registerListener(UserEditedMessage.class, this);
+		MessageBus.registerListener(UserDeletedMessage.class, this);
+		
 		usersList = new ListBoxWithAddEditDelete<UserDto>(
 				"Users",
 				new IdProvider(),
 				new LabelProvider(),
-				new FakeComponent(),
-				new FakeComponent(),
-				new FakeComponent(),
+				new UserAddingComponent(),
+				new UserEditingComponent(),
+				new UserDeletingComponent(),
 				new Refresher()
 				);
 		
@@ -51,6 +64,7 @@ public class SecurityModule extends Composite implements KanbanikModule {
 					@Override
 					public void success(SimpleParams<ListDto<UserDto>> result) {
 						usersList.setContent(result.getPayload().getList());
+						usersList.setSelectedDto(CurrentUser.getInstance().getUser());
 						initializedCallback.initialized(SecurityModule.this);
 					}
 				});
@@ -83,19 +97,16 @@ public class SecurityModule extends Composite implements KanbanikModule {
 		}
 		
 	}
-	
-	class FakeComponent implements Component<UserDto> {
 
-		@Override
-		public void setup(HasClickHandlers clickHandler, String title) {
-			
+	@Override
+	public void messageArrived(Message<UserDto> message) {
+		if (message instanceof UserAddedMessage) {
+			usersList.addNewItem(message.getPayload());
+		} else if (message instanceof UserDeletedMessage) {
+			usersList.removeItem(message.getPayload());
+		} else if (message instanceof UserEditedMessage) {
+			usersList.refresh(message.getPayload());
 		}
-
-		@Override
-		public void setDto(UserDto dto) {
-			
-		}
-		
 	}
 
 }
