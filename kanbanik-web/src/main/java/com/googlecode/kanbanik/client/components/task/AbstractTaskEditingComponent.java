@@ -59,7 +59,7 @@ public abstract class AbstractTaskEditingComponent {
 		header.setWidget(0, 1, ticketId);
 		
 		taskName.setWidth("100%");
-		header.setWidget(1, 0, new Label("Short descritption"));
+		header.setWidget(1, 0, new Label("Short description"));
 		header.setWidget(1, 1, taskName);
 		
 		header.setWidget(2, 0, new Label("Class of service"));
