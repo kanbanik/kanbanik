@@ -60,6 +60,8 @@ class From1To2 extends MigrationPart {
     // create the first user
     new CreateUserCommand().execute(new SimpleParams(userDto))
     
+    // add isBalanceWorkflowitems support
+    
     setVersionTo(2)
   }
 }

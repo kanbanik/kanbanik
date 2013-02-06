@@ -6,6 +6,8 @@ public class BoardDto implements IdentifiableDto {
 
 	private String name;
 	
+	private boolean balanceWorkflowitems;
+	
 	private String id;
 	
 	private int version;
@@ -34,6 +36,14 @@ public class BoardDto implements IdentifiableDto {
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+	
+	public boolean isBalanceWorkflowitems() {
+		return balanceWorkflowitems;
+	}
+
+	public void setBalanceWorkflowitems(boolean balanceWorkflowitems) {
+		this.balanceWorkflowitems = balanceWorkflowitems;
 	}
 
 	@Override

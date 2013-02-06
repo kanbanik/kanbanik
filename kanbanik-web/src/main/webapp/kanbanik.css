@@ -123,14 +123,6 @@ td .project-gui {
 	margin-top: 10px
 }
 
-.edit-workflow-module>tbody>tr>td {
-	width: 1%;
-}
-
-.edit-workflow-module>tbody>tr>td:last-of-type {
-	width: 100%;
-}
-
 .project-to-board-adding {
 	width: 100%;
 }

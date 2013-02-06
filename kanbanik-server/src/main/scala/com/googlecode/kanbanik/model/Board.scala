@@ -13,6 +13,7 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 class Board(
   val id: Option[ObjectId],
   val name: String,
+  val balanceWorkflowitems: Boolean, 
   val version: Int,
   val workflow: Workflow) extends HasMongoConnection with HasMidAirCollisionDetection {
 
@@ -20,14 +21,14 @@ class Board(
     id: Option[ObjectId],
     name: String,
     version: Int) = {
-    this(id, name, version, new Workflow(None, List(), None))
+    this(id, name, true, version, new Workflow(None, List(), None))
   }
 
   def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
     val removed = workflow.removeItem(item)
     val added = removed.addItem(item, beforeItem, destWorkflow)
 
-    new Board(id, name, version, added)
+    new Board(id, name, balanceWorkflowitems, version, added)
   }
 
   def store: Board = {
@@ -45,6 +46,7 @@ class Board(
       val update = $set(
         Board.Fields.version.toString() -> { version + 1 },
         Board.Fields.name.toString() -> name,
+        Board.Fields.balanceWorkflowitems.toString() -> balanceWorkflowitems,
         Board.Fields.workflow.toString() -> workflow.asDbObject)
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
@@ -53,18 +55,22 @@ class Board(
   }
 
   def withName(name: String) =
-    new Board(id, name, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow)
 
   def withVersion(version: Int) =
-    new Board(id, name, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow)
 
   def withWorkflow(workflow: Workflow) =
-    new Board(id, name, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow)
 
+  def withBalancedWorkflowitems(balanceWorkflowitems: Boolean) =
+    new Board(id, name, balanceWorkflowitems, version, workflow)
+  
   private def asDbObject(): DBObject = {
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
       Board.Fields.name.toString() -> name,
+      Board.Fields.balanceWorkflowitems.toString() -> balanceWorkflowitems,
       Board.Fields.version.toString() -> version,
       Board.Fields.workflow.toString() -> workflow.asDbObject)
   }
@@ -79,6 +85,7 @@ object Board extends HasMongoConnection {
   
   object Fields extends DocumentField {
     val workflow = Value("workflow")
+    val balanceWorkflowitems = Value("balanceWorkflowitems")
   }
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
@@ -100,6 +107,7 @@ object Board extends HasMongoConnection {
     val board = new Board(
       Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
+      dbObject.get(Board.Fields.balanceWorkflowitems.toString()).asInstanceOf[Boolean],
       determineVersion(dbObject.get(Board.Fields.version.toString())),
       Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]))
     

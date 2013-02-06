@@ -28,12 +28,18 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	protected String getBoardName() {
 		return "";
 	}
+	
+	@Override
+	protected boolean isBalancedWorkflow() {
+		return true;
+	}
 
 	@Override
 	protected void onOkClicked(final BoardDto dto) {
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(null);
 		toStore.setName(dto.getName());
+		toStore.setBalanceWorkflowitems(dto.isBalanceWorkflowitems());
 		toStore.setWorkflow(new WorkflowDto());
 		
 		new KanbanikServerCaller(
@@ -53,4 +59,5 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 				});
 		}});
 	}
+
 }

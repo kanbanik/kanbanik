@@ -45,12 +45,22 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		}
 		return boardDto.getName();
 	}
+	
+	@Override
+	protected boolean isBalancedWorkflow() {
+		if (boardDto == null) {
+			return true;
+		}
+		
+		return boardDto.isBalanceWorkflowitems();
+	}
 
 	@Override
 	protected void onOkClicked(BoardDto dto) {
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
+		toStore.setBalanceWorkflowitems(dto.isBalanceWorkflowitems());
 		toStore.setVersion(boardDto.getVersion());
 		toStore.setWorkflow(boardDto.getWorkflow());
 		

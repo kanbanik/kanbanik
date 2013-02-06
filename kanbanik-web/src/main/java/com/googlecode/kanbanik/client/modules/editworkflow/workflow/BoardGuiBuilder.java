@@ -14,6 +14,10 @@ public abstract class BoardGuiBuilder {
 	
 	private static final BoardStyle style = KanbanikResources.INSTANCE.boardStyle();
 	
+	public BoardGuiBuilder() {
+		style.ensureInjected();
+	}
+	
 	public void buildBoard(
 			WorkflowDto workflow,
 			ProjectDto project,
@@ -21,19 +25,24 @@ public abstract class BoardGuiBuilder {
 			PickupDragController dragController, 
 			int row, 
 			int column) {
-		style.ensureInjected();
 		
 		if (workflow == null) {
 			return;
 		}
+		
+		boolean isBalanced = workflow.getBoard().isBalanceWorkflowitems();
 		
 		WorkflowDto currentDto = workflow;
 		
 		for (WorkflowitemDto currentItem : currentDto.getWorkflowitems()) {
 			if (currentItem.getNestedWorkflow().getWorkflowitems().size() > 0) {
 				FlexTable childTable = new FlexTable();
-				childTable.setWidth("100%");
-				childTable.setHeight("100%");
+				
+				if (isBalanced) {
+					childTable.setHeight("100%");
+					childTable.setWidth("100%");
+				}
+				
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);

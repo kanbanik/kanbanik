@@ -18,6 +18,7 @@ class BoardBuilder extends BaseBuilder {
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
+    res.setBalanceWorkflowitems(board.balanceWorkflowitems)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
@@ -29,6 +30,7 @@ class BoardBuilder extends BaseBuilder {
     val board = new Board(
       determineId(boardDto),
       boardDto.getName(),
+      boardDto.isBalanceWorkflowitems(),
       boardDto.getVersion(),
       Workflow()
     )

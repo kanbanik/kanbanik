@@ -4,10 +4,12 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
@@ -17,11 +19,19 @@ import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 
 public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener, Closable, Component<BoardWithProjectsDto> {
 	
-	private Panel panel = new HorizontalPanel();
+	private Panel mainPanel = new VerticalPanel();
+	
+	private HorizontalPanel namePanel = new HorizontalPanel();
+	
+	private HorizontalPanel balancedWorkflowPanel = new HorizontalPanel();
 
 	private Label boardNameLabel = new Label("Board Name: ");
 
 	private TextBox boardNameText = new TextBox(); 
+	
+	private Label balanceWorkflowitemsLabel = new Label("Balance space of workflowitems (can be slow for complex flows)");
+	
+	private CheckBox balanceWorkflowitems = new CheckBox();
 
 	private PanelContainingDialog dialog;
 	
@@ -35,9 +45,21 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	
 	@Override
 	public void setup(HasClickHandlers hasClickHandler, String title) {
-		panel.add(boardNameLabel);
-		panel.add(boardNameText);
-		dialog = new PanelContainingDialog(title, panel, boardNameText);
+		boardNameLabel.setWidth("160px");
+		
+		namePanel.add(boardNameLabel);
+		namePanel.add(boardNameText);
+		
+		balanceWorkflowitemsLabel.setWidth("160px");
+		balancedWorkflowPanel.add(balanceWorkflowitemsLabel);
+		balancedWorkflowPanel.add(balanceWorkflowitems);
+		
+		mainPanel.add(namePanel);
+		mainPanel.add(balancedWorkflowPanel);
+		
+		mainPanel.setWidth("300px");
+		
+		dialog = new PanelContainingDialog(title, mainPanel, boardNameText);
 		dialog.addListener(this);
 		hasClickHandler.addClickHandler(new ShowDialogHandler());		
 	}
@@ -46,6 +68,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 
 		public void onClick(ClickEvent event) {
 			boardNameText.setText(getBoardName());
+			balanceWorkflowitems.setValue(isBalancedWorkflow());
 			dialog.center();
 			boardNameText.setFocus(true);
 		}
@@ -55,6 +78,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	public void okClicked(PanelContainingDialog dialog) {
 		BoardDto dto = new BoardDto();
 		dto.setName(boardNameText.getText());
+		dto.setBalanceWorkflowitems(balanceWorkflowitems.getValue());
 		onOkClicked(dto);
 	}
 	
@@ -73,6 +97,8 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 	
 	protected abstract String getBoardName();
+	
+	protected abstract boolean isBalancedWorkflow();
 	
 	protected abstract void onOkClicked(BoardDto dto);
 }
