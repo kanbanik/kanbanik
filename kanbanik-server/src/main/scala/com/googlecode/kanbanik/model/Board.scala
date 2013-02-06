@@ -107,7 +107,14 @@ object Board extends HasMongoConnection {
     val board = new Board(
       Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Board.Fields.balanceWorkflowitems.toString()).asInstanceOf[Boolean],
+      {
+        val res = dbObject.get(Board.Fields.balanceWorkflowitems.toString())
+        if (res == null) {
+          true
+        } else {
+          res.asInstanceOf[Boolean]
+        }
+      },
       determineVersion(dbObject.get(Board.Fields.version.toString())),
       Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]))
     
