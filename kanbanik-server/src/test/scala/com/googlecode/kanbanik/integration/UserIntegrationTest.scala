@@ -65,10 +65,17 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
 
     assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 1)
 
-    // delete this user
-    new DeleteUserCommand().execute(new SimpleParams(userDto))
+    // delete this only user should fail
+    val deleteLastUserResult = new DeleteUserCommand().execute(new SimpleParams(userDto))
+    assert(deleteLastUserResult.isSucceeded() === false)
 
-    assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 0)
+    userDto.setUserName("otherUser")
+    new CreateUserCommand().execute(new SimpleParams(userDto))
+    assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 2)
+
+    userDto.setVersion(1)
+    new DeleteUserCommand().execute(new SimpleParams(userDto))
+    assert(new GetAllUsersCommand().execute(new VoidParams).getPayload().getList().size() === 1)
   }
 
   after {
