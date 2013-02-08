@@ -7,7 +7,10 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardRefreshRequestListener;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
@@ -21,10 +24,13 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private BoardsBox boardsBox = new BoardsBox(this);
 
-	private WorkflowEditingComponent workflowEditingComponent = new WorkflowEditingComponent();;
+	private static final WorkflowEditingComponent workflowEditingComponent = new WorkflowEditingComponent();;
 
 	public ConfigureWorkflowModule() {
 		setStyleName("edit-workflow-module");
+		
+		// register static listeners
+		MessageBus.registerListener(BoardsRefreshRequestMessage.class, new BoardRefreshRequestListener());
 	}
 
 	public void initialize(final ModuleInitializeCallback initializedCallback) {

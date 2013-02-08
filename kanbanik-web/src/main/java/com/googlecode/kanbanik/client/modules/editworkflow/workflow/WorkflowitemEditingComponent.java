@@ -76,7 +76,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 					@Override
 					public void success(FailableResult<SimpleParams<WorkflowitemDto>> result) {
 						MessageBus.sendMessage(new WorkflowitemChangedMessage(result.getPayload().getPayload(), this));
-						MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+						MessageBus.sendMessage(new BoardsRefreshRequestMessage(result.getPayload().getPayload().getParentWorkflow().getBoard(), this));
 					}
 				}); 
 		}});		

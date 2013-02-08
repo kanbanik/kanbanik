@@ -10,11 +10,8 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -24,7 +21,6 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessa
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
@@ -33,8 +29,6 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycl
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class BoardsBox extends Composite {
 
@@ -126,12 +120,10 @@ public class BoardsBox extends Composite {
 	
 	class MessageListeners implements MessageListener<BoardDto>, ModulesLifecycleListener {
 
-		private BoardsRefreshRequestMessageListener refreshRequestListener = new BoardsRefreshRequestMessageListener(boardsList);
-		
 		public MessageListeners() {
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 			MessageBus.registerListener(BoardCreatedMessage.class, this);
-			MessageBus.registerListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
+			MessageBus.registerListener(BoardChangedMessage.class, this);
 		}
 
 		public void messageArrived(Message<BoardDto> message) {
@@ -144,6 +136,8 @@ public class BoardsBox extends Composite {
 			} else if (message instanceof BoardEditedMessage) {
 				boardsList.editItem(new BoardWithProjectsDto(dto));
 			} else if (message instanceof BoardRefreshedMessage) {
+				boardsList.refresh(new BoardWithProjectsDto(dto));
+			} else if (message instanceof BoardChangedMessage) {
 				boardsList.refresh(new BoardWithProjectsDto(dto));
 			}
 			
@@ -166,8 +160,8 @@ public class BoardsBox extends Composite {
 				MessageBus.registerListener(BoardRefreshedMessage.class, this);	
 			}
 			
-			if (!MessageBus.listens(BoardsRefreshRequestMessage.class, this)) {
-				MessageBus.registerListener(BoardsRefreshRequestMessage.class, refreshRequestListener);	
+			if (!MessageBus.listens(BoardChangedMessage.class, this)) {
+				MessageBus.registerListener(BoardChangedMessage.class, this);	
 			} 	
 			
 		}
@@ -177,7 +171,7 @@ public class BoardsBox extends Composite {
 			MessageBus.unregisterListener(BoardDeletedMessage.class, this);
 			MessageBus.unregisterListener(BoardEditedMessage.class, this);
 			MessageBus.unregisterListener(BoardRefreshedMessage.class, this);
-			MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, refreshRequestListener);
+			MessageBus.unregisterListener(BoardChangedMessage.class, this);
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
 
@@ -197,42 +191,5 @@ public class BoardsBox extends Composite {
 //		}
 	}
 
-	class BoardsRefreshRequestMessageListener implements MessageListener<String> {
-		
-		private final ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsBox;
-		
-		public BoardsRefreshRequestMessageListener(ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsBox) {
-			this.boardsBox = boardsBox;
-		}
-		
-		@Override
-		public void messageArrived(Message<String> message) {
-			new KanbanikServerCaller(
-					new Runnable() {
-
-						public void run() {
-			ServerCommandInvokerManager
-					.getInvoker()
-					.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
-							ServerCommand.GET_BOARD,
-							new SimpleParams<BoardDto>(boardsBox.getSelectedDto().getBoard()),
-							new BaseAsyncCallback<SimpleParams<BoardDto>>() {
-
-								@Override
-								public void success(SimpleParams<BoardDto> result) {
-									// it has been deleted
-									if (result.getPayload() == null) {
-										MessageBus.sendMessage(new BoardDeletedMessage(boardsBox.getSelectedDto().getBoard(), this));
-									} else {
-										boardsBox.refresh(new BoardWithProjectsDto(result.getPayload()));
-										MessageBus.sendMessage(new BoardChangedMessage(result.getPayload(), this));
-									}
-								}
-
-							});
-			}});
-		}
-		
-	}
 }
 

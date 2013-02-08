@@ -102,16 +102,16 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 									FailableResult<SimpleParams<WorkflowitemDto>> result) {
 								MessageBus
 										.sendMessage(new BoardsRefreshRequestMessage(
-												"", this));
+												contextItem.getBoard(), this));
 							}
 							
 							@Override
 							protected void handleFaildResult(FailableResult<?> failableResult) {
 								if (failableResult instanceof MidAirCollisionResult) {
 									new ErrorDialog("The workflow has been modified by a different user. Your change has been discarded and the workflow has been refreshed automatically.").center();
-									MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+									MessageBus.sendMessage(new BoardsRefreshRequestMessage(contextItem.getBoard(), this));
 								} else {
-									MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+									MessageBus.sendMessage(new BoardsRefreshRequestMessage(contextItem.getBoard(), this));
 									super.handleFaildResult(failableResult);
 								}
 							}

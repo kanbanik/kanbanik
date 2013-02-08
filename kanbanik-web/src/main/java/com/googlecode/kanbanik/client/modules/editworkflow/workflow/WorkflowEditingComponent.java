@@ -17,17 +17,12 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -36,8 +31,6 @@ import com.googlecode.kanbanik.dto.ItemType;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class WorkflowEditingComponent extends Composite implements
 		ModulesLifecycleListener, MessageListener<BoardDto> {
@@ -66,8 +59,6 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private BoardDto boardDto;
 
-	private BoardsRefreshRequestMessageListener boardsRefreshRequestMessageListener = new BoardsRefreshRequestMessageListener();
-	
 	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
@@ -312,10 +303,6 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private void registerListeners() {
-		if (!MessageBus.listens(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener)) {
-			MessageBus.registerListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
-		}
-		
 		if (!MessageBus.listens(BoardChangedMessage.class, this)) {
 			MessageBus.registerListener(BoardChangedMessage.class, this);	
 		}
@@ -327,7 +314,6 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 	
 	public void unregisterListeners() {
-		MessageBus.unregisterListener(BoardsRefreshRequestMessage.class, boardsRefreshRequestMessageListener);
 		
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}
@@ -339,44 +325,9 @@ public class WorkflowEditingComponent extends Composite implements
 			return;
 		}
 		
-		refreshBoards();
+		boardDto = message.getPayload();
+		renderBoard();
 	}
 	
-	private void refreshBoards() {
-		// I know, this is not really efficient...
-		// One day it should be improved
-		new KanbanikServerCaller(
-				new Runnable() {
-
-					public void run() {
-		ServerCommandInvokerManager
-				.getInvoker()
-				.<SimpleParams<BoardDto>, SimpleParams<BoardDto>> invokeCommand(
-						ServerCommand.GET_BOARD,
-						new SimpleParams<BoardDto>(boardDto),
-						new BaseAsyncCallback<SimpleParams<BoardDto>>() {
-
-							@Override
-							public void success(SimpleParams<BoardDto> result) {
-								boardDto = result.getPayload();
-								if (boardDto != null) {
-									// it has been deleted
-									MessageBus.sendMessage(new BoardRefreshedMessage(boardDto, WorkflowEditingComponent.this));
-									// can not sent a refresh request - it would reload the whole again
-									renderBoard();
-								}
-							}
-
-						});
-		}});
-	}
-
-	class BoardsRefreshRequestMessageListener implements MessageListener<String> {
-
-		public void messageArrived(Message<String> message) {
-			refreshBoards();
-		}
-		
-	}
 }
 

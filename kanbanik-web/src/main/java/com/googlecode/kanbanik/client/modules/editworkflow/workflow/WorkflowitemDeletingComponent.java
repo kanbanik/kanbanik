@@ -68,7 +68,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 
 						@Override
 						public void success(FailableResult<VoidParams> result) {
-							MessageBus.sendMessage(new BoardsRefreshRequestMessage("", this));
+							MessageBus.sendMessage(new BoardsRefreshRequestMessage(dto.getParentWorkflow().getBoard(), this));
 						}
 					});
 			}});
