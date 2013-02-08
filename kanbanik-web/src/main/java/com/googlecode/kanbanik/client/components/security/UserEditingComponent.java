@@ -113,6 +113,8 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 		password.setText("");
 		newPassword.setText("");
 		newPassword2.setText("");
+		toChangePassword.setValue(false);
+		setChangePasswordEnabled(false);
 	}
 
 	@Override
