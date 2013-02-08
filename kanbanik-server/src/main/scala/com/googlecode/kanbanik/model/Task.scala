@@ -66,6 +66,12 @@ object Task extends HasMongoConnection {
     val workflowitem = Value("workflowitem")
   }
 
+  def all(): List[Task] = {
+    using(createConnection) { conn =>
+      coll(conn, Coll.Tasks).find().map(asEntity(_)).toList
+    }
+  }
+  
   def byId(id: ObjectId): Task = {
     using(createConnection) { conn =>
       val dbTask = coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.id.toString() -> id)).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))

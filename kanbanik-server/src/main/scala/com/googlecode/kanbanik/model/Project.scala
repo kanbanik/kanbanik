@@ -6,6 +6,7 @@ import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
+import scala.collection.immutable.HashMap
 
 class Project(
   var id: Option[ObjectId],
@@ -69,6 +70,9 @@ object Project extends HasMongoConnection {
   }
 
   private def asEntity(dbObject: DBObject) = {
+    val allTasks = buildMap[Task](Task.all)
+    val allBoards = buildMap[Board](Board.all)
+    
     new Project(
       Some(dbObject.get(Project.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Project.Fields.name.toString()).asInstanceOf[String],
@@ -81,13 +85,18 @@ object Project extends HasMongoConnection {
         }
       },
       {
-        toEntityList(dbObject.get(Project.Fields.boards.toString()), Board.byId(_))
+        toEntityList(dbObject.get(Project.Fields.boards.toString()), allBoards.get(_).get)
       },
       {
-        toEntityList(dbObject.get(Project.Fields.tasks.toString()), Task.byId(_))
+        toEntityList(dbObject.get(Project.Fields.tasks.toString()), allTasks.get(_).get)
       })
   }
 
+  def buildMap[T <: { def id: Option[ObjectId]}](allEntities: List[T]):Map[ObjectId, T] = {
+    val zipped = allEntities.map(_.id.get) zip allEntities
+    zipped.toMap
+  }
+  
   private def toIdList[T](entities: Option[List[T]], codeBlock: T => ObjectId) = {
     if (!entities.isDefined) {
       null
