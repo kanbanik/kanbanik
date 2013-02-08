@@ -1,8 +1,16 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.dto.ClassOfService;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 
 public class TaskEditingComponent extends AbstractTaskEditingComponent {
@@ -33,6 +41,31 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	@Override
 	protected String getId() {
 		return taskGui.getDto().getId();
+	}
+	
+	@Override
+	protected void onClicked() {
+		
+		// retrieve the real task
+		new KanbanikServerCaller(
+				new Runnable() {
+
+					public void run() {
+		ServerCommandInvokerManager
+				.getInvoker()
+				.<SimpleParams<TaskDto>, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
+						ServerCommand.GET_TASK,
+						new SimpleParams<TaskDto>(taskGui.getDto()),
+						new BaseAsyncCallback<FailableResult<SimpleParams<TaskDto>>>() {
+
+							@Override
+							public void success(FailableResult<SimpleParams<TaskDto>> result) {
+								MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskEditingComponent.this));
+								doSetupAndShow();
+							}
+
+						});
+		}});		
 	}
 	
 	@Override

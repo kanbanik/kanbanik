@@ -68,7 +68,8 @@ object Task extends HasMongoConnection {
 
   def all(): List[Task] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Tasks).find().map(asEntity(_)).toList
+      // this never retrieves the description!
+      coll(conn, Coll.Tasks).find(MongoDBObject(), MongoDBObject(Task.Fields.description.toString() -> 0)).map(asEntity(_)).toList
     }
   }
   

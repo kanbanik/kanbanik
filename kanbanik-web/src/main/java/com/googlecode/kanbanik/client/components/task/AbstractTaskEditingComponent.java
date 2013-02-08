@@ -149,11 +149,19 @@ public abstract class AbstractTaskEditingComponent {
 	class ShowDialogHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
-			setupValues();
-			dialog.center();
-			taskName.setFocus(true);
+			onClicked();
 		}
 		
+	}
+	
+	protected void onClicked() {
+		doSetupAndShow();
+	}
+
+	protected void doSetupAndShow() {
+		setupValues();
+		dialog.center();
+		taskName.setFocus(true);
 	}
 	
 	class AddTaskButtonHandler implements PanelContainingDialolgListener {

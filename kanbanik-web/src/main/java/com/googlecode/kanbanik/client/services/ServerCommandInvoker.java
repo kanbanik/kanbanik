@@ -5,10 +5,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.googlecode.kanbanik.dto.shell.Params;
 import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.shared.UserNotLoggedInException;
 
 @RemoteServiceRelativePath("commandInvoker")
 public interface ServerCommandInvoker extends RemoteService {
 	
-	<P extends Params, R extends Result> R invokeCommand(ServerCommand command, P params);
+	<P extends Params, R extends Result> R invokeCommand(ServerCommand command, P params) throws UserNotLoggedInException;
 	
 }

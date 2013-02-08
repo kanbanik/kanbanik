@@ -10,6 +10,7 @@ public enum ServerCommand implements Serializable {
 	SAVE_TASK, 
 	SAVE_BOARD,
 	GET_BOARD,
+	GET_TASK,
 	DELETE_TASK,
 	DELETE_BOARD,
 	DELETE_PROJECT,
