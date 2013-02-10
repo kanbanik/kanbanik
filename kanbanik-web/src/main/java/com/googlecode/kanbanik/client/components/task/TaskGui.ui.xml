@@ -11,28 +11,52 @@
 			margin-right: 2px;
 			width: 100%;
 		}
+		
+		.mainPanel {
+			border-style: solid; 
+			border-width: 1px; 
+			align: right;
+			margin-bottom: 4px;
+		}
+		
+		.shortDescription {
+			width: 92%;
+			height: 30px;
+			resize: vertical;
+			overflow: hidden;
+		}
+		
+		.headerStyle {
+			float: left;
+		}
+		
+		.toolbarStyle {
+			float: left;
+		}
+		
+		.buttonStyle {
+			float: left;
+		}
+		
+		.headrHolder {
+			width: 100%;
+		}
 	</ui:style>
 
-	<g:HTMLPanel>
-		<div
-			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;"
-			ui:field="mainDiv">
-			<g:FocusPanel width="100%" ui:field="header">
+	<g:FlowPanel addStyleNames="{style.mainPanel}">
+		<g:FlowPanel addStyleNames="{style.headrHolder}">
+			<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
 				<g:Label ui:field="ticketIdLabel" />
 			</g:FocusPanel>
-
-			<g:HorizontalPanel styleName="{style.task-toolbar}">
-				<g:PushButton styleName="imageButtonStyle" ui:field="editButton"
+			<g:FlowPanel addStyleNames="{style.toolbarStyle}">
+				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="editButton"
 					text="Edit" title="Edit" />
-				<g:PushButton styleName="imageButtonStyle" ui:field="deleteButton"
+				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="deleteButton"
 					text="Delete" title="Delete" />
-			</g:HorizontalPanel>
+			</g:FlowPanel>
+		</g:FlowPanel>	
+		<g:TextArea addStyleNames="{style.shortDescription}" enabled="false" ui:field="nameLabel" />
 
-			<g:TextArea styleName="taskNameBox" width="94%" enabled="false"
-				ui:field="nameLabel" />
-
-		</div>
-
-	</g:HTMLPanel>
+	</g:FlowPanel>
 
 </ui:UiBinder>

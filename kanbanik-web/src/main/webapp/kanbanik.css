@@ -37,6 +37,13 @@ body {
 	margin-right: 2px;
 }
 
+.taskImageButtonStyle {
+	height: 10px;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 2px;
+}
+
 .balanced-table {
 	width: 100%;
 	height: 100%;
@@ -62,26 +69,26 @@ body {
 }
 
 .task-class-of-service-EXPEDITE {
-	width: 100%;
-	min-height: 50%;
+	width: 73%;
+	float: left;
 	background-color: #f80070;
 }
 
 .task-class-of-service-FIXED_DELIVERY_DATE {
-	width: 100%;
-	min-height: 50%;
+	width: 73%;
+	float: left;
 	background-color: #ffeb00;
 }
 
 .task-class-of-service-STANDARD {
-	width: 100%;
-	min-height: 50%;
+	width: 73%;
+	float: left;
 	background-color: #83ff00;
 }
 
 .task-class-of-service-INTANGIBLE {
-	width: 100%;
-	min-height: 70%;
+	width: 73%;
+	float: left;
 	background-color: #65b1f8;
 }
 
