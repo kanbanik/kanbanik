@@ -39,8 +39,9 @@ public abstract class BoardGuiBuilder {
 				FlexTable childTable = new FlexTable();
 				
 				if (isBalanced) {
-					childTable.setHeight("100%");
-					childTable.setWidth("100%");
+					childTable.addStyleName("balanced-table");
+				} else {
+					childTable.addStyleName("not-balanced-table");
 				}
 				
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
