@@ -338,7 +338,7 @@ body {
 	}		
 			
 	.control-panel-style {		
-		float: left;		
+		display: inline-table;
 	}		
 			
 	textarea {		
