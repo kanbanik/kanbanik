@@ -14,10 +14,14 @@ class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[
   
   lazy val userBuilder = new UserBuilder
   
+  // 8h - one working day
+  lazy val timeout = 28800000;
+  
   def execute(params: SimpleParams[LoginDto]): FailableResult[SimpleParams[UserDto]] = {
     val currentUser = SecurityUtils.getSubject()
     try {
       currentUser.login(new UsernamePasswordToken(params.getPayload().getUserName(), params.getPayload().getPassword()))
+      SecurityUtils.getSubject().getSession().setTimeout(timeout)
     } catch {
       case e: Exception =>
         println(e)
