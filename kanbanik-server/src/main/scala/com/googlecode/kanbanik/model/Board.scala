@@ -13,22 +13,23 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 class Board(
   val id: Option[ObjectId],
   val name: String,
-  val balanceWorkflowitems: Boolean, 
+  val balanceWorkflowitems: Boolean,
   val version: Int,
-  val workflow: Workflow) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val workflow: Workflow,
+  val tasks: List[Task]) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def this(
     id: Option[ObjectId],
     name: String,
     version: Int) = {
-    this(id, name, true, version, new Workflow(None, List(), None))
+    this(id, name, true, version, new Workflow(None, List(), None), List())
   }
 
   def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
     val removed = workflow.removeItem(item)
     val added = removed.addItem(item, beforeItem, destWorkflow)
 
-    new Board(id, name, balanceWorkflowitems, version, added)
+    new Board(id, name, balanceWorkflowitems, version, added, tasks)
   }
 
   def store: Board = {
@@ -55,24 +56,28 @@ class Board(
   }
 
   def withName(name: String) =
-    new Board(id, name, balanceWorkflowitems, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
 
   def withVersion(version: Int) =
-    new Board(id, name, balanceWorkflowitems, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
 
   def withWorkflow(workflow: Workflow) =
-    new Board(id, name, balanceWorkflowitems, version, workflow)
+    new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
 
   def withBalancedWorkflowitems(balanceWorkflowitems: Boolean) =
-    new Board(id, name, balanceWorkflowitems, version, workflow)
-  
+    new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
+
+  def withTasks(tasks: List[Task]) =
+    new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
+
   private def asDbObject(): DBObject = {
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
       Board.Fields.name.toString() -> name,
       Board.Fields.balanceWorkflowitems.toString() -> balanceWorkflowitems,
       Board.Fields.version.toString() -> version,
-      Board.Fields.workflow.toString() -> workflow.asDbObject)
+      Board.Fields.workflow.toString() -> workflow.asDbObject,
+      Board.Fields.tasks.toString() -> tasks.map(Task.asDBObject(_)))
   }
 
   def delete {
@@ -82,17 +87,19 @@ class Board(
 }
 
 object Board extends HasMongoConnection {
-  
+
   object Fields extends DocumentField {
     val workflow = Value("workflow")
     val balanceWorkflowitems = Value("balanceWorkflowitems")
+    val tasks = Value("tasks")
   }
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
-  
+
   def all(): List[Board] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Boards).find().map(asEntity(_)).toList
+      // does not retrive the description of the task
+      coll(conn, Coll.Boards).find(MongoDBObject(), MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)).map(asEntity(_)).toList
     }
   }
 
@@ -116,9 +123,22 @@ object Board extends HasMongoConnection {
         }
       },
       determineVersion(dbObject.get(Board.Fields.version.toString())),
-      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]))
+      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]),
+      List())
+
     
     board.withWorkflow(board.workflow.withBoard(Some(board)))
+
+    val tasks = dbObject.get(Board.Fields.tasks.toString())
+    if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
+      val list = dbObject.get(Board.Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
+      val projects = Project.allForBoard(board)
+      val taskEnitities = list.map(Task.asEntity(_, board, projects))
+      board.withTasks(taskEnitities)
+    } else {
+      board
+    }
+
   }
 
   private def determineVersion(res: Object) = {

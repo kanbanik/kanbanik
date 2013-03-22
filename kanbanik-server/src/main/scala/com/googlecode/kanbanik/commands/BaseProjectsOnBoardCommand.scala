@@ -7,10 +7,9 @@ import com.googlecode.kanbanik.model.Board
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.shell.FailableResult
-import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.messages.ServerMessages
 
-abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[BoardWithProjectsDto], FailableResult[SimpleParams[BoardWithProjectsDto]]] with ProjectValidation{
+abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[BoardWithProjectsDto], FailableResult[SimpleParams[BoardWithProjectsDto]]] {
 
   def execute(params: SimpleParams[BoardWithProjectsDto]): FailableResult[SimpleParams[BoardWithProjectsDto]] = {
     

@@ -13,8 +13,6 @@ public class ProjectDto implements IdentifiableDto {
 	
 	private List<BoardDto> boards = new ArrayList<BoardDto>();
 	
-	private List<TaskDto> tasks = new ArrayList<TaskDto>();
-
 	private int version;
 	
 	public ProjectDto() {
@@ -40,24 +38,12 @@ public class ProjectDto implements IdentifiableDto {
 		return name;
 	}
 
-	public List<TaskDto> getTasks() {
-		return tasks;
-	}
-
-	public void addTask(TaskDto task) {
-		tasks.add(task);
-	}
-	
 	public void addBoard(BoardDto board) {
 		boards.add(board);
 	}
 
 	public void setBoards(List<BoardDto> boards) {
 		this.boards = boards;
-	}
-
-	public void setTasks(List<TaskDto> tasks) {
-		this.tasks = tasks;
 	}
 
 	public int getVersion() {

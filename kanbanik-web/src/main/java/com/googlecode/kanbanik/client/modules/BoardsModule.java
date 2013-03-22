@@ -44,10 +44,8 @@ public class BoardsModule {
 	
 	private void addTasks(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload().getList()) {
-			for (ProjectDto project : boardWithProjects.getProjectsOnBoard()) {
-				for (TaskDto task : project.getTasks()) {
-					MessageBus.sendMessage(new TaskAddedMessage(task, this));
-				}
+			for (TaskDto task : boardWithProjects.getBoard().getTasks()) {
+				MessageBus.sendMessage(new TaskAddedMessage(task, this));
 			}
 		}
 	}

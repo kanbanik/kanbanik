@@ -5,11 +5,11 @@ import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.model.Project
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.model.validation.ProjectValidation
 
 class DeleteProjectCommand extends ServerCommand[SimpleParams[ProjectDto], FailableResult[VoidParams]] with ProjectValidation {
   

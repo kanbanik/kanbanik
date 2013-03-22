@@ -10,6 +10,25 @@ import com.googlecode.kanbanik.model.Workflow
 
 class WorkflowitemBuilder extends BaseBuilder {
   
+  def buildShallowEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
+     new Workflowitem(
+        {
+          if (dto.getId() == null) {
+            Some(new ObjectId)
+          } else {
+            Some(new ObjectId(dto.getId()))
+          }
+        },
+        dto.getName(),
+        dto.getWipLimit(),
+        dto.getItemType().asStringValue(),
+        dto.getVersion(),
+        // don't calculate it if not needed
+        Workflow(), 
+        parentWorkflow
+    )
+  }
+  
   def buildEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
     new Workflowitem(
         {
@@ -28,13 +47,19 @@ class WorkflowitemBuilder extends BaseBuilder {
     )
   }
   
-  def buildDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
+   def buildShallowDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     val dto = new WorkflowitemDto
     dto.setId(workflowitem.id.get.toString())
     dto.setName(workflowitem.name)
     dto.setWipLimit(workflowitem.wipLimit)
     dto.setItemType(ItemType.asItemType(workflowitem.itemType))
     dto.setVersion(workflowitem.version)
+    dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
+    dto
+  }
+  
+  def buildDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
+    val dto = buildShallowDto(workflowitem, parentWorkflow)
     dto.setNestedWorkflow(workflowBuilder.buildDto(workflowitem.nestedWorkflow, parentBoard(parentWorkflow)))
     dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
     dto

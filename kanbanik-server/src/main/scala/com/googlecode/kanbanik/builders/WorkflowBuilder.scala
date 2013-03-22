@@ -19,9 +19,15 @@ class WorkflowBuilder extends BaseBuilder {
     res.withWorkflowitems(res.workflowitems.map(_.withParentWorkflow(res)))
   }
   
-  def buildDto(workflow: Workflow, board: Option[BoardDto]) = {
+  def buildShallowDto(workflow: Workflow, board: Option[BoardDto]) = {
     val res = new WorkflowDto
     res.setId(workflow.id.get.toString())
+	res.setBoard(board.getOrElse(boardBuilder.buildShallowDto(workflow.board, Some(res))))
+    res
+  }
+  
+  def buildDto(workflow: Workflow, board: Option[BoardDto]) = {
+    val res = buildShallowDto(workflow, board)
 	res.setBoard(board.getOrElse(boardBuilder.buildDto(workflow.board, Some(res))))
     val workflowitems = workflow.workflowitems.map(workflowitemBuilder.buildDto(_, Some(res)))
     val javaList = new java.util.ArrayList[WorkflowitemDto](workflowitems.size)

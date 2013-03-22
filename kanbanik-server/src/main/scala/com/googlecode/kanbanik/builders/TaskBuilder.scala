@@ -15,11 +15,10 @@ class TaskBuilder extends TaskManipulation {
     dto.setName(task.name)
     dto.setDescription(task.description)
     dto.setClassOfService(ClassOfService.fromId(task.classOfService))
-    dto.setWorkflowitem(workflowitemBuilder.buildDto(task.workflowitem, None))
+    dto.setWorkflowitem(workflowitemBuilder.buildShallowDto(task.workflowitem, None))
     dto.setTicketId(task.ticketId)
     dto.setVersion(task.version)
-    val project: Project = findProjectForTask(task).getOrElse(throw new IllegalStateException("No project for task: '" + task.id + "' found!"))
-    dto.setProject(projectBuilder.buildShallowDto(project))
+    dto.setProject(projectBuilder.buildShallowDto(task.project))
     dto
   }
 
@@ -31,7 +30,8 @@ class TaskBuilder extends TaskManipulation {
       taskDto.getClassOfService().getId(),
       determineTicketId(taskDto),
       taskDto.getVersion(),
-      workflowitemBuilder.buildEntity(taskDto.getWorkflowitem(), None, None))
+      workflowitemBuilder.buildShallowEntity(taskDto.getWorkflowitem(), None, None),
+      projectBuilder.buildShallowEntity(taskDto.getProject()))
   }
   
   private def determineId(taskDto: TaskDto): Option[ObjectId]= {

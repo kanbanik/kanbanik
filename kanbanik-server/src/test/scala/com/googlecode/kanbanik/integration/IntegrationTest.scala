@@ -98,11 +98,12 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     
     // edit task
-    val taskToMove = loadProject().getTasks().get(0)
+    val taskToMove = loadBoard().getTasks().get(0)
     taskToMove.setWorkflowitem(loadWorkflow.getWorkflowitems().get(2))
     val moveTaskParams = new MoveTaskParams(taskToMove, loadProject())
     val movedTask = new MoveTaskCommand().execute(moveTaskParams)
     assert(movedTask.getPayload().getPayload().getWorkflowitem().getName() === "item2")
+    assert(loadBoard().getTasks().get(0).getWorkflowitem().getName() === "item2")
     
     // edit board
     val boardToEdit = loadBoard()
@@ -122,7 +123,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     
     // delete task
     new DeleteTaskCommand().execute(new SimpleParams(movedTask.getPayload().getPayload()))
-    assert(loadProject().getTasks().size() === 0)
+    assert(loadBoard().getTasks().size() === 0)
     
     // delete workflowitems
     val loadedItem1 = loadItem(0)

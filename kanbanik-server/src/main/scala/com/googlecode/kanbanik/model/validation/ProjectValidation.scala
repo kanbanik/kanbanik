@@ -4,23 +4,24 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Task
 
 
-// todo check if can be removed
 trait ProjectValidation {
 
   def canBeDeleted(project: Project): (Boolean, String) = {
-    if (!project.tasks.isDefined) {
+    val tasksOnProject = findTasksOnProject(project)
+    if (tasksOnProject.isEmpty) {
       return (true, "")
     }
 
-    return composeResult(project.tasks.get)
+    return composeResult(tasksOnProject)
   }
   
   def canBeRemoved(project: Project, board: Board): (Boolean, String) = {
-    if (!project.tasks.isDefined) {
+    val tasksOnProject = findTasksOnProject(project)
+    if (tasksOnProject.isEmpty) {
       return (true, "")
     }
 
-    val tasks = project.tasks.get.filter(_.workflowitem.parentWorkflow.board.id == board.id)
+    val tasks = tasksOnProject.filter(_.workflowitem.parentWorkflow.board.id == board.id)
     if (tasks.size == 0) {
       return (true, "")
     }
@@ -39,5 +40,9 @@ trait ProjectValidation {
     
     (false, msg)
   }
+  
+  // REALLY heavy operation! It is based on assumption that there will be only few boards 
+  // in the system - mostly one. As soon as this will not be true anymore, needs to be optimized!
+  private def findTasksOnProject(project: Project) = for (board <- Board.all; task <- board.tasks; if(task.project.equals(project))) yield task 
   
 }

@@ -1,5 +1,8 @@
 package com.googlecode.kanbanik.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BoardDto implements IdentifiableDto {
 
 	private static final long serialVersionUID = -4409696591604175858L;
@@ -13,6 +16,8 @@ public class BoardDto implements IdentifiableDto {
 	private int version;
 	
 	private WorkflowDto workflow;
+	
+	private List<TaskDto> tasks = new ArrayList<TaskDto>();
 	
 	public String getName() {
 		return name;
@@ -60,6 +65,14 @@ public class BoardDto implements IdentifiableDto {
 
 	public void setWorkflow(WorkflowDto workflow) {
 		this.workflow = workflow;
+	}
+	
+	public List<TaskDto> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(List<TaskDto> tasks) {
+		this.tasks = tasks;
 	}
 
 	@Override

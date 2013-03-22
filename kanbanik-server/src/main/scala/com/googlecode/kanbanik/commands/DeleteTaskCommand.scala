@@ -10,6 +10,7 @@ import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.Project
 
 class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[VoidParams]] with TaskManipulation {
   
@@ -29,8 +30,8 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
     
     val task = taskBuilder.buildEntity(params.getPayload())
     
-    val project = findProjectForTask(task).getOrElse(return new FailableResult(new VoidParams(), false, "The task is defined on no project - it has possibly been deleted by a different user. Please refresh your browser to get the current data."))
-    
+    val project = Project.byId(task.project.id.get)
+      
     try {
     	task.delete
     } catch {
@@ -38,9 +39,6 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
         	return new FailableResult(new VoidParams(), false, ServerMessages.midAirCollisionException)
     }
 
-    // well... if this goes wrong, the DB will end up in an inconsistent state - but it should be fast enough that this will never happen
-    removeTaskFromProject(task, project)
-    
     new FailableResult(new VoidParams)
   }
 }

@@ -15,14 +15,8 @@ class ProjectBuilder {
     val res = buildShallowDto(project)
 
     val boards = project.boards.getOrElse(List[Board]())
-    val tasks = project.tasks.getOrElse(List[Task]())
 
     boards.foreach(board => res.addBoard(boardBuilder.buildDto(board, None)))
-    tasks.foreach(task => {
-      val taskDto = taskBuilder.buildDto(task)
-      taskDto.setProject(res)
-      res.addTask(taskDto)
-    })
 
     res
   }
@@ -40,11 +34,23 @@ class ProjectBuilder {
       projectDto.getVersion(),
       {
         dtosToEntities[Board, BoardDto](projectDto.getBoards(), {board => Board.byId(new ObjectId(board.getId()))})
-      },
-
+      }
+     )
+  }
+  
+  def buildShallowEntity(projectDto: ProjectDto): Project = {
+    new Project(
       {
-        dtosToEntities[Task, TaskDto](projectDto.getTasks(), {task => Task.byId(new ObjectId(task.getId()))})
-      })
+        if (projectDto.getId() == null) {
+          None
+        } else {
+          Some(new ObjectId(projectDto.getId()))
+        }
+      },
+      projectDto.getName(),
+      projectDto.getVersion(),
+      null
+      )
   }
 
   def dtosToEntities[E, D](dtos: java.util.List[D], f: D => E): Option[List[E]] = {

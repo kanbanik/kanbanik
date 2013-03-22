@@ -63,7 +63,6 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent imp
 		project.setName(projectDto.getName());
 		project.setId(projectDto.getId());
 		project.setBoards(projectDto.getBoards());
-		project.setTasks(projectDto.getTasks());
 		project.setVersion(projectDto.getVersion());
 		return project;
 	}

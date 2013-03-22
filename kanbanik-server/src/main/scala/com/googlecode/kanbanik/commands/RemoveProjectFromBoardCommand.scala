@@ -6,8 +6,10 @@ import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.dto.shell.SimpleParams
+import com.googlecode.kanbanik.model.validation.ProjectValidation
 
-class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand {
+
+class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with ProjectValidation {
 
   private val builder = new ProjectBuilder()
 

@@ -34,20 +34,13 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     val task = taskBuilder.buildEntity(params.getPayload())
     val isNew = !task.id.isDefined
     
-    var storedTask: Task = null
     try {
-    	storedTask = task.store
+    	val stored = task.store
+    	return new FailableResult(new SimpleParams(taskBuilder.buildDto(stored)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)
     }
     
-    val project = Project.byId(new ObjectId(params.getPayload().getProject().getId()))
-    
-    if (isNew) {
-    	addTaskToProject(storedTask, project)
-    }
-
-    return new FailableResult(new SimpleParams(taskBuilder.buildDto(storedTask)))
   }
 }

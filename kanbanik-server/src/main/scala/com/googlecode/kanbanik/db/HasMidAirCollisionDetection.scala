@@ -10,9 +10,14 @@ import com.mongodb.casbah.Imports.wrapDBObj
 import com.mongodb.casbah.commons.MongoDBObject
 
 trait HasMidAirCollisionDetection extends HasMongoConnection {
-  def versionedQuery(id: Any, version: Int) = {
-    (MongoDBObject(SimpleField.id.toString() -> id)) ++ 
-    ($or((SimpleField.version.toString() $exists false), MongoDBObject(SimpleField.version.toString() -> version)))
+  
+  def versionedQuery(id: Any, version: Int, idField: String, versionField: String): DBObject = {
+    (MongoDBObject(idField -> id)) ++ 
+    ($or((versionField $exists false), MongoDBObject(versionField -> version)))
+  }
+  
+  def versionedQuery(id: Any, version: Int): DBObject = {
+    versionedQuery(id, version, SimpleField.id.toString(), SimpleField.version.toString())
   }
 
   def versionedUpdate(collection: Coll.Value, query: DBObject, update: DBObject) = {

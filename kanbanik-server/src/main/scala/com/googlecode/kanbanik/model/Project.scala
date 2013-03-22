@@ -9,11 +9,10 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 import scala.collection.immutable.HashMap
 
 class Project(
-  var id: Option[ObjectId],
-  var name: String,
-  var version: Int,
-  var boards: Option[List[Board]],
-  var tasks: Option[List[Task]]) extends HasMongoConnection with HasMidAirCollisionDetection {
+  var id: Option[ObjectId], 
+  var name: String, 
+  var version: Int, 
+  var boards: Option[List[Board]]) extends HasMongoConnection with HasMidAirCollisionDetection with Equals {
 
   def store: Project = {
     val idToUpdate = id.getOrElse({
@@ -27,8 +26,7 @@ class Project(
     val update = $set(
         Project.Fields.name.toString() -> name,
         Project.Fields.version.toString() -> { version + 1 },
-        Project.Fields.boards.toString() -> Project.toIdList[Board](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
-        Project.Fields.tasks.toString() -> Project.toIdList[Task](tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
+        Project.Fields.boards.toString() -> Project.toIdList[Board](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))))
     
     Project.asEntity(versionedUpdate(Coll.Projects, versionedQuery(idToUpdate, version), update))
   }
@@ -36,7 +34,27 @@ class Project(
   def delete {
      versionedDelete(Coll.Projects, versionedQuery(id.get, version))
   }
-
+  
+  def canEqual(other: Any) = {
+    other.isInstanceOf[com.googlecode.kanbanik.model.Project]
+  }
+  
+  def withId(id: ObjectId) = 
+    new Project(Some(id), name, version, boards);
+  
+  override def equals(other: Any) = {
+    other match {
+      case that: Project => that.canEqual(Project.this) && id == that.id
+      case _ => false
+    }
+  }
+  
+  override def hashCode() = {
+    val prime = 41
+    prime + id.hashCode
+  }
+  
+  
 }
 
 object Project extends HasMongoConnection {
@@ -46,6 +64,12 @@ object Project extends HasMongoConnection {
     val tasks = Value("tasks")
   }
 
+  def allForBoard(board: Board): List[Project] = {
+    using(createConnection) { conn =>
+      coll(conn, Coll.Projects).find(MongoDBObject(Project.Fields.boards.toString() -> board.id.get)).map(asEntity(_, board)).toList
+    }
+  }
+  
   def all(): List[Project] = {
     using(createConnection) { conn =>
       coll(conn, Coll.Projects).find().map(asEntity(_)).toList
@@ -59,20 +83,24 @@ object Project extends HasMongoConnection {
     }
   }
 
-  private def asDBObject(entity: Project): DBObject = {
+  def asDBObject(entity: Project): DBObject = {
     MongoDBObject(
       Project.Fields.id.toString() -> new ObjectId,
       Project.Fields.name.toString() -> entity.name,
       Project.Fields.version.toString() -> entity.version,
-      Project.Fields.boards.toString() -> toIdList[Board](entity.boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))),
-      Project.Fields.tasks.toString() -> toIdList[Task](entity.tasks, _.id.getOrElse(throw new IllegalArgumentException("The task has to exist!"))))
-
+      Project.Fields.boards.toString() -> toIdList[Board](entity.boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))))
   }
 
-  private def asEntity(dbObject: DBObject) = {
-    val allTasks = buildMap[Task](Task.all)
+  private def asEntity(dbObject: DBObject, board: Board): Project = {
+    asEntity(dbObject, obj => Some(List(board)))
+  }
+  
+  private def asEntity(dbObject: DBObject): Project = {
     val allBoards = buildMap[Board](Board.all)
-    
+    asEntity(dbObject, obj => toEntityList(obj.get(Project.Fields.boards.toString()), allBoards.get(_).get))
+  }
+  
+  private def asEntity(dbObject: DBObject, boardsProvider: DBObject => Option[List[Board]]): Project = {
     new Project(
       Some(dbObject.get(Project.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Project.Fields.name.toString()).asInstanceOf[String],
@@ -85,11 +113,9 @@ object Project extends HasMongoConnection {
         }
       },
       {
-        toEntityList(dbObject.get(Project.Fields.boards.toString()), allBoards.get(_).get)
-      },
-      {
-        toEntityList(dbObject.get(Project.Fields.tasks.toString()), allTasks.get(_).get)
-      })
+        boardsProvider(dbObject)
+      }
+     )
   }
 
   def buildMap[T <: { def id: Option[ObjectId]}](allEntities: List[T]):Map[ObjectId, T] = {
@@ -125,4 +151,6 @@ object Project extends HasMongoConnection {
       }
     }
   }
+
+  def apply() = new Project(Some(new ObjectId()), "", -1, None)
 }
