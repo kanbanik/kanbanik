@@ -10,6 +10,7 @@ import com.mongodb.casbah.Imports.$pull
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.BasicDBObjectBuilder
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
 class Task(
   val id: Option[ObjectId],
@@ -83,17 +84,28 @@ class Task(
 
   def delete {
     val update = $pull(
-            Coll.Tasks.toString() -> MongoDBObject(SimpleField.id.toString() -> id.get)
-            )
+      Coll.Tasks.toString() -> MongoDBObject(SimpleField.version.toString() -> version, SimpleField.id.toString() -> id.get))
 
     val idField = Coll.Tasks.toString() + "." + SimpleField.id.toString()
     val versionField = Coll.Tasks.toString() + "." + SimpleField.version.toString()
     using(createConnection) { conn =>
-      val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(id.get, version, idField, versionField), update)
-//    	coll(conn, Coll.Boards).update(MongoDBObject(), update)
+      // this can not be used because of a bug in mongodb 2.2.0 which is in the runtime.
+      // TODO as soon as the runtime will contain a newer version of the mongodb, this line should be uncommented
+      // and that try-catch block removed
+      //      val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(id.get, version, idField, versionField), update)
+
+      coll(conn, Coll.Boards).update(MongoDBObject(), update)
+      try {
+        Task.byId(id.get)
+      } catch {
+        case e: IllegalArgumentException => { 
+          return
+        }
+      }
+      
+      throw new MidAirCollisionException
     }
-    
-//    convertToEntity(id.get, dbBoard)
+
   }
 
 }
@@ -125,7 +137,7 @@ object Task extends HasMongoConnection {
 
   def asDBObject(entity: Task): DBObject = {
     MongoDBObject(
-      Task.Fields.id.toString() -> {if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id},
+      Task.Fields.id.toString() -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
       Task.Fields.name.toString() -> entity.name,
       Task.Fields.description.toString() -> entity.description,
       Task.Fields.classOfService.toString() -> entity.classOfService,
