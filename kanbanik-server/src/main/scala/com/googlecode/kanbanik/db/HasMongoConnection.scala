@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.db
 import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
 import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.WriteConcern
+import com.mongodb.casbah.MongoCollection
 
 trait HasMongoConnection extends ResourceManipulation {
 
@@ -22,8 +23,12 @@ trait HasMongoConnection extends ResourceManipulation {
     val WorkflowitemLocks = Value("workflowitemLocks")
   }
 
-  def coll(connection: MongoConnection, collName: Coll.Value) = {
+  def coll(connection: MongoConnection, collName: Coll.Value): MongoCollection = {
     connection(HasMongoConnection.dbName)(collName.toString())
+  }
+  
+  def coll(connection: MongoConnection, collName: String): MongoCollection = {
+    connection(HasMongoConnection.dbName)(collName)
   }
 
 }
