@@ -39,6 +39,8 @@ public class LoginModule extends Composite {
 	public LoginModule() {
 
 		initWidget(uiBinder.createAndBindUi(this));
+
+		name.setFocus(true);
 		
 		loginButton.addClickHandler(new ClickHandler() {
 			@Override
