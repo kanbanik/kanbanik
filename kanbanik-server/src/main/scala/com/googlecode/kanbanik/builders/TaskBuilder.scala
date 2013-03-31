@@ -18,6 +18,7 @@ class TaskBuilder extends TaskManipulation {
     dto.setWorkflowitem(workflowitemBuilder.buildShallowDto(task.workflowitem, None))
     dto.setTicketId(task.ticketId)
     dto.setVersion(task.version)
+    dto.setOrder(task.order)
     dto.setProject(projectBuilder.buildShallowDto(task.project))
     dto
   }
@@ -30,6 +31,7 @@ class TaskBuilder extends TaskManipulation {
       taskDto.getClassOfService().getId(),
       determineTicketId(taskDto),
       taskDto.getVersion(),
+      taskDto.getOrder(),
       workflowitemBuilder.buildShallowEntity(taskDto.getWorkflowitem(), None, None),
       projectBuilder.buildShallowEntity(taskDto.getProject()))
   }

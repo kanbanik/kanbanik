@@ -43,6 +43,7 @@ public class BoardsModule {
 	
 	
 	private void addTasks(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
+		// TODO do it in scheduler and not at once
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload().getList()) {
 			for (TaskDto task : boardWithProjects.getBoard().getTasks()) {
 				MessageBus.sendMessage(new TaskAddedMessage(task, this));

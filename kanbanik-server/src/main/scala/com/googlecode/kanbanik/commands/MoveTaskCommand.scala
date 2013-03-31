@@ -36,13 +36,49 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
       case e: IllegalArgumentException => return new FailableResult(new SimpleParams(params.getTask()), false, "Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the currrent data.") 
     }
     
+    val newOrder = calculateNewOrder(params)
+    
     try {
-    	val resTask = task.store
+    	val resTask = task.withOrder(newOrder).store
 	    return new FailableResult(new SimpleParams(taskBuilder.buildDto(resTask)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(taskBuilder.buildDto(task)), false, ServerMessages.midAirCollisionException)
     }
     
+  }
+  
+  
+  def calculateNewOrder(params: MoveTaskParams) = {
+    if (params.getPrevOrder() == null && params.getNextOrder() == null) {
+      // the only one in the workflow
+      "0"
+    } else if (params.getPrevOrder() == null || params.getNextOrder() == null) {
+      if (params.getPrevOrder() == null) {
+        // to the first place
+        val next = BigDecimal.apply(params.getNextOrder())
+        val newOrder = next - 100
+        newOrder.toString
+      } else {
+        // to the last place
+        val prev = BigDecimal.apply(params.getPrevOrder())
+        val newOrder = prev + 100
+        newOrder.toString
+      }
+    } else {
+      // between two
+      val prev = BigDecimal.apply(params.getPrevOrder())
+      val next = BigDecimal.apply(params.getNextOrder())
+
+      if ((prev < 0 && next < 0) || (prev > 0 && next > 0)) {
+        val newOrder = (next + prev) / 2
+        newOrder.toString
+      } else {
+        val distance = next.abs + prev.abs
+        val newOrder = prev + (distance / 2)
+        newOrder.toString
+      }
+    }
+
   }
 }

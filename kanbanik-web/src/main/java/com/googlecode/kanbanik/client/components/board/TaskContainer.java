@@ -1,5 +1,9 @@
 package com.googlecode.kanbanik.client.components.board;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -13,10 +17,12 @@ public class TaskContainer extends Composite {
 
 	@UiField
 	FlowPanel contentPanel;
-	
-	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {}
+
+	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
+	}
+
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	
+
 	public TaskContainer() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
@@ -27,13 +33,13 @@ public class TaskContainer extends Composite {
 			contentPanel.remove(widgetIndex);
 		}
 	}
-	
+
 	public boolean containsTask(TaskDto task) {
 		return getTaskIndex(task) != -1;
 	}
-	
-	private int getTaskIndex(TaskDto task) {
-		for (int i = 0; i < contentPanel.getWidgetCount(); i ++) {
+
+	public int getTaskIndex(TaskDto task) {
+		for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
 			Widget widget = contentPanel.getWidget(i);
 			if (widget instanceof TaskGui) {
 				if (((TaskGui) widget).getDto().equals(task)) {
@@ -41,12 +47,46 @@ public class TaskContainer extends Composite {
 				}
 			}
 		}
-		
+
 		return -1;
 	}
 
+	public List<TaskDto> getTasks() {
+		List<TaskDto> res = new ArrayList<TaskDto>();
+
+		for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
+			Widget widget = contentPanel.getWidget(i);
+			if (widget instanceof TaskGui) {
+				res.add(((TaskGui) widget).getDto());
+			}
+		}
+
+		return res;
+	}
+
 	public void add(TaskGui task) {
-		contentPanel.add(task);
+		int nextTaskIndex = getNextTaskIndex(asBigDecimal(task.getDto().getOrder()));
+		contentPanel.insert(task, nextTaskIndex);
+	}
+
+	private int getNextTaskIndex(BigDecimal order) {
+		// TODO this is not correct
+		for (TaskDto currenTask : getTasks()) {
+			BigDecimal currentOrder = asBigDecimal(currenTask.getOrder());
+			if (order.compareTo(currentOrder) > 0) {
+				return getTaskIndex(currenTask) + 1;
+			}
+		}
+		
+		return 0;
+	}
+	
+	private BigDecimal asBigDecimal(String string) {
+		if (string == null || "".equals(string)) {
+			string = "0";
+		}
+
+		return new BigDecimal(string);
 	}
 
 	public FlowPanel asFlowPanel() {

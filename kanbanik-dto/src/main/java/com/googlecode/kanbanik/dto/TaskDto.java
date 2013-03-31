@@ -18,6 +18,8 @@ public class TaskDto implements IdentifiableDto {
 	
 	private int version;
 
+	private String order;
+	
 	private ProjectDto project;
 	
 	public String getId() {
@@ -82,6 +84,14 @@ public class TaskDto implements IdentifiableDto {
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+	
+	public String getOrder() {
+		return order;
+	}
+
+	public void setOrder(String order) {
+		this.order = order;
 	}
 
 	@Override

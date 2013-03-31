@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.client.components.board;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
@@ -21,9 +23,11 @@ public class TaskMovingDropController extends FlowPanelDropController {
 
 	private WorkflowitemDto workflowitem;
 	private final ProjectDto project;
+	private final TaskContainer taskContainer;
 	
 	public TaskMovingDropController(TaskContainer dropTarget, WorkflowitemDto workflowitem, ProjectDto project) {
 		super(dropTarget.asFlowPanel());
+		taskContainer = dropTarget;
 		this.workflowitem = workflowitem;
 		this.project = project;
 	}
@@ -45,13 +49,31 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		
 		task.getDto().setWorkflowitem(workflowitem);
 		task.getDto().setProject(project);
+		
+		TaskDto prevTask = null;
+		TaskDto nextTask = null;
+
+		List<TaskDto> tasks = taskContainer.getTasks();
+		
+		int curIndex = taskContainer.getTaskIndex(task.getDto());
+		if (curIndex != 0) {
+			prevTask = tasks.get(curIndex - 1);
+		}
+		
+		if (curIndex != tasks.size() - 1) {
+			nextTask = tasks.get(curIndex + 1);
+		}
+		
+		final String prevOrder = prevTask != null ? prevTask.getOrder() : null;
+		final String nextOrder = nextTask != null ? nextTask.getOrder() : null;
+		
 		new KanbanikServerCaller(
 				new Runnable() {
 
 					public void run() {
 		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
 				ServerCommand.MOVE_TASK,
-				new MoveTaskParams(task.getDto(), project),
+				new MoveTaskParams(task.getDto(), project, prevOrder, nextOrder),
 				new BaseAsyncCallback<FailableResult<SimpleParams<TaskDto>>>() {
 
 					@Override

@@ -13,34 +13,60 @@ import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model.Board
 
 class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[SimpleParams[TaskDto]]] with TaskManipulation {
-  
+
   private lazy val taskBuilder = new TaskBuilder()
-  
+
   def execute(params: SimpleParams[TaskDto]): FailableResult[SimpleParams[TaskDto]] = {
-    if (params.getPayload().getWorkflowitem() == null) {
+    val taskDto = params.getPayload
+    if (taskDto.getWorkflowitem() == null) {
       return new FailableResult(null, false, "At least one workflowitem must exist to create a task!")
     }
-    
+
     try {
-      val boardId = params.getPayload().getWorkflowitem().getParentWorkflow().getBoard().getId()
-      val board = Board.byId(new ObjectId(boardId))
-      val workdlowitemId = new ObjectId(params.getPayload().getWorkflowitem().getId())
+      val board = getBoard(taskDto)
+      val workdlowitemId = new ObjectId(taskDto.getWorkflowitem().getId())
       board.workflow.findItem(Workflowitem().withId(workdlowitemId)).getOrElse(throw new IllegalArgumentException())
     } catch {
       case e: IllegalArgumentException =>
-        return new FailableResult(new SimpleParams(params.getPayload()), false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
+        return new FailableResult(new SimpleParams(taskDto), false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
     }
-    
-    val task = taskBuilder.buildEntity(params.getPayload())
-    val isNew = !task.id.isDefined
-    
+
+    val task = taskBuilder.buildEntity(taskDto)
+
     try {
-    	val stored = task.store
-    	return new FailableResult(new SimpleParams(taskBuilder.buildDto(stored)))
+      val stored = setOrderIfInsertedFirstTime(taskDto, task).store
+      return new FailableResult(new SimpleParams(taskBuilder.buildDto(stored)))
     } catch {
       case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(params.getPayload()), false, ServerMessages.midAirCollisionException)
+        return new FailableResult(new SimpleParams(taskDto), false, ServerMessages.midAirCollisionException)
     }
-    
+
   }
+  
+  def setOrderIfInsertedFirstTime(taskDto: TaskDto, task: Task) = {
+    if (task.id.isDefined) {
+      task
+    } else {
+      task.withOrder(findOrder(taskDto))
+    }
+  }
+
+  def findOrder(task: TaskDto) = {
+    val board = getBoard(task)
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().withId(new ObjectId(task.getWorkflowitem().getId())))
+    if (tasksOnWorkflowitem.size == 0) {
+      "0"
+    } else {
+      val min = tasksOnWorkflowitem.foldLeft(tasksOnWorkflowitem.head)((x, y) => if (BigDecimal(x.order) <= BigDecimal(y.order)) x else y)
+      val first = BigDecimal(min.order) - 100
+      first.toString
+    }
+
+  }
+
+  def getBoard(taskDto: TaskDto) = {
+    val boardId = taskDto.getWorkflowitem().getParentWorkflow().getBoard().getId()
+    Board.byId(new ObjectId(boardId))
+  }
+
 }

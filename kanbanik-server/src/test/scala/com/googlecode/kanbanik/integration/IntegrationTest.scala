@@ -1,37 +1,36 @@
 package com.googlecode.kanbanik.integration
 
-import org.scalatest.FlatSpec
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import com.googlecode.kanbanik.commands.SaveBoardCommand
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.dto.ProjectDto
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto
-import com.googlecode.kanbanik.commands.SaveProjectCommand
-import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand
-import com.googlecode.kanbanik.dto.WorkflowDto
 import org.scalatest.BeforeAndAfter
-import com.googlecode.kanbanik.model.DbCleaner
-import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
-import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.dto.ItemType
-import org.bson.types.ObjectId
+import org.scalatest.FlatSpec
+import org.scalatest.junit.JUnitRunner
+
 import com.googlecode.kanbanik.builders.WorkflowitemTestManipulation
+import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand
 import com.googlecode.kanbanik.commands.EditWorkflowCommand
-import com.googlecode.kanbanik.commands.GetAllBoardsCommand
-import com.googlecode.kanbanik.dto.shell.VoidParams
-import com.googlecode.kanbanik.commands.SaveTaskCommand
-import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.dto.ClassOfService
 import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand
-import com.googlecode.kanbanik.dto.shell.MoveTaskParams
+import com.googlecode.kanbanik.commands.GetAllBoardsCommand
 import com.googlecode.kanbanik.commands.MoveTaskCommand
+import com.googlecode.kanbanik.commands.SaveBoardCommand
+import com.googlecode.kanbanik.commands.SaveProjectCommand
+import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commands.DeleteTaskCommand
-import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
 import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
+import com.googlecode.kanbanik.dto.BoardDto
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto
+import com.googlecode.kanbanik.dto.ProjectDto
+import com.googlecode.kanbanik.dto.TaskDto
+import com.googlecode.kanbanik.dto.WorkflowDto
+import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.dto.ClassOfService
+import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
+import com.googlecode.kanbanik.dto.shell.MoveTaskParams
+import com.googlecode.kanbanik.dto.shell.SimpleParams
+import com.googlecode.kanbanik.dto.shell.VoidParams
+import com.googlecode.kanbanik.model.DbCleaner
+import com.googlecode.kanbanik.model.Project
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -100,7 +99,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // edit task
     val taskToMove = loadBoard().getTasks().get(0)
     taskToMove.setWorkflowitem(loadWorkflow.getWorkflowitems().get(2))
-    val moveTaskParams = new MoveTaskParams(taskToMove, loadProject())
+    val moveTaskParams = new MoveTaskParams(taskToMove, loadProject(), null, null)
     val movedTask = new MoveTaskCommand().execute(moveTaskParams)
     assert(movedTask.getPayload().getPayload().getWorkflowitem().getName() === "item2")
     assert(loadBoard().getTasks().get(0).getWorkflowitem().getName() === "item2")

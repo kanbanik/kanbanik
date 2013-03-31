@@ -19,6 +19,7 @@ class Task(
   val classOfService: Int,
   val ticketId: String,
   val version: Int,
+  val order: String,
   val workflowitem: Workflowitem,
   val project: Project) extends HasMongoConnection with HasMidAirCollisionDetection {
 
@@ -27,7 +28,6 @@ class Task(
       val obj = Task.asDBObject(this)
       using(createConnection) { conn =>
         val update = $push(Coll.Tasks.toString() -> obj)
-        // TODO check
         val res = coll(conn, Coll.Boards).findAndModify(MongoDBObject(SimpleField.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
       }
       return Task.asEntity(obj)
@@ -40,6 +40,7 @@ class Task(
         Coll.Tasks.toString() + ".$." + Task.Fields.description.toString() -> description,
         Coll.Tasks.toString() + ".$." + Task.Fields.classOfService.toString() -> classOfService,
         Coll.Tasks.toString() + ".$." + Task.Fields.ticketId.toString() -> ticketId,
+        Coll.Tasks.toString() + ".$." + Task.Fields.order.toString() -> order,
         Coll.Tasks.toString() + ".$." + Task.Fields.projectId.toString() -> project.id,
         Coll.Tasks.toString() + ".$." + Task.Fields.workflowitem.toString() -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
 
@@ -66,6 +67,7 @@ class Task(
       classOfService,
       ticketId,
       version,
+      order,
       workflowitem,
       project)
   }
@@ -78,6 +80,20 @@ class Task(
       classOfService,
       ticketId,
       version,
+      order,
+      workflowitem,
+      project)
+  }
+  
+  def withOrder(order: String) = {
+    new Task(
+      id,
+      name,
+      description,
+      classOfService,
+      ticketId,
+      version,
+      order,
       workflowitem,
       project)
   }
@@ -116,6 +132,7 @@ object Task extends HasMongoConnection {
     val description = Value("description")
     val classOfService = Value("classOfService")
     val ticketId = Value("ticketId")
+    val order = Value("order")
     val projectId = Value("projectId")
     val workflowitem = Value("workflowitem")
   }
@@ -143,6 +160,7 @@ object Task extends HasMongoConnection {
       Task.Fields.classOfService.toString() -> entity.classOfService,
       Task.Fields.ticketId.toString() -> entity.ticketId,
       Task.Fields.version.toString() -> entity.version,
+      Task.Fields.order.toString() -> entity.order,
       Task.Fields.projectId.toString() -> entity.project.id,
       Task.Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
   }
@@ -162,6 +180,7 @@ object Task extends HasMongoConnection {
           res.asInstanceOf[Int]
         }
       },
+      dbObject.get(Task.Fields.order.toString()).asInstanceOf[String],
       null,
       null)
 

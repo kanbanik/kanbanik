@@ -47,10 +47,10 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
 	@Override
 	protected TaskDto createBasicDTO() {
-		TaskDto taskDTO = new TaskDto();
-		taskDTO.setProject(project);
-		taskDTO.setWorkflowitem(inputQueue);
-		return taskDTO;
+		TaskDto taskDto = new TaskDto();
+		taskDto.setProject(project);
+		taskDto.setWorkflowitem(inputQueue);
+		return taskDto;
 	}
 
 	@Override

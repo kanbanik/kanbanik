@@ -15,7 +15,7 @@ import com.googlecode.kanbanik.model.Project
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.commands.SaveTaskCommand
+import com.googlecode.kanbanik.commands.MoveTaskCommand
 
 class MigrateDb extends HasMongoConnection {
   
@@ -94,8 +94,10 @@ class From2To3 extends MigrationPart {
     using(createConnection) { conn =>
       val oldTasks = coll(conn, oldTasksCollection).find().map(asOldEntity(_))
       val newTasks = oldTasks.map(_.asNewTask)
+      var order = 0
       for (val newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
-        newTask.store
+        newTask.withOrder(Integer.toString(order)).store
+        order += 100
       }
       
       cleanup
@@ -143,6 +145,7 @@ class From2To3 extends MigrationPart {
         classOfService,
         ticketId,
         1, // because I basically want to create a new one
+        "",
         findWorkflowitem(),
         findProject())
 

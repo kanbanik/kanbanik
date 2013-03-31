@@ -13,10 +13,6 @@ import com.googlecode.kanbanik.builders.BoardBuilder
 
 class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto[BoardWithProjectsDto]]] {
 
-  private var boardBuilder = new BoardBuilder()
-
-  private var projectBuilder = new ProjectBuilder()
-
   def execute(params: VoidParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
     val res = new ListDto[BoardWithProjectsDto]()
     Board.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board, None))) })
@@ -42,9 +38,9 @@ class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto
   }
   
   // all only because of testing
-  private[commands] def getBoardBuilder = boardBuilder
+  private[commands] def getBoardBuilder = new BoardBuilder()
   
-  private[commands] def getProjectBuilder = projectBuilder
+  private[commands] def getProjectBuilder = new ProjectBuilder()
   
   private[commands] def allProjects = Project.all()
   
