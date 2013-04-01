@@ -1,0 +1,80 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'
+	xmlns:c='urn:import:com.googlecode.kanbanik.client.components.common'
+	xmlns:cp='urn:import:net.auroris.ColorPicker.client'>
+
+	<ui:style
+		type="com.googlecode.kanbanik.client.modules.editworkflow.classofservice.ClassOfServiceCreatingComponent.Style">
+		
+		.colourPickerStyle {
+		
+		}
+		
+		/*
+		.colourPickerStyle table {
+			width: 100%;
+		}
+		
+		.colourPickerStyle tr {
+			width: 100%;
+		}
+		
+		.colourPickerStyle td {
+			width: 100%;
+		}
+		*/
+		.mainPanel {
+			width: 660px;
+		}
+		
+		.colorButtonStyle {
+			width: 20px;
+			height: 15px;
+			float: left;
+			margin-top: 5px;
+		}
+		
+		.labels,.values {
+			width: 80px;
+			float: left;
+			line-height: 31px;
+		}
+		
+		.values {
+			width: 570px;
+		}
+		
+		.labelStyle,.valueStyle, .policyLabelStyle {
+			float: left;
+			width: 100%;
+		}
+		
+		.textAreaStyle {
+			float: left;
+		}
+		
+		.policyLabelStyle {
+			padding-top: 5px;
+			font-weight: bold;
+		}
+	</ui:style>
+
+	<g:FlowPanel addStyleNames="{style.mainPanel}">
+		<g:FlowPanel addStyleNames="{style.labels}">
+			<g:Label addStyleNames="{style.labelStyle}" text="Name: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Colour:" />
+			<g:Label addStyleNames="{style.labelStyle}" text="Make public:" />
+		</g:FlowPanel>
+	
+		<g:FlowPanel addStyleNames="{style.values}">
+			<g:TextBox addStyleNames="{style.valueStyle}" ui:field="nameBox" />
+			<g:PushButton addStyleNames="{style.colorButtonStyle}" ui:field="colorButton" />
+			<g:CheckBox addStyleNames="{style.valueStyle}" ui:field="makePublic" />
+		</g:FlowPanel>
+		
+		<g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />
+		<c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="richTextArea" />
+		<!--cp:ColorPicker /-->
+	</g:FlowPanel>
+
+</ui:UiBinder>

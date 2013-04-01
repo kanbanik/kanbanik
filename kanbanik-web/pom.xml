@@ -80,6 +80,14 @@
 			<version>1.1</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>com.googlecode.auroris</groupId>
+			<artifactId>ColorPicker-GWT</artifactId>
+			<version>2.1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/ColorPicker-GWT-2.1.jar</systemPath>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

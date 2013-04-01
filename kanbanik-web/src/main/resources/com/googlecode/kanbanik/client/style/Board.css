@@ -4,3 +4,8 @@
 	width: 100%;
 	display: inline-table;
 }
+
+#boards table, #boards tr, #boards td {
+	vertical-align: top;
+	width: 0px;
+}

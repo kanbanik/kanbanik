@@ -22,12 +22,14 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardDeletedMessa
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
 import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
+import com.googlecode.kanbanik.client.modules.editworkflow.classofservice.ClassOfServicesListFactory;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 
 public class BoardsBox extends Composite {
@@ -41,7 +43,12 @@ public class BoardsBox extends Composite {
 	@UiField
 	SimplePanel projectsToBoardAddingContainer;
 	
+	@UiField(provided=true)
+	ListBoxWithAddEditDelete<ClassOfServiceDto> classOfServiceList;
+	
 	private ProjectsToBoardAdding projectToBoardAdding;
+	
+	private ClassOfServicesListFactory classOfServicesListFactory = new ClassOfServicesListFactory();
 	
 	interface MyUiBinder extends UiBinder<Widget, BoardsBox> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -94,13 +101,15 @@ public class BoardsBox extends Composite {
 		
 		
 		boardsList = new ListBoxWithAddEditDelete<BoardWithProjectsDto>(
-				"Board",
+				"Boards",
 				new IdProvider(), 
 				new LabelProvider(),
 				new BoardCreatingComponent(),
 				new BoardEditingComponent(),
 				new BoardDeletingComponent(),
 				new Refresher());
+		
+		classOfServiceList = classOfServicesListFactory.create();
 		
 		boardsList.setOnChangeListener(new OnChangeListener());
 		

@@ -7,6 +7,8 @@
 
 	<inherits name='com.allen_sauer.gwt.dnd.gwt-dnd' />
 	
+	<inherits name='net.auroris.ColorPicker.client'/>
+	
 	<inherits name="com.google.gwt.resources.Resources" />
 	
 	<inherits name="com.googlecode.kanbanik.kanbanik-dto" />

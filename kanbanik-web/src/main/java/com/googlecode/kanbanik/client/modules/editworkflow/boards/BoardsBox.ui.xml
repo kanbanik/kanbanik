@@ -44,6 +44,8 @@
 			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right; width: 212px;">
 			
 			<w:ListBoxWithAddEditDelete ui:field="boardsList" />
+			
+			<w:ListBoxWithAddEditDelete ui:field="classOfServiceList" />
 
 			<g:Label text="Projects on Board" styleName="{style.projectsOnBoard}" />
 			<g:PushButton ui:field="addProjectButton" styleName="imageButtonStyle"

@@ -8,15 +8,14 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
+import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
@@ -34,9 +33,7 @@ public abstract class AbstractTaskEditingComponent {
 	
 	private Label ticketId = new Label("");
 	
-	private Widget description;
-	
-	private RichTextArea richTextArea;
+	private KanbanikRichTextArea description;
 	
 	private ListBox classOfService = new ListBox();
 	
@@ -52,7 +49,7 @@ public abstract class AbstractTaskEditingComponent {
 	}
 	
 	protected void initialize() {
-		description = initializeRichTextEditor();
+		description = new KanbanikRichTextArea();
 		
 		Grid header = new Grid(3, 2);
 		header.setWidget(0, 0, new Label("ID"));
@@ -78,25 +75,10 @@ public abstract class AbstractTaskEditingComponent {
 		clickHandler.addClickHandler(new ShowDialogHandler());
 	}
 	
-	  public Widget initializeRichTextEditor() {
-		    richTextArea = new RichTextArea();
-		    richTextArea.ensureDebugId("cwRichText-area");
-		    richTextArea.setSize("100%", "400px");
-		    RichTextToolbar toolbar = new RichTextToolbar(richTextArea);
-		    toolbar.ensureDebugId("cwRichText-toolbar");
-		    toolbar.setWidth("100%");
-
-		    Grid grid = new Grid(2, 1);
-		    grid.setStyleName("cw-RichText");
-		    grid.setWidget(0, 0, toolbar);
-		    grid.setWidget(1, 0, richTextArea);
-		    return grid;
-		  }
-	
 	private void setupValues() {
 		ticketId.setText(getTicketId());
 		taskName.setValue(getTaskName());
-		richTextArea.setHTML(getDescription());
+		description.setHtml(getDescription());
 		
 		String currentClassOfService = getClassOfServiceAsString();
 		classOfService.clear();
@@ -124,7 +106,7 @@ public abstract class AbstractTaskEditingComponent {
 	private TaskDto createTaskDTO() {
 		TaskDto taskDto = createBasicDTO();
 		taskDto.setName(taskName.getText());
-		taskDto.setDescription(richTextArea.getHTML());
+		taskDto.setDescription(description.getHtml());
 		taskDto.setClassOfService(ClassOfService.STANDARD);
 		taskDto.setId(getId());
 		taskDto.setClassOfService(getClassOfService());

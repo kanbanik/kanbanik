@@ -10,21 +10,6 @@ h1 {
 	text-align: center;
 }
 
-table {
-	vertical-align: top;
-	width: 0px;
-}
-
-tr {
-	vertical-align: top;
-	width: 0px;
-}
-
-td {
-	width: 0px;
-	vertical-align: top;
-}
-
 body {
 	background-color: #e1e1e1;
 }

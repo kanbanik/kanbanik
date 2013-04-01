@@ -53,7 +53,8 @@ public class BoardsModule {
 	
 	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		BoardsPanel panel = new BoardsPanel();
-
+		panel.getElement().setId("boards");
+		
 		List<BoardWithProjectsDto> boardsWithProjects = result.getPayload().getList();
 		
 		if (boardsWithProjects == null || boardsWithProjects.size() == 0) {
