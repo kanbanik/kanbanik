@@ -23,7 +23,6 @@ import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Style;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 
 public class ClassOfServiceCreatingComponent extends Composite implements
@@ -46,8 +45,8 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 	@UiField
 	CheckBox makePublic;
 
-	@UiField 
-	Style style;
+	// default color is blue
+	private String currentColour = "003d89";
 	
 	interface MyUiBinder extends
 			UiBinder<Widget, ClassOfServiceCreatingComponent> {
@@ -56,7 +55,7 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	public interface ButtonTemplate extends SafeHtmlTemplates {
-		@Template("<div style=\"width: 20px; height: 15px; background-color:{0}\"/>")
+		@Template("<div style=\"width: 20px; height: 15px; background-color:#{0}\"/>")
 		SafeHtml buttonColour(String colour);
 	}
 	
@@ -68,7 +67,12 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 
 	public ClassOfServiceCreatingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
-		colorButton.getUpFace().setHTML(template.buttonColour("red"));
+		setColourButtonColour(currentColour);
+	}
+
+	private void setColourButtonColour(String colour) {
+		colorButton.getUpFace().setHTML(template.buttonColour(colour));
+		currentColour = colour;
 	}
 
 	@Override
@@ -81,22 +85,39 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 	}
 
 	private void initColorPicker() {
-		ColorPicker colorPicker = new ColorPicker();
-//		colorPicker.setStyleName(style.colourPickerStyle());
+		final ColorPicker colorPicker = new ColorPicker();
 		Panel colorPickerPanel = new FlowPanel();
 		colorPickerPanel.add(colorPicker);
 		colorPickerDialog = new PanelContainingDialog("Select Colour", colorPickerPanel);
-		colorPickerDialog.setWidth("435px");
-		colorPickerDialog.setHeight("350px");
         
 		colorButton.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				try {
+					colorPicker.setHex(currentColour);
+				} catch(Exception e) {
+					// well, so than leave the default color
+				}
+				
 				colorPickerDialog.center();
+				
 			}
 		});
 		
+		colorPickerDialog.addListener(new PanelContainingDialolgListener() {
+			
+			@Override
+			public void okClicked(PanelContainingDialog dialog) {
+				setColourButtonColour(colorPicker.getHexColor());
+				colorPickerDialog.close();
+			}
+			
+			@Override
+			public void cancelClicked(PanelContainingDialog dialog) {
+				// do nothing
+			}
+		});
 		
 	}
 

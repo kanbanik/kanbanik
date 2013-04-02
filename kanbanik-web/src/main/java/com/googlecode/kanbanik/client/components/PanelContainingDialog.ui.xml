@@ -3,7 +3,6 @@
 
 	<ui:style>
 		.contentWrapper {
-			float: left;
 			width: 100%;
 		}
 		
