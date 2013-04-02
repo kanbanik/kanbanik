@@ -1,7 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'
-	xmlns:c='urn:import:com.googlecode.kanbanik.client.components.common'
-	xmlns:cp='urn:import:net.auroris.ColorPicker.client'>
+	xmlns:c='urn:import:com.googlecode.kanbanik.client.components.common'>
 
 	<ui:style>
 		
@@ -60,7 +59,6 @@
 		
 		<g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />
 		<c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="richTextArea" />
-		<!--cp:ColorPicker /-->
 	</g:FlowPanel>
 
 </ui:UiBinder>
