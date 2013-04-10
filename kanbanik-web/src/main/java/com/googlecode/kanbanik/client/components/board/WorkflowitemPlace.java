@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.client.components.board;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.dnd.client.DragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -12,6 +14,8 @@ import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
@@ -34,6 +38,8 @@ public class WorkflowitemPlace extends Composite implements
 
 	interface MyUiBinder extends UiBinder<Widget, WorkflowitemPlace> {
 	}
+	
+	private final GetFirstTaskRequestMessageListener getFirstTaskRequestMessageListener = new GetFirstTaskRequestMessageListener();
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
@@ -42,7 +48,7 @@ public class WorkflowitemPlace extends Composite implements
 	private final DragController dragController;
 
 	private final String projectDtoId;
-
+	
 	public WorkflowitemPlace(WorkflowitemDto workflowitemDto,
 			ProjectDto projectDto, Widget body, DragController dragController) {
 
@@ -127,11 +133,36 @@ public class WorkflowitemPlace extends Composite implements
 		if (!MessageBus.listens(TaskDeletedMessage.class, this)) {
 			MessageBus.registerListener(TaskDeletedMessage.class, this);
 		}
+		
+		if (!MessageBus.listens(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener)) {
+			MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
+		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(TaskAddedMessage.class, this);
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
+		MessageBus.unregisterListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
+	
+	class GetFirstTaskRequestMessageListener implements MessageListener<WorkflowitemDto> {
+
+		@Override
+		public void messageArrived(Message<WorkflowitemDto> message) {
+			if (!(contentPanel instanceof TaskContainer)) {
+				return;
+			}
+			
+			TaskContainer container = (TaskContainer) contentPanel;
+			List<TaskDto> tasks = container.getTasks();
+			if (tasks.size() == 0) {
+				MessageBus.sendMessage(new GetFirstTaskResponseMessage(null, this));
+			} else {
+				MessageBus.sendMessage(new GetFirstTaskResponseMessage(tasks.get(0), this));
+			}
+		}
+		
+	}
 }
+

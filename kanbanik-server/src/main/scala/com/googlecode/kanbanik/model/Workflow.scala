@@ -138,7 +138,7 @@ class Workflow(
     }
     
     // quite a heavy operation
-    val board = Board.all.find(board => containsThisWorkflow(board.workflow))
+    val board = Board.all(false).find(board => containsThisWorkflow(board.workflow))
     
 	board.getOrElse(throw new IllegalStateException("The workflow with id: '" + id + "' does not exist!"))
     

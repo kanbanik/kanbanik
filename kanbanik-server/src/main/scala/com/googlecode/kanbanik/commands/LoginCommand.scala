@@ -24,7 +24,6 @@ class LoginCommand extends ServerCommand[SimpleParams[LoginDto], FailableResult[
       SecurityUtils.getSubject().getSession().setTimeout(timeout)
     } catch {
       case e: Exception =>
-        println(e)
         return new FailableResult(new SimpleParams, false, "Login not successful!")
     }
     

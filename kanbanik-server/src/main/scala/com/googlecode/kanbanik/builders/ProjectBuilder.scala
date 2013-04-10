@@ -33,7 +33,7 @@ class ProjectBuilder {
       projectDto.getName(),
       projectDto.getVersion(),
       {
-        dtosToEntities[Board, BoardDto](projectDto.getBoards(), {board => Board.byId(new ObjectId(board.getId()))})
+        dtosToEntities[Board, BoardDto](projectDto.getBoards(), {board => Board.byId(new ObjectId(board.getId()), false)})
       }
      )
   }

@@ -20,7 +20,7 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
     val boardId = new ObjectId(params.getPayload().getId())
 
     try {
-    	Board.byId(boardId)
+    	Board.byId(boardId, false)
     } catch {
       case e: IllegalArgumentException =>
         return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("board"))
@@ -44,7 +44,7 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
     return new FailableResult(new VoidParams, true, "")
 
   }
-
+  
   def isOnProject(boardId: ObjectId): Boolean = {
     using(createConnection) { conn =>
       return coll(conn, Coll.Projects).findOne(MongoDBObject(Project.Fields.boards.toString() -> boardId)).isDefined

@@ -32,7 +32,7 @@ class Workflowitem(
   def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow)
 
   private def loadWorkflow(): Workflow = {
-    val parentBoard = Board.all().find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
+    val parentBoard = Board.all(false).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
     parentBoard.workflow.findItem(this).get.parentWorkflow
   }
 

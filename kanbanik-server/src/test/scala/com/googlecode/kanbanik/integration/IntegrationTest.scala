@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-
 import com.googlecode.kanbanik.builders.WorkflowitemTestManipulation
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand
 import com.googlecode.kanbanik.commands.EditWorkflowCommand
@@ -31,6 +30,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -157,7 +157,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
   }
   
   def loadAllBoards() = {
-	  new GetAllBoardsCommand().execute(new VoidParams).getPayload().getList().toArray().toList.asInstanceOf[List[BoardWithProjectsDto]]    
+	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsParams(true)).getPayload().getList().toArray().toList.asInstanceOf[List[BoardWithProjectsDto]]    
   }
   
   def asWorkflowList(workflow: WorkflowDto) = {

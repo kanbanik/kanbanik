@@ -216,7 +216,7 @@ object Task extends HasMongoConnection {
   def asEntity(dbObject: DBObject): Task = {
     def boardProvider(task: Task): Board = {
       val workflowitemId = dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]
-      Board.all().find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(throwEx(task, workflowitemId))
+      Board.all(false).find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(throwEx(task, workflowitemId))
     }
 
     def projectProvider(task: Task): Project = {

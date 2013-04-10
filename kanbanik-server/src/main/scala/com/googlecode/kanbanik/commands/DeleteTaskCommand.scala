@@ -21,7 +21,7 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
     val boardId = new ObjectId(params.getPayload().getWorkflowitem().getParentWorkflow().getBoard().getId)
     val workflowitemId = new ObjectId(params.getPayload().getWorkflowitem().getId)
     
-    val board = Board.byId(boardId)
+    val board = Board.byId(boardId, false)
     board.workflow.containsItem(Workflowitem().withId(workflowitemId))
 
     if (!board.workflow.containsItem(Workflowitem().withId(workflowitemId))) {

@@ -39,7 +39,6 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 	// well... Anybody an idea how to get rid of this huge if-else statement?
 	@SuppressWarnings("unchecked")
 	public <P extends Params, R extends Result> R invokeCommand(ServerCommand command, P params) throws UserNotLoggedInException {
-		
 		boolean isLoggedIn = SecurityUtils.getSubject().isAuthenticated();
 		
 		// unsecure zone - anyone can call this commands whatever the user is logged in or not
@@ -98,7 +97,7 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new CreateUserCommand().execute(params);
 		} else if (command == ServerCommand.DELETE_USER_COMMAND) {
 			return (R) new DeleteUserCommand().execute(params);
-		} 
+		}
 		return null;
 	}
 

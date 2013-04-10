@@ -14,6 +14,7 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardRefresh
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -40,9 +41,9 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
+		ServerCommandInvokerManager.getInvoker().<GetAllBoardsWithProjectsParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
 				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
-				new VoidParams(),
+				new GetAllBoardsWithProjectsParams(false),
 				new BaseAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
 
 					@Override

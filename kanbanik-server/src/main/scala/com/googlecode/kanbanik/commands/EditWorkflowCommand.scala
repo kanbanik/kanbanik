@@ -22,8 +22,9 @@ import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.builders.WorkflowBuilder
 import com.googlecode.kanbanik.model.Workflow
+import com.googlecode.kanbanik.db.HasEntityLoader
 
-class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection {
+class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResult[SimpleParams[WorkflowitemDto]]] with HasMongoConnection with HasEntityLoader{
 
   lazy val workflowitemBuilder = new WorkflowitemBuilder
 
@@ -37,12 +38,9 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     val destContextDto = params.getDestContext()
 
     // hack just to test if the board still exists
-    try {
-      Board.byId(new ObjectId(currenDto.getParentWorkflow().getBoard().getId()))
-    } catch {
-      case e: IllegalArgumentException =>
-        return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getParentWorkflow().getBoard().getName()))
-    }
+    val board = loadBoard(new ObjectId(currenDto.getParentWorkflow().getBoard().getId()), false).getOrElse(
+    		return new MidAirCollisionResult(new SimpleParams(currenDto), false, ServerMessages.entityDeletedMessage("board " + currenDto.getParentWorkflow().getBoard().getName()))    
+    )
 
     val currentBoard = boardBuilder.buildEntity(currenDto.getParentWorkflow().getBoard())
 
@@ -87,7 +85,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
   }
 
   private def hasTasks(destContextDto: WorkflowDto): Boolean = {
-    val board = Board.byId(new ObjectId(destContextDto.getBoard().getId()))
+    val board = Board.byId(new ObjectId(destContextDto.getBoard().getId()), true)
     if (destContextDto.getId() == null) {
       return false
     }

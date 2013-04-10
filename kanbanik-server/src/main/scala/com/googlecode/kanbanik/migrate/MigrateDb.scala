@@ -152,7 +152,7 @@ class From2To3 extends MigrationPart {
     }
 
     def findWorkflowitem(): Workflowitem = {
-      val board = Board.all().find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(return null)
+      val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(return null)
       val workflowitem = board.workflow.findItem(Workflowitem().withId(workflowitemId))
       workflowitem.getOrElse(null)
     }

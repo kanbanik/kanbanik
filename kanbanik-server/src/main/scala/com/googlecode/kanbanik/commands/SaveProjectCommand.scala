@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import scala.collection.JavaConversions._
 import com.googlecode.kanbanik.model.Board
 import org.bson.types.ObjectId
+import com.googlecode.kanbanik.model.Project
 
 class SaveProjectCommand extends ServerCommand[SimpleParams[ProjectDto], FailableResult[SimpleParams[ProjectDto]]] {
 
@@ -17,7 +18,7 @@ class SaveProjectCommand extends ServerCommand[SimpleParams[ProjectDto], Failabl
 
     for (board <- params.getPayload().getBoards) {
       try {
-        Board.byId(new ObjectId(board.getId()))
+        Board.byId(new ObjectId(board.getId()), false)
       } catch {
         case e: IllegalArgumentException =>
           return new FailableResult(params, false, "The board '" + board.getName + "' to which this project is assigned does not exists. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
@@ -25,13 +26,20 @@ class SaveProjectCommand extends ServerCommand[SimpleParams[ProjectDto], Failabl
     }
 
     val project = projectBuilder.buildEntity(params.getPayload())
-    var res: ProjectDto = null
-    try {
-      res = projectBuilder.buildDto(project.store)
-    } catch {
-      case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(res), false, ServerMessages.midAirCollisionException)
-    }
+    val res = storeAndBuildProject(project).getOrElse(
+        return new FailableResult(new SimpleParams, false, ServerMessages.midAirCollisionException)
+    )
+    
     new FailableResult(new SimpleParams(res))
   }
+  
+  def storeAndBuildProject(project: Project) = {
+    try {
+      Some(projectBuilder.buildDto(project.store))
+    } catch {
+      case e: MidAirCollisionException =>
+        None
+    }
+  }
+  
 }

@@ -96,16 +96,32 @@ object Board extends HasMongoConnection {
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
 
-  def all(): List[Board] = {
+  def all(includeTasks: Boolean): List[Board] = {
     using(createConnection) { conn =>
-      // does not retrive the description of the task
-      coll(conn, Coll.Boards).find(MongoDBObject(), MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)).map(asEntity(_)).toList
+      def taskExclusionObject = {
+        if (includeTasks) {
+          // does not retrive the description of the task even it retrieves tasks
+          MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)
+        } else {
+          MongoDBObject(Board.Fields.tasks.toString() -> 0)
+        }
+      }
+      
+      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).map(asEntity(_)).toList
     }
   }
 
-  def byId(id: ObjectId): Board = {
+  def byId(id: ObjectId, includeTasks: Boolean): Board = {
     using(createConnection) { conn =>
-      val dbBoards = coll(conn, Coll.Boards).findOne(MongoDBObject(Board.Fields.id.toString() -> id)).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
+      def taskExclusionObject = {
+        if (!includeTasks) {
+          MongoDBObject(Board.Fields.tasks.toString() -> 0)
+        } else {
+          MongoDBObject()
+        }
+      }
+      
+      val dbBoards = coll(conn, Coll.Boards).findOne(MongoDBObject(Board.Fields.id.toString() -> id), taskExclusionObject).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
       asEntity(dbBoards)
     }
   }

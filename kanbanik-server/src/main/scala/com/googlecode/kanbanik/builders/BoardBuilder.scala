@@ -32,7 +32,8 @@ class BoardBuilder extends BaseBuilder {
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = buildShallowDto(board, workflow)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
-    val tasks = board.tasks.map(taskBuilder.buildDto(_))
+    val cache = new WorkflowitemCache(List(res))
+    val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
     val javaList = new ArrayList[TaskDto]
     tasks.foreach (javaList.add (_))  
     res.setTasks(javaList)

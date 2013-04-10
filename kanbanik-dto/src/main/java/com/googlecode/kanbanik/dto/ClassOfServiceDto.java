@@ -1,7 +1,9 @@
 package com.googlecode.kanbanik.dto;
 
-public class ClassOfServiceDto {
+public class ClassOfServiceDto implements KanbanikDto {
 	
+	private static final long serialVersionUID = -8018293828285834040L;
+
 	private String id;
 
 	private String name;

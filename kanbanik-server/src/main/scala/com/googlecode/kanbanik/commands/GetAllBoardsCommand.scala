@@ -10,12 +10,13 @@ import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto
 import com.googlecode.kanbanik.builders.BoardBuilder
+import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams
 
-class GetAllBoardsCommand extends ServerCommand[VoidParams, SimpleParams[ListDto[BoardWithProjectsDto]]] {
+class GetAllBoardsCommand extends ServerCommand[GetAllBoardsWithProjectsParams, SimpleParams[ListDto[BoardWithProjectsDto]]] {
 
-  def execute(params: VoidParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
+  def execute(params: GetAllBoardsWithProjectsParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
     val res = new ListDto[BoardWithProjectsDto]()
-    Board.all.foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board, None))) })
+    Board.all(params.isIncludeTasks()).foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board, None))) })
     
     buildProjectsForBoard(res)
     

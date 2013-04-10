@@ -12,7 +12,7 @@ class GetBoardCommand extends ServerCommand[SimpleParams[BoardDto], SimpleParams
   def execute(params: SimpleParams[BoardDto]): SimpleParams[BoardDto] = {
     
 	try {
-    	val board = Board.byId(new ObjectId(params.getPayload().getId()))
+    	val board = Board.byId(new ObjectId(params.getPayload().getId()), false)
     	new SimpleParams(boardBuilder.buildDto(board, None))
     } catch {
       case e: IllegalArgumentException =>

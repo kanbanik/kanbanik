@@ -17,7 +17,7 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
       addItem(c, None)
 
     val storedBoardWithItems = storedBoard.withWorkflow(storedWorkflowWithItems).store
-    val loadedBoard = Board.byId(storedBoardWithItems.id.get)
+    val loadedBoard = Board.byId(storedBoardWithItems.id.get, false)
 
     assert(loadedBoard.id.isDefined === true)
     assert(loadedBoard.name === "someName")
@@ -33,7 +33,7 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
       addItem(c, None)
 
     val storedBoardWithItems = storedBoard.withWorkflow(storedWorkflowWithItems).store
-    val loadedBoard = Board.byId(storedBoardWithItems.id.get)
+    val loadedBoard = Board.byId(storedBoardWithItems.id.get, false)
 
     assert(loadedBoard.id.isDefined === true)
     assert(loadedBoard.name === "someName")

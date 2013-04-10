@@ -23,7 +23,7 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     }
 
     try {
-      val board = getBoard(taskDto)
+      val board = getBoard(taskDto, false)
       val workdlowitemId = new ObjectId(taskDto.getWorkflowitem().getId())
       board.workflow.findItem(Workflowitem().withId(workdlowitemId)).getOrElse(throw new IllegalArgumentException())
     } catch {
@@ -32,10 +32,10 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     }
 
     val task = taskBuilder.buildEntity(taskDto)
-
+    
     try {
-      val stored = setOrderIfInsertedFirstTime(taskDto, task).store
-      return new FailableResult(new SimpleParams(taskBuilder.buildDto(stored)))
+      val stored = setOrderIfNeeded(taskDto, task).store
+      return new FailableResult(new SimpleParams(taskBuilder.buildDto(stored, None)))
     } catch {
       case e: MidAirCollisionException =>
         return new FailableResult(new SimpleParams(taskDto), false, ServerMessages.midAirCollisionException)
@@ -43,16 +43,19 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
 
   }
   
-  def setOrderIfInsertedFirstTime(taskDto: TaskDto, task: Task) = {
+  def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {
     if (task.id.isDefined) {
       task
+    } else if (taskDto.getOrder != null) {
+      task.withOrder(taskDto.getOrder)
     } else {
+      // only if not yet inserted and the order has not been sent, than look it up. But it is a REALLY heavy operation
       task.withOrder(findOrder(taskDto))
     }
   }
 
   def findOrder(task: TaskDto) = {
-    val board = getBoard(task)
+    val board = getBoard(task, true)
     val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().withId(new ObjectId(task.getWorkflowitem().getId())))
     if (tasksOnWorkflowitem.size == 0) {
       "0"
@@ -64,9 +67,9 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
 
   }
 
-  def getBoard(taskDto: TaskDto) = {
+  def getBoard(taskDto: TaskDto, includeTasks: Boolean) = {
     val boardId = taskDto.getWorkflowitem().getParentWorkflow().getBoard().getId()
-    Board.byId(new ObjectId(boardId))
+    Board.byId(new ObjectId(boardId), includeTasks)
   }
 
 }

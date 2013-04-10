@@ -13,6 +13,6 @@ class GetTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult
 
   def execute(params: SimpleParams[TaskDto]): FailableResult[SimpleParams[TaskDto]] = {
     val res = Task.byId(new ObjectId(params.getPayload().getId()))
-    new FailableResult(new SimpleParams(taskBuilder.buildDto(res)))
+    new FailableResult(new SimpleParams(taskBuilder.buildDto(res, None)))
   }
 }

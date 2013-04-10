@@ -14,8 +14,9 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.builders.BoardBuilder
+import com.googlecode.kanbanik.db.HasEntityLoader
 
-class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection {
+class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemDto], FailableResult[VoidParams]] with HasMongoConnection with HasEntityLoader {
   
   lazy val workflowitemBuilder = new WorkflowitemBuilder
   
@@ -25,7 +26,9 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
 
     val id = new ObjectId(params.getPayload().getId())
     
-    val board = Board.byId(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId))
+    val board = loadBoard(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId), false).getOrElse(
+        return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
+    )
     
     val item = Workflowitem().withId(id)
     
@@ -45,13 +48,6 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because it has a nested workflow. Please delete it first")
     }
 
-    try {
-    	Board.byId(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId()))
-    } catch {
-      case e: IllegalArgumentException =>
-        return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
-    }
-   
     try {
     	board.withWorkflow(board.workflow.removeItem(foundItem.getOrElse(
     			return new FailableResult(new VoidParams, false, "This workflowitem has been deleted by a different user. Please refresh your browser to get the current data")
