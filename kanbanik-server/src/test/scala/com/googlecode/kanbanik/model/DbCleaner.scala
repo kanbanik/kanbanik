@@ -9,6 +9,7 @@ object DbCleaner extends HasMongoConnection {
   val tasks = createConnection("kanbanik")("tasks")
   val projects = createConnection("kanbanik")("projects")
   val users = createConnection("kanbanik")("users")
+  val classesOfService = createConnection("kanbanik")("classesOfService")
 
   def clearDb() {
     workflowitems.find().foreach {
@@ -29,6 +30,10 @@ object DbCleaner extends HasMongoConnection {
 
     users.find().foreach {
       users.remove(_)
+    }
+    
+    classesOfService.find().foreach {
+      classesOfService.remove(_)
     }
   }
 }

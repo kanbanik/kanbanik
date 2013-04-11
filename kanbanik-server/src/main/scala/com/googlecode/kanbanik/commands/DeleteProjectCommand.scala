@@ -10,19 +10,15 @@ import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.validation.ProjectValidation
+import com.googlecode.kanbanik.db.HasEntityLoader
 
-class DeleteProjectCommand extends ServerCommand[SimpleParams[ProjectDto], FailableResult[VoidParams]] with ProjectValidation {
+class DeleteProjectCommand extends ServerCommand[SimpleParams[ProjectDto], FailableResult[VoidParams]] with ProjectValidation with HasEntityLoader {
   
   val projectBuilder = new ProjectBuilder
   
   def execute(params: SimpleParams[ProjectDto]): FailableResult[VoidParams] = {
     
-    try {
-    	Project.byId(new ObjectId(params.getPayload().getId()))
-    } catch {
-      case e: IllegalArgumentException =>
-        return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("project"))
-    }
+    loadProject(new ObjectId(params.getPayload().getId())).getOrElse(return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("project")))
     
     val project = projectBuilder.buildEntity(params.getPayload())
     

@@ -54,11 +54,8 @@ class ProjectBuilder {
   }
 
   def dtosToEntities[E, D](dtos: java.util.List[D], f: D => E): Option[List[E]] = {
-    var entities = List[E]()
-    for (i <- 0 until dtos.size()) {
-      entities = f(dtos.get(i)) :: entities
-    }
-
+    val entities = dtos.toArray().toList.asInstanceOf[List[D]].map(f(_))
+    
     if (entities.length == 0) {
       None
     } else {

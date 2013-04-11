@@ -20,7 +20,7 @@ class BoardBuilder extends BaseBuilder {
     buildDto(board, None)
   }
 
-  def buildShallowDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
+  def buildShallowDto(board: Board): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
     res.setBalanceWorkflowitems(board.balanceWorkflowitems)
@@ -30,7 +30,7 @@ class BoardBuilder extends BaseBuilder {
   }
   
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
-    val res = buildShallowDto(board, workflow)
+    val res = buildShallowDto(board)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
     val cache = new WorkflowitemCache(List(res))
     val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))

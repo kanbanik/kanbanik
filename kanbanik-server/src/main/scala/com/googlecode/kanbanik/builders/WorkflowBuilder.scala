@@ -22,7 +22,7 @@ class WorkflowBuilder extends BaseBuilder {
   def buildShallowDto(workflow: Workflow, board: Option[BoardDto]) = {
     val res = new WorkflowDto
     res.setId(workflow.id.get.toString())
-	res.setBoard(board.getOrElse(boardBuilder.buildShallowDto(workflow.board, Some(res))))
+	res.setBoard(board.getOrElse(boardBuilder.buildShallowDto(workflow.board)))
     res
   }
   

@@ -12,17 +12,17 @@ class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableRes
   lazy val boardBuilder = new BoardBuilder()
 
   def execute(params: SimpleParams[BoardDto]): FailableResult[SimpleParams[BoardDto]] = {
-    var storedBoard: Board = null
-
-    try {
-      storedBoard = boardBuilder.buildEntity(params.getPayload()).store
-    } catch {
-      case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(), false, ServerMessages.midAirCollisionException)
-      case e: IllegalArgumentException =>
-        return new FailableResult(new SimpleParams(), false, ServerMessages.entityDeletedMessage("board"))
+    val storedBoard: Board = {
+      try {
+        boardBuilder.buildEntity(params.getPayload()).store
+      } catch {
+        case e: MidAirCollisionException =>
+          return new FailableResult(new SimpleParams(), false, ServerMessages.midAirCollisionException)
+        case e: IllegalArgumentException =>
+          return new FailableResult(new SimpleParams(), false, ServerMessages.entityDeletedMessage("board"))
+      }
     }
-
+    
     new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard, None)))
   }
 }

@@ -55,6 +55,9 @@ class Board(
 
   }
 
+  def withId(id: ObjectId) =
+    new Board(Some(id), name, balanceWorkflowitems, version, workflow, tasks)
+  
   def withName(name: String) =
     new Board(id, name, balanceWorkflowitems, version, workflow, tasks)
 

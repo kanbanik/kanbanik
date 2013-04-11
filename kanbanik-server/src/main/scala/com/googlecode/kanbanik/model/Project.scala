@@ -9,9 +9,9 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 import scala.collection.immutable.HashMap
 
 class Project(
-  var id: Option[ObjectId],
-  var name: String,
-  var version: Int,
+  val id: Option[ObjectId],
+  val name: String,
+  val version: Int,
   var boards: Option[List[Board]]) extends HasMongoConnection with HasMidAirCollisionDetection with Equals {
 
   def store: Project = {
@@ -134,12 +134,12 @@ object Project extends HasMongoConnection {
       None
     } else {
 
-      var processList: List[ObjectId] = null
-
-      if (dbObject.isInstanceOf[List[ObjectId]]) {
-        processList = dbObject.asInstanceOf[List[ObjectId]]
-      } else {
-        processList = dbObject.asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[ObjectId]]
+      val processList: List[ObjectId] = {
+        if (dbObject.isInstanceOf[List[ObjectId]]) {
+          dbObject.asInstanceOf[List[ObjectId]]
+        } else {
+          dbObject.asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[ObjectId]]
+        }
       }
 
       if (processList == null || processList.size == 0) {
