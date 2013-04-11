@@ -28,10 +28,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-	<properties>
-		<hibernate.version>3.5.4-Final</hibernate.version>
-	</properties>
-
 	<dependencies>
 
 		<dependency>
