@@ -95,7 +95,7 @@ class From2To3 extends MigrationPart {
       val oldTasks = coll(conn, oldTasksCollection).find().map(asOldEntity(_))
       val newTasks = oldTasks.map(_.asNewTask)
       var order = 0
-      for (val newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
+      for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
         newTask.withOrder(Integer.toString(order)).store
         order += 100
       }
@@ -159,7 +159,7 @@ class From2To3 extends MigrationPart {
 
     def findProject(): Project = {
       using(createConnection) { conn =>
-        val projects = for (val project <- coll(conn, Coll.Projects).find() if (isOnProject(project))) yield project
+        val projects = for (project <- coll(conn, Coll.Projects).find() if (isOnProject(project))) yield project
         if (projects == null || projects.isEmpty) {
           null
         } else {
