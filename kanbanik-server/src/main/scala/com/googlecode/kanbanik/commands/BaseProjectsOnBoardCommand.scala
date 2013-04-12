@@ -22,23 +22,18 @@ abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[Boa
 
     val projects = params.getPayload().getProjectsOnBoard()
 
-    var projectsOnBoard = List[ProjectDto]()
+    val projectsAsScalaList = projects.toArray.toList.asInstanceOf[List[ProjectDto]]
 
-    for (i <- 0 until projects.size()) {
-      var res: FailableResult[SimpleParams[ProjectDto]] = null
-      try {
-        res = executeSpecific(board.get, Project.byId(new ObjectId(projects.get(i).getId())))
-      } catch {
-        case e: IllegalArgumentException =>
-          return new FailableResult(new SimpleParams, false, ServerMessages.entityDeletedMessage("project"))
-      }
-      if (!res.isSucceeded()) {
-        return new FailableResult(new SimpleParams, false, res.getMessage())
-      }
+    val results = projectsAsScalaList.map(executeOne(_, board.get))
 
-      projectsOnBoard = res.getPayload().getPayload() :: projectsOnBoard
+    val incorrectResults = results.filter(!_.isSucceeded)
+    if (incorrectResults.size != 0) {
+      val msgs = incorrectResults.map(_.getMessage()).mkString(", ")
+      return new FailableResult(new SimpleParams, false, msgs)
     }
 
+    val projectsOnBoard = results.map(_.getPayload().getPayload())
+     
     val retBoardWithProjects = new BoardWithProjectsDto
     retBoardWithProjects.setBoard(params.getPayload().getBoard())
     for (p <- projectsOnBoard) {
@@ -48,4 +43,14 @@ abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[Boa
   }
 
   def executeSpecific(board: Board, project: Project): FailableResult[SimpleParams[ProjectDto]]
+
+  def executeOne(project: ProjectDto, board: Board): FailableResult[SimpleParams[ProjectDto]] = {
+    try {
+      executeSpecific(board, Project.byId(new ObjectId(project.getId())))
+    } catch {
+      case e: IllegalArgumentException =>
+        return new FailableResult(new SimpleParams, false, ServerMessages.entityDeletedMessage("project"))
+    }
+  }
 }
+

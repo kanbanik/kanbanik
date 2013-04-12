@@ -12,7 +12,7 @@ class Project(
   val id: Option[ObjectId],
   val name: String,
   val version: Int,
-  var boards: Option[List[Board]]) extends HasMongoConnection with HasMidAirCollisionDetection with Equals {
+  val boards: Option[List[Board]]) extends HasMongoConnection with HasMidAirCollisionDetection with Equals {
 
   def store: Project = {
     val idToUpdate = id.getOrElse({
@@ -40,7 +40,10 @@ class Project(
   }
 
   def withId(id: ObjectId) =
-    new Project(Some(id), name, version, boards);
+    new Project(Some(id), name, version, boards)
+  
+  def withBoards(boards: Option[List[Board]]) =
+    new Project(id, name, version, boards)
 
   override def equals(other: Any) = {
     other match {

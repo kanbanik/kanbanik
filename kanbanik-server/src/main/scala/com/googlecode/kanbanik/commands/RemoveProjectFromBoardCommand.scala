@@ -21,8 +21,10 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
       if (!deletable) {
         return new FailableResult(new SimpleParams, false, msg)
       }
-      project.boards = Some(project.boards.get.filter(_.id != board.id))
-      return new FailableResult(new SimpleParams(builder.buildDto(project.store)))
+      
+      val newBoards = Some(project.boards.get.filter(_.id != board.id))
+
+      return new FailableResult(new SimpleParams(builder.buildDto(project.withBoards(newBoards).store)))
     }
 
     new FailableResult(new SimpleParams)

@@ -53,7 +53,7 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			throw new UserNotLoggedInException();
 		}
 		
-		// secure zone - unly logged in users can call this commands
+		// secure zone - only logged in users can call this commands
 		
 		if (command == ServerCommand.LOGOUT_COMMAND) {
 			return (R) new LogoutCommand().execute(params);

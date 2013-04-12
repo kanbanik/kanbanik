@@ -12,14 +12,17 @@ import com.googlecode.kanbanik.dto.ProjectDto
 class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
   private val builder = new ProjectBuilder()
-  
-  override def executeSpecific(board: Board, project: Project): FailableResult[SimpleParams[ProjectDto]] = {
-    if (project.boards.isDefined) {
-      project.boards = Some(board :: project.boards.get)
-    } else {
-      project.boards = Some(List(board))
-    }
 
-    new FailableResult(new SimpleParams(builder.buildDto(project.store)))
+  override def executeSpecific(board: Board, project: Project): FailableResult[SimpleParams[ProjectDto]] = {
+
+    val toStore = {
+      if (project.boards.isDefined) {
+        project.withBoards(Some(board :: project.boards.get))
+      } else {
+        project.withBoards(Some(List(board)))
+      }
+    }
+    
+    new FailableResult(new SimpleParams(builder.buildDto(toStore.store)))
   }
 }
