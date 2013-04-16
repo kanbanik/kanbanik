@@ -7,13 +7,17 @@ import com.googlecode.kanbanik.model.ClassOfService
 
 trait HasEntityLoader {
   def loadBoard(id: ObjectId, includeTasks: Boolean) = {
-    loadEntity[Board](id, Board.byId(_, includeTasks))
+    if (id == null) {
+      None
+    } else {
+      loadEntity[Board](id, Board.byId(_, includeTasks))
+    }
   }
 
   def loadProject(id: ObjectId) = {
     loadEntity[Project](id, Project.byId(_))
   }
-  
+
   def loadClassOfService(id: ObjectId) = {
     loadEntity[ClassOfService](id, ClassOfService.byId(_))
   }

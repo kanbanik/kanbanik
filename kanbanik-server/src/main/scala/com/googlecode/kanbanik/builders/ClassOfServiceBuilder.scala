@@ -17,7 +17,13 @@ class ClassOfServiceBuilder extends BaseBuilder {
       classOfService.colour,
       classOfService.isPublic,
       classOfService.version,
-      boardBuilder.buildShallowDto(classOfService.board))
+      {
+        if (classOfService.board.isDefined) {
+          boardBuilder.buildShallowDto(classOfService.board.get)
+        } else {
+          null
+        }
+      })
   }
 
   def buildEntity(classOfServiceDto: ClassOfServiceDto) = {
@@ -28,7 +34,13 @@ class ClassOfServiceBuilder extends BaseBuilder {
       classOfServiceDto.getColour,
       classOfServiceDto.getIsPublic,
       classOfServiceDto.getVersion,
-      Board().withId(new ObjectId(classOfServiceDto.getBoard.getId)))
+      {
+        if (classOfServiceDto.getBoard != null && !classOfServiceDto.getIsPublic()) {
+          Some(Board().withId(new ObjectId(classOfServiceDto.getBoard.getId)))
+        } else {
+          None
+        }
+      })
   }
 
 }

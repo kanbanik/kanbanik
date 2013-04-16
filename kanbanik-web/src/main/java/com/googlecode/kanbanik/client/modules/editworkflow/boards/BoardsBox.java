@@ -22,7 +22,7 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardDeletedMessa
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardRefreshedMessage;
 import com.googlecode.kanbanik.client.modules.ConfigureWorkflowModule;
-import com.googlecode.kanbanik.client.modules.editworkflow.classofservice.ClassOfServicesListFactory;
+import com.googlecode.kanbanik.client.modules.editworkflow.classofservice.ClassOfServicesListManager;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreatingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
@@ -48,7 +48,7 @@ public class BoardsBox extends Composite {
 	
 	private ProjectsToBoardAdding projectToBoardAdding;
 	
-	private ClassOfServicesListFactory classOfServicesListFactory = new ClassOfServicesListFactory();
+	private ClassOfServicesListManager classOfServicesListManager = new ClassOfServicesListManager();
 	
 	interface MyUiBinder extends UiBinder<Widget, BoardsBox> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -95,6 +95,8 @@ public class BoardsBox extends Composite {
 				} else {
 					 configureWorkflowModule.selectedBoardChanged(selectedItem);
 				}
+				
+				classOfServicesListManager.selectedBoardChanged(selectedItem == null ? null : selectedItem.getBoard());
 			}
 			
 		}
@@ -109,7 +111,7 @@ public class BoardsBox extends Composite {
 				new BoardDeletingComponent(),
 				new Refresher());
 		
-		classOfServiceList = classOfServicesListFactory.create();
+		classOfServiceList = classOfServicesListManager.create();
 		
 		boardsList.setOnChangeListener(new OnChangeListener());
 		
@@ -121,6 +123,10 @@ public class BoardsBox extends Composite {
 		addProjectButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));
 		new ProjectCreatingComponent(addProjectButton);
 		
+	}
+	
+	public void selectedBoardChanged(BoardDto board) {
+		classOfServicesListManager.selectedBoardChanged(board);
 	}
 	
 	public void setBoards(List<BoardWithProjectsDto> allBoards) {
@@ -193,11 +199,6 @@ public class BoardsBox extends Composite {
 		
 		projectToBoardAdding = new ProjectsToBoardAdding(boardWithProjects, allProjects);
 		projectsToBoardAddingContainer.add(projectToBoardAdding);
-		// TODO why was this here?
-//		if (boardsList.getSelectedIndex() != lastSelectedIndex) {
-//			boardsList.setSelectedIndex(lastSelectedIndex);
-//			boardsList.onChange();	
-//		}
 	}
 
 }

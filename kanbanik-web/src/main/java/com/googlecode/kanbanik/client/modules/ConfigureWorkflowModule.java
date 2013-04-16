@@ -66,13 +66,16 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	}
 
 	public void selectedBoardChanged(final BoardWithProjectsDto selectedDto) {
-
 		if (selectedDto == null) {
 			// this means that no board is changed - e.g. the last one has been deleted
 			removeEverithing();
 		}
 		
+		
+		
 		editBoard(selectedDto);
+		
+		boardsBox.selectedBoardChanged(selectedDto == null ? null : selectedDto.getBoard());
 	}
 
 	private void editBoard(final BoardWithProjectsDto boardWithProjects) {

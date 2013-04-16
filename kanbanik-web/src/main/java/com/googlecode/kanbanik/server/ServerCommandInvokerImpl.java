@@ -7,6 +7,7 @@ import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand;
 import com.googlecode.kanbanik.commands.CreateUserCommand;
 import com.googlecode.kanbanik.commands.DeleteBoardCommand;
+import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand;
 import com.googlecode.kanbanik.commands.DeleteProjectCommand;
 import com.googlecode.kanbanik.commands.DeleteTaskCommand;
 import com.googlecode.kanbanik.commands.DeleteUserCommand;
@@ -15,6 +16,7 @@ import com.googlecode.kanbanik.commands.EditUserCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
+import com.googlecode.kanbanik.commands.GetAllClassOfServices;
 import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
 import com.googlecode.kanbanik.commands.GetAllUsersCommand;
 import com.googlecode.kanbanik.commands.GetBoardCommand;
@@ -25,6 +27,7 @@ import com.googlecode.kanbanik.commands.LogoutCommand;
 import com.googlecode.kanbanik.commands.MoveTaskCommand;
 import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
+import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand;
 import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
 import com.googlecode.kanbanik.dto.shell.Params;
@@ -97,6 +100,12 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new CreateUserCommand().execute(params);
 		} else if (command == ServerCommand.DELETE_USER_COMMAND) {
 			return (R) new DeleteUserCommand().execute(params);
+		} else if (command == ServerCommand.SAVE_CLASS_OF_SERVICE) {
+			return (R) new SaveClassOfServiceCommand().execute(params);
+		} else if (command == ServerCommand.DELETE_CLASS_OF_SERVICE) {
+			return (R) new DeleteClassOfServiceCommand().execute(params);
+		} else if (command == ServerCommand.GET_ALL_CLASS_OF_SERVICES) {
+			return (R) new GetAllClassOfServices().execute(params);
 		}
 		return null;
 	}

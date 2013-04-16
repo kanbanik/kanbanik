@@ -18,12 +18,18 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
+import com.googlecode.kanbanik.dto.shell.FailableResult;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ClassOfServiceCreatingComponent extends Composite implements
 		PanelContainingDialolgListener, Closable, Component<ClassOfServiceDto>,
@@ -45,6 +51,8 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 	@UiField
 	CheckBox makePublic;
 
+	final ColorPicker colorPicker = new ColorPicker();
+	
 	// default color is blue
 	private String currentColour = "003d89";
 	
@@ -85,7 +93,6 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 	}
 
 	private void initColorPicker() {
-		final ColorPicker colorPicker = new ColorPicker();
 		Panel colorPickerPanel = new FlowPanel();
 		colorPickerPanel.add(colorPicker);
 		colorPickerDialog = new PanelContainingDialog("Select Colour", colorPickerPanel);
@@ -133,7 +140,36 @@ public class ClassOfServiceCreatingComponent extends Composite implements
 
 	@Override
 	public void okClicked(PanelContainingDialog dialog) {
+		new KanbanikServerCaller(
+				new Runnable() {
 
+					public void run() {
+		ServerCommandInvokerManager.getInvoker().<SimpleParams<ClassOfServiceDto>, FailableResult<SimpleParams<ClassOfServiceDto>>> invokeCommand(
+				ServerCommand.SAVE_CLASS_OF_SERVICE,
+				new SimpleParams<ClassOfServiceDto>(createDto()),
+				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<ClassOfServiceDto>>>(ClassOfServiceCreatingComponent.this) {
+
+					@Override
+					public void success(FailableResult<SimpleParams<ClassOfServiceDto>> result) {
+//						MessageBus.sendMessage(new UserAddedMessage(result.getPayload().getPayload(), ClassOfServiceCreatingComponent.this));
+//						clearAllFields();
+					}
+				});
+		}
+
+					});
+	}
+	
+	private ClassOfServiceDto createDto() {
+		return new ClassOfServiceDto(
+				null,
+				nameBox.getText(),
+				richTextArea.getHtml(),
+				colorPicker.getHexColor(),
+				makePublic.getValue(),
+				1,
+				null
+				);
 	}
 
 	@Override

@@ -33,7 +33,7 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
     		"name 1",
     		"description 1",
     		"color 1",
-    		true,
+    		false,
     		1,
     		resBoard.getPayload().getPayload()
     )
