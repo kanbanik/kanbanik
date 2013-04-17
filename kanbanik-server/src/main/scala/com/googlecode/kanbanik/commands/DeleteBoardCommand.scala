@@ -11,6 +11,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.BoardBuilder
+import com.googlecode.kanbanik.model.ClassOfService
 
 class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableResult[VoidParams]] with HasMongoConnection {
 
@@ -33,6 +34,11 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
     val board = boardBuilder.buildEntity(params.getPayload())
     if (board.workflow.workflowitems.size > 0) {
       return new FailableResult(new VoidParams, false, "There are workflowitems on this board. Please delete them first and than delete this board.")
+    }
+    
+    val numOfPrivateTasks = ClassOfService.allForBoard(board).filter(!_.isPublic).size
+    if (numOfPrivateTasks > 0) {
+      return new FailableResult(new VoidParams, false, "There are classes of service on this board. Please delete them first or make them public first and than delete this board.")
     }
 
     try {

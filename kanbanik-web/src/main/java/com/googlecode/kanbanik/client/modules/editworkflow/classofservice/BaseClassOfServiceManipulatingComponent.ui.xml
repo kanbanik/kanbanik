@@ -58,7 +58,7 @@
 		</g:FlowPanel>
 		
 		<g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />
-		<c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="richTextArea" />
+		<c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="descriptionTextArea" />
 	</g:FlowPanel>
 
 </ui:UiBinder>

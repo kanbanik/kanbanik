@@ -11,6 +11,8 @@ import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.WarningPanel;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.classesofservice.ClassOfServiceDeletedMessage;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -51,7 +53,7 @@ public class ClassOfServiceDeletingComponent implements Component<ClassOfService
 	
 	class YesNoDialogListener implements PanelContainingDialolgListener {
 
-		private ClassOfServiceDto classOfServiceDto;
+		private final ClassOfServiceDto classOfServiceDto;
 
 		public YesNoDialogListener(ClassOfServiceDto classOfServiceDto) {
 			this.classOfServiceDto = classOfServiceDto;
@@ -73,8 +75,7 @@ public class ClassOfServiceDeletingComponent implements Component<ClassOfService
 										@Override
 										public void success(
 												FailableResult<VoidParams> result) {
-//											MessageBus.sendMessage(new UserDeletedMessage(userDto, ClassOfServiceDeletingComponent.this));
-
+											MessageBus.sendMessage(new ClassOfServiceDeletedMessage(classOfServiceDto, this));
 										}
 									});
 

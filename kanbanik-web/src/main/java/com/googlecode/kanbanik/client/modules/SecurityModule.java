@@ -95,7 +95,6 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 		public void refrehs(List<UserDto> items, UserDto newItem, int index) {
 			items.set(index, newItem);
 		}
-		
 	}
 
 	@Override

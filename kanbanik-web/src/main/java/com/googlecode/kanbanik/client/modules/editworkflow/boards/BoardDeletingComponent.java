@@ -75,7 +75,7 @@ public class BoardDeletingComponent extends AbstractDeletingComponent implements
 	public void activated() {
 		if (!MessageBus.listens(BoardChangedMessage.class, this)) {
 			MessageBus.registerListener(BoardChangedMessage.class, this);	
-		}		
+		}
 	}
 
 	@Override
