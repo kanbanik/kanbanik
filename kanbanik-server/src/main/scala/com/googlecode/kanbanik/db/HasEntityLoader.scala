@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.ClassOfService
+import com.googlecode.kanbanik.model.User
 
 trait HasEntityLoader {
   def loadBoard(id: ObjectId, includeTasks: Boolean) = {
@@ -21,8 +22,16 @@ trait HasEntityLoader {
   def loadClassOfService(id: ObjectId) = {
     loadEntity[ClassOfService](id, ClassOfService.byId(_))
   }
+  
+  def loadUser(name: String) = {
+    loadEntity[User, String](name, User.byId(_))
+  }
 
   private def loadEntity[T](id: ObjectId, f: ObjectId => T): Option[T] = {
+    loadEntity[T, ObjectId](id, f)
+  }
+  
+  private def loadEntity[T, I](id: I, f: I => T): Option[T] = {
     try {
       Some(f(id))
     } catch {

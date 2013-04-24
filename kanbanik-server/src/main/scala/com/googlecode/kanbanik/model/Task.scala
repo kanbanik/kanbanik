@@ -11,15 +11,18 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.BasicDBObjectBuilder
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.db.HasEntityLoader
 
 class Task(
   val id: Option[ObjectId],
   val name: String,
   val description: String,
-  val classOfService: Int,
+  val classOfService: Option[ClassOfService],
   val ticketId: String,
   val version: Int,
   val order: String,
+  val assignee: Option[User],
+  val dueData: String,
   val workflowitem: Workflowitem,
   val project: Project) extends HasMongoConnection with HasMidAirCollisionDetection {
 
@@ -68,6 +71,8 @@ class Task(
       ticketId,
       version,
       order,
+      assignee,
+      dueData,
       workflowitem,
       project)
   }
@@ -81,10 +86,12 @@ class Task(
       ticketId,
       version,
       order,
+      assignee,
+      dueData,
       workflowitem,
       project)
   }
-  
+
   def withOrder(order: String) = {
     new Task(
       id,
@@ -94,6 +101,8 @@ class Task(
       ticketId,
       version,
       order,
+      assignee,
+      dueData,
       workflowitem,
       project)
   }
@@ -114,11 +123,11 @@ class Task(
       try {
         Task.byId(id.get)
       } catch {
-        case e: IllegalArgumentException => { 
+        case e: IllegalArgumentException => {
           return
         }
       }
-      
+
       throw new MidAirCollisionException
     }
 
@@ -126,15 +135,17 @@ class Task(
 
 }
 
-object Task extends HasMongoConnection {
+object Task extends HasMongoConnection with HasEntityLoader {
 
   object Fields extends DocumentField {
     val description = Value("description")
-    val classOfService = Value("classOfService")
     val ticketId = Value("ticketId")
     val order = Value("order")
     val projectId = Value("projectId")
     val workflowitem = Value("workflowitem")
+    val classOfService = Value("classOfService")
+    val assignee = Value("assignee")
+    val dueDate = Value("dueDate")
   }
 
   def byId(id: ObjectId): Task = {
@@ -162,6 +173,9 @@ object Task extends HasMongoConnection {
       Task.Fields.version.toString() -> entity.version,
       Task.Fields.order.toString() -> entity.order,
       Task.Fields.projectId.toString() -> entity.project.id,
+      Task.Fields.classOfService.toString() -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
+      Task.Fields.assignee.toString() -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
+      Task.Fields.dueDate.toString() -> entity.dueData,
       Task.Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
   }
 
@@ -170,17 +184,12 @@ object Task extends HasMongoConnection {
       Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
-      dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
+      loadOrNone[ObjectId, ClassOfService](Task.Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
       dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String],
-      {
-        val res = dbObject.get(Task.Fields.version.toString())
-        if (res == null) {
-          1
-        } else {
-          res.asInstanceOf[Int]
-        }
-      },
+      loadOrDefault[Int](Task.Fields.version.toString(), dbObject, 1),
       dbObject.get(Task.Fields.order.toString()).asInstanceOf[String],
+      loadOrNone[String, User](Task.Fields.assignee.toString(), dbObject, loadUser(_)),
+      loadOrDefault[String](Task.Fields.dueDate.toString(), dbObject, ""),
       null,
       null)
 
@@ -195,6 +204,24 @@ object Task extends HasMongoConnection {
       taskWithWorkflowitem
     }
 
+  }
+
+  def loadOrDefault[T](dbField: String, dbObject: DBObject, default: T): T = {
+    val res = dbObject.get(dbField)
+    if (res == null) {
+      default
+    } else {
+      res.asInstanceOf[T]
+    }
+  }
+
+  def loadOrNone[T, R](dbField: String, dbObject: DBObject, f: T => Option[R]): Option[R] = {
+    val res = dbObject.get(Task.Fields.version.toString())
+    if (res == null) {
+      None
+    } else {
+      f(res.asInstanceOf[T])
+    }
   }
 
   def asEntity(dbObject: DBObject, board: Board, allProjcts: List[Project]): Task = {

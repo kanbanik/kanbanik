@@ -17,6 +17,7 @@
 			border-width: 1px; 
 			align: right;
 			margin-bottom: 4px;
+			border-radius: 3px;
 		}
 		
 		.shortDescription {
@@ -24,6 +25,7 @@
 			height: 30px;
 			resize: vertical;
 			overflow: hidden;
+			background-color: transparent;
 		}
 		
 		.headerStyle {

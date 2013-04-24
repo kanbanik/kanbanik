@@ -138,16 +138,18 @@ class From2To3 extends MigrationPart {
     val workflowitemId: ObjectId) {
 
     def asNewTask(): Task = {
-      new Task(
-        None, // because I want to create a new one
-        name,
-        description,
-        classOfService,
-        ticketId,
-        1, // because I basically want to create a new one
-        "",
-        findWorkflowitem(),
-        findProject())
+      // just a hack to make it compile
+      null
+//      new Task(
+//        None, // because I want to create a new one
+//        name,
+//        description,
+//        classOfService,
+//        ticketId,
+//        1, // because I basically want to create a new one
+//        "",
+//        findWorkflowitem(),
+//        findProject())
 
     }
 
