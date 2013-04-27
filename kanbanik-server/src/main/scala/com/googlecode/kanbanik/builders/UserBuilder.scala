@@ -7,5 +7,5 @@ class UserBuilder {
 
   def buildDto(user: User) = new UserDto(user.name, user.realName, user.version)
   
-  
+  def buildEntity(userDto: UserDto) = User(userDto.getUserName())
 }

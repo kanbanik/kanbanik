@@ -77,7 +77,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     val taskDto = new TaskDto()
     taskDto.setName("taskName1")
     taskDto.setDescription("desc")
-    taskDto.setClassOfService(ClassOfService.EXPEDITE)
+    taskDto.setClassOfService(null)
     taskDto.setProject(storedProject.getPayload().getPayload())
     taskDto.setWorkflowitem(loadWorkflow.getWorkflowitems().get(0))
     

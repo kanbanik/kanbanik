@@ -10,7 +10,7 @@ public class TaskDto implements IdentifiableDto {
 
 	private String description;
 
-	private ClassOfService classOfService;
+	private ClassOfServiceDto classOfService;
 
 	private String ticketId;
 
@@ -21,6 +21,10 @@ public class TaskDto implements IdentifiableDto {
 	private String order;
 	
 	private ProjectDto project;
+	
+	private UserDto assignee;
+	
+	private String dueDate;
 	
 	public String getId() {
 		return id;
@@ -46,11 +50,11 @@ public class TaskDto implements IdentifiableDto {
 		this.description = description;
 	}
 
-	public ClassOfService getClassOfService() {
+	public ClassOfServiceDto getClassOfService() {
 		return classOfService;
 	}
 
-	public void setClassOfService(ClassOfService classOfService) {
+	public void setClassOfService(ClassOfServiceDto classOfService) {
 		this.classOfService = classOfService;
 	}
 
@@ -92,6 +96,22 @@ public class TaskDto implements IdentifiableDto {
 
 	public void setOrder(String order) {
 		this.order = order;
+	}
+	
+	public UserDto getAssignee() {
+		return assignee;
+	}
+
+	public void setAssignee(UserDto assignee) {
+		this.assignee = assignee;
+	}
+
+	public String getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
 	}
 
 	@Override

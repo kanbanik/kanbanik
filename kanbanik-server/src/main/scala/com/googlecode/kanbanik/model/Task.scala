@@ -216,7 +216,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   def loadOrNone[T, R](dbField: String, dbObject: DBObject, f: T => Option[R]): Option[R] = {
-    val res = dbObject.get(Task.Fields.version.toString())
+    val res = dbObject.get(dbField)
     if (res == null) {
       None
     } else {

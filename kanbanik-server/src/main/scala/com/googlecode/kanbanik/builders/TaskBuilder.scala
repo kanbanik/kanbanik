@@ -13,12 +13,18 @@ import com.googlecode.kanbanik.dto.WorkflowDto
 
 class TaskBuilder extends TaskManipulation {
 
+  lazy val classOfServiceBuilder = new ClassOfServiceBuilder
+  
+  lazy val userBuilder = new UserBuilder
+  
   def buildDto(task: Task, cache: Option[WorkflowitemCache]): TaskDto = {
     val dto = new TaskDto
     dto.setId(task.id.get.toString())
     dto.setName(task.name)
     dto.setDescription(task.description)
-    dto.setClassOfService(ClassOfService.fromId(task.classOfService))
+    if (task.classOfService.isDefined) {
+    	dto.setClassOfService(classOfServiceBuilder.buildShallowDto(task.classOfService.get))
+    }
 
     if (cache.isDefined) {
       dto.setWorkflowitem(cache.get.getWorkflowitem(task.workflowitem.id.get).getOrElse(workflowitemBuilder.buildShallowDto(task.workflowitem, None)))
@@ -29,6 +35,10 @@ class TaskBuilder extends TaskManipulation {
     dto.setTicketId(task.ticketId)
     dto.setVersion(task.version)
     dto.setOrder(task.order)
+    dto.setDueDate(task.dueData)
+    if (task.assignee.isDefined) {
+    	dto.setAssignee(userBuilder.buildDto(task.assignee.get))
+    }
 
     dto.setProject(projectBuilder.buildShallowDto(task.project))
     dto
@@ -39,10 +49,24 @@ class TaskBuilder extends TaskManipulation {
       determineId(taskDto),
       taskDto.getName(),
       taskDto.getDescription(),
-      taskDto.getClassOfService().getId(),
+      {
+        if (taskDto.getClassOfService() == null) {
+          None
+        } else {
+          Some(classOfServiceBuilder.buildEntity(taskDto.getClassOfService()))
+        }
+      },
       determineTicketId(taskDto),
       taskDto.getVersion(),
       taskDto.getOrder(),
+      {
+        if (taskDto.getAssignee() == null) {
+          None
+        } else {
+          Some(userBuilder.buildEntity(taskDto.getAssignee()))
+        }
+      },
+      taskDto.getDueDate(),
       workflowitemBuilder.buildShallowEntity(taskDto.getWorkflowitem(), None, None),
       projectBuilder.buildShallowEntity(taskDto.getProject()))
   }
