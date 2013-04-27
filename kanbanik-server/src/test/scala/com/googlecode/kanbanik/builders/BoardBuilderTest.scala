@@ -14,6 +14,7 @@ import com.googlecode.kanbanik.model.BaseWorkflowManipulatingTest
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.commons._
 
 class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTestManipulation {
 
@@ -137,5 +138,5 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
     assert(res.workflow.workflowitems.tail.head.nestedWorkflow.workflowitems.map(_.name) == List("unter1", "unter2", "unter3"))
   }
   
-  def asNamesList(res: WorkflowDto) = res.getWorkflowitems().toArray.toList.map(_.asInstanceOf[WorkflowitemDto].getName())
+  def asNamesList(res: WorkflowDto) = res.getWorkflowitems().toScalaList.map(_.getName())
 }

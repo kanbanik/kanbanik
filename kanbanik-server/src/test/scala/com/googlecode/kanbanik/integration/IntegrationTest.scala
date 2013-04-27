@@ -39,6 +39,7 @@ import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
 import com.googlecode.kanbanik.commands.SaveTaskCommand
+import com.googlecode.kanbanik.commons._
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -196,11 +197,11 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
   }
   
   def loadAllBoards() = {
-	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsParams(true)).getPayload().getList().toArray().toList.asInstanceOf[List[BoardWithProjectsDto]]    
+	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsParams(true)).getPayload().getList().toScalaList    
   }
   
   def asWorkflowList(workflow: WorkflowDto) = {
-    workflow.getWorkflowitems().toArray().toList.asInstanceOf[List[WorkflowitemDto]]
+    workflow.getWorkflowitems().toScalaList
   }
   
   def editWorkflow(item: WorkflowitemDto, nextItem: WorkflowitemDto, workflow: WorkflowDto) {

@@ -16,6 +16,7 @@ import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.commands.MoveTaskCommand
+import com.googlecode.kanbanik.commons._
 
 class MigrateDb extends HasMongoConnection {
   
@@ -179,7 +180,7 @@ class From2To3 extends MigrationPart {
         if (tasks.isInstanceOf[List[ObjectId]]) {
           tasks.asInstanceOf[List[ObjectId]].contains(id.get)
         } else {
-          tasks.asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[ObjectId]].contains(id.get)
+          tasks.asInstanceOf[BasicDBList].toScalaList.contains(id.get)
         }
       }
     }

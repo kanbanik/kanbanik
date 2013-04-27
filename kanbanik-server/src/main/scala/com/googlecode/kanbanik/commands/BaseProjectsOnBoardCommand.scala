@@ -9,6 +9,7 @@ import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.db.HasEntityLoader
+import com.googlecode.kanbanik.commons._
 
 abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[BoardWithProjectsDto], FailableResult[SimpleParams[BoardWithProjectsDto]]] with HasEntityLoader {
 
@@ -22,7 +23,7 @@ abstract class BaseProjectsOnBoardCommand extends ServerCommand[SimpleParams[Boa
 
     val projects = params.getPayload().getProjectsOnBoard()
 
-    val projectsAsScalaList = projects.toArray.toList.asInstanceOf[List[ProjectDto]]
+    val projectsAsScalaList = projects.toScalaList
 
     val results = projectsAsScalaList.map(executeOne(_, board.get))
 

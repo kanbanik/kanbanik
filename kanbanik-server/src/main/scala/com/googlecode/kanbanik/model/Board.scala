@@ -9,6 +9,7 @@ import java.util.ArrayList
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.db.HasMongoConnection
+import com.googlecode.kanbanik.commons._
 
 class Board(
   val id: Option[ObjectId],

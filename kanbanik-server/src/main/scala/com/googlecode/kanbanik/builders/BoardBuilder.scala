@@ -9,6 +9,7 @@ import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.dto.TaskDto
 import scala.collection.mutable.ListBuffer
 import java.util.ArrayList
+import com.googlecode.kanbanik.commons._
 
 class BoardBuilder extends BaseBuilder {
 
@@ -29,13 +30,12 @@ class BoardBuilder extends BaseBuilder {
     res
   }
   
-  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
+ def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = buildShallowDto(board)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
     val cache = new WorkflowitemCache(List(res))
     val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
-    val javaList = new ArrayList[TaskDto]
-    tasks.foreach (javaList.add (_))  
+    val javaList = tasks.toList.toJavaList
     res.setTasks(javaList)
     res
   }
@@ -47,7 +47,7 @@ class BoardBuilder extends BaseBuilder {
       boardDto.isBalanceWorkflowitems(),
       boardDto.getVersion(),
       Workflow(),
-      boardDto.getTasks().toArray.toList.map(task => taskBuilder.buildEntity(task.asInstanceOf[TaskDto]))
+      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task))
     )
     
     board.withWorkflow(workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))

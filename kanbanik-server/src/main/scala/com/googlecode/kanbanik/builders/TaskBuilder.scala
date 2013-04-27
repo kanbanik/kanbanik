@@ -10,6 +10,7 @@ import com.googlecode.kanbanik.dto.BoardDto
 import scala.collection.mutable.HashMap
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.WorkflowDto
+import com.googlecode.kanbanik.commons._
 
 class TaskBuilder extends TaskManipulation {
 
@@ -179,5 +180,5 @@ class WorkflowitemCache(val boards: List[BoardDto]) {
     traverseWorkflowitems(asList(board.getWorkflow().getWorkflowitems()))
   }
 
-  def asList(items: java.util.List[WorkflowitemDto]) = items.toArray().toList.asInstanceOf[List[WorkflowitemDto]]
+  def asList(items: java.util.List[WorkflowitemDto]) = items.toScalaList
 }

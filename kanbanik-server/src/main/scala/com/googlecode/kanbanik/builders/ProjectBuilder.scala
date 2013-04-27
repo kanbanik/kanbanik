@@ -6,6 +6,7 @@ import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.dto.BoardDto
+import com.googlecode.kanbanik.commons._
 
 class ProjectBuilder {
 
@@ -54,7 +55,7 @@ class ProjectBuilder {
   }
 
   def dtosToEntities[E, D](dtos: java.util.List[D], f: D => E): Option[List[E]] = {
-    val entities = dtos.toArray().toList.asInstanceOf[List[D]].map(f(_))
+    val entities = dtos.toScalaList.map(f(_))
     
     if (entities.length == 0) {
       None
