@@ -255,9 +255,9 @@ public abstract class AbstractTaskEditingComponent {
 		TaskDto taskDto = createBasicDTO();
 		taskDto.setName(taskName.getText());
 		taskDto.setDescription(description.getHtml());
-		taskDto.setClassOfService(ClassOfService.STANDARD);
+//		taskDto.setClassOfService(ClassOfService.STANDARD);
 		taskDto.setId(getId());
-		taskDto.setClassOfService(getClassOfService());
+//		taskDto.setClassOfService(getClassOfService());
 		taskDto.setVersion(getVersion());
 		return taskDto;
 	}

@@ -7,6 +7,7 @@ import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -70,7 +71,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	
 	@Override
 	protected String getClassOfServiceAsString() {
-		ClassOfService classOfService = taskGui.getDto().getClassOfService();
+		ClassOfServiceDto classOfService = taskGui.getDto().getClassOfService();
 		if (classOfService == null) {
 			return ClassOfService.STANDARD.toString();
 		}
