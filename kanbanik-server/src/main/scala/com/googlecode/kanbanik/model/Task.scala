@@ -40,8 +40,10 @@ class Task(
       val update = $set(
         Coll.Tasks.toString() + ".$." + Task.Fields.version.toString() -> { version + 1 },
         Coll.Tasks.toString() + ".$." + Task.Fields.name.toString() -> name,
+        Coll.Tasks.toString() + ".$." + Task.Fields.dueDate.toString() -> dueData,
         Coll.Tasks.toString() + ".$." + Task.Fields.description.toString() -> description,
-        Coll.Tasks.toString() + ".$." + Task.Fields.classOfService.toString() -> classOfService,
+        Coll.Tasks.toString() + ".$." + Task.Fields.classOfService.toString() -> { if (classOfService.isDefined) classOfService.get.id else None },
+        Coll.Tasks.toString() + ".$." + Task.Fields.assignee.toString() -> { if (assignee.isDefined) assignee.get.name else None },
         Coll.Tasks.toString() + ".$." + Task.Fields.ticketId.toString() -> ticketId,
         Coll.Tasks.toString() + ".$." + Task.Fields.order.toString() -> order,
         Coll.Tasks.toString() + ".$." + Task.Fields.projectId.toString() -> project.id,

@@ -31,6 +31,14 @@ import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams
+import com.googlecode.kanbanik.dto.UserDto
+import com.googlecode.kanbanik.commands.CreateUserCommand
+import com.googlecode.kanbanik.dto.ManipulateUserDto
+import com.googlecode.kanbanik.dto.ClassOfServiceDto
+import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
+import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
+import com.googlecode.kanbanik.commands.GetAllClassOfServices
+import com.googlecode.kanbanik.commands.SaveTaskCommand
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -42,11 +50,22 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
       val start = System.currentTimeMillis()
     // creation phase
     
+    // create user
+    val user = new ManipulateUserDto()
+    user.setUserName("user1")
+    user.setPassword("aaa")
+    user.setNewPassword("aaa")
+    val storedUser = new CreateUserCommand().execute(new SimpleParams(user))
+
     // create board
     val board = new BoardDto()
     board.setName("board1")
     board.setWorkflow(new WorkflowDto())
     val storedBoard = new SaveBoardCommand().execute(new SimpleParams(board))
+    
+    // create class of service
+    val clasOfService = new ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", false, 1, storedBoard.getPayload().getPayload())
+    val storedClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(clasOfService))
     
     // create project
     val project = new ProjectDto()
@@ -82,7 +101,9 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     taskDto.setWorkflowitem(loadWorkflow.getWorkflowitems().get(0))
     
     val storedTask = new SaveTaskCommand().execute(new SimpleParams(taskDto))
-    assert(storedTask.getPayload().getPayload().getName() === "taskName1")
+    assert(storedTask.getPayload().getPayload().getName === "taskName1")
+    assert(storedTask.getPayload().getPayload().getClassOfService === null)
+    assert(storedTask.getPayload().getPayload().getAssignee === null)
     
     // edit phase
 
@@ -96,13 +117,23 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     new EditWorkflowitemDataCommand().execute(new SimpleParams(itemToEdit))
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     
-    // edit task
+    // move task
     val taskToMove = loadBoard().getTasks().get(0)
     taskToMove.setWorkflowitem(loadWorkflow.getWorkflowitems().get(2))
     val moveTaskParams = new MoveTaskParams(taskToMove, loadProject(), null, null)
     val movedTask = new MoveTaskCommand().execute(moveTaskParams)
     assert(movedTask.getPayload().getPayload().getWorkflowitem().getName() === "item2")
     assert(loadBoard().getTasks().get(0).getWorkflowitem().getName() === "item2")
+    
+    // edit task
+    val taskToEdit = loadBoard().getTasks().get(0)
+    taskToEdit.setAssignee(storedUser.getPayload().getPayload())
+    taskToEdit.setClassOfService(storedClassOfService.getPayload().getPayload())
+    taskToEdit.setDueDate("yesterday")
+    val editedTask = new SaveTaskCommand().execute(new SimpleParams(taskToEdit))
+    assert(loadBoard().getTasks().get(0).getDueDate() === "yesterday")
+    assert(loadBoard().getTasks().get(0).getClassOfService().getName() === "eXpedite")
+    assert(loadBoard().getTasks().get(0).getAssignee().getUserName() === "user1")
     
     // edit board
     val boardToEdit = loadBoard()
@@ -121,7 +152,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // delete phase
     
     // delete task
-    new DeleteTaskCommand().execute(new SimpleParams(movedTask.getPayload().getPayload()))
+    new DeleteTaskCommand().execute(new SimpleParams(editedTask.getPayload().getPayload()))
     assert(loadBoard().getTasks().size() === 0)
     
     // delete workflowitems
@@ -139,6 +170,10 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     new DeleteProjectCommand().execute(new SimpleParams(loadProject))
     assert(loadAllBoards.head.getProjectsOnBoard().size() === 0)
     
+    // delete class of service
+    new DeleteClassOfServiceCommand().execute(new SimpleParams(storedClassOfService.getPayload().getPayload()))
+    assert(loadAllClassesOfService(loadBoard).size === 0)
+    
     // delete board
     new DeleteBoardCommand().execute(new SimpleParams(loadBoard))
     assert(loadAllBoards.size === 0)
@@ -154,6 +189,10 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
   
   def loadItem(item: Int): WorkflowitemDto = {
     loadWorkflowitems().get(item)
+  }
+  
+  def loadAllClassesOfService(board: BoardDto) = {
+    new GetAllClassOfServices().execute(new SimpleParams(board)).getPayload().getList()
   }
   
   def loadAllBoards() = {
