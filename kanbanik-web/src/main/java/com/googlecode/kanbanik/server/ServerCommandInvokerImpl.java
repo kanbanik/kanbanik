@@ -17,6 +17,7 @@ import com.googlecode.kanbanik.commands.EditWorkflowCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
 import com.googlecode.kanbanik.commands.GetAllClassOfServices;
+import com.googlecode.kanbanik.commands.GetAllClassOfServicesForBoard;
 import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
 import com.googlecode.kanbanik.commands.GetAllUsersCommand;
 import com.googlecode.kanbanik.commands.GetBoardCommand;
@@ -104,9 +105,12 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new SaveClassOfServiceCommand().execute(params);
 		} else if (command == ServerCommand.DELETE_CLASS_OF_SERVICE) {
 			return (R) new DeleteClassOfServiceCommand().execute(params);
+		} else if (command == ServerCommand.GET_ALL_CLASS_OF_SERVICES_FOR_BOARD) {
+			return (R) new GetAllClassOfServicesForBoard().execute(params);
 		} else if (command == ServerCommand.GET_ALL_CLASS_OF_SERVICES) {
 			return (R) new GetAllClassOfServices().execute(params);
 		}
+
 		return null;
 	}
 

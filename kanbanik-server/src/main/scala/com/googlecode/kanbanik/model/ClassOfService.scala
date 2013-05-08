@@ -87,6 +87,12 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
     }
   }
 
+  def all() = {
+    using(createConnection) { conn =>
+      coll(conn, Coll.ClassesOfService).find().map(asEntity(_, None)).toList
+    }
+  }
+  
   def allForBoard(board: Board): List[ClassOfService] = {
     val allOnBoardQuery = MongoDBObject(ClassOfService.Fields.board.toString() -> board.id.get)
     using(createConnection) { conn =>
@@ -99,16 +105,18 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
     val allSharedQuery = MongoDBObject(ClassOfService.Fields.isPublic.toString() -> true)
     using(createConnection) { conn =>
       coll(conn, Coll.ClassesOfService).find(allSharedQuery).map(asEntity(_, None)).toList
-
     }
   }
 
   def asEntity(dbObject: DBObject): ClassOfService = {
-    val boardId = dbObject.get(ClassOfService.Fields.board.toString()).asInstanceOf[ObjectId]
-    val board = loadBoard(boardId, false)
-    asEntity(dbObject, board)
+	val board = dbObject.get(ClassOfService.Fields.board.toString()).asInstanceOf[ObjectId]
+	if (board == null) {
+	  asEntity(dbObject, None)
+	} else {
+	  asEntity(dbObject, Some(Board().withId(board)))
+	}
   }
-
+  
   def asEntity(dbObject: DBObject, board: Option[Board]): ClassOfService = {
     new ClassOfService(
       Some(dbObject.get(ClassOfService.Fields.id.toString()).asInstanceOf[ObjectId]),

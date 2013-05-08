@@ -23,7 +23,6 @@ import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.dto.ClassOfService
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
@@ -37,7 +36,7 @@ import com.googlecode.kanbanik.dto.ManipulateUserDto
 import com.googlecode.kanbanik.dto.ClassOfServiceDto
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
-import com.googlecode.kanbanik.commands.GetAllClassOfServices
+import com.googlecode.kanbanik.commands.GetAllClassOfServicesForBoard
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
 
@@ -193,7 +192,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
   }
   
   def loadAllClassesOfService(board: BoardDto) = {
-    new GetAllClassOfServices().execute(new SimpleParams(board)).getPayload().getList()
+    new GetAllClassOfServicesForBoard().execute(new SimpleParams(board)).getPayload().getList()
   }
   
   def loadAllBoards() = {

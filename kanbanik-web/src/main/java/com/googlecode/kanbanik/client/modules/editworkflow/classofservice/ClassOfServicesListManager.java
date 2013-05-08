@@ -59,7 +59,7 @@ public class ClassOfServicesListManager implements MessageListener<ClassOfServic
 
 					public void run() {
 		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
-				ServerCommand.GET_ALL_CLASS_OF_SERVICES,
+				ServerCommand.GET_ALL_CLASS_OF_SERVICES_FOR_BOARD,
 				new SimpleParams<BoardDto>(board),
 				new BaseAsyncCallback<SimpleParams<ListDto<ClassOfServiceDto>>>() {
 					@Override

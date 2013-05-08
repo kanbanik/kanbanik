@@ -1,12 +1,15 @@
 package com.googlecode.kanbanik.client.components.task;
 
+import java.util.List;
+
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
-import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
+import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
@@ -17,33 +20,16 @@ import com.googlecode.kanbanik.shared.ServerCommand;
 public class TaskEditingComponent extends AbstractTaskEditingComponent {
 
 	private TaskGui taskGui;
+
+	private BoardDto board;
 	
 	public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler) {
-		super(clickHandler);
+		super(clickHandler, taskGui.getDto().getWorkflowitem().getParentWorkflow().getBoard());
 		this.taskGui = taskGui;
+		this.board = taskGui.getDto().getWorkflowitem().getParentWorkflow().getBoard();
 		initialize();
 	}
 
-	@Override
-	protected String getTicketId() {
-		return taskGui.getDto().getTicketId();
-	}
-
-	@Override
-	protected String getTaskName() {
-		return taskGui.getDto().getName();
-	}
-
-	@Override
-	protected String getDescription() {
-		return taskGui.getDto().getDescription();
-	}
-
-	@Override
-	protected String getId() {
-		return taskGui.getDto().getId();
-	}
-	
 	@Override
 	protected void onClicked() {
 		
@@ -73,12 +59,38 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	protected String getClassOfServiceAsString() {
 		ClassOfServiceDto classOfService = taskGui.getDto().getClassOfService();
 		if (classOfService == null) {
-			return ClassOfService.STANDARD.toString();
+			List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getForBoard(board);
+			if (classesOfService.size() != 0) {
+				return classesOfService.iterator().next().getName();
+			}
+			
+			return ClassOfServicesManager.getInstance().getDefaultClassOfService().getName();
 		}
-		return classOfService.toString();
+		
+		return classOfService.getName();
 		
 	}
 
+	@Override
+	protected String getTicketId() {
+		return taskGui.getDto().getTicketId();
+	}
+
+	@Override
+	protected String getTaskName() {
+		return taskGui.getDto().getName();
+	}
+
+	@Override
+	protected String getDescription() {
+		return taskGui.getDto().getDescription();
+	}
+
+	@Override
+	protected String getId() {
+		return taskGui.getDto().getId();
+	}
+	
 	@Override
 	protected TaskDto createBasicDTO() {
 		return taskGui.getDto();
@@ -87,6 +99,15 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	@Override
 	protected int getVersion() {
 		return taskGui.getDto().getVersion();
+	}
+
+	@Override
+	protected String getUser() {
+		if (taskGui.getDto().getAssignee() == null) {
+			return "";
+		}
+		
+		return taskGui.getDto().getAssignee().getUserName();
 	}
 
 }

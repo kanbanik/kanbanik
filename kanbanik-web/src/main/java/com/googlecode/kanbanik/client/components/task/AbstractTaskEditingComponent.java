@@ -1,9 +1,11 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -19,7 +21,6 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -36,8 +37,12 @@ import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
-import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
+import com.googlecode.kanbanik.client.providers.UsersManager;
+import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.UserDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -51,8 +56,6 @@ public abstract class AbstractTaskEditingComponent {
 	private Label ticketId = new Label("");
 
 	private KanbanikRichTextArea description;
-
-	private ListBox classOfService = new ListBox();
 
 	private SuggestBox assigneeEditor;
 
@@ -70,33 +73,24 @@ public abstract class AbstractTaskEditingComponent {
 
 	private final HasClickHandlers clickHandler;
 
-	public AbstractTaskEditingComponent(HasClickHandlers clickHandler) {
+	private Map<String, ClassOfServiceDto> classOfServiceToName;
+	
+	private Map<String, UserDto> userToName;
+
+	private BoardDto boardDto;
+
+	public AbstractTaskEditingComponent(HasClickHandlers clickHandler, BoardDto boardDto) {
 		this.clickHandler = clickHandler;
+		this.boardDto = boardDto;
 		this.name = "Task Details";
 	}
 
 	protected void initialize() {
-		// just testing data - will be replaced by data from the DTO
-		List<String> classOfServiceStrings = Arrays.asList(
-				"some class of service",
-				"other class of service",
-				"hmm class of service",
-				"some class of service1"
-		);
 		
-		classOfServiceEditor = new SuggestBox(createOracle(classOfServiceStrings));
+		classOfServiceEditor = new SuggestBox(new MultiWordSuggestOracle());
 		initSuggestBox(classOfServiceEditor);
 		
-		
-		List<String> assigneeStrings = Arrays.asList(
-			"jim",
-			"joe",
-			"ignac",
-			"frikulin",
-			"bfu",
-			"brindzonos"
-		);
-		assigneeEditor = new SuggestBox(createOracle(assigneeStrings));
+		assigneeEditor = new SuggestBox(new MultiWordSuggestOracle());
 		initSuggestBox(assigneeEditor);
 		
 		description = new KanbanikRichTextArea();
@@ -132,6 +126,27 @@ public abstract class AbstractTaskEditingComponent {
 		clickHandler.addClickHandler(new ShowDialogHandler());
 	}
 	
+	private Map<String, ClassOfServiceDto> initClassOfServiceToName(List<ClassOfServiceDto> classesOfService) {
+		
+		Map<String, ClassOfServiceDto> res = new HashMap<String, ClassOfServiceDto>();
+		for (ClassOfServiceDto classOfService : classesOfService) {
+			res.put(classOfService.getName(), classOfService);
+		}
+		
+		return res;
+	}
+
+	private Map<String, UserDto> initUserToName(List<UserDto> users) {
+		Map<String, UserDto> res = new HashMap<String, UserDto>();
+		for (UserDto user : users) {
+			res.put(user.getUserName(), user);
+		}
+		
+		return res;
+	}
+	
+	
+
 	class DatePickerDialog extends DialogBox {
 		public DatePickerDialog() {
 			setText("Due Date");
@@ -196,8 +211,7 @@ public abstract class AbstractTaskEditingComponent {
 		return dueDatePanel;
 	}
 
-	private MultiWordSuggestOracle createOracle(List<String> suggestions) {
-		MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+	private void fillOracle(Set<String> suggestions, MultiWordSuggestOracle oracle) {
 		oracle.addAll(suggestions);
 
 		List<Suggestion> defaults = new ArrayList<Suggestion>();
@@ -206,7 +220,6 @@ public abstract class AbstractTaskEditingComponent {
 		}
 		oracle.setDefaultSuggestions(defaults);
 
-		return oracle;
 	}
 
 	private void initSuggestBox(final SuggestBox suggestBox) {
@@ -223,23 +236,19 @@ public abstract class AbstractTaskEditingComponent {
 		taskName.setValue(getTaskName());
 		description.setHtml(getDescription());
 
-		String currentClassOfService = getClassOfServiceAsString();
-		classOfService.clear();
-
-		int selectedIndex = 0;
-		int i = 0;
-		for (ClassOfService item : ClassOfService.values()) {
-			classOfService.addItem(item.toString());
-			if (item.toString().equals(currentClassOfService)) {
-				selectedIndex = i;
-			}
-
-			i++;
-		}
-		classOfService.setSelectedIndex(selectedIndex);
+		
+		classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getForBoard(boardDto));
+		fillOracle(classOfServiceToName.keySet(), (MultiWordSuggestOracle) classOfServiceEditor.getSuggestOracle());
+		classOfServiceEditor.setValue(getClassOfServiceAsString());
+		
+		userToName = initUserToName(UsersManager.getInstance().getUsers());
+		fillOracle(userToName.keySet(), (MultiWordSuggestOracle) assigneeEditor.getSuggestOracle());
+		assigneeEditor.setValue(getUser());
 	}
 
 	protected abstract String getClassOfServiceAsString();
+	
+	protected abstract String getUser();
 
 	protected abstract String getTicketId();
 
@@ -251,29 +260,22 @@ public abstract class AbstractTaskEditingComponent {
 
 	protected abstract int getVersion();
 
+	protected abstract TaskDto createBasicDTO();
+
 	private TaskDto createTaskDTO() {
 		TaskDto taskDto = createBasicDTO();
 		taskDto.setName(taskName.getText());
 		taskDto.setDescription(description.getHtml());
-//		taskDto.setClassOfService(ClassOfService.STANDARD);
+		taskDto.setClassOfService(classOfServiceToName.get(classOfServiceEditor.getValue()));
+		taskDto.setAssignee(userToName.get(assigneeEditor.getValue()));
+		taskDto.setDueDate(getDueDate());
 		taskDto.setId(getId());
-//		taskDto.setClassOfService(getClassOfService());
 		taskDto.setVersion(getVersion());
 		return taskDto;
 	}
 
-	protected abstract TaskDto createBasicDTO();
-
-	private ClassOfService getClassOfService() {
-		int index = classOfService.getSelectedIndex();
-		String value = classOfService.getValue(index);
-		for (ClassOfService item : ClassOfService.values()) {
-			if (item.toString().equals(value)) {
-				return item;
-			}
-		}
-
-		return ClassOfService.STANDARD;
+	private String getDueDate() {
+		return null;
 	}
 
 	class ShowDialogHandler implements ClickHandler {

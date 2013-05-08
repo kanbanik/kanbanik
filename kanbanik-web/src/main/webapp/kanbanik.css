@@ -53,28 +53,9 @@ body {
 	width: 100%;
 }
 
-.task-class-of-service-EXPEDITE {
+.task-class-of-service {
 	width: 73%;
 	float: left;
-	background-color: #f80070;
-}
-
-.task-class-of-service-FIXED_DELIVERY_DATE {
-	width: 73%;
-	float: left;
-	background-color: #ffeb00;
-}
-
-.task-class-of-service-STANDARD {
-	width: 73%;
-	float: left;
-	background-color: #83ff00;
-}
-
-.task-class-of-service-INTANGIBLE {
-	width: 73%;
-	float: left;
-	background-color: #65b1f8;
 }
 
 /** Most GWT widgets already have a style name defined */

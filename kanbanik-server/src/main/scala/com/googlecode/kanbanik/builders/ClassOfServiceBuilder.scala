@@ -1,9 +1,11 @@
 package com.googlecode.kanbanik.builders
 
-import com.googlecode.kanbanik.model.ClassOfService
+import org.bson.types.ObjectId
+
+import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.dto.ClassOfServiceDto
 import com.googlecode.kanbanik.model.Board
-import org.bson.types.ObjectId
+import com.googlecode.kanbanik.model.ClassOfService
 
 class ClassOfServiceBuilder extends BaseBuilder {
 
@@ -17,18 +19,28 @@ class ClassOfServiceBuilder extends BaseBuilder {
       classOfService.colour,
       classOfService.isPublic,
       classOfService.version,
-      null)
+      shallowBoardFrom(classOfService))
   }
-  
+
+  def shallowBoardFrom(classOfService: ClassOfService) = {
+    if (!classOfService.board.isDefined) {
+      null
+    }
+
+    val res = new BoardDto
+    res.setId(classOfService.board.get.id.get.toString)
+    res
+  }
+
   def buildDto(classOfService: ClassOfService) = {
     val res = buildShallowDto(classOfService)
     res.setBoard({
-        if (classOfService.board.isDefined) {
-          boardBuilder.buildShallowDto(classOfService.board.get)
-        } else {
-          null
-        }
-      })
+      if (classOfService.board.isDefined) {
+        boardBuilder.buildShallowDto(classOfService.board.get)
+      } else {
+        null
+      }
+    })
     res
   }
 

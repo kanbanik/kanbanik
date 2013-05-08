@@ -23,14 +23,19 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
+import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
+import com.googlecode.kanbanik.client.providers.UsersManager;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.UserDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class BoardsModule {
@@ -135,6 +140,57 @@ public class BoardsModule {
 
 	public void initialize(
 			final ModuleInitializeCallback boardsModuleInitialized) {
+		loadUsers(boardsModuleInitialized);
+	}
+	
+	private void loadUsers(final ModuleInitializeCallback boardsModuleInitialized) {
+		new KanbanikServerCaller(new Runnable() {
+
+			public void run() {
+				ServerCommandInvokerManager
+						.getInvoker()
+						.<VoidParams, SimpleParams<ListDto<UserDto>>> invokeCommand(
+								ServerCommand.GET_ALL_USERS_COMMAND,
+								new VoidParams(),
+								new BaseAsyncCallback<SimpleParams<ListDto<UserDto>>>() {
+
+									@Override
+									public void success(SimpleParams<ListDto<UserDto>> result) {
+										UsersManager.getInstance().setUsers(result.getPayload().getList());
+										loadClassesOfServices(boardsModuleInitialized);
+									}
+
+								});
+			}
+		});
+				
+	}
+	
+	private void loadClassesOfServices(final ModuleInitializeCallback boardsModuleInitialized) {
+		new KanbanikServerCaller(new Runnable() {
+
+			public void run() {
+				ServerCommandInvokerManager
+						.getInvoker()
+						.<VoidParams, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
+								ServerCommand.GET_ALL_CLASS_OF_SERVICES,
+								new VoidParams(),
+								new BaseAsyncCallback<SimpleParams<ListDto<ClassOfServiceDto>>>() {
+
+									@Override
+									public void success(SimpleParams<ListDto<ClassOfServiceDto>> result) {
+										ClassOfServicesManager.getInstance().setClassesOfServices(result.getPayload().getList());
+										loadBoards(boardsModuleInitialized);
+									}
+
+								});
+			}
+		});
+		
+
+	}
+	
+	private void loadBoards(final ModuleInitializeCallback boardsModuleInitialized) {
 		new KanbanikServerCaller(new Runnable() {
 
 			public void run() {
@@ -150,8 +206,7 @@ public class BoardsModule {
 											SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 										Widget boards = buildBoard(result);
 										addTasks(result);
-										boardsModuleInitialized
-												.initialized(boards);
+										boardsModuleInitialized.initialized(boards);
 									}
 
 								});

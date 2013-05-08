@@ -1,8 +1,5 @@
 package com.googlecode.kanbanik.client.components.task;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -19,7 +16,7 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
-import com.googlecode.kanbanik.dto.ClassOfService;
+import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
 import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto> {
@@ -41,8 +38,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 	
 	private TaskDto taskDto;
 	
-	private Map<ClassOfService, String> classOfServiceToCSS;
-	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
@@ -57,8 +52,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		MessageBus.registerListener(TaskEditedMessage.class, this);
 		MessageBus.registerListener(TaskChangedMessage.class, this);
 		
-		setupClassOfServiceToCSS();
-
 		new TaskEditingComponent(this, editButton);
 		new TaskDeletingComponent(this, deleteButton);
 		
@@ -66,23 +59,20 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 	}
 	
 	public void setupAccordingDto(TaskDto taskDto) {
-		header.setStyleName(classOfServiceToStyle(taskDto));
+		header.setStyleName("task-class-of-service");
+		header.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 	}
 
-	private void setupClassOfServiceToCSS() {
-		classOfServiceToCSS = new HashMap<ClassOfService, String>();
-		classOfServiceToCSS.put(ClassOfService.EXPEDITE, "task-class-of-service-EXPEDITE");
-		classOfServiceToCSS.put(ClassOfService.FIXED_DELIVERY_DATE, "task-class-of-service-FIXED_DELIVERY_DATE");
-		classOfServiceToCSS.put(ClassOfService.INTANGIBLE, "task-class-of-service-STANDARD");
-		classOfServiceToCSS.put(ClassOfService.STANDARD, "task-class-of-service-INTANGIBLE");
+	private String getColorOf(TaskDto taskDto) {
+		if (taskDto.getClassOfService() == null) {
+			return "#" + ClassOfServicesManager.getInstance().getDefaultClassOfService().getColour();
+		}
+		
+		return "#" + taskDto.getClassOfService().getColour();
 	}
 
-	private String classOfServiceToStyle(TaskDto taskDto) {
-		return classOfServiceToCSS.get(taskDto.getClassOfService());
-	}
-	
 	public FocusPanel getHeader() {
 		return header;
 	}

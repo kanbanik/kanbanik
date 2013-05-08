@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dto.ClassOfService
 import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.model.Task
 import com.googlecode.kanbanik.model.Workflowitem
