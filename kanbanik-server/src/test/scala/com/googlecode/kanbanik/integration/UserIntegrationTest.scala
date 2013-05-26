@@ -26,6 +26,7 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
     val userDto = new ManipulateUserDto(
       "username",
       "real name",
+      "some://picture.url",
       1,
       "password",
       "new password")

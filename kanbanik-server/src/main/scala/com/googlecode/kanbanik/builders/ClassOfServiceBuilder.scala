@@ -25,11 +25,11 @@ class ClassOfServiceBuilder extends BaseBuilder {
   def shallowBoardFrom(classOfService: ClassOfService) = {
     if (!classOfService.board.isDefined) {
       null
+    } else {
+      val res = new BoardDto
+      res.setId(classOfService.board.get.id.getOrElse("").toString)
+      res
     }
-
-    val res = new BoardDto
-    res.setId(classOfService.board.get.id.get.toString)
-    res
   }
 
   def buildDto(classOfService: ClassOfService) = {

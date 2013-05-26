@@ -3,7 +3,7 @@
 
 	<ui:style>
 		.labelStyle,.textboxStyle {
-			float: left;
+			
 		}
 		
 		.warningMessage {
@@ -13,7 +13,7 @@
 		
 		
 		.labels,.values {
-			width: 100px;
+			width: 150px;
 			float: left;
 			line-height: 31px;
 		}
@@ -23,7 +23,7 @@
 		}
 		
 		.mainPanel {
-			width: 400px;
+			width: 450px;
 		}
 	
 	</ui:style>
@@ -32,6 +32,7 @@
 		<g:FlowPanel addStyleNames="{style.labels}">
 			<g:Label addStyleNames="{style.labelStyle}" text="Username: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Real Name: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Image Url (can be blank): "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Password: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Password(again): "/>
 		</g:FlowPanel>
@@ -39,6 +40,7 @@
 		<g:FlowPanel addStyleNames="{style.values}">
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />
+			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="pictureUrl" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password2" />
 		</g:FlowPanel>

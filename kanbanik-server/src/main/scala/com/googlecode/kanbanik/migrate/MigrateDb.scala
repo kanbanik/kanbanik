@@ -67,6 +67,7 @@ class From1To2 extends MigrationPart {
     val userDto = new ManipulateUserDto(
       "admin",
       "Default User",
+      null,
       1,
       "admin",
       "admin")

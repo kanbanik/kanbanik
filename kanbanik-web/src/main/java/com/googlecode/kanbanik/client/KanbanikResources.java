@@ -38,6 +38,9 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/progressbar.gif")
 	ImageResource progressBarImage();
 	
+	@Source("images/noUserPicture.png")
+	ImageResource noUserPicture();
+	
 	// Rich Text Editor Resources
 	
 	@Source("images/richTextEditor/bold.png")

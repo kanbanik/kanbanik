@@ -28,7 +28,7 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 	public ControlPanelModule() {
 		
 		add(boardsContent, "Boards");
-		add(configureWorkflowContent, "Configure Workflow");
+		add(configureWorkflowContent, "Configure");
 		add(securityContent, "Security");
 		
 		addSelectionHandler(this);

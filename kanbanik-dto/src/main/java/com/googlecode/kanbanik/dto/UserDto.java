@@ -8,16 +8,19 @@ public class UserDto implements KanbanikDto {
 
 	private String realName;
 	
+	private String pictureUrl;
+	
 	private int version;
 	
 	public UserDto() {
 		
 	}
 	
-	public UserDto(String userName, String realName, int version) {
+	public UserDto(String userName, String realName, String pictureUrl, int version) {
 		super();
 		this.userName = userName;
 		this.realName = realName;
+		this.pictureUrl = pictureUrl;
 		this.version = version;
 	}
 
@@ -43,6 +46,40 @@ public class UserDto implements KanbanikDto {
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+
+	public String getPictureUrl() {
+		return pictureUrl;
+	}
+
+	public void setPictureUrl(String pictureUrl) {
+		this.pictureUrl = pictureUrl;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserDto other = (UserDto) obj;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
 	}
 	
 }

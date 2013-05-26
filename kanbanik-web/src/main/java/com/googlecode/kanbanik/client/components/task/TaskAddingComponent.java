@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskResponseMessage;
-import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.ProjectDto;

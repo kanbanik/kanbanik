@@ -24,6 +24,7 @@ class CreateUserCommand extends ServerCommand[SimpleParams[ManipulateUserDto], F
     		params.getPayload().getUserName(),
     		hashedPass._1,
     		params.getPayload().getRealName(),
+    		params.getPayload().getPictureUrl(),
     		hashedPass._2,
     		1
     ).store

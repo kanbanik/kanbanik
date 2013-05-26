@@ -62,6 +62,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 		return new ManipulateUserDto(
 			      username.getText(),
 			      realName.getText(),
+			      pictureUrl.getText(),
 			      dto.getVersion(),
 			      password.getText(),
 			      toChangePassword.getValue() ? newPassword.getText() : password.getText()
@@ -75,6 +76,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 		
 		username.setText(dto.getUserName());
 		realName.setText(dto.getRealName());
+		pictureUrl.setText(dto.getPictureUrl());
 	}
 	
 	@Override

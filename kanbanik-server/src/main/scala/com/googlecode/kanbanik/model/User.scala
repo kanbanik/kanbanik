@@ -14,6 +14,7 @@ class User(
   val name: String,
   val password: String,
   val realName: String,
+  val pictureUrl: String,
   val salt: String,
   val version: Int) extends HasMongoConnection with HasMidAirCollisionDetection {
 
@@ -46,6 +47,7 @@ class User(
       User.Fields.name.toString() -> name,
       User.Fields.password.toString() -> password,
       User.Fields.realName.toString() -> realName,
+      User.Fields.pictureUrl.toString() -> {if (pictureUrl == null) "" else pictureUrl},
       User.Fields.salt.toString() -> salt,
       User.Fields.version.toString() -> { version + 1 })
 
@@ -57,22 +59,25 @@ class User(
     versionedDelete(Coll.Users, versionedQuery(name, version))
   }
   
-  def withRealName(realName: String) = new User(name, password, realName, salt, version)
+  def withRealName(realName: String) = new User(name, password, realName, pictureUrl, salt, version)
   
-  def withPassword(password: String, salt: String) = new User(name, password, realName, salt, version)
+  def withPictureUrl(pictureUrl: String) = new User(name, password, realName, pictureUrl, salt, version)
   
-  def withVersion(version: Int) = new User(name, password, realName, salt, version)
+  def withPassword(password: String, salt: String) = new User(name, password, realName, pictureUrl, salt, version)
+  
+  def withVersion(version: Int) = new User(name, password, realName, pictureUrl, salt, version)
 }
 
 object User extends HasMongoConnection {
 
   object Fields extends DocumentField {
     val realName = Value("realName")
+    val pictureUrl = Value("pictureUrl")
     val password = Value("password")
     val salt = Value("salt")
   }
 
-  def apply(name: String) = new User(name, "", "", "", 1)
+  def apply(name: String) = new User(name, "", "", "", "", 1)
   
   def all(): List[User] = {
     using(createConnection) { conn =>
@@ -94,6 +99,7 @@ object User extends HasMongoConnection {
       dbObject.get(User.Fields.id.toString()).asInstanceOf[String],
       dbObject.get(User.Fields.password.toString()).asInstanceOf[String],
       dbObject.get(User.Fields.realName.toString()).asInstanceOf[String],
+      dbObject.get(User.Fields.pictureUrl.toString()).asInstanceOf[String],
       dbObject.get(User.Fields.salt.toString()).asInstanceOf[String],
       dbObject.get(User.Fields.version.toString()).asInstanceOf[Int])
   }
@@ -103,6 +109,7 @@ object User extends HasMongoConnection {
       User.Fields.id.toString() -> entity.name,
       User.Fields.password.toString() -> entity.password,
       User.Fields.realName.toString() -> entity.realName,
+      User.Fields.pictureUrl.toString() -> {if (entity.pictureUrl == null) "" else entity.pictureUrl} ,
       User.Fields.salt.toString() -> entity.salt,
       User.Fields.version.toString() -> entity.version)
 

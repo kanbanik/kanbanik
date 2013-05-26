@@ -1,6 +1,8 @@
 package com.googlecode.kanbanik.client.modules;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -40,7 +42,13 @@ public class LoginModule extends Composite {
 
 		initWidget(uiBinder.createAndBindUi(this));
 
-		name.setFocus(true);
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				name.setFocus(true);				
+			}
+		});
+
 		
 		loginButton.addClickHandler(new ClickHandler() {
 			@Override

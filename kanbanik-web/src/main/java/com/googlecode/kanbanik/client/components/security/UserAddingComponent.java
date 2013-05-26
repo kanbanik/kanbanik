@@ -47,6 +47,7 @@ public class UserAddingComponent extends BaseUserManipulatingComponent{
 		return new ManipulateUserDto(
 			      username.getText(),
 			      realName.getText(),
+			      pictureUrl.getText(),
 			      1,
 			      password.getText(),
 			      password.getText());
@@ -62,6 +63,7 @@ public class UserAddingComponent extends BaseUserManipulatingComponent{
 	private void clearAllFields() {
 		username.setText("");
 		realName.setText("");
+		pictureUrl.setText("");
 		password.setText("");
 		password2.setText("");
 	}

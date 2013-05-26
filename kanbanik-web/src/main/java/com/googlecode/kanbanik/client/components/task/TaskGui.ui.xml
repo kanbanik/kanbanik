@@ -18,14 +18,16 @@
 			align: right;
 			margin-bottom: 4px;
 			border-radius: 3px;
+			width: 100%;
+			display: inline-block;
 		}
 		
 		.shortDescription {
-			width: 92%;
 			height: 30px;
+			width: 100%;
 			resize: vertical;
-			overflow: hidden;
 			background-color: transparent;
+			overflow: hidden;
 		}
 		
 		.headerStyle {
@@ -34,14 +36,39 @@
 		
 		.toolbarStyle {
 			float: left;
+			position: relative;
+			top: -16px;
+			left: 100%;
+			margin-left: -35px;
 		}
 		
 		.buttonStyle {
 			float: left;
+			white-space: normal;
 		}
 		
 		.headrHolder {
 			width: 100%;
+		}
+
+		.mainSectionContent {
+			width: 100%;
+		}
+		
+		
+		.shortDescriptionContainer {
+			float: left;
+			width: 104px;
+    		overflow: hidden;
+		}
+		
+		.assigneePicturePlaceStyle {
+			float: right;
+			border-color: black;
+			border-style: solid; 
+			border-width: 1px; 
+			padding-right: 1px;
+			padding-top: 1px;
 		}
 	</ui:style>
 
@@ -56,9 +83,14 @@
 				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="deleteButton"
 					text="Delete" title="Delete" />
 			</g:FlowPanel>
-		</g:FlowPanel>	
-		<g:TextArea addStyleNames="{style.shortDescription}" enabled="false" ui:field="nameLabel" />
+		</g:FlowPanel>
 
+		<g:FlowPanel addStyleNames="{style.mainSectionContent}">
+			<g:FlowPanel addStyleNames="{style.shortDescriptionContainer}" ui:field="descriptionContainer">
+				<g:TextArea addStyleNames="{style.shortDescription}" enabled="false" ui:field="nameLabel" />
+			</g:FlowPanel>
+			<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />
+		</g:FlowPanel>
 	</g:FlowPanel>
 
 </ui:UiBinder>

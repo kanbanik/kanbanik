@@ -14,6 +14,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
     assert(User.byId("name").name === "name")
     assert(User.byId("name").password === "password")
     assert(User.byId("name").realName === "real name")
+    assert(User.byId("name").pictureUrl === "url://some.png")
     assert(User.byId("name").salt === "salt")
     assert(User.byId("name").version === 1)
   }
@@ -21,11 +22,12 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
   it should "edit a new user if exists" in {
     val user = mkDefaultUser.store
 
-    user.withPassword("newPass", "newSalt").withRealName("new real name").store
+    user.withPassword("newPass", "newSalt").withRealName("new real name").withPictureUrl("other").store
 
     assert(User.byId("name").name === "name")
     assert(User.byId("name").password === "newPass")
     assert(User.byId("name").realName === "new real name")
+    assert(User.byId("name").pictureUrl === "other")
     assert(User.byId("name").salt === "newSalt")
     assert(User.byId("name").version === 2)
   }
@@ -77,6 +79,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
     "name",
     "password",
     "real name",
+    "url://some.png",
     "salt",
     1)
 

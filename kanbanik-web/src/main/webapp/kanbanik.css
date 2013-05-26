@@ -54,8 +54,6 @@ body {
 }
 
 .task-class-of-service {
-	width: 73%;
-	float: left;
 }
 
 /** Most GWT widgets already have a style name defined */

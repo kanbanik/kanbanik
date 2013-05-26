@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.providers;
+package com.googlecode.kanbanik.client.managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -16,9 +16,9 @@ public class ManipulateUserDto extends UserDto {
 		super();
 	}
 
-	public ManipulateUserDto(String userName, String realName, int version,
+	public ManipulateUserDto(String userName, String realName, String pictureUrl, int version,
 			String password, String newPassword) {
-		super(userName, realName, version);
+		super(userName, realName, pictureUrl, version);
 		this.password = password;
 		this.newPassword = newPassword;
 	}

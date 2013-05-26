@@ -24,6 +24,9 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	TextBox username;
 	
 	@UiField
+	TextBox pictureUrl;
+	
+	@UiField
 	TextBox realName;
 	
 	@UiField

@@ -19,12 +19,12 @@ import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
+import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
+import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
-import com.googlecode.kanbanik.client.providers.ClassOfServicesManager;
-import com.googlecode.kanbanik.client.providers.UsersManager;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
@@ -156,7 +156,7 @@ public class BoardsModule {
 
 									@Override
 									public void success(SimpleParams<ListDto<UserDto>> result) {
-										UsersManager.getInstance().setUsers(result.getPayload().getList());
+										UsersManager.getInstance().initUsers(result.getPayload().getList());
 										loadClassesOfServices(boardsModuleInitialized);
 									}
 
