@@ -67,7 +67,7 @@ public class ClassOfServicesManager {
 		
 		@Override
 		public String getColour() {
-			return "83ff00";
+			return "92c1f0";
 		}
 	}
 	

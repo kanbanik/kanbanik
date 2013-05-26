@@ -23,7 +23,7 @@
 		}
 		
 		.shortDescription {
-			height: 30px;
+			height: 36px;
 			width: 100%;
 			resize: vertical;
 			background-color: transparent;

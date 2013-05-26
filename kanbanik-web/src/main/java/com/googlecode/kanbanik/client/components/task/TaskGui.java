@@ -77,6 +77,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		if (taskDto.getAssignee() != null) {
 			Image picture = UsersManager.getInstance().getPictureFor(taskDto.getAssignee());
 			assigneePicturePlace.add(picture);
+			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			descriptionContainer.setWidth("104px");
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
