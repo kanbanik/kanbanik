@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
 import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
@@ -30,7 +31,17 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	}
 	
 	@Override
-	protected boolean isBalancedWorkflow() {
+	protected WorkfloVerticalSizing getVerticalSizing() {
+		return WorkfloVerticalSizing.BALANCED;
+	}
+	
+	@Override
+	protected int getFixedSize() {
+		return 5;
+	}
+
+	@Override
+	protected boolean isUserPictureDisplayingEnabled() {
 		return true;
 	}
 
@@ -39,7 +50,9 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(null);
 		toStore.setName(dto.getName());
-		toStore.setBalanceWorkflowitems(dto.isBalanceWorkflowitems());
+		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
+		toStore.setVerticalSizingFixedSize(dto.getVerticalSizingFixedSize());
+		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
 		toStore.setWorkflow(new WorkflowDto());
 		
 		new KanbanikServerCaller(

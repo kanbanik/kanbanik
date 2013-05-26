@@ -15,6 +15,7 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycl
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
@@ -47,12 +48,30 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	}
 	
 	@Override
-	protected boolean isBalancedWorkflow() {
+	protected WorkfloVerticalSizing getVerticalSizing() {
+		if (boardDto == null) {
+			return WorkfloVerticalSizing.BALANCED;
+		}
+		
+		return boardDto.getWorkfloVerticalSizing();
+	}
+	
+	@Override
+	protected int getFixedSize() {
+		if (boardDto == null) {
+			return 0;
+		}
+		
+		return boardDto.getVerticalSizingFixedSize();
+	}
+	
+	@Override
+	protected boolean isUserPictureDisplayingEnabled() {
 		if (boardDto == null) {
 			return true;
 		}
 		
-		return boardDto.isBalanceWorkflowitems();
+		return boardDto.isShowUserPictureEnabled();
 	}
 
 	@Override
@@ -60,8 +79,10 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		final BoardDto toStore = new BoardDto();
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
-		toStore.setBalanceWorkflowitems(dto.isBalanceWorkflowitems());
+		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
+		toStore.setVerticalSizingFixedSize(dto.getVerticalSizingFixedSize());
 		toStore.setVersion(boardDto.getVersion());
+		toStore.setShowUserPictureEnabled(boardDto.isShowUserPictureEnabled());
 		toStore.setWorkflow(boardDto.getWorkflow());
 		
 		new KanbanikServerCaller(

@@ -74,7 +74,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
 		// ahh this is sooo ugly! Need to find a way to do it using pure CSS in the future
-		if (taskDto.getAssignee() != null) {
+		boolean showingPictureEnabled = taskDto.getWorkflowitem().getParentWorkflow().getBoard().isShowUserPictureEnabled();
+		if (taskDto.getAssignee() != null && showingPictureEnabled) {
 			Image picture = UsersManager.getInstance().getPictureFor(taskDto.getAssignee());
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());

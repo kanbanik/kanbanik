@@ -10,13 +10,14 @@ import com.googlecode.kanbanik.dto.TaskDto
 import scala.collection.mutable.ListBuffer
 import java.util.ArrayList
 import com.googlecode.kanbanik.commons._
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 
 class BoardBuilder extends BaseBuilder {
 
   val workflowBuilder = new WorkflowBuilder
 
   val taskBuilder = new TaskBuilder
-  
+
   def buildDto(board: Board): BoardDto = {
     buildDto(board, None)
   }
@@ -24,13 +25,14 @@ class BoardBuilder extends BaseBuilder {
   def buildShallowDto(board: Board): BoardDto = {
     val res = new BoardDto
     res.setName(board.name)
-    res.setBalanceWorkflowitems(board.balanceWorkflowitems)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
+    res.setWorkfloVerticalSizing(board.workfloVerticalSizing)
+    res.setVerticalSizingFixedSize(board.workfloVerticalSizingSize)
     res
   }
-  
- def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
+
+  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = buildShallowDto(board)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
     val cache = new WorkflowitemCache(List(res))
@@ -44,14 +46,20 @@ class BoardBuilder extends BaseBuilder {
     val board = new Board(
       determineId(boardDto),
       boardDto.getName(),
-      boardDto.isBalanceWorkflowitems(),
       boardDto.getVersion(),
       Workflow(),
-      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task))
-    )
-    
+      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task)),
+      {
+        if (boardDto.getWorkfloVerticalSizing() == null) {
+          WorkfloVerticalSizing.BALANCED
+        } else {
+          boardDto.getWorkfloVerticalSizing()
+        }
+      },
+      boardDto.getVerticalSizingFixedSize())
+
     board.withWorkflow(workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))
-      
+
   }
 
   private[builders] def workflowitemBuilder = new WorkflowitemBuilder

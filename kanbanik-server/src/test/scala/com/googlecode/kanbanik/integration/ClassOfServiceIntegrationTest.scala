@@ -16,6 +16,7 @@ import com.googlecode.kanbanik.model.ClassOfService
 import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 
 @RunWith(classOf[JUnitRunner])
 class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {

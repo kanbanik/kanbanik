@@ -9,13 +9,17 @@ public class BoardDto implements IdentifiableDto {
 
 	private String name;
 	
-	private boolean balanceWorkflowitems;
+	private WorkfloVerticalSizing workfloVerticalSizing;
 	
 	private String id;
 	
 	private int version;
 	
 	private WorkflowDto workflow;
+	
+	private int verticalSizingFixedSize;
+	
+	private boolean showUserPictureEnabled;
 	
 	private List<TaskDto> tasks = new ArrayList<TaskDto>();
 	
@@ -43,12 +47,12 @@ public class BoardDto implements IdentifiableDto {
 		this.version = version;
 	}
 	
-	public boolean isBalanceWorkflowitems() {
-		return balanceWorkflowitems;
+	public WorkfloVerticalSizing getWorkfloVerticalSizing() {
+		return workfloVerticalSizing;
 	}
 
-	public void setBalanceWorkflowitems(boolean balanceWorkflowitems) {
-		this.balanceWorkflowitems = balanceWorkflowitems;
+	public void setWorkfloVerticalSizing(WorkfloVerticalSizing workfloVerticalSizing) {
+		this.workfloVerticalSizing = workfloVerticalSizing;
 	}
 
 	@Override
@@ -73,6 +77,22 @@ public class BoardDto implements IdentifiableDto {
 
 	public void setTasks(List<TaskDto> tasks) {
 		this.tasks = tasks;
+	}
+	
+	public int getVerticalSizingFixedSize() {
+		return verticalSizingFixedSize;
+	}
+
+	public void setVerticalSizingFixedSize(int verticalSizingFixedSize) {
+		this.verticalSizingFixedSize = verticalSizingFixedSize;
+	}
+
+	public boolean isShowUserPictureEnabled() {
+		return showUserPictureEnabled;
+	}
+
+	public void setShowUserPictureEnabled(boolean showUserPictureEnabled) {
+		this.showUserPictureEnabled = showUserPictureEnabled;
 	}
 
 	@Override

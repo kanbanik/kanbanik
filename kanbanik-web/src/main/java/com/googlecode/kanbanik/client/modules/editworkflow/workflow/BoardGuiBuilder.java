@@ -30,7 +30,8 @@ public abstract class BoardGuiBuilder {
 			return;
 		}
 		
-		boolean isBalanced = workflow.getBoard().isBalanceWorkflowitems();
+//		boolean isBalanced = workflow.getBoard().isBalanceWorkflowitems();
+		boolean isBalanced = true;
 		
 		WorkflowDto currentDto = workflow;
 		
