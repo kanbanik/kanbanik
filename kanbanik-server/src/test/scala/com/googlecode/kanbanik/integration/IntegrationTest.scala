@@ -39,6 +39,7 @@ import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.GetAllClassOfServicesForBoard
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -134,12 +135,19 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     assert(loadBoard().getTasks().get(0).getDueDate() === "yesterday")
     assert(loadBoard().getTasks().get(0).getClassOfService().getName() === "eXpedite")
     assert(loadBoard().getTasks().get(0).getAssignee().getUserName() === "user1")
+    assert(loadBoard().getTasks().get(0).getWorkflowitem().getParentWorkflow().getBoard().isShowUserPictureEnabled() === true)
     
     // edit board
     val boardToEdit = loadBoard()
     boardToEdit.setName("board1_renamed")
+    boardToEdit.setVerticalSizingFixedSize(12)
+    boardToEdit.setWorkfloVerticalSizing(WorkfloVerticalSizing.FIXED)
+    boardToEdit.setShowUserPictureEnabled(false)
     val editedBoard = new SaveBoardCommand().execute(new SimpleParams(boardToEdit))
     assert(editedBoard.getPayload().getPayload().getName() === "board1_renamed")
+    assert(editedBoard.getPayload().getPayload().getWorkfloVerticalSizing() === WorkfloVerticalSizing.FIXED)
+    assert(editedBoard.getPayload().getPayload().getVerticalSizingFixedSize() === 12)
+    assert(editedBoard.getPayload().getPayload().isShowUserPictureEnabled() === false)
     // verify it did not destroy the workflow
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     

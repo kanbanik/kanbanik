@@ -27,6 +27,7 @@ class BoardBuilder extends BaseBuilder {
     res.setName(board.name)
     res.setId(board.id.get.toString())
     res.setVersion(board.version)
+    res.setShowUserPictureEnabled(board.userPictureShowingEnabled)
     res.setWorkfloVerticalSizing(board.workfloVerticalSizing)
     res.setVerticalSizingFixedSize(board.workfloVerticalSizingSize)
     res
@@ -37,8 +38,7 @@ class BoardBuilder extends BaseBuilder {
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
     val cache = new WorkflowitemCache(List(res))
     val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
-    val javaList = tasks.toList.toJavaList
-    res.setTasks(javaList)
+    res.setTasks(tasks.toJavaList)
     res
   }
 
@@ -49,6 +49,7 @@ class BoardBuilder extends BaseBuilder {
       boardDto.getVersion(),
       Workflow(),
       boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task)),
+      boardDto.isShowUserPictureEnabled(),
       {
         if (boardDto.getWorkfloVerticalSizing() == null) {
           WorkfloVerticalSizing.BALANCED

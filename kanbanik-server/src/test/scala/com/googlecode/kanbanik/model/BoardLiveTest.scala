@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.model
 
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+
 class BoardLiveTest extends BaseWorkflowManipulatingTest {
 
   "store() " should "should be able to store an empty board" in {
@@ -44,5 +46,26 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
     // second level
     val secondElement = loadedBoard.workflow.workflowitems.tail.head
     assert(secondElement.nestedWorkflow.workflowitems.map(_.id) === List(a1.id, b1.id, c1.id))
+  }
+  
+  it should "be able to store the content of the board" in {
+    val storedBoard = new Board(None, "someName", 1).store
+    val loaded = Board.byId(storedBoard.id.get, false)
+    assert(loaded.name === "someName")
+    assert(loaded.userPictureShowingEnabled === true)
+    assert(loaded.workfloVerticalSizing === WorkfloVerticalSizing.BALANCED)
+    assert(loaded.workfloVerticalSizingSize === 0)
+  }
+  
+  it should "be able to edit the boards properties" in {
+    val storedBoard = new Board(None, "someName", 1).store
+    val loaded = Board.byId(storedBoard.id.get, false).withName("name2").withUserPictureShowingEnabled(false).withWorkfloVerticalSizing(WorkfloVerticalSizing.FIXED).withworkfloVerticalSizingSize(12)
+    loaded.store
+    
+    val edited = Board.byId(loaded.id.get, false)
+    assert(loaded.name === "name2")
+    assert(loaded.userPictureShowingEnabled === false)
+    assert(loaded.workfloVerticalSizing === WorkfloVerticalSizing.FIXED)
+    assert(loaded.workfloVerticalSizingSize === 12)
   }
 }

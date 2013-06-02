@@ -1,12 +1,8 @@
 package com.googlecode.kanbanik.client.managers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.google.gwt.event.dom.client.ErrorEvent;
-import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Image;
@@ -19,8 +15,6 @@ public class UsersManager {
 
 	private List<UserDto> users;
 
-	private Map<UserDto, Image> pictures = new HashMap<UserDto, Image>();
-
 	private static final Image defaultPicture = new Image(
 			KanbanikResources.INSTANCE.noUserPicture());
 
@@ -30,8 +24,6 @@ public class UsersManager {
 
 	public void initUsers(List<UserDto> users) {
 		this.users = users;
-
-		initImages();
 	}
 
 	public List<UserDto> getUsers() {
@@ -42,49 +34,16 @@ public class UsersManager {
 	}
 
 	public Image getPictureFor(UserDto user) {
-		if (pictures.containsKey(user)) {
-			return pictures.get(user);
+		if (user.getPictureUrl() == null) {
+			return defaultPicture;
 		}
 
-		return defaultPicture;
-	}
+		Image picture = new Image();
+		picture.setVisible(false);
+		picture.addLoadHandler(new PictureResizingLoadHandler(picture));
+		picture.setUrl(user.getPictureUrl());
 
-	private void initImages() {
-		for (UserDto user : users) {
-			if (user.getPictureUrl() == null) {
-				continue;
-			}
-
-			Image picture = new Image();
-			picture.setVisible(false);
-			picture.addLoadHandler(new PictureResizingLoadHandler(picture));
-			picture.addErrorHandler(new DefaultSettingErrorHandler(user,
-					pictures));
-			picture.setUrl(user.getPictureUrl());
-			pictures.put(user, picture);
-		}
-	}
-
-}
-
-class DefaultSettingErrorHandler implements ErrorHandler {
-
-	private UserDto user;
-
-	private Map<UserDto, Image> pictures;
-
-	private static final Image defaultPicture = new Image(
-			KanbanikResources.INSTANCE.noUserPicture());
-
-	public DefaultSettingErrorHandler(UserDto user, Map<UserDto, Image> pictures) {
-		this.user = user;
-		this.pictures = pictures;
-	}
-
-	@Override
-	public void onError(ErrorEvent event) {
-		pictures.remove(user);
-		pictures.put(user, defaultPicture);
+		return picture;
 	}
 
 }

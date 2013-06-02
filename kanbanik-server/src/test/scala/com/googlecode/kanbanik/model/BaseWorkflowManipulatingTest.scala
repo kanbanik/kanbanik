@@ -16,7 +16,7 @@ class BaseWorkflowManipulatingTest extends FlatSpec with BeforeAndAfter with Has
   val b = mkWorkflowItem(new ObjectId(), Workflow())
   val c = mkWorkflowItem(new ObjectId(), Workflow())
   val workflow = Workflow(List(a, b, c))
-  val board = new Board(None, "", 1, workflow, List(), WorkfloVerticalSizing.BALANCED, 0)
+  val board = new Board(None, "", 1, workflow, List(), true, WorkfloVerticalSizing.BALANCED, 0)
 
   val a1 = mkWorkflowItem(new ObjectId(), Workflow())
   val b1 = mkWorkflowItem(new ObjectId(), Workflow())
@@ -26,7 +26,7 @@ class BaseWorkflowManipulatingTest extends FlatSpec with BeforeAndAfter with Has
   val b0Id = new ObjectId()
   val b0 = mkWorkflowItem(b0Id, workflow1)
   val workflow0 = Workflow(List(a, b0, c))
-  val board1 = new Board(None, "", 1, workflow0, List(), WorkfloVerticalSizing.BALANCED, 0)
+  val board1 = new Board(None, "", 1, workflow0, List(), true, WorkfloVerticalSizing.BALANCED, 0)
 
   
   

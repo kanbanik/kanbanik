@@ -168,6 +168,9 @@ class WorkflowitemCache(val boards: List[BoardDto]) {
       parentBoard.setName(from.getParentWorkflow().getBoard().getName)
       parentBoard.setId(from.getParentWorkflow().getBoard().getId)
       parentBoard.setVersion(from.getParentWorkflow().getBoard().getVersion)
+      parentBoard.setShowUserPictureEnabled(from.getParentWorkflow().getBoard().isShowUserPictureEnabled())
+      parentBoard.setWorkfloVerticalSizing(from.getParentWorkflow().getBoard().getWorkfloVerticalSizing())
+      parentBoard.setVerticalSizingFixedSize(from.getParentWorkflow().getBoard().getVerticalSizingFixedSize())
 
       val parentWorkflow = new WorkflowDto
       parentWorkflow.setId(from.getParentWorkflow().getId)

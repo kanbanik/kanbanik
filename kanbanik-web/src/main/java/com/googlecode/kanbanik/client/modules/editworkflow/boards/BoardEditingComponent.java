@@ -82,7 +82,7 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
 		toStore.setVerticalSizingFixedSize(dto.getVerticalSizingFixedSize());
 		toStore.setVersion(boardDto.getVersion());
-		toStore.setShowUserPictureEnabled(boardDto.isShowUserPictureEnabled());
+		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
 		toStore.setWorkflow(boardDto.getWorkflow());
 		
 		new KanbanikServerCaller(

@@ -23,7 +23,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto> {
-//	104 - 146
+
 	@UiField
 	FocusPanel header;
 
@@ -73,12 +73,18 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
-		// ahh this is sooo ugly! Need to find a way to do it using pure CSS in the future
+
 		boolean showingPictureEnabled = taskDto.getWorkflowitem().getParentWorkflow().getBoard().isShowUserPictureEnabled();
-		if (taskDto.getAssignee() != null && showingPictureEnabled) {
+		boolean hasAssignee = taskDto.getAssignee() != null;
+		boolean assigneeHasPictue = hasAssignee && taskDto.getAssignee().getPictureUrl() != null && !"".equals(taskDto.getAssignee().getPictureUrl());
+
+		// ahh this is sooo ugly! Need to find a way to do it using pure CSS in the future
+		if (hasAssignee && assigneeHasPictue && showingPictureEnabled) {
 			Image picture = UsersManager.getInstance().getPictureFor(taskDto.getAssignee());
+			assigneePicturePlace.clear();
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
+			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
 			descriptionContainer.setWidth("104px");
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
