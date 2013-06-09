@@ -16,14 +16,14 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
   private lazy val taskBuilder = new TaskBuilder()
 
   def execute(params: MoveTaskParams): FailableResult[SimpleParams[TaskDto]] = {
-	try {
+	val oldTask = try {
 	  Task.byId(new ObjectId(params.getTask().getId()))
 	} catch {
 		case e: IllegalArgumentException =>
 	  		return new FailableResult(new SimpleParams(params.getTask()), false, ServerMessages.entityDeletedMessage("task"))
 	}
 	  
-    val task = taskBuilder.buildEntity(params.getTask())
+    val task = taskBuilder.buildEntity(params.getTask()).withDescription(oldTask.description)
     
     try {
     	val realBoard = Board.byId(task.workflowitem.parentWorkflow.board.id.get)

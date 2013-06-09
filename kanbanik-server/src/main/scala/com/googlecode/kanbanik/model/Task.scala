@@ -51,6 +51,18 @@ class Task(
     )
   }
   
+  def withDescription(description: String) = {
+    new Task(
+    		id,
+    		name,
+    		description,
+    		classOfService,
+    		ticketId,
+    		version,
+    		workflowitem
+    )
+  }
+  
   def delete {
     versionedDelete(Coll.Tasks, versionedQuery(id.get, version))
   }
