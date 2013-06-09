@@ -17,19 +17,19 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
   private lazy val taskBuilder = new TaskBuilder()
 
   def execute(params: MoveTaskParams): FailableResult[SimpleParams[TaskDto]] = {
-	try {
-	  Task.byId(new ObjectId(params.getTask().getId()))
-	} catch {
-		case e: IllegalArgumentException =>
-	  		return new FailableResult(new SimpleParams(params.getTask()), false, ServerMessages.entityDeletedMessage("task"))
-	}
-    val task = taskBuilder.buildEntity(params.getTask())
+    
+    
+    val oldTask = loadTask(new ObjectId(params.getTask().getId())).getOrElse(
+        return new FailableResult(new SimpleParams(params.getTask()), false, ServerMessages.entityDeletedMessage("task"))
+        )
+    
+    val newTask = taskBuilder.buildEntity(params.getTask())
     
     val somethingFaildResult = new FailableResult(new SimpleParams(params.getTask()), false, "Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the currrent data.")
-    val realBoard = loadBoard(task.workflowitem.parentWorkflow.board.id.get, false).getOrElse(
+    val realBoard = loadBoard(newTask.workflowitem.parentWorkflow.board.id.get, false).getOrElse(
         return somethingFaildResult
     )
-    realBoard.workflow.findItem(task.workflowitem).getOrElse(
+    realBoard.workflow.findItem(newTask.workflowitem).getOrElse(
     			return new FailableResult(new SimpleParams(params.getTask()), false, "The workflowitem on which this task existed does not exist any more - possibly has been deleted by a different user")    
     		)
     val project = loadProject(new ObjectId(params.getProject().getId())).getOrElse(
@@ -37,11 +37,12 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
     )
     val newOrder = calculateNewOrder(params)
     try {
-    	val resTask = task.withOrder(newOrder).store
+    	val toStore = oldTask.withOrder(newOrder).withProject(newTask.project).withWorkflowitem(newTask.workflowitem)
+    	val resTask = toStore.store
 	    return new FailableResult(new SimpleParams(taskBuilder.buildDto(resTask, None)))
     } catch {
       case e: MidAirCollisionException =>
-        return new FailableResult(new SimpleParams(taskBuilder.buildDto(task, None)), false, ServerMessages.midAirCollisionException)
+        return new FailableResult(new SimpleParams(taskBuilder.buildDto(newTask, None)), false, ServerMessages.midAirCollisionException)
     }
     
   }

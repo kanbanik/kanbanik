@@ -7,11 +7,14 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.Imports.$push
 import com.mongodb.casbah.Imports.$pull
+import com.mongodb.casbah.Imports.$and
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.mongodb.BasicDBObjectBuilder
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.db.HasEntityLoader
+import com.mongodb.casbah.commons.conversions.scala._
+import com.mongodb.casbah.Imports._
 
 class Task(
   val id: Option[ObjectId],
@@ -109,6 +112,21 @@ class Task(
       project)
   }
 
+  def withDescription(description: String) = {
+    new Task(
+      id,
+      name,
+      description,
+      classOfService,
+      ticketId,
+      version,
+      order,
+      assignee,
+      dueData,
+      workflowitem,
+      project)
+  }
+
   def delete {
     val update = $pull(
       Coll.Tasks.toString() -> MongoDBObject(SimpleField.version.toString() -> version, SimpleField.id.toString() -> id.get))
@@ -152,12 +170,14 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   def byId(id: ObjectId): Task = {
     using(createConnection) { conn =>
+      
+      val elemMatch = Coll.Tasks.toString() $elemMatch (MongoDBObject(Task.Fields.id.toString() -> id))
+      
       val dbTask = coll(conn, Coll.Boards).findOne(
-        MongoDBObject(Coll.Tasks.toString() + "." + Task.Fields.id.toString() -> id),
-        MongoDBObject(Coll.Tasks.toString() -> 1)).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
+        MongoDBObject(), elemMatch).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
 
       val withoutTheBoard = dbTask.get(Coll.Tasks.toString()).asInstanceOf[BasicDBList]
-      if (withoutTheBoard.size() == 0) {
+      if (withoutTheBoard == null || withoutTheBoard.size() == 0) {
         throw new IllegalArgumentException("No such task with id: " + id)
       }
 

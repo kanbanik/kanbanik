@@ -5,6 +5,7 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.model.ClassOfService
 import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.model.Task
 
 trait HasEntityLoader {
   def loadBoard(id: ObjectId, includeTasks: Boolean) = {
@@ -15,6 +16,10 @@ trait HasEntityLoader {
     }
   }
 
+  def loadTask(id: ObjectId) = {
+    loadEntity[Task](id, Task.byId(_))
+  }
+  
   def loadProject(id: ObjectId) = {
     loadEntity[Project](id, Project.byId(_))
   }
