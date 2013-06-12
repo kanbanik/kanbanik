@@ -68,14 +68,31 @@
 			border-style: solid; 
 			border-width: 1px; 
 			padding-right: 1px;
-			padding-top: 1px;
+			margin-top: 1px;
+		}
+		
+		.idWidget {
+			float: left;
+		}
+		
+		.dueDateWidget {
+			float: left;
+			padding-left: 15px;
+			font-style: italic;
+		}
+		
+		.headerContentStyle {
+			display: inline-block;
 		}
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.mainPanel}">
 		<g:FlowPanel addStyleNames="{style.headrHolder}">
 			<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
-				<g:Label ui:field="ticketIdLabel" />
+				<g:FlowPanel addStyleNames="{style.headerContentStyle}">
+					<g:Label addStyleNames="{style.idWidget}" ui:field="ticketIdLabel" />
+					<g:Label addStyleNames="{style.dueDateWidget}" ui:field="dueDateLabel"/>
+				</g:FlowPanel>
 			</g:FocusPanel>
 			<g:FlowPanel addStyleNames="{style.toolbarStyle}">
 				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="editButton"

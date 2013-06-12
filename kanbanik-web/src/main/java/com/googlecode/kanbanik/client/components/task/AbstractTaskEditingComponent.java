@@ -17,9 +17,11 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
@@ -47,6 +49,7 @@ import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
+// TODO it start to look really ugly - needs to be cleaned up into ui.xml
 public abstract class AbstractTaskEditingComponent {
 
 	private Panel panel = new VerticalPanel();
@@ -68,6 +71,8 @@ public abstract class AbstractTaskEditingComponent {
 	private DatePicker dueDatePicker = new DatePicker();
 
 	private PanelContainingDialog dialog;
+	
+	private HTML warningMessages = new HTML();
 
 	private String name;
 
@@ -115,8 +120,11 @@ public abstract class AbstractTaskEditingComponent {
 		
 		header.setWidth("640px");
 		
+		warningMessages.getElement().getStyle().setColor("red");
+		
 		panel.add(header);
 		panel.add(description);
+		panel.add(warningMessages);
 		panel.setWidth("100%");
 		
 		setupValues();
@@ -157,7 +165,6 @@ public abstract class AbstractTaskEditingComponent {
 			          String dateString = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).format(date);
 			          dueDateTextBox.setText(dateString);
 			          hide();
-			          
 			        }
 			      });
 		}
@@ -244,6 +251,61 @@ public abstract class AbstractTaskEditingComponent {
 		userToName = initUserToName(UsersManager.getInstance().getUsers());
 		fillOracle(userToName.keySet(), (MultiWordSuggestOracle) assigneeEditor.getSuggestOracle());
 		assigneeEditor.setValue(getUser());
+		
+		boolean dueDateSet = getDueDate() != null && !"".equals(getDueDate());
+		dueDateCheckBox.setValue(dueDateSet);
+		dueDateTextBox.setVisible(dueDateSet);
+		dueDateTextBox.setText(getDueDate());
+	}
+
+	private boolean validate() {
+		boolean dueDateValid = validateDueDate();
+		boolean classOfServiceValid = validateClassOfService();
+		boolean assigneeValid = validateAssignee();
+		return dueDateValid && classOfServiceValid && assigneeValid;
+	}
+	
+	private boolean validateClassOfService() {
+		if (classOfServiceToName.containsKey(classOfServiceEditor.getText().trim())) {
+			return true;
+		}
+		
+		addWarningMessage("The given class of service is not defined");
+		return false;
+	}
+	
+	private boolean validateAssignee() {
+		if (assigneeEditor.getText() == null || "".equals(assigneeEditor.getText())) {
+			// empty is OK
+			return true;
+		}
+
+		if (userToName.containsKey(assigneeEditor.getText().trim())) {
+			return true;
+		}
+		
+		addWarningMessage("The given assignee is not an existing user");
+		return false;
+	}
+
+	private boolean validateDueDate() {
+		if (!dueDateCheckBox.getValue()) {
+			return true;
+		}
+		
+		String dueDateString = dueDateTextBox.getValue();
+		try {
+			DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).parse(dueDateString);
+			return true;
+		} catch(IllegalArgumentException e) {
+			addWarningMessage("Accepted date format is YYYY-MM-DD");
+			return false;
+		}
+	
+	}
+	
+	private void addWarningMessage(String msg) {
+		warningMessages.setHTML(SafeHtmlUtils.fromTrustedString(warningMessages.getHTML() + msg + "</br>"));
 	}
 
 	protected abstract String getClassOfServiceAsString();
@@ -266,17 +328,24 @@ public abstract class AbstractTaskEditingComponent {
 		TaskDto taskDto = createBasicDTO();
 		taskDto.setName(taskName.getText());
 		taskDto.setDescription(description.getHtml());
-		taskDto.setClassOfService(classOfServiceToName.get(classOfServiceEditor.getValue()));
-		taskDto.setAssignee(userToName.get(assigneeEditor.getValue()));
-		taskDto.setDueDate(getDueDate());
+		ClassOfServiceDto selectedClassOfService = classOfServiceToName.get(classOfServiceEditor.getValue().trim());
+		if (ClassOfServicesManager.getInstance().getDefaultClassOfService().getName().equals(selectedClassOfService.getName())) {
+			selectedClassOfService = null;
+		}
+
+		taskDto.setClassOfService(selectedClassOfService);
+		taskDto.setAssignee(userToName.get(assigneeEditor.getValue().trim()));
+		if (dueDateCheckBox.getValue()) {
+			taskDto.setDueDate(dueDateTextBox.getText().trim());
+		} else {
+			taskDto.setDueDate("");
+		}
 		taskDto.setId(getId());
 		taskDto.setVersion(getVersion());
 		return taskDto;
 	}
 
-	private String getDueDate() {
-		return null;
-	}
+	protected abstract String getDueDate();
 
 	class ShowDialogHandler implements ClickHandler {
 
@@ -300,6 +369,11 @@ public abstract class AbstractTaskEditingComponent {
 
 		public void okClicked(final PanelContainingDialog dialog) {
 
+			warningMessages.setText("");
+			if (!validate()) {
+				return;
+			}
+			
 			final TaskDto taskDto = createTaskDTO();
 
 			new KanbanikServerCaller(new Runnable() {

@@ -1,7 +1,11 @@
 package com.googlecode.kanbanik.client.components.task;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -29,6 +33,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 
 	@UiField
 	Label ticketIdLabel;
+	
+	@UiField
+	Label dueDateLabel;
 	
 	@UiField
 	TextArea nameLabel;
@@ -91,6 +98,71 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 			descriptionContainer.setWidth("146px");
 		}
 		
+		setupDueDate(taskDto.getDueDate());
+		
+	}
+
+	private void setupDueDate(String dueDate) {
+		if (dueDate == null || "".equals(dueDate)) {
+			dueDateLabel.setVisible(false);
+			return;
+		}
+		
+		Date date = null;
+		try {
+			date = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).parse(dueDate);
+		} catch(IllegalArgumentException e) {
+			dueDateLabel.setVisible(false);
+			return;
+		}
+
+		dueDateLabel.setVisible(true);
+		setupHumanReadableDueDateText(dueDate, date);
+	}
+
+	@SuppressWarnings("deprecation")
+	private void setupHumanReadableDueDateText(String dueDateText, Date dueDate) {
+		Date nowDate = new Date();
+		// comparing days only - not care about the time
+		nowDate.setMinutes(0);
+		nowDate.setHours(0);
+		nowDate.setSeconds(0);
+		
+		final long DAY_MILLIS = 1000 * 60 * 60 * 24;
+		
+	    long day1 = dueDate.getTime() / DAY_MILLIS;
+	    long day2 = nowDate.getTime() / DAY_MILLIS;
+	    long diff = day1 - day2;
+	    
+	    if (diff < 0) {
+	    	dueDateLabel.setTitle("Due date deadline ("+dueDateText+") already missed");
+	    	dueDateLabel.setText("missed!");
+	    	return;
+	    }
+	    
+	    if (diff == 0) {
+	    	dueDateLabel.setTitle("Due date deadline is today!");
+	    	dueDateLabel.setText("today");
+	    	return;
+	    }
+	    
+	    dueDateLabel.setTitle("Due date deadline is " + dueDateText + " (in " + diff + " days)");
+	    if (diff > 31) {
+	    	dueDateLabel.setText(" > month");
+	    	return;
+	    }
+	    
+	    if (diff > 7) {
+	    	dueDateLabel.setText(" > week");
+	    	return;
+	    }
+	    
+	    if (diff == 1) {
+	    	dueDateLabel.setText("1 day");
+	    	return;
+	    }
+	    
+    	dueDateLabel.setText(diff + " days");
 	}
 
 	private String getColorOf(TaskDto taskDto) {

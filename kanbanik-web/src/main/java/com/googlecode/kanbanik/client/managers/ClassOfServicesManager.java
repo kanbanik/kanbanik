@@ -34,6 +34,10 @@ public class ClassOfServicesManager {
 		merged.addAll(forBoard);
 		merged.addAll(shared);
 		
+		if (merged.size() == 0) {
+			merged.add(getDefaultClassOfService());
+		}
+		
 		return merged;
 	}
 	

@@ -110,4 +110,9 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 		return taskGui.getDto().getAssignee().getUserName();
 	}
 
+	@Override
+	protected String getDueDate() {
+		return taskGui.getDto().getDueDate();
+	}
+
 }

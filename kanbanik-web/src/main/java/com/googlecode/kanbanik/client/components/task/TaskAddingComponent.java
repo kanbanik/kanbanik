@@ -100,6 +100,11 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	protected String getUser() {
 		return "";
 	}
+
+	@Override
+	protected String getDueDate() {
+		return null;
+	}
 	
 }
 
