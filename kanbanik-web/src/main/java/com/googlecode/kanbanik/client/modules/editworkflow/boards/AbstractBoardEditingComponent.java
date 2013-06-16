@@ -66,7 +66,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 		workflowVerticalSizingLabel.setWidth("160px");
 		workflowVerticalSizing.addItem("Balanced");
 		workflowVerticalSizing.addItem("Minimal Possible");
-		workflowVerticalSizing.addItem("Fixed");
+		workflowVerticalSizing.addItem("Fixed Num of Tasks");
 		workflowVerticalSizing.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {

@@ -21,6 +21,7 @@ class WorkflowitemBuilder extends BaseBuilder {
         },
         dto.getName(),
         dto.getWipLimit(),
+        dto.getVerticalSize(),
         dto.getItemType().asStringValue(),
         dto.getVersion(),
         // don't calculate it if not needed
@@ -40,6 +41,7 @@ class WorkflowitemBuilder extends BaseBuilder {
         },
         dto.getName(),
         dto.getWipLimit(),
+        dto.getVerticalSize(),
         dto.getItemType().asStringValue(),
         dto.getVersion(),
         workflowBuilder.buildEntity(dto.getNestedWorkflow(), board), 
@@ -52,6 +54,7 @@ class WorkflowitemBuilder extends BaseBuilder {
     dto.setId(workflowitem.id.get.toString())
     dto.setName(workflowitem.name)
     dto.setWipLimit(workflowitem.wipLimit)
+    dto.setVerticalSize(workflowitem.verticalSize)
     dto.setItemType(ItemType.asItemType(workflowitem.itemType))
     dto.setVersion(workflowitem.version)
     dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))

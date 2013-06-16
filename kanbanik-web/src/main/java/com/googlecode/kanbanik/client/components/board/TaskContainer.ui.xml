@@ -1,15 +1,24 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style>
-		.contantPanelStyle {
+	<ui:style type="com.googlecode.kanbanik.client.components.board.TaskContainer.Style">
+		.defaultContantPanelStyle, .fixedContantPanelStyle {
 			float: left;
-			width: 150px;
+			width: 165px;
 			min-height: 100px;
+			background-color: #fbfbfb;
+		}
+		
+		.defaultContantPanelStyle {
 			height: 100%;
+		}
+		
+		.fixedContantPanelStyle {
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 	</ui:style>
 
-	<g:FlowPanel ui:field="contentPanel" addStyleNames="{style.contantPanelStyle}" />
+	<g:FlowPanel ui:field="contentPanel" />
 
 </ui:UiBinder>

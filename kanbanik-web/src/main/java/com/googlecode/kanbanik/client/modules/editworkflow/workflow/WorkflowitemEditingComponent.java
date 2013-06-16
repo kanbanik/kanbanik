@@ -42,6 +42,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 	private void renderDto(WorkflowItemEditPanel panel) {
 		panel.setName(dto.getName());
 		panel.setWipLimit(dto.getWipLimit());
+		panel.setVerticalSizing(dto.getVerticalSize() != -1, dto.getVerticalSize());
 		panel.setType(dto.getItemType());
 	}
 	
@@ -49,6 +50,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		dto.setName(panel.getName());
 		dto.setWipLimit(panel.getWipLimit());
 		dto.setItemType(panel.getItemType());
+		dto.setVerticalSize(panel.getVerticalSize());
 	}
 
 	public void onClick(ClickEvent event) {

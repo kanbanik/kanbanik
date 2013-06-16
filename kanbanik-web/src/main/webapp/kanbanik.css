@@ -37,6 +37,10 @@ body {
 .not-balanced-table {
 }
 
+.fixed-sized-table {
+	overflow: auto;
+}
+
 .gwt-TabBarItem {
 	width: 130px;
 }

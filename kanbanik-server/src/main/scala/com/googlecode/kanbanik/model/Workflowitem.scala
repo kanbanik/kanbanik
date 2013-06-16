@@ -15,6 +15,7 @@ class Workflowitem(
   val id: Option[ObjectId],
   val name: String,
   val wipLimit: Int,
+  val verticalSize: Int,
   val itemType: String,
   val version: Int,
   val nestedWorkflow: Workflow,
@@ -25,9 +26,10 @@ class Workflowitem(
   def this(id: Option[ObjectId],
     name: String,
     wipLimit: Int,
+    verticalSize: Int,
     itemType: String,
     version: Int,
-    nestedWorkflow: Workflow) = this(id, name, wipLimit, itemType, version, nestedWorkflow, None)
+    nestedWorkflow: Workflow) = this(id, name, wipLimit, verticalSize, itemType, version, nestedWorkflow, None)
 
   def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow)
 
@@ -42,6 +44,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
@@ -52,6 +55,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
@@ -62,6 +66,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
@@ -72,6 +77,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
@@ -82,6 +88,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       newWorkflow,
@@ -92,6 +99,7 @@ class Workflowitem(
       id,
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
@@ -102,16 +110,29 @@ class Workflowitem(
       Some(id),
       name,
       wipLimit,
+      verticalSize,
       itemType,
       version,
       nestedWorkflow,
       _parentWorkflow);
-  
+
+  def withVerticalSize(verticalSize: Int) =
+    new Workflowitem(
+      id,
+      name,
+      wipLimit,
+      verticalSize,
+      itemType,
+      version,
+      nestedWorkflow,
+      _parentWorkflow);
+
   def asDbObject(): DBObject = {
     MongoDBObject(
       Workflowitem.Fields.id.toString() -> id.getOrElse(new ObjectId),
       Workflowitem.Fields.name.toString() -> name,
       Workflowitem.Fields.wipLimit.toString() -> wipLimit,
+      Workflowitem.Fields.verticalSize.toString() -> verticalSize,
       Workflowitem.Fields.itemType.toString() -> itemType,
       Workflowitem.Fields.version.toString() -> version,
       Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow.asDbObject)
@@ -141,17 +162,26 @@ object Workflowitem extends HasMongoConnection {
 
   object Fields extends DocumentField {
     val wipLimit = Value("wipLimit")
+    val verticalSize = Value("verticalSize")
     val itemType = Value("itemType")
     val nestedWorkflow = Value("nestedWorkflow")
   }
 
-  def apply() = new Workflowitem(Some(new ObjectId()), "", -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
-  
+  def apply() = new Workflowitem(Some(new ObjectId()), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+
   def asEntity(dbObject: DBObject, workflow: Option[Workflow]): Workflowitem = {
     new Workflowitem(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.wipLimit.toString()).asInstanceOf[Int],
+      {
+        val res = dbObject.get(Fields.verticalSize.toString())
+        if (res == null) {
+          -1
+        } else {
+          res.asInstanceOf[Int]
+        }
+      },
       dbObject.get(Fields.itemType.toString()).asInstanceOf[String],
       dbObject.get(Fields.version.toString()).asInstanceOf[Int],
       {

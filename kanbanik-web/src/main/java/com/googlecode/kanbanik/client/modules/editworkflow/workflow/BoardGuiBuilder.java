@@ -5,8 +5,10 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ItemType;
 import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
 import com.googlecode.kanbanik.dto.WorkflowDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
@@ -30,30 +32,24 @@ public abstract class BoardGuiBuilder {
 			return;
 		}
 		
-//		boolean isBalanced = workflow.getBoard().isBalanceWorkflowitems();
-		boolean isBalanced = true;
-		
 		WorkflowDto currentDto = workflow;
 		
 		for (WorkflowitemDto currentItem : currentDto.getWorkflowitems()) {
 			if (currentItem.getNestedWorkflow().getWorkflowitems().size() > 0) {
 				FlexTable childTable = new FlexTable();
 				
-				if (isBalanced) {
-					childTable.addStyleName("balanced-table");
-				} else {
-					childTable.addStyleName("not-balanced-table");
-				}
+				setupBoard(childTable, workflow.getBoard());
 				
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
 				buildBoard(currentItem.getNestedWorkflow(), project, childTable, dragController, 0, 0);
 			} else {
-				Widget taskContainer = createWorkflowitemPlaceContentWidget(dragController, currentItem, project);
+				Widget taskContainer = createWorkflowitemPlaceContentWidget(dragController, currentItem, project, workflow.getBoard());
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, taskContainer);
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
+				setupBoard(table, workflow.getBoard());
 			}
 
 			if (currentItem.getItemType() == ItemType.HORIZONTAL) {
@@ -68,7 +64,19 @@ public abstract class BoardGuiBuilder {
 
 	}
 
-	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project);
+	
+	private void setupBoard(FlexTable table, BoardDto board) {
+		WorkfloVerticalSizing sizing = board.getWorkfloVerticalSizing();
+		if (sizing == WorkfloVerticalSizing.BALANCED) {
+			table.addStyleName("balanced-table");
+		} else if (sizing == WorkfloVerticalSizing.MIN_POSSIBLE) {
+			table.addStyleName("not-balanced-table");
+		}
+		
+		table.getElement().getStyle().setBackgroundColor("#efefef");
+	}
+	
+	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, BoardDto board);
 	
 	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, Widget childTable);
 }

@@ -5,26 +5,64 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
+import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
+import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class TaskContainer extends Composite {
 
 	@UiField
 	FlowPanel contentPanel;
+	
+	@UiField 
+	Style style;
 
+	public interface Style extends CssResource {
+		
+		String defaultContantPanelStyle();
+		
+		String fixedContantPanelStyle();
+	}
+	
+	// task height + border + margin
+	public static final int SIZE_OF_TASK = 70;
+	
 	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	public TaskContainer() {
+	public TaskContainer(BoardDto board, WorkflowitemDto currentItem) {
 		initWidget(uiBinder.createAndBindUi(this));
+		setupSizing(board, currentItem);
+	}
+
+	private void setupSizing(BoardDto board, WorkflowitemDto currentItem) {
+		boolean fixedSizeOnBoard = board.getWorkfloVerticalSizing() == WorkfloVerticalSizing.FIXED;
+		boolean fixedSizeOverriddenOnWorkflowitem = currentItem.getVerticalSize() != -1;
+		if (fixedSizeOnBoard || fixedSizeOverriddenOnWorkflowitem) {
+			int numOfTasks = 0;
+			if (fixedSizeOverriddenOnWorkflowitem) {
+				// this overrides the board setting
+				numOfTasks = currentItem.getVerticalSize();
+			} else {
+				numOfTasks = board.getVerticalSizingFixedSize();
+			}
+			addStyleName(style.fixedContantPanelStyle());
+			String height = (numOfTasks * SIZE_OF_TASK) + "px";
+			setHeight(height);
+		} else {
+			addStyleName(style.defaultContantPanelStyle());
+		}
+		
 	}
 
 	public void removeTask(TaskDto task) {

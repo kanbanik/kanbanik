@@ -36,6 +36,6 @@ class BaseWorkflowManipulatingTest extends FlatSpec with BeforeAndAfter with Has
   }
   
   def mkWorkflowItem(id: ObjectId, nestedWorkflow: Workflow) = {
-    new Workflowitem(Some(id), "", -1, "", 1, nestedWorkflow, None)
+    new Workflowitem(Some(id), "", -1, -1, "", 1, nestedWorkflow, None)
   }
 }

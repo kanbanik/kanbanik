@@ -219,8 +219,8 @@ public class BoardsModule {
 		@Override
 		protected Widget createWorkflowitemPlaceContentWidget(
 				PickupDragController dragController,
-				WorkflowitemDto currentItem, ProjectDto project) {
-			TaskContainer taskContainer = new TaskContainer();
+				WorkflowitemDto currentItem, ProjectDto project, BoardDto board) {
+			TaskContainer taskContainer = new TaskContainer(board, currentItem);
 			DropController dropController = new TaskMovingDropController(
 					taskContainer, currentItem, project);
 			dragController.registerDropController(dropController);

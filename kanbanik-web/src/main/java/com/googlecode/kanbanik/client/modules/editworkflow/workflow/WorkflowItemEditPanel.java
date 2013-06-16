@@ -19,6 +19,10 @@ public class WorkflowItemEditPanel extends FlowPanel {
 	
 	private CheckBox wipLimitEnabled;
 	
+	private TextBox verticalSizingSizeBox;
+	
+	private CheckBox verticalSizingEnabled;
+	
 	private RadioButton horizontal = new RadioButton("itemTypeGroup", "Horizontal");
 
 	private RadioButton vertical = new RadioButton("itemTypeGroup", "Vertical");
@@ -39,6 +43,21 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		panel.add(wipLimitEnabled);
 		setWidth("223px");
 		
+	}
+	
+	public void setVerticalSizing(boolean enabled, int size) {
+		verticalSizingSizeBox = new TextBox();
+		Panel panel = createNameWaluePair("Fixed Verical Size (in tasks): ", Integer.toString(size), verticalSizingSizeBox);
+		
+		verticalSizingEnabled = new CheckBox();
+		verticalSizingEnabled.setValue(enabled);
+		verticalSizingSizeBox.setEnabled(enabled);
+		if (!enabled) {
+			verticalSizingSizeBox.setText("");
+		}
+		verticalSizingEnabled.addClickHandler(new VerticalSizingEnabledClickHandler());
+		panel.add(verticalSizingEnabled);
+		setWidth("223px");
 	}
 
 	private void disableWipLimit() {
@@ -75,6 +94,18 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		
 	}
 	
+	class VerticalSizingEnabledClickHandler implements ClickHandler {
+
+		public void onClick(ClickEvent event) {
+			if (!verticalSizingEnabled.getValue()) {
+				verticalSizingSizeBox.setEnabled(false);
+			} else {
+				verticalSizingSizeBox.setEnabled(true);
+			}
+		}
+		
+	}
+	
 	public FocusWidget getDefaultFocusWidget() {
 		return nameBox;
 	}
@@ -103,6 +134,17 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		}
 		try {
 			return Integer.parseInt(wipLimitBox.getText());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+	
+	public int getVerticalSize() {
+		if (!verticalSizingEnabled.getValue()) {
+			return -1;
+		}
+		try {
+			return Integer.parseInt(verticalSizingSizeBox.getText());
 		} catch (NumberFormatException e) {
 			return -1;
 		}

@@ -17,6 +17,8 @@ public class WorkflowitemDto implements IdentifiableDto {
 	private WorkflowDto nestedWorkflow;
 	
 	private WorkflowDto parentWorkflow;
+
+	private int verticalSize;
 	
 	public String getName() {
 		return name;
@@ -72,6 +74,14 @@ public class WorkflowitemDto implements IdentifiableDto {
 
 	public void setParentWorkflow(WorkflowDto parentWorkflow) {
 		this.parentWorkflow = parentWorkflow;
+	}
+
+	public int getVerticalSize() {
+		return verticalSize;
+	}
+
+	public void setVerticalSize(int verticalSize) {
+		this.verticalSize = verticalSize;
 	}
 	
 }
