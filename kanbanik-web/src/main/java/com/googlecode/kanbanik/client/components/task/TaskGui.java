@@ -4,10 +4,16 @@ import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
@@ -26,8 +32,18 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
 
-public class TaskGui extends Composite implements MessageListener<TaskDto> {
+public class TaskGui extends Composite implements MessageListener<TaskDto>, ClickHandler {
 
+	private static final String DESCRIPTION_WIDTH_WITH_PICTURE = "119px";
+
+	private static final String DESCRIPTION_WIDTH_WITHOUT_PICTURE = "160px";
+	
+	private static final String DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED = "103px";
+	
+	private static final String DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED = "147px";
+
+	private boolean hasPicture = false;
+	
 	@UiField
 	FocusPanel header;
 
@@ -37,7 +53,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 	@UiField
 	Label dueDateLabel;
 	
-	@UiField
+	@UiField(provided = true)
 	TextArea nameLabel;
 	
 	@UiField
@@ -52,13 +68,33 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 	@UiField
 	FlowPanel descriptionContainer;
 	
+	@UiField
+	FocusPanel wholePanel;
+	
+	HandlerRegistration imageHandle;
+	
 	private TaskDto taskDto;
+	
+	private boolean isSelected = false;
+	
+	@UiField 
+	Style style;
+	
+	public interface Style extends CssResource {
+		
+		String selected();
+		
+		String unselected();
+	}
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	
 	public TaskGui(TaskDto taskDto) {
+		
+		nameLabel = new ClickHandlingTextArea();
+		
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
@@ -72,6 +108,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 		new TaskDeletingComponent(this, deleteButton);
 		
 		setupAccordingDto(taskDto);
+		
+		wholePanel.addClickHandler(this);
+		nameLabel.addDomHandler(this, ClickEvent.getType());
 	}
 	
 	public void setupAccordingDto(TaskDto taskDto) {
@@ -87,15 +126,31 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 
 		// ahh this is sooo ugly! Need to find a way to do it using pure CSS in the future
 		if (hasAssignee && assigneeHasPictue && showingPictureEnabled) {
+			if (imageHandle != null) {
+				imageHandle.removeHandler();
+			}
+			
 			Image picture = UsersManager.getInstance().getPictureFor(taskDto.getAssignee());
+			imageHandle = picture.addClickHandler(this);
 			assigneePicturePlace.clear();
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
-			descriptionContainer.setWidth("104px");
+			if (isSelected) {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED);
+			} else {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE);
+			}
+			picture.addClickHandler(this);
+			hasPicture = true;
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
-			descriptionContainer.setWidth("146px");
+			if (isSelected) {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED);
+			} else {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE);
+			}
+			hasPicture = false;
 		}
 		
 		setupDueDate(taskDto.getDueDate());
@@ -187,5 +242,53 @@ public class TaskGui extends Composite implements MessageListener<TaskDto> {
 			this.taskDto = payload;
 			setupAccordingDto(payload);
 		}
+	}
+
+	class ClickHandlingTextArea extends TextArea { 
+		public ClickHandlingTextArea() {
+			super();
+			
+			sinkEvents(Event.ONCLICK);
+			setEnabled(true);
+		}
+		
+		@Override
+		public void onBrowserEvent(Event event) {
+			if (DOM.eventGetType(event) == Event.ONCLICK) {
+				click();
+				super.onBrowserEvent(event);
+				setFocus(false);
+				return;
+			}
+			super.onBrowserEvent(event);
+		}
+		
+	}
+	
+	@Override
+	public void onClick(ClickEvent event) {
+		click();
+	}
+	
+	private void click() {
+		if (isSelected) {
+			wholePanel.removeStyleName(style.selected());
+			wholePanel.addStyleName(style.unselected());
+			if (hasPicture) {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE);
+			} else {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE);
+			}
+		} else {
+			wholePanel.addStyleName(style.selected());
+			wholePanel.removeStyleName(style.unselected());
+			if (hasPicture) {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED);
+			} else {
+				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED);
+			}
+		}
+		
+		isSelected = !isSelected;
 	}
 }

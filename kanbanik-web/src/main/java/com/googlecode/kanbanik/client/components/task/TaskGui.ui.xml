@@ -1,7 +1,18 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style>
+	<ui:style type="com.googlecode.kanbanik.client.components.task.TaskGui.Style">
+	
+		.unselected {
+			
+		}
+		
+		.selected {
+			border: 3px solid #92C1F0;
+    		margin: 2px;
+    		padding: 2px;
+		}
+	
 		.task-toolbar {
 			border-bottom-style: solid;
 			border-bottom-width: 1px;
@@ -86,28 +97,30 @@
 		}
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="{style.mainPanel}">
-		<g:FlowPanel addStyleNames="{style.headrHolder}">
-			<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
-				<g:FlowPanel addStyleNames="{style.headerContentStyle}">
-					<g:Label addStyleNames="{style.idWidget}" ui:field="ticketIdLabel" />
-					<g:Label addStyleNames="{style.dueDateWidget}" ui:field="dueDateLabel"/>
+	<g:FocusPanel ui:field="wholePanel" addStyleNames="{style.unselected}">
+		<g:FlowPanel addStyleNames="{style.mainPanel}">
+			<g:FlowPanel addStyleNames="{style.headrHolder}">
+				<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
+					<g:FlowPanel addStyleNames="{style.headerContentStyle}">
+						<g:Label addStyleNames="{style.idWidget}" ui:field="ticketIdLabel" />
+						<g:Label addStyleNames="{style.dueDateWidget}" ui:field="dueDateLabel"/>
+					</g:FlowPanel>
+				</g:FocusPanel>
+				<g:FlowPanel addStyleNames="{style.toolbarStyle}">
+					<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="editButton"
+						text="Edit" title="Edit" />
+					<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="deleteButton"
+						text="Delete" title="Delete" />
 				</g:FlowPanel>
-			</g:FocusPanel>
-			<g:FlowPanel addStyleNames="{style.toolbarStyle}">
-				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="editButton"
-					text="Edit" title="Edit" />
-				<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="deleteButton"
-					text="Delete" title="Delete" />
+			</g:FlowPanel>
+	
+			<g:FlowPanel addStyleNames="{style.mainSectionContent}">
+				<g:FlowPanel addStyleNames="{style.shortDescriptionContainer}" ui:field="descriptionContainer">
+					<g:TextArea addStyleNames="{style.shortDescription}" ui:field="nameLabel" />
+				</g:FlowPanel>
+				<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />
 			</g:FlowPanel>
 		</g:FlowPanel>
-
-		<g:FlowPanel addStyleNames="{style.mainSectionContent}">
-			<g:FlowPanel addStyleNames="{style.shortDescriptionContainer}" ui:field="descriptionContainer">
-				<g:TextArea addStyleNames="{style.shortDescription}" enabled="false" ui:field="nameLabel" />
-			</g:FlowPanel>
-			<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />
-		</g:FlowPanel>
-	</g:FlowPanel>
+</g:FocusPanel>
 
 </ui:UiBinder>
