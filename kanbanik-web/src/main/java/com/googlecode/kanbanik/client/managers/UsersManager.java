@@ -3,6 +3,9 @@ package com.googlecode.kanbanik.client.managers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.BorderStyle;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Image;
@@ -42,6 +45,9 @@ public class UsersManager {
 		picture.setVisible(false);
 		picture.addLoadHandler(new PictureResizingLoadHandler(picture));
 		picture.setUrl(user.getPictureUrl());
+		Style style = picture.getElement().getStyle();
+		style.setBorderStyle(BorderStyle.SOLID);
+		style.setBorderWidth(1, Unit.PX);
 
 		return picture;
 	}

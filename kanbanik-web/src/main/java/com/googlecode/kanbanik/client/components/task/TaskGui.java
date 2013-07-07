@@ -33,16 +33,6 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ClickHandler {
-
-	private static final String DESCRIPTION_WIDTH_WITH_PICTURE = "119px";
-
-	private static final String DESCRIPTION_WIDTH_WITHOUT_PICTURE = "160px";
-	
-	private static final String DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED = "103px";
-	
-	private static final String DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED = "147px";
-
-	private boolean hasPicture = false;
 	
 	@UiField
 	FocusPanel header;
@@ -64,9 +54,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 	
 	@UiField
 	FlowPanel assigneePicturePlace;
-	
-	@UiField
-	FlowPanel descriptionContainer;
 	
 	@UiField
 	FocusPanel wholePanel;
@@ -124,7 +111,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 		boolean hasAssignee = taskDto.getAssignee() != null;
 		boolean assigneeHasPictue = hasAssignee && taskDto.getAssignee().getPictureUrl() != null && !"".equals(taskDto.getAssignee().getPictureUrl());
 
-		// ahh this is sooo ugly! Need to find a way to do it using pure CSS in the future
 		if (hasAssignee && assigneeHasPictue && showingPictureEnabled) {
 			if (imageHandle != null) {
 				imageHandle.removeHandler();
@@ -136,21 +122,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
-			if (isSelected) {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED);
-			} else {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE);
-			}
 			picture.addClickHandler(this);
-			hasPicture = true;
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
-			if (isSelected) {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED);
-			} else {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE);
-			}
-			hasPicture = false;
 		}
 		
 		setupDueDate(taskDto.getDueDate());
@@ -274,19 +248,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 		if (isSelected) {
 			wholePanel.removeStyleName(style.selected());
 			wholePanel.addStyleName(style.unselected());
-			if (hasPicture) {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE);
-			} else {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE);
-			}
 		} else {
 			wholePanel.addStyleName(style.selected());
 			wholePanel.removeStyleName(style.unselected());
-			if (hasPicture) {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITH_PICTURE_SELECTED);
-			} else {
-				descriptionContainer.setWidth(DESCRIPTION_WIDTH_WITHOUT_PICTURE_SELECTED);
-			}
 		}
 		
 		isSelected = !isSelected;

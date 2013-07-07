@@ -16,8 +16,8 @@
 		.task-toolbar {
 			border-bottom-style: solid;
 			border-bottom-width: 1px;
-			padding-bottom: 7px;
-			margin-bottom: 4px;
+<!-- 			padding-bottom: 7px; -->
+<!-- 			margin-bottom: 4px; -->
 			margin-top: 2px;
 			margin-right: 2px;
 			width: 100%;
@@ -38,7 +38,8 @@
 			width: 100%;
 			resize: vertical;
 			background-color: transparent;
-			overflow: hidden;
+			position: relative;
+			left: -3px;
 		}
 		
 		.headerStyle {
@@ -74,12 +75,7 @@
 		}
 		
 		.assigneePicturePlaceStyle {
-			float: right;
-			border-color: black;
-			border-style: solid; 
-			border-width: 1px; 
 			padding-right: 1px;
-			margin-top: 1px;
 		}
 		
 		.idWidget {
@@ -112,14 +108,21 @@
 					<g:PushButton styleName="taskImageButtonStyle" addStyleNames="{style.buttonStyle}" ui:field="deleteButton"
 						text="Delete" title="Delete" />
 				</g:FlowPanel>
-			</g:FlowPanel>
-	
-			<g:FlowPanel addStyleNames="{style.mainSectionContent}">
-				<g:FlowPanel addStyleNames="{style.shortDescriptionContainer}" ui:field="descriptionContainer">
-					<g:TextArea addStyleNames="{style.shortDescription}" ui:field="nameLabel" />
-				</g:FlowPanel>
-				<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />
-			</g:FlowPanel>
+			</g:FlowPanel>		
+			
+			<g:HTMLPanel addStyleNames="{style.mainSectionContent}">
+				<!-- I know that it is an evil to format using tables but I just did not find an another reliable solution to style this-->
+				<table style="width: 100%;">
+					<tr style="width: 100%;">
+						<td style="width: 100%;">
+							<g:TextArea addStyleNames="{style.shortDescription}" ui:field="nameLabel" />	
+						</td>
+						<td style="">
+							<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />	
+						</td>
+					</tr>
+				</table>
+			</g:HTMLPanel>
 		</g:FlowPanel>
 </g:FocusPanel>
 
