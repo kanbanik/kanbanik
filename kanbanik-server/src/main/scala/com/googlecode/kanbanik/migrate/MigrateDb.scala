@@ -15,6 +15,7 @@ import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commons._
 import scala.Some
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 
 class MigrateDb extends HasMongoConnection {
 
@@ -81,15 +82,76 @@ class From1To2 extends MigrationPart {
 
 class From2To3 extends MigrationPart {
   private val oldTasksCollection = "tasks"
+  private val boardsCollection = "boards"
+
   private lazy val taskBuilder = new TaskBuilder()
 
   def migrate {
 
     val classesOfServices = createDefaultClassesOfService()
 
+    migrateBoard
+    
     migrateTasks(classesOfServices)
 
     setVersionTo(3)
+
+    // do not do any cleanup - if something goes wrong than at least the old data will stay in place
+  }
+
+  def migrateBoard() {
+
+    def toNewBoard(board: Board, idToBalanced: Map[ObjectId, Boolean]) {
+    	if (!idToBalanced.contains(board.id.get)) {
+    	  println("f1")
+    	  return
+    	}
+    	
+    	if (idToBalanced.get(board.id.get).get) {
+    	  println("f2")
+    	  // the balanced is the default if nothing else is set so no need to set it explicitly
+    	  return
+    	}
+    	println("f3")
+    	
+    	board.withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE).store
+    }
+
+    using(createConnection) {
+      conn =>
+        val rawBoards = coll(conn, Coll.Boards).find()
+        
+        val idToBalanced = rawBoards.map(board => {
+          val id = board.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]
+          println("id: " + id)
+          val balanced = board.get("balanceWorkflowitems")
+          println("1: " + balanced)
+          val isBalanced = if (balanced == null) {
+            true
+          } else {
+            balanced.asInstanceOf[Boolean]
+          }
+          
+          println("2: " + isBalanced)
+          
+          (id, isBalanced)
+        })
+        
+        println("4")
+        if (idToBalanced.size == 0) {
+          println("3")
+          return
+        }
+        println("5")
+
+        println("list: " + idToBalanced.mkString(", "))
+        val idToBalancedMap = idToBalanced.toMap
+        println("map: " + idToBalancedMap.mkString(", "))
+
+        Board.all(false).foreach(board => toNewBoard(board, idToBalancedMap))
+
+    }
+
   }
 
   def createDefaultClassesOfService() = {
@@ -100,32 +162,28 @@ class From2To3 extends MigrationPart {
       "83ff00",
       true,
       1,
-      None
-    ).store) + (0 -> new ClassOfService(
+      None).store) + (0 -> new ClassOfService(
       None,
       "Expedite",
       "For critical tasks. Can break all rules on the system.",
       "f80070",
       true,
       1,
-      None
-    ).store) + (3 -> new ClassOfService(
+      None).store) + (3 -> new ClassOfService(
       None,
       "Intangible",
       "Nice to have but not critical.",
       "65b1f8",
       true,
       1,
-      None
-    ).store) + (1 -> new ClassOfService(
+      None).store) + (1 -> new ClassOfService(
       None,
       "Fixed Delivery Date",
       "Has to be done until specified date.",
       "ffeb00",
       true,
       1,
-      None
-    ).store)
+      None).store)
   }
 
   def migrateTasks(classesOfService: Map[Int, ClassOfService]) {
@@ -139,42 +197,34 @@ class From2To3 extends MigrationPart {
           order += 100
         }
 
-        cleanup
-    }
-
-    def cleanup() {
-      using(createConnection) {
-        conn =>
-          coll(conn, oldTasksCollection).remove(MongoDBObject())
-      }
     }
 
     def asOldEntity(dbObject: DBObject) = {
       new OldTask(
-      Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
-      dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
-      dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
-      dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String], {
-        val res = dbObject.get(Task.Fields.version.toString())
-        if (res == null) {
-          1
-        } else {
-          res.asInstanceOf[Int]
-        }
-      },
-      dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId])
+        Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
+        dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
+        dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
+        dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
+        dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String], {
+          val res = dbObject.get(Task.Fields.version.toString())
+          if (res == null) {
+            1
+          } else {
+            res.asInstanceOf[Int]
+          }
+        },
+        dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId])
 
     }
   }
 
   class OldTask(val id: Option[ObjectId],
-                val name: String,
-                val description: String,
-                val classOfService: Int,
-                val ticketId: String,
-                val version: Int,
-                val workflowitemId: ObjectId) {
+    val name: String,
+    val description: String,
+    val classOfService: Int,
+    val ticketId: String,
+    val version: Int,
+    val workflowitemId: ObjectId) {
 
     def asNewTask(classesOfService: Map[Int, ClassOfService]): Task = {
       new Task(
@@ -183,11 +233,11 @@ class From2To3 extends MigrationPart {
         description,
         {
           if (classesOfService.contains(classOfService)) {
-        	  classesOfService.get(classOfService)
+            classesOfService.get(classOfService)
           } else {
             classesOfService.get(2)
           }
-          
+
         },
         ticketId,
         1, // because I basically want to create a new one

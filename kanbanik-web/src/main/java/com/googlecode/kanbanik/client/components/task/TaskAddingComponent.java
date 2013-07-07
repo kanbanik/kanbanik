@@ -27,9 +27,9 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	
 	private static final GetFirstTaskResponseMessageListener getFirstTaskResponseMessageListener = new GetFirstTaskResponseMessageListener();
 
-	public TaskAddingComponent(ProjectDto project, WorkflowitemDto inputQueue, HasClickHandlers clickHandler) {
-		super(clickHandler, inputQueue.getParentWorkflow().getBoard());
-		board = inputQueue.getParentWorkflow().getBoard();
+	public TaskAddingComponent(ProjectDto project, BoardDto board, WorkflowitemDto inputQueue, HasClickHandlers clickHandler) {
+		super(clickHandler, board);
+		this.board = board;
 		this.project = project;
 		this.inputQueue = inputQueue;
 		initialize();

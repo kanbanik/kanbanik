@@ -139,7 +139,7 @@ class Task(
       // and that try-catch block removed
       //      val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(id.get, version, idField, versionField), update)
 
-      coll(conn, Coll.Boards).update(MongoDBObject(), update)
+      coll(conn, Coll.Boards).update(Coll.Tasks.toString() $exists true, update)
       try {
         Task.byId(id.get)
       } catch {
@@ -172,9 +172,11 @@ object Task extends HasMongoConnection with HasEntityLoader {
     using(createConnection) { conn =>
       
       val elemMatch = Coll.Tasks.toString() $elemMatch (MongoDBObject(Task.Fields.id.toString() -> id))
+      val tasksExists = Coll.Tasks.toString() $exists true
       
-      val dbTask = coll(conn, Coll.Boards).findOne(
-        MongoDBObject(), elemMatch).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
+      val dbTask = coll(conn, Coll.Boards).findOne(tasksExists, elemMatch).getOrElse(
+          throw new IllegalArgumentException("No such task with id: " + id)
+      )
 
       val withoutTheBoard = dbTask.get(Coll.Tasks.toString()).asInstanceOf[BasicDBList]
       if (withoutTheBoard == null || withoutTheBoard.size() == 0) {
