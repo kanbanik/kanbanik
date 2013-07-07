@@ -181,7 +181,14 @@ class From2To3 extends MigrationPart {
         None, // because I want to create a new one
         name,
         description,
-        classesOfService.get(classOfService),
+        {
+          if (classesOfService.contains(classOfService)) {
+        	  classesOfService.get(classOfService)
+          } else {
+            classesOfService.get(2)
+          }
+          
+        },
         ticketId,
         1, // because I basically want to create a new one
         "",
