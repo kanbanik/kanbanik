@@ -159,7 +159,7 @@ class From2To3 extends MigrationPart {
       None,
       "Standard",
       "For typical tasks that flow through the system.",
-      "83ff00",
+      "5d8eef",
       true,
       1,
       None).store) + (0 -> new ClassOfService(
@@ -173,7 +173,7 @@ class From2To3 extends MigrationPart {
       None,
       "Intangible",
       "Nice to have but not critical.",
-      "65b1f8",
+      "5fe868",
       true,
       1,
       None).store) + (1 -> new ClassOfService(
