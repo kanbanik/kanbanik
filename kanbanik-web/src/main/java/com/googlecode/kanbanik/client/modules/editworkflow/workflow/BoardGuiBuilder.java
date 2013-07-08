@@ -73,7 +73,8 @@ public abstract class BoardGuiBuilder {
 			table.addStyleName("not-balanced-table");
 		}
 		
-		table.getElement().getStyle().setBackgroundColor("#efefef");
+		table.getElement().getStyle().setBackgroundColor("#FBFBFB");
+		table.setWidth("100%");
 	}
 	
 	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, BoardDto board);
