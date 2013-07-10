@@ -91,7 +91,7 @@ class From2To3 extends MigrationPart {
     val classesOfServices = createDefaultClassesOfService()
 
     migrateBoard
-    
+
     migrateTasks(classesOfServices)
 
     setVersionTo(3)
@@ -101,55 +101,24 @@ class From2To3 extends MigrationPart {
 
   def migrateBoard() {
 
-    def toNewBoard(board: Board, idToBalanced: Map[ObjectId, Boolean]) {
-    	if (!idToBalanced.contains(board.id.get)) {
-    	  println("f1")
-    	  return
-    	}
-    	
-    	if (idToBalanced.get(board.id.get).get) {
-    	  println("f2")
-    	  // the balanced is the default if nothing else is set so no need to set it explicitly
-    	  return
-    	}
-    	println("f3")
-    	
-    	board.withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE).store
+    def migrateBalanced(board: DBObject, boards: List[Board]) {
+      val id = board.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]
+      val balanced = board.get("balanceWorkflowitems")
+
+      val isBalanced = if (balanced == null) true else balanced.asInstanceOf[Boolean]
+
+      if (!isBalanced) {
+        // consider only non balanced one as the balanced is the default
+        val boardToUpdate = boards.find(_.id.get == id).getOrElse(return)
+        boardToUpdate.withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE).store
+      }
     }
 
     using(createConnection) {
       conn =>
-        val rawBoards = coll(conn, Coll.Boards).find()
-        
-        val idToBalanced = rawBoards.map(board => {
-          val id = board.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]
-          println("id: " + id)
-          val balanced = board.get("balanceWorkflowitems")
-          println("1: " + balanced)
-          val isBalanced = if (balanced == null) {
-            true
-          } else {
-            balanced.asInstanceOf[Boolean]
-          }
-          
-          println("2: " + isBalanced)
-          
-          (id, isBalanced)
-        })
-        
-        println("4")
-        if (idToBalanced.size == 0) {
-          println("3")
-          return
-        }
-        println("5")
-
-        println("list: " + idToBalanced.mkString(", "))
-        val idToBalancedMap = idToBalanced.toMap
-        println("map: " + idToBalancedMap.mkString(", "))
-
-        Board.all(false).foreach(board => toNewBoard(board, idToBalancedMap))
-
+        val rawBoards = coll(conn, Coll.Boards).find(MongoDBObject())
+        val realBoards = Board.all(false)
+        rawBoards.foreach(migrateBalanced(_, realBoards))
     }
 
   }
