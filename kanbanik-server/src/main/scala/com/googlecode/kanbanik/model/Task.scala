@@ -127,19 +127,19 @@ class Task(
       project)
   }
 
-  def delete {
+  def delete(boardId: ObjectId) {
     val update = $pull(
       Coll.Tasks.toString() -> MongoDBObject(SimpleField.version.toString() -> version, SimpleField.id.toString() -> id.get))
 
-    val idField = Coll.Tasks.toString() + "." + SimpleField.id.toString()
-    val versionField = Coll.Tasks.toString() + "." + SimpleField.version.toString()
     using(createConnection) { conn =>
       // this can not be used because of a bug in mongodb 2.2.0 which is in the runtime.
       // TODO as soon as the runtime will contain a newer version of the mongodb, this line should be uncommented
       // and that try-catch block removed
-      //      val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(id.get, version, idField, versionField), update)
+      //    val idField = Coll.Tasks.toString() + "." + SimpleField.id.toString()
+      //    val versionField = Coll.Tasks.toString() + "." + SimpleField.version.toString()
+      //    val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(id.get, version, idField, versionField), update)
 
-      coll(conn, Coll.Boards).update(Coll.Tasks.toString() $exists true, update)
+      coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString() -> boardId), update)
       try {
         Task.byId(id.get)
       } catch {
@@ -174,16 +174,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
       val elemMatch = Coll.Tasks.toString() $elemMatch (MongoDBObject(Task.Fields.id.toString() -> id))
       val tasksExists = Coll.Tasks.toString() $exists true
       
-      val dbTask = coll(conn, Coll.Boards).findOne(tasksExists, elemMatch).getOrElse(
-          throw new IllegalArgumentException("No such task with id: " + id)
-      )
+      // TODO this one returns all the boards (just the IDs)
+      // find a way how to tell mongo to return only the one needed!
+      val dbTasks = coll(conn, Coll.Boards).find(tasksExists, elemMatch).map(_.get(Coll.Tasks.toString()).asInstanceOf[BasicDBList])
+      val oneTask = dbTasks.find(t => t != null && t.size() != 0).getOrElse(throw new IllegalArgumentException("No such task with id: " + id))
 
-      val withoutTheBoard = dbTask.get(Coll.Tasks.toString()).asInstanceOf[BasicDBList]
-      if (withoutTheBoard == null || withoutTheBoard.size() == 0) {
-        throw new IllegalArgumentException("No such task with id: " + id)
-      }
-
-      asEntity(withoutTheBoard.get(0).asInstanceOf[DBObject])
+      asEntity(oneTask.get(0).asInstanceOf[DBObject])
     }
   }
 

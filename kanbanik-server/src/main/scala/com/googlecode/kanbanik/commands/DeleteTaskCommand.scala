@@ -33,7 +33,7 @@ class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableRes
     val project = Project.byId(task.project.id.get)
       
     try {
-    	task.delete
+    	task.delete(boardId)
     } catch {
       case e: MidAirCollisionException =>
         	return new FailableResult(new VoidParams(), false, ServerMessages.midAirCollisionException)
