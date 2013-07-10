@@ -82,6 +82,7 @@ public class WorkflowEditingComponent extends Composite implements
 		horizontal.setItemType(ItemType.HORIZONTAL);
 		horizontal.setName("Horizontal Item");
 		horizontal.setWipLimit(-1);
+		horizontal.setVerticalSize(-1);
 		
 		WorkflowitemDto vertical = new WorkflowitemDto();
 		vertical.setParentWorkflow(boardDto.getWorkflow());
@@ -89,7 +90,7 @@ public class WorkflowEditingComponent extends Composite implements
 		vertical.setItemType(ItemType.VERTICAL);
 		vertical.setName("Vertical Item");
 		vertical.setWipLimit(-1);
-		
+		vertical.setVerticalSize(-1);
 		
 		WorkflowItemPalette paletteContent = new WorkflowItemPalette(dragController);
 		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(horizontal, imageResourceAsPanel(KanbanikResources.INSTANCE.rightDropArrowImage())));
