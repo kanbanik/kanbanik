@@ -153,6 +153,10 @@ public class WorkflowitemPlace extends Composite implements
 			if (!(contentPanel instanceof TaskContainer)) {
 				return;
 			}
+
+            if (message.getPayload() == null || workflowitemDto == null || !message.getPayload().equals(workflowitemDto)) {
+                return;
+            }
 			
 			TaskContainer container = (TaskContainer) contentPanel;
 			List<TaskDto> tasks = container.getTasks();
