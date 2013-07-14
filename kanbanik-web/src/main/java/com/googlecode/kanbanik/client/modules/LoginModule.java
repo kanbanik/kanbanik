@@ -66,6 +66,16 @@ public class LoginModule extends Composite {
 				}
 			}
 		});
+		
+		name.addKeyDownHandler(new KeyDownHandler() {
+			
+			@Override
+			public void onKeyDown(KeyDownEvent event) {
+				if(KeyCodes.KEY_ENTER == event.getNativeKeyCode()) {
+					doLogin();
+				}
+			}
+		});
 	}
 	
 	private void doLogin() {

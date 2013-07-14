@@ -12,22 +12,29 @@
 		}
 		
 		
-		.labelStyle,.nameStyle,.passStyle,.buttonStyle {
+		.labelStyle,.nameStyle,.passStyle,.buttonStyle,.warning {
 			float: left;
 			margin-left: 10px;
+			width: 100%;
 		}
 		
 		.labelStyle {
 			font-size: 16px;
 			font-weight: bold;
 			text-align: center;
-			margin-left: 35px;
 		}
 		
-		.nameStyle {
+		.warning {
+			font-size: 10px;
+			color: red;
 		}
 		
-		.passStyle {
+		.nameStyle,.passStyle {
+			width: 90%;
+		}
+		
+		.labelsStyle {
+			float: left;
 		}
 		
 		.buttonStyle {
@@ -37,10 +44,12 @@
 
 	<g:FlowPanel addStyleNames="{style.loginModuleStyle}">
 		<g:Label text="Log in to Kanbanik" addStyleNames="{style.labelStyle}" />
-		<g:Label text="Username" />
+		<g:Label text="v0.2.5" addStyleNames="{style.labelStyle}" />
+		<g:Label text="Username" addStyleNames="{style.labelsStyle}" />
 		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
-		<g:Label text="Password" />
+		<g:Label text="Password" addStyleNames="{style.labelsStyle}"/>
 		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" />
+		<g:Label text="Only supported browser is Google Chrome" addStyleNames="{style.warning}"/>
 		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" />
 	</g:FlowPanel>
 
