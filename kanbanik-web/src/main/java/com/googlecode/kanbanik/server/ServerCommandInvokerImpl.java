@@ -9,7 +9,7 @@ import com.googlecode.kanbanik.commands.CreateUserCommand;
 import com.googlecode.kanbanik.commands.DeleteBoardCommand;
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand;
 import com.googlecode.kanbanik.commands.DeleteProjectCommand;
-import com.googlecode.kanbanik.commands.DeleteTaskCommand;
+import com.googlecode.kanbanik.commands.DeleteTasksCommand;
 import com.googlecode.kanbanik.commands.DeleteUserCommand;
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand;
 import com.googlecode.kanbanik.commands.EditUserCommand;
@@ -69,8 +69,8 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new SaveTaskCommand().execute(params); 
 		} else if (command == ServerCommand.GET_TASK) {
 			return (R) new GetTaskCommand().execute(params);
-		} else if (command == ServerCommand.DELETE_TASK) {
-			return (R) new DeleteTaskCommand().execute(params);
+		} else if (command == ServerCommand.DELETE_TASKS) {
+			return (R) new DeleteTasksCommand().execute(params);
 		} else if (command == ServerCommand.GET_ALL_PROJECTS) {
 			return (R) new GetAllProjectsCommand().execute(params);
 		} else if (command == ServerCommand.SAVE_BOARD) {

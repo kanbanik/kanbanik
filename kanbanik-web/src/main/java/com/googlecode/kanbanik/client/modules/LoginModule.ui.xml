@@ -39,6 +39,7 @@
 		
 		.buttonStyle {
 			margin-top: 2px;
+			width: 32px;
 		}
 	</ui:style>
 

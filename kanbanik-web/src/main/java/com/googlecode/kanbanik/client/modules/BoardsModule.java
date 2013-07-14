@@ -19,6 +19,7 @@ import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
+import com.googlecode.kanbanik.client.components.task.TasksDeletingComponent;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -45,6 +46,7 @@ public class BoardsModule {
 
 	static {
 		style.ensureInjected();
+		new TasksDeletingComponent().initialize();
 	}
 
 	private void addTasks(final SimpleParams<ListDto<BoardWithProjectsDto>> result) {

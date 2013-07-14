@@ -12,7 +12,7 @@ import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
 
-class DeleteTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[VoidParams]] with TaskManipulation {
+class DeleteTasksCommand extends ServerCommand[SimpleParams[TaskDto], FailableResult[VoidParams]] with TaskManipulation {
   
   private lazy val taskBuilder = new TaskBuilder()
   

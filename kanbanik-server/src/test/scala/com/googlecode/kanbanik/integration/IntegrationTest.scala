@@ -13,7 +13,7 @@ import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commands.SaveBoardCommand
 import com.googlecode.kanbanik.commands.SaveProjectCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
-import com.googlecode.kanbanik.commands.DeleteTaskCommand
+import com.googlecode.kanbanik.commands.DeleteTasksCommand
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
 import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
@@ -160,7 +160,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // delete phase
     
     // delete task
-    new DeleteTaskCommand().execute(new SimpleParams(editedTask.getPayload().getPayload()))
+    new DeleteTasksCommand().execute(new SimpleParams(editedTask.getPayload().getPayload()))
     assert(loadBoard().getTasks().size() === 0)
     
     // delete workflowitems

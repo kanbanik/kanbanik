@@ -64,7 +64,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 						public void run() {
 							
 							ServerCommandInvokerManager.getInvoker().<SimpleParams<TaskDto>, FailableResult<VoidParams>> invokeCommand(
-									ServerCommand.DELETE_TASK,
+									ServerCommand.DELETE_TASKS,
 									new SimpleParams<TaskDto>(taskDto),
 									new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(TaskDeletingComponent.this) {
 

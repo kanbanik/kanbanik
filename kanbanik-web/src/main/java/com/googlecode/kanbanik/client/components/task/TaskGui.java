@@ -23,16 +23,23 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage.ChangeTaskSelectionParams;
+import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRsponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.TaskDto;
 
-public class TaskGui extends Composite implements MessageListener<TaskDto>, ClickHandler {
+public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
 	
 	@UiField
 	FocusPanel header;
@@ -67,6 +74,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 	@UiField 
 	Style style;
 	
+	private TaskSelectionChangeListener taskSelectionChangeListener = new TaskSelectionChangeListener();
+	
 	public interface Style extends CssResource {
 		
 		String selected();
@@ -90,6 +99,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 		this.taskDto = taskDto;
 		MessageBus.registerListener(TaskEditedMessage.class, this);
 		MessageBus.registerListener(TaskChangedMessage.class, this);
+		MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
+		MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);
+		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 		
 		new TaskEditingComponent(this, editButton);
 		new TaskDeletingComponent(this, deleteButton);
@@ -211,11 +223,21 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 	}
 
 	public void messageArrived(Message<TaskDto> message) {
+		if (message instanceof GetSelectedTasksRequestMessage) {
+			if (isSelected){
+				MessageBus.sendMessage(new GetSelectedTasksRsponseMessage(getDto(), this));
+			}
+		} else if ((message instanceof TaskEditedMessage) || message instanceof TaskChangedMessage) {
+			doTaskChanged(message);
+		}
+	}
+
+	private void doTaskChanged(Message<TaskDto> message) {
 		TaskDto payload = message.getPayload();
 		if (payload.getId().equals(taskDto.getId())) {
 			this.taskDto = payload;
 			setupAccordingDto(payload);
-		}
+		}		
 	}
 
 	class ClickHandlingTextArea extends TextArea { 
@@ -229,7 +251,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 		@Override
 		public void onBrowserEvent(Event event) {
 			if (DOM.eventGetType(event) == Event.ONCLICK) {
-				click();
+				doClick(event.getCtrlKey());
 				super.onBrowserEvent(event);
 				setFocus(false);
 				return;
@@ -241,18 +263,74 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Clic
 	
 	@Override
 	public void onClick(ClickEvent event) {
-		click();
+		doClick(event.isControlKeyDown());
 	}
 	
-	private void click() {
-		if (isSelected) {
-			wholePanel.removeStyleName(style.selected());
-			wholePanel.addStyleName(style.unselected());
+	private void doClick(boolean ctrlDown) {
+		if (ctrlDown) {
+			setSelected(!isSelected);
 		} else {
+			ChangeTaskSelectionParams params = new ChangeTaskSelectionParams(false, true, false, getDto());
+			MessageBus.sendMessage(new ChangeTaskSelectionMessage(params, this));
+			setSelected(true);
+		}
+	}
+	
+	private void setSelected(boolean selected) {
+		if (selected) {
 			wholePanel.addStyleName(style.selected());
 			wholePanel.removeStyleName(style.unselected());
+		} else {
+			wholePanel.removeStyleName(style.selected());
+			wholePanel.addStyleName(style.unselected());
 		}
 		
-		isSelected = !isSelected;
+		isSelected = selected;
+	}
+
+	@Override
+	public void activated() {
+		if (!MessageBus.listens(TaskEditedMessage.class, this)) {
+			MessageBus.registerListener(TaskEditedMessage.class, this);	
+		}
+		
+		if (!MessageBus.listens(TaskChangedMessage.class, this)) {
+			MessageBus.registerListener(TaskChangedMessage.class, this);	
+		}
+		
+		if (!MessageBus.listens(ChangeTaskSelectionMessage.class, this)) {
+			MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);	
+		}
+		
+		if (!MessageBus.listens(GetSelectedTasksRequestMessage.class, this)) {
+			MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);	
+		}
+	}
+
+	@Override
+	public void deactivated() {
+		MessageBus.unregisterListener(TaskEditedMessage.class, this);
+		MessageBus.unregisterListener(TaskChangedMessage.class, this);
+		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
+		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
+		
+		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+	}
+	
+	class TaskSelectionChangeListener implements MessageListener<ChangeTaskSelectionParams> {
+
+		@Override
+		public void messageArrived(Message<ChangeTaskSelectionParams> message) {
+			ChangeTaskSelectionParams params = message.getPayload();
+			boolean forAll = params.isAll();
+			boolean toMe = !forAll && params.getTask().equals(getDto());
+			boolean ignoreMe = !params.isApplyToYourself() && message.getSource() == TaskGui.this;
+			
+			if ((forAll || toMe) && !ignoreMe) {
+				setSelected(params.isSelect());	
+			}
+			
+		}
+		
 	}
 }
