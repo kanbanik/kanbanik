@@ -6,7 +6,6 @@
 			width:100%; 
 		}
 	</ui:style>
-	<g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}">
-	</g:FlowPanel>
+	<g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}" />
 
 </ui:UiBinder>

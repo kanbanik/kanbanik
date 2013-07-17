@@ -34,6 +34,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectio
 import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRsponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
@@ -99,6 +100,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		this.taskDto = taskDto;
 		MessageBus.registerListener(TaskEditedMessage.class, this);
 		MessageBus.registerListener(TaskChangedMessage.class, this);
+		MessageBus.registerListener(TaskDeletedMessage.class, this);
 		MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
 		MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
@@ -224,11 +226,15 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	public void messageArrived(Message<TaskDto> message) {
 		if (message instanceof GetSelectedTasksRequestMessage) {
-			if (isSelected){
+			if (isSelected) {
 				MessageBus.sendMessage(new GetSelectedTasksRsponseMessage(getDto(), this));
 			}
 		} else if ((message instanceof TaskEditedMessage) || message instanceof TaskChangedMessage) {
 			doTaskChanged(message);
+		} else if (message instanceof TaskDeletedMessage) {
+			if (message.getPayload().equals(getDto())) {
+				unregisterListeners();	
+			}
 		}
 	}
 
@@ -252,11 +258,13 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		public void onBrowserEvent(Event event) {
 			if (DOM.eventGetType(event) == Event.ONCLICK) {
 				doClick(event.getCtrlKey());
-				super.onBrowserEvent(event);
+				event.stopPropagation();
+				event.preventDefault();
 				setFocus(false);
 				return;
+			} else {
+				super.onBrowserEvent(event);	
 			}
-			super.onBrowserEvent(event);
 		}
 		
 	}
@@ -298,7 +306,11 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			MessageBus.registerListener(TaskChangedMessage.class, this);	
 		}
 		
-		if (!MessageBus.listens(ChangeTaskSelectionMessage.class, this)) {
+		if (!MessageBus.listens(TaskDeletedMessage.class, this)) {
+			MessageBus.registerListener(TaskDeletedMessage.class, this);	
+		}
+		
+		if (!MessageBus.listens(ChangeTaskSelectionMessage.class, taskSelectionChangeListener)) {
 			MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);	
 		}
 		
@@ -309,12 +321,17 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	@Override
 	public void deactivated() {
-		MessageBus.unregisterListener(TaskEditedMessage.class, this);
-		MessageBus.unregisterListener(TaskChangedMessage.class, this);
-		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
-		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
+		unregisterListeners();
 		
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+	}
+
+	private void unregisterListeners() {
+		MessageBus.unregisterListener(TaskEditedMessage.class, this);
+		MessageBus.unregisterListener(TaskChangedMessage.class, this);
+		MessageBus.registerListener(TaskDeletedMessage.class, this);
+		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
+		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
 	}
 	
 	class TaskSelectionChangeListener implements MessageListener<ChangeTaskSelectionParams> {

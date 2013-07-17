@@ -40,6 +40,7 @@ import com.googlecode.kanbanik.commands.GetAllClassOfServicesForBoard
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dto.ListDto
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -160,7 +161,9 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // delete phase
     
     // delete task
-    new DeleteTasksCommand().execute(new SimpleParams(editedTask.getPayload().getPayload()))
+    val list = new ListDto[TaskDto]()
+    list.addItem(editedTask.getPayload().getPayload())
+    new DeleteTasksCommand().execute(new SimpleParams(list))
     assert(loadBoard().getTasks().size() === 0)
     
     // delete workflowitems

@@ -39,6 +39,7 @@ import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
@@ -350,6 +351,9 @@ public abstract class AbstractTaskEditingComponent {
 	class ShowDialogHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
+			event.stopPropagation();
+			event.preventDefault();
+			
 			onClicked();
 		}
 
@@ -391,6 +395,7 @@ public abstract class AbstractTaskEditingComponent {
 										@Override
 										public void success(
 												FailableResult<SimpleParams<TaskDto>> result) {
+											MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
 											if (isNew) {
 												MessageBus
 														.sendMessage(new TaskAddedMessage(
@@ -413,7 +418,7 @@ public abstract class AbstractTaskEditingComponent {
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {
-
+			MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
 		}
 
 	}

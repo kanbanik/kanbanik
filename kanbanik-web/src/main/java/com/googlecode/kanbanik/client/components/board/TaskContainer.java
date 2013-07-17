@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -12,6 +14,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
@@ -43,6 +47,18 @@ public class TaskContainer extends Composite {
 	public TaskContainer(BoardDto board, WorkflowitemDto currentItem) {
 		initWidget(uiBinder.createAndBindUi(this));
 		setupSizing(board, currentItem);
+		registerListeners();
+	}
+
+	private void registerListeners() {
+		
+		contentPanel.addDomHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+			}
+		}, ClickEvent.getType());
 	}
 
 	private void setupSizing(BoardDto board, WorkflowitemDto currentItem) {

@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
@@ -48,6 +49,10 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 							@Override
 							public void success(FailableResult<SimpleParams<TaskDto>> result) {
 								MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskEditingComponent.this));
+
+								MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+								MessageBus.sendMessage(ChangeTaskSelectionMessage.selectOne(result.getPayload().getPayload(), TaskEditingComponent.this));
+								
 								doSetupAndShow();
 							}
 

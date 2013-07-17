@@ -9,6 +9,16 @@ public class ChangeTaskSelectionMessage extends BaseMessage<ChangeTaskSelectionP
 	public ChangeTaskSelectionMessage(ChangeTaskSelectionParams payload, Object source) {
 		super(payload, source);
 	}
+	
+	public static ChangeTaskSelectionMessage deselectAll(Object source) {
+		ChangeTaskSelectionParams params = new ChangeTaskSelectionParams(false, true, false, null);
+		return new ChangeTaskSelectionMessage(params, source);
+	}
+	
+	public static ChangeTaskSelectionMessage selectOne(TaskDto task, Object source) {
+		ChangeTaskSelectionParams params = new ChangeTaskSelectionParams(true, false, false, task);
+		return new ChangeTaskSelectionMessage(params, source);
+	}
 
 	public static class ChangeTaskSelectionParams {
 		

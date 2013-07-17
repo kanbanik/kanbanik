@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
@@ -19,10 +21,12 @@ import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
-import com.googlecode.kanbanik.client.components.task.TasksDeletingComponent;
+import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
+import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
@@ -46,7 +50,8 @@ public class BoardsModule {
 
 	static {
 		style.ensureInjected();
-		new TasksDeletingComponent().initialize();
+		DeleteKeyListener.INSTANCE.initialize();
+		new DeleteTasksMessageListener().initialize();
 	}
 
 	private void addTasks(final SimpleParams<ListDto<BoardWithProjectsDto>> result) {
@@ -81,6 +86,14 @@ public class BoardsModule {
 
 			FlexTable boardTable = new FlexTable();
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
+			panelWithDraggabls.addDomHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+				}
+			}, ClickEvent.getType());
+			
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
 			panelWithDraggabls.add(boardTable);
