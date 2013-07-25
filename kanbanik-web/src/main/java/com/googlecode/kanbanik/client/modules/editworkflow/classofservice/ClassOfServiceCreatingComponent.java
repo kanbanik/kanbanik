@@ -22,6 +22,7 @@ public class ClassOfServiceCreatingComponent extends
 	public void onClick(ClickEvent event) {
 		// make sure there is no old DTO
 		setDto(null);
+		setColour("7183f4");
 		super.onClick(event);
 	}
 	

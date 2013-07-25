@@ -261,6 +261,8 @@ public abstract class AbstractTaskEditingComponent {
 		dueDateCheckBox.setValue(dueDateSet);
 		dueDateTextBox.setVisible(dueDateSet);
 		dueDateTextBox.setText(getDueDate());
+		
+		warningMessages.setText("");
 	}
 
 	private boolean validate() {

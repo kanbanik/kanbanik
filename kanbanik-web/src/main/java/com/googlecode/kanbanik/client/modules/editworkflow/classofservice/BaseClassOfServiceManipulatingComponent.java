@@ -53,8 +53,6 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 	final ColorPicker colorPicker = new ColorPicker();
 
-	private String currentColour;
-
 	private BoardDto currentBoard;
 	
 	interface MyUiBinder extends
@@ -83,7 +81,11 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 	protected void setColour(String colour) {
 		colorButton.getUpFace().setHTML(template.buttonColour(colour));
-		currentColour = colour;
+		try {
+			colorPicker.setHex(colour);
+		} catch (Exception e) {
+			// well, so than leave the default color
+		}
 	}
 
 	@Override
@@ -105,12 +107,6 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 			@Override
 			public void onClick(ClickEvent event) {
-				try {
-					colorPicker.setHex(currentColour);
-				} catch (Exception e) {
-					// well, so than leave the default color
-				}
-
 				colorPickerDialog.center();
 
 			}
