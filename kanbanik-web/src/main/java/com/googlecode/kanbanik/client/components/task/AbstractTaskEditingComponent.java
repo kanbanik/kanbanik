@@ -426,6 +426,7 @@ public abstract class AbstractTaskEditingComponent {
 
 		public void cancelClicked(PanelContainingDialog dialog) {
 			MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+			DeleteKeyListener.INSTANCE.initialize();
 		}
 
 	}

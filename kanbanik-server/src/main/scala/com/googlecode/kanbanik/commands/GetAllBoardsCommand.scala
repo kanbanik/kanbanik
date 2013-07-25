@@ -35,7 +35,8 @@ class GetAllBoardsCommand extends ServerCommand[GetAllBoardsWithProjectsParams, 
 
       }
 
-    }    
+    }
+   
   }
   
   // all only because of testing

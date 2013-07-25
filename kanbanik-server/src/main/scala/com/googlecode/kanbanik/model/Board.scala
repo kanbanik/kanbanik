@@ -126,7 +126,7 @@ object Board extends HasMongoConnection {
         }
       }
       
-      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).map(asEntity(_)).toList
+      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString() -> 1)).map(asEntity(_)).toList
     }
   }
 

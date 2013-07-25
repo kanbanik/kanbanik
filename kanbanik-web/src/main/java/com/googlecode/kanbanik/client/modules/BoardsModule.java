@@ -224,11 +224,13 @@ public class BoardsModule {
 										boardsModuleInitialized.initialized(boards);
 									}
 
+
+
 								});
 			}
 		});
 	}
-
+	
 	class BoardBoardGuiBuilder extends BoardGuiBuilder {
 
 		@Override

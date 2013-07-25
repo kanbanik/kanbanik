@@ -74,7 +74,7 @@ object Project extends HasMongoConnection {
 
   def all(): List[Project] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Projects).find().map(asEntity(_)).toList
+      coll(conn, Coll.Projects).find().sort(MongoDBObject(Project.Fields.name.toString() -> 1)).map(asEntity(_)).toList
     }
   }
 
