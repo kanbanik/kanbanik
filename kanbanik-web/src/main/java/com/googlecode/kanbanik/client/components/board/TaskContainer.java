@@ -37,7 +37,7 @@ public class TaskContainer extends Composite {
 	}
 	
 	// task height + border + margin
-	public static final int SIZE_OF_TASK = 70;
+	public static final int SIZE_OF_TASK = 78;
 	
 	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
 	}
