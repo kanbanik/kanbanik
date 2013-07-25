@@ -26,6 +26,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.SuggestOracle;
+import com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -93,10 +95,12 @@ public abstract class AbstractTaskEditingComponent {
 
 	protected void initialize() {
 		
-		classOfServiceEditor = new SuggestBox(new MultiWordSuggestOracle());
+		dialog = new PanelContainingDialog(name, panel, taskName);
+		
+		classOfServiceEditor = new PanelContainingDialogSuggestBox(new MultiWordSuggestOracle(), dialog);
 		initSuggestBox(classOfServiceEditor);
 		
-		assigneeEditor = new SuggestBox(new MultiWordSuggestOracle());
+		assigneeEditor = new PanelContainingDialogSuggestBox(new MultiWordSuggestOracle(), dialog);
 		initSuggestBox(assigneeEditor);
 		
 		description = new KanbanikRichTextArea();
@@ -130,7 +134,7 @@ public abstract class AbstractTaskEditingComponent {
 		
 		setupValues();
 		
-		dialog = new PanelContainingDialog(name, panel, taskName);
+		
 		dialog.addListener(new AddTaskButtonHandler());
 		clickHandler.addClickHandler(new ShowDialogHandler());
 	}
@@ -396,6 +400,7 @@ public abstract class AbstractTaskEditingComponent {
 										public void success(
 												FailableResult<SimpleParams<TaskDto>> result) {
 											MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+											DeleteKeyListener.INSTANCE.initialize();
 											if (isNew) {
 												MessageBus
 														.sendMessage(new TaskAddedMessage(
@@ -440,6 +445,38 @@ public abstract class AbstractTaskEditingComponent {
 		public String getReplacementString() {
 			return str;
 		}
+		
+	}
+	
+	class PanelContainingDialogSuggestDisplay extends DefaultSuggestionDisplay {
+		
+		private PanelContainingDialog dialog;
+		
+		public PanelContainingDialogSuggestDisplay(PanelContainingDialog dialog) {
+			super();
+			this.dialog = dialog;
+		}
 
+
+		public void hideSuggestions() {
+			super.hideSuggestions();
+			dialog.activateEnterEscapeBinding();
+		}
+	}
+	
+	class PanelContainingDialogSuggestBox extends SuggestBox {
+		
+		private PanelContainingDialog dialog;
+		
+		public PanelContainingDialogSuggestBox(SuggestOracle oracle, PanelContainingDialog dialog) {
+			super(oracle, new TextBox(), new PanelContainingDialogSuggestDisplay(dialog));
+			this.dialog = dialog;
+		}
+
+		@Override
+		public void showSuggestionList() {
+			super.showSuggestionList();
+			dialog.deactivateEnterEscapeBinding();
+		}
 	}
 }

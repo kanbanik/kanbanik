@@ -35,12 +35,15 @@ public class DeleteKeyListener implements ModulesLifecycleListener, NativePrevie
 	}
 	
 	public void initialize() {
-		registration = Event.addNativePreviewHandler(this);
+		if (registration == null) {
+			registration = Event.addNativePreviewHandler(this);
+		}
 	}
 	
 	public void stop() {
 		if (registration != null) {
 			registration.removeHandler();
+			registration = null;
 		}
 	}
 	

@@ -48,8 +48,10 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 
 							@Override
 							public void success(FailableResult<SimpleParams<TaskDto>> result) {
+								
 								MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskEditingComponent.this));
-
+								
+								DeleteKeyListener.INSTANCE.stop();
 								MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
 								MessageBus.sendMessage(ChangeTaskSelectionMessage.selectOne(result.getPayload().getPayload(), TaskEditingComponent.this));
 								
