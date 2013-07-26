@@ -31,8 +31,9 @@
 		}
 		
 		.shortDescription {
+			margin-top: 1px;
 			height: 36px;
-			width: 100%;
+			width: 95%;
 			resize: vertical;
 			background-color: transparent;
 			position: relative;
