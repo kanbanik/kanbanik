@@ -12,7 +12,7 @@
 		
 		
 		.labels,.values {
-			width: 150px;
+			width: 160px;
 			float: left;
 			line-height: 31px;
 		}
@@ -22,7 +22,7 @@
 		}
 		
 		.mainPanel {
-			width: 450px;
+			width: 460px;
 		}
 	
 	</ui:style>
