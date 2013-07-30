@@ -96,10 +96,9 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     }
     
     val destPasrentItem = board.workflow.findParentItem(destWorkflow).getOrElse(throw new IllegalStateException("The workflow: " + destContextDto.getId() + " is defined on no item."))
-    
-    using(createConnection) { conn =>
-      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> destPasrentItem.id)).isDefined
-    }
+
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == destPasrentItem)
+    tasksOnWorkflowitem.size != 0
   }
 
 }

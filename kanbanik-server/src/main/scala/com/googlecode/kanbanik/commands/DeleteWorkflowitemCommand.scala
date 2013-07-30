@@ -26,7 +26,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
 
     val id = new ObjectId(params.getPayload().getId())
     
-    val board = loadBoard(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId), false).getOrElse(
+    val board = loadBoard(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId), true).getOrElse(
         return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
     )
     
@@ -39,8 +39,10 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
         return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("workflowitem"))
     }
     
-    if (hasTasksOnWorkflowitem(id)) {
-      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem.")
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().withId(id))
+    if (tasksOnWorkflowitem.size != 0) {
+      val ticketIds = tasksOnWorkflowitem.map(_.ticketId).mkString(", ")
+      return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem. Tasks: [" + ticketIds + "]")
     }
     
     val foundItem = board.workflow.findItem(item)
@@ -58,11 +60,5 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
     }
     
     return new FailableResult(new VoidParams, true, "")
-  }
-  
-  def hasTasksOnWorkflowitem(workflowitemId: ObjectId): Boolean = {
-    using(createConnection) { conn =>
-      return coll(conn, Coll.Tasks).findOne(MongoDBObject(Task.Fields.workflowitem.toString() -> workflowitemId)).isDefined
-    }
   }
 }
