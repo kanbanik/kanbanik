@@ -2,7 +2,7 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style>
-		.labelStyle,.textboxStyle {
+		.labelStyle,.textboxStyle, .imagePreviewLabel {
 		}
 		
 		.warningMessage {
@@ -24,15 +24,32 @@
 		.mainPanel {
 			width: 460px;
 		}
+		
+		.requiredFieldStyle {
+			padding-left: 5px;
+			padding-top: 5px;
+			text-align: right;
+		}
+		
+		.imagePreviewLabel {
+			margin-top: 12px;
+			margin-bottom: 12px;
+		}
+		
+		.imagePreviewErrorImage {
+			margin-top: 6px;
+			margin-bottom: 6px;
+		}
 	
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.mainPanel}" ui:field="mainPanel">
 		<g:FlowPanel addStyleNames="{style.labels}">
 			<g:Label addStyleNames="{style.labelStyle}" text="Username: "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Real Name: "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Image Url (can be blank): "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Password: "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Real Name(*): "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Image Url: "/>
+			<g:Label addStyleNames="{style.imagePreviewLabel}" ui:field="assigneePicturePreviewLabel"/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Password(*): "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Change Also Password: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="New Password: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="New Password(again): "/>
@@ -42,12 +59,15 @@
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="pictureUrl" />
+			<g:Image ui:field="assiggneePicturePreview" />
+			<g:Label addStyleNames="{style.imagePreviewErrorImage}" ui:field="assiggneePicturePreviewErrorLabel" text="Error Loading Image" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password" />
 			<g:CheckBox addStyleNames="{style.textboxStyle}" ui:field="toChangePassword" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword2" />
 		</g:FlowPanel>
 		
+		<g:Label addStyleNames="{style.requiredFieldStyle}" text="(*): required field" />
 		<g:HTML addStyleNames="{style.warningMessage}" ui:field="messages" />
 	</g:FlowPanel>
 

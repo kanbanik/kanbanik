@@ -77,6 +77,8 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 		username.setText(dto.getUserName());
 		realName.setText(dto.getRealName());
 		pictureUrl.setText(dto.getPictureUrl());
+		
+		postSetDto();
 	}
 	
 	@Override
