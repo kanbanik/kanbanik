@@ -52,13 +52,6 @@ public class UserAddingComponent extends BaseUserManipulatingComponent{
 			      password.getText(),
 			      password.getText());
 	}
-	
-	@Override
-	public void setDto(UserDto dto) {
-		super.setDto(dto);
-		
-		postSetDto();
-	}
 
 	@Override
 	public void cancelClicked(PanelContainingDialog dialog) {

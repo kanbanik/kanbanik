@@ -95,6 +95,8 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	@Override
 	public void onClick(ClickEvent event) {
 		dialog.center();
+		
+		initialize();
 	}
 
 	protected String validate() {
@@ -112,7 +114,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 		return textBox.getText() == null || textBox.getText().isEmpty();
 	}
 	
-	protected void postSetDto() {
+	protected void initialize() {
 		pictureUrl.addBlurHandler(new BlurHandler() {
 			
 			@Override
@@ -126,12 +128,12 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 
 	private void updateAssigneePicturePreview() {
 		String url = pictureUrl.getText();
-		assiggneePicturePreviewErrorLabel.setVisible(false);
+		assigneePicturePreviewLabel.setText("Image Preview");
 		if (url == null || "".equals(url)) {
 			assiggneePicturePreview.setVisible(false);
-			assigneePicturePreviewLabel.setVisible(false);
+			assiggneePicturePreviewErrorLabel.setVisible(true);
+			assiggneePicturePreviewErrorLabel.setText("No Picture Set");
 		} else {
-			assigneePicturePreviewLabel.setVisible(true);
 			assigneePicturePreviewLabel.setText("Image Preview (Loading...)");
 			assiggneePicturePreview.addLoadHandler(new PictureResizingLoadHandler(assiggneePicturePreview) {
 				@Override
@@ -139,6 +141,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 					super.onLoad(event);
 					
 					assigneePicturePreviewLabel.setText("Image Preview");
+					assiggneePicturePreviewErrorLabel.setVisible(false);
 				}
 			});
 			
@@ -148,6 +151,8 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 				public void onError(ErrorEvent event) { 
 					assigneePicturePreviewLabel.setText("Image Preview");
 					assiggneePicturePreviewErrorLabel.setVisible(true);
+					assiggneePicturePreviewErrorLabel.setText("Error Loading Image");
+					assiggneePicturePreview.setVisible(false);
 				}
 			});
 			assiggneePicturePreview.setUrl(url);	
