@@ -22,14 +22,11 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	private final WorkflowitemDto inputQueue;
 	
 	private final ProjectDto project;
-
-	private BoardDto board;
 	
 	private static final GetFirstTaskResponseMessageListener getFirstTaskResponseMessageListener = new GetFirstTaskResponseMessageListener();
 
 	public TaskAddingComponent(ProjectDto project, BoardDto board, WorkflowitemDto inputQueue, HasClickHandlers clickHandler) {
 		super(clickHandler, board);
-		this.board = board;
 		this.project = project;
 		this.inputQueue = inputQueue;
 		initialize();
@@ -37,7 +34,7 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
 	@Override
 	protected String getClassOfServiceAsString() {
-		List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getForBoard(board);
+		List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAll();
 		if (classesOfService.size() != 0) {
 			return classesOfService.iterator().next().getName();
 		}

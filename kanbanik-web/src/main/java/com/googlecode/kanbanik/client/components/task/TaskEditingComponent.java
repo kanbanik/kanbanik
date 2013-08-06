@@ -10,7 +10,6 @@ import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
@@ -22,12 +21,9 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 
 	private TaskGui taskGui;
 
-	private BoardDto board;
-	
 	public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler) {
 		super(clickHandler, taskGui.getDto().getWorkflowitem().getParentWorkflow().getBoard());
 		this.taskGui = taskGui;
-		this.board = taskGui.getDto().getWorkflowitem().getParentWorkflow().getBoard();
 		initialize();
 	}
 
@@ -66,7 +62,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 	protected String getClassOfServiceAsString() {
 		ClassOfServiceDto classOfService = taskGui.getDto().getClassOfService();
 		if (classOfService == null) {
-			List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getForBoard(board);
+			List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAll();
 			if (classesOfService.size() != 0) {
 				return classesOfService.iterator().next().getName();
 			}

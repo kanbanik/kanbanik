@@ -36,11 +36,6 @@ class DeleteBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableR
       return new FailableResult(new VoidParams, false, "There are workflowitems on this board. Please delete them first and than delete this board.")
     }
     
-    val numOfPrivateTasks = ClassOfService.allForBoard(board).filter(!_.isPublic).size
-    if (numOfPrivateTasks > 0) {
-      return new FailableResult(new VoidParams, false, "There are classes of service on this board. Please delete them first or make them public first and than delete this board.")
-    }
-
     try {
     	board.delete
     } catch {

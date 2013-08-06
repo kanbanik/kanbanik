@@ -23,7 +23,7 @@ class TaskBuilder extends TaskManipulation {
     dto.setName(task.name)
     dto.setDescription(task.description)
     if (task.classOfService.isDefined) {
-    	dto.setClassOfService(classOfServiceBuilder.buildShallowDto(task.classOfService.get))
+    	dto.setClassOfService(classOfServiceBuilder.buildDto(task.classOfService.get))
     }
 
     if (cache.isDefined) {

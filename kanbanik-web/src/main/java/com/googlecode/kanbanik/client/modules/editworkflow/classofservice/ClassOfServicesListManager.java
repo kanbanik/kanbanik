@@ -19,6 +19,7 @@ import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
+import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ClassOfServicesListManager implements MessageListener<ClassOfServiceDto>, ModulesLifecycleListener {
@@ -58,9 +59,9 @@ public class ClassOfServicesListManager implements MessageListener<ClassOfServic
 				new Runnable() {
 
 					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
-				ServerCommand.GET_ALL_CLASS_OF_SERVICES_FOR_BOARD,
-				new SimpleParams<BoardDto>(board),
+		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
+				ServerCommand.GET_ALL_CLASS_OF_SERVICES,
+				new VoidParams(),
 				new BaseAsyncCallback<SimpleParams<ListDto<ClassOfServiceDto>>>() {
 					@Override
 					public void success(SimpleParams<ListDto<ClassOfServiceDto>> result) {

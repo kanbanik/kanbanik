@@ -26,8 +26,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -85,11 +85,8 @@ public abstract class AbstractTaskEditingComponent {
 	
 	private Map<String, UserDto> userToName;
 
-	private BoardDto boardDto;
-
 	public AbstractTaskEditingComponent(HasClickHandlers clickHandler, BoardDto boardDto) {
 		this.clickHandler = clickHandler;
-		this.boardDto = boardDto;
 		this.name = "Task Details";
 	}
 
@@ -249,7 +246,7 @@ public abstract class AbstractTaskEditingComponent {
 		description.setHtml(getDescription());
 
 		
-		classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getForBoard(boardDto));
+		classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getAll());
 		fillOracle(classOfServiceToName.keySet(), (MultiWordSuggestOracle) classOfServiceEditor.getSuggestOracle());
 		classOfServiceEditor.setValue(getClassOfServiceAsString());
 		

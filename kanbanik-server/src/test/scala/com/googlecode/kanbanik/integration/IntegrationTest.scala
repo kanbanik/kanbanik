@@ -36,11 +36,11 @@ import com.googlecode.kanbanik.dto.ManipulateUserDto
 import com.googlecode.kanbanik.dto.ClassOfServiceDto
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
-import com.googlecode.kanbanik.commands.GetAllClassOfServicesForBoard
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 import com.googlecode.kanbanik.dto.ListDto
+import com.googlecode.kanbanik.commands.GetAllClassOfServices
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -66,7 +66,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     val storedBoard = new SaveBoardCommand().execute(new SimpleParams(board))
     
     // create class of service
-    val clasOfService = new ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", false, 1, storedBoard.getPayload().getPayload())
+    val clasOfService = new ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", 1)
     val storedClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(clasOfService))
     
     // create project
@@ -203,7 +203,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
   }
   
   def loadAllClassesOfService(board: BoardDto) = {
-    new GetAllClassOfServicesForBoard().execute(new SimpleParams(board)).getPayload().getList()
+    new GetAllClassOfServices().execute(new VoidParams()).getPayload().getList()
   }
   
   def loadAllBoards() = {

@@ -34,22 +34,19 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
     		"name 1",
     		"description 1",
     		"color 1",
-    		false,
-    		1,
-    		resBoard.getPayload().getPayload()
+    		1
     )
     
     val resClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(classOfServiceDto))
-    assert(ClassOfService.allForBoard(board).size === 1)
-    assert(ClassOfService.allForBoard(board).head.name === "name 1")
+    assert(ClassOfService.all.size === 1)
+    assert(ClassOfService.all.head.name === "name 1")
     
     resClassOfService.getPayload().getPayload().setName("name 2")
     val renamedClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(resClassOfService.getPayload().getPayload()))
-    assert(ClassOfService.allForBoard(board).head.name === "name 2")
-    assert(ClassOfService.all().head.name === "name 2")
+    assert(ClassOfService.all.head.name === "name 2")
     
     new DeleteClassOfServiceCommand().execute(new SimpleParams(renamedClassOfService.getPayload().getPayload()))
-    assert(ClassOfService.allForBoard(board).size === 0)
+    assert(ClassOfService.all.size === 0)
   }
   
    after {

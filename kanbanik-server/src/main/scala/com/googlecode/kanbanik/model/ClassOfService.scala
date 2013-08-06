@@ -14,9 +14,7 @@ class ClassOfService(
   val name: String,
   val description: String,
   val colour: String,
-  val isPublic: Boolean,
-  val version: Int,
-  val board: Option[Board]) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val version: Int) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store: ClassOfService = {
     val idToUpdate = id.getOrElse({
@@ -25,24 +23,17 @@ class ClassOfService(
         coll(conn, Coll.ClassesOfService) += obj
       }
 
-      return ClassOfService.asEntity(obj, board)
+      return ClassOfService.asEntity(obj)
     })
 
     val update = $set(
       ClassOfService.Fields.name.toString() -> name,
       ClassOfService.Fields.description.toString() -> description,
       ClassOfService.Fields.colour.toString() -> colour,
-      ClassOfService.Fields.isPublic.toString() -> isPublic,
-      ClassOfService.Fields.version.toString() -> { version + 1 },
-      ClassOfService.Fields.board.toString() -> {
-        if (board.isDefined && !isPublic) {
-          board.get.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))
-        } else {
-          null
-        }
-      })
+      ClassOfService.Fields.version.toString() -> { version + 1 }
+    )
 
-    ClassOfService.asEntity(versionedUpdate(Coll.ClassesOfService, versionedQuery(idToUpdate, version), update), board)
+    ClassOfService.asEntity(versionedUpdate(Coll.ClassesOfService, versionedQuery(idToUpdate, version), update))
   }
 
   def delete {
@@ -50,34 +41,26 @@ class ClassOfService(
   }
 
   def withId(id: ObjectId) =
-    new ClassOfService(Some(id), name, description, colour, isPublic, version, board)
+    new ClassOfService(Some(id), name, description, colour, version)
 
   def withName(name: String) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
+    new ClassOfService(id, name, description, colour, version)
 
   def withDescription(description: String) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
+    new ClassOfService(id, name, description, colour, version)
 
   def withColour(colour: String) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
-
-  def withPublic(isPublic: Boolean) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
+    new ClassOfService(id, name, description, colour, version)
 
   def withVersion(version: Int) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
-
-  def withBoard(board: Option[Board]) =
-    new ClassOfService(id, name, description, colour, isPublic, version, board)
+    new ClassOfService(id, name, description, colour, version)
 
 }
 
 object ClassOfService extends HasMongoConnection with HasEntityLoader {
   object Fields extends DocumentField {
     val description = Value("description")
-    val isPublic = Value("isPublic")
     val colour = Value("colour")
-    val board = Value("board")
   }
 
   def byId(id: ObjectId) = {
@@ -89,43 +72,18 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
 
   def all() = {
     using(createConnection) { conn =>
-      coll(conn, Coll.ClassesOfService).find().map(asEntity(_, None)).toList
+      coll(conn, Coll.ClassesOfService).find().map(asEntity(_)).toList
     }
   }
   
-  def allForBoard(board: Board): List[ClassOfService] = {
-    val allOnBoardQuery = MongoDBObject(ClassOfService.Fields.board.toString() -> board.id.get)
-    using(createConnection) { conn =>
-      val allOnBoard = coll(conn, Coll.ClassesOfService).find(allOnBoardQuery).map(asEntity(_, Some(board))).toList
-      allOnBoard ++ allShared
-    }
-  }
-
-  def allShared() = {
-    val allSharedQuery = MongoDBObject(ClassOfService.Fields.isPublic.toString() -> true)
-    using(createConnection) { conn =>
-      coll(conn, Coll.ClassesOfService).find(allSharedQuery).map(asEntity(_, None)).toList
-    }
-  }
-
   def asEntity(dbObject: DBObject): ClassOfService = {
-	val board = dbObject.get(ClassOfService.Fields.board.toString()).asInstanceOf[ObjectId]
-	if (board == null) {
-	  asEntity(dbObject, None)
-	} else {
-	  asEntity(dbObject, Some(Board().withId(board)))
-	}
-  }
-  
-  def asEntity(dbObject: DBObject, board: Option[Board]): ClassOfService = {
-    new ClassOfService(
+	new ClassOfService(
       Some(dbObject.get(ClassOfService.Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(ClassOfService.Fields.name.toString()).asInstanceOf[String],
       dbObject.get(ClassOfService.Fields.description.toString()).asInstanceOf[String],
       dbObject.get(ClassOfService.Fields.colour.toString()).asInstanceOf[String],
-      dbObject.get(ClassOfService.Fields.isPublic.toString()).asInstanceOf[Boolean],
-      dbObject.get(ClassOfService.Fields.version.toString()).asInstanceOf[Int],
-      board)
+      dbObject.get(ClassOfService.Fields.version.toString()).asInstanceOf[Int]
+    )
   }
 
   def asDBObject(entity: ClassOfService): DBObject = {
@@ -134,14 +92,7 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
       ClassOfService.Fields.name.toString() -> entity.name,
       ClassOfService.Fields.version.toString() -> entity.version,
       ClassOfService.Fields.description.toString() -> entity.description,
-      ClassOfService.Fields.isPublic.toString() -> entity.isPublic,
-      ClassOfService.Fields.colour.toString() -> entity.colour,
-      ClassOfService.Fields.board.toString() -> {
-        if (entity.board.isDefined && !entity.isPublic) {
-          entity.board.get.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))
-        } else {
-          null
-        }
-      })
+      ClassOfService.Fields.colour.toString() -> entity.colour
+    )
   }
 }

@@ -12,26 +12,20 @@ public class ClassOfServiceDto implements KanbanikDto, IdentifiableDto {
 	
 	private String colour;
 	
-	private Boolean isPublic;
-	
 	private int version;
 	
-	private BoardDto board;
-
 	public ClassOfServiceDto() {
 		
 	}
 
 	public ClassOfServiceDto(String id, String name, String description,
-			String colour, Boolean isPublic, int version, BoardDto board) {
+			String colour, int version) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.colour = colour;
-		this.isPublic = isPublic;
 		this.version = version;
-		this.board = board;
 	}
 
 	public String getId() {
@@ -66,28 +60,12 @@ public class ClassOfServiceDto implements KanbanikDto, IdentifiableDto {
 		this.colour = colour;
 	}
 
-	public Boolean getIsPublic() {
-		return isPublic;
-	}
-
-	public void setIsPublic(Boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
 	public int getVersion() {
 		return version;
 	}
 
 	public void setVersion(int version) {
 		this.version = version;
-	}
-
-	public BoardDto getBoard() {
-		return board;
-	}
-
-	public void setBoard(BoardDto board) {
-		this.board = board;
 	}
 	
 }

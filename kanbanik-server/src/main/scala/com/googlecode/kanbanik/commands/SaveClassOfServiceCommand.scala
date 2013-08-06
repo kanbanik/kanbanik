@@ -15,12 +15,6 @@ class SaveClassOfServiceCommand extends ServerCommand[SimpleParams[ClassOfServic
   def execute(params: SimpleParams[ClassOfServiceDto]): FailableResult[SimpleParams[ClassOfServiceDto]] = {
     val entity = classOfServiceBuilder.buildEntity(params.getPayload())
 
-    // if the board exists, make sure it really exists
-    if (entity.board.isDefined) {
-      val boardId = entity.board.get.id.getOrElse(return new FailableResult(params, false, "The board has to be set!"))
-      loadBoard(boardId, false).getOrElse(return new FailableResult(params, false, "The board with which this class of service is associated does not exist anymore. Possibly it was deleted by a different user"))
-    }
-
     try {
       new FailableResult(new SimpleParams(classOfServiceBuilder.buildDto(entity.store)))
     } catch {

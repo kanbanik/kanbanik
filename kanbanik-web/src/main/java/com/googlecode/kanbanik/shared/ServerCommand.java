@@ -5,7 +5,6 @@ import java.io.Serializable;
 public enum ServerCommand implements Serializable {
 	GET_ALL_BOARDS_WITH_PROJECTS,
 	GET_ALL_PROJECTS,
-	GET_ALL_CLASS_OF_SERVICES_FOR_BOARD,
 	GET_ALL_CLASS_OF_SERVICES,
 	MOVE_TASK, 
 	SAVE_PROJECT, 

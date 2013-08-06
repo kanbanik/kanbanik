@@ -29,12 +29,4 @@ class DeleteClassOfServiceCommand extends ServerCommand[SimpleParams[ClassOfServ
     return new FailableResult(new VoidParams)
   }
   
-  // as soon as the assign to task will be done
-  def canBeDeleted(classOfService: ClassOfService) {
-    if (!classOfService.isPublic) {
-      // good case, only the board's tasks has to be looked up
-//      val board = loadBoard(classOfService.board.id.get, true).get
-//      board.tasks.filter(task => task.classOfService)
-    }
-  }
 }

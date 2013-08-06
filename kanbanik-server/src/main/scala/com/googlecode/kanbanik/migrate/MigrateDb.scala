@@ -129,30 +129,22 @@ class From2To3 extends MigrationPart {
       "Standard",
       "For typical tasks that flow through the system.",
       "5d8eef",
-      true,
-      1,
-      None).store) + (0 -> new ClassOfService(
+      1).store) + (0 -> new ClassOfService(
       None,
       "Expedite",
       "For critical tasks. Can break all rules on the system.",
       "f80070",
-      true,
-      1,
-      None).store) + (3 -> new ClassOfService(
+      1).store) + (3 -> new ClassOfService(
       None,
       "Intangible",
       "Nice to have but not critical.",
       "5fe868",
-      true,
-      1,
-      None).store) + (1 -> new ClassOfService(
+      1).store) + (1 -> new ClassOfService(
       None,
       "Fixed Delivery Date",
       "Has to be done until specified date.",
       "ffeb00",
-      true,
-      1,
-      None).store)
+      1).store)
   }
 
   def migrateTasks(classesOfService: Map[Int, ClassOfService]) {

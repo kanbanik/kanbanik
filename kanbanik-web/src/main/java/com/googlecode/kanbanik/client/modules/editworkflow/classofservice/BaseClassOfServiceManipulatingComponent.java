@@ -11,7 +11,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Panel;
@@ -47,9 +46,6 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 	@UiField
 	PushButton colorButton;
-
-	@UiField
-	CheckBox makePublic;
 
 	final ColorPicker colorPicker = new ColorPicker();
 
@@ -162,10 +158,6 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	
 	@Override
 	public void onClick(ClickEvent event) {
-		if (currentBoard == null) {
-			makePublic.setValue(true);
-			makePublic.setEnabled(false);
-		}
 		dialog.center();
 	}
 	
@@ -179,7 +171,6 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		descriptionTextArea.setHtml("");
 		// blue is the default
 		setColour("003d89");
-		makePublic.setValue(false);
 	}
 	
 	public BoardDto getCurrentBoard() {
@@ -198,9 +189,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 				nameBox.getText(),
 				descriptionTextArea.getHtml(),
 				colorPicker.getHexColor(),
-				makePublic.getValue(),
-				classOfServiceDto == null ? 1 : classOfServiceDto.getVersion(),
-				!makePublic.getValue() ? getCurrentBoard() : null);
+				classOfServiceDto == null ? 1 : classOfServiceDto.getVersion());
 	}
 	
 	public ClassOfServiceDto getClassOfServiceDto() {

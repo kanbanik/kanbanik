@@ -17,7 +17,6 @@ public class ClassOfServiceEditingComponent extends BaseClassOfServiceManipulati
 		nameBox.setText(getClassOfServiceDto().getName());
 		descriptionTextArea.setHtml(getClassOfServiceDto().getDescription());
 		setColour(getClassOfServiceDto().getColour());
-		makePublic.setValue(getClassOfServiceDto().getIsPublic());
 		
 		super.onClick(event);
 	}

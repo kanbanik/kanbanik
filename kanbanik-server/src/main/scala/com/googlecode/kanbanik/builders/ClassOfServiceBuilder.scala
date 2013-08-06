@@ -11,37 +11,14 @@ class ClassOfServiceBuilder extends BaseBuilder {
 
   lazy val boardBuilder = new BoardBuilder
 
-  def buildShallowDto(classOfService: ClassOfService) = {
+  def buildDto(classOfService: ClassOfService) = {
     new ClassOfServiceDto(
       classOfService.id.get.toString,
       classOfService.name,
       classOfService.description,
       classOfService.colour,
-      classOfService.isPublic,
-      classOfService.version,
-      shallowBoardFrom(classOfService))
-  }
-
-  def shallowBoardFrom(classOfService: ClassOfService) = {
-    if (!classOfService.board.isDefined) {
-      null
-    } else {
-      val res = new BoardDto
-      res.setId(classOfService.board.get.id.getOrElse("").toString)
-      res
-    }
-  }
-
-  def buildDto(classOfService: ClassOfService) = {
-    val res = buildShallowDto(classOfService)
-    res.setBoard({
-      if (classOfService.board.isDefined) {
-        boardBuilder.buildShallowDto(classOfService.board.get)
-      } else {
-        null
-      }
-    })
-    res
+      classOfService.version
+    )
   }
 
   def buildEntity(classOfServiceDto: ClassOfServiceDto) = {
@@ -50,15 +27,8 @@ class ClassOfServiceBuilder extends BaseBuilder {
       classOfServiceDto.getName,
       classOfServiceDto.getDescription,
       classOfServiceDto.getColour,
-      classOfServiceDto.getIsPublic,
-      classOfServiceDto.getVersion,
-      {
-        if (classOfServiceDto.getBoard != null && !classOfServiceDto.getIsPublic()) {
-          Some(Board().withId(new ObjectId(classOfServiceDto.getBoard.getId)))
-        } else {
-          None
-        }
-      })
+      classOfServiceDto.getVersion
+    )
   }
 
 }
