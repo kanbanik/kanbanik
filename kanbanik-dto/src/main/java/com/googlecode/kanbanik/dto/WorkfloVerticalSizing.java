@@ -3,8 +3,7 @@ package com.googlecode.kanbanik.dto;
 public enum WorkfloVerticalSizing {
 	
 	BALANCED(0),
-	MIN_POSSIBLE(1),
-	FIXED(2);
+	MIN_POSSIBLE(1);
 	
 	
 	private int index;

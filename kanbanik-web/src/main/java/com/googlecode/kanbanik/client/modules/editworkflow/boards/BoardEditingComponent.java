@@ -57,15 +57,6 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	}
 	
 	@Override
-	protected int getFixedSize() {
-		if (boardDto == null) {
-			return 0;
-		}
-		
-		return boardDto.getVerticalSizingFixedSize();
-	}
-	
-	@Override
 	protected boolean isUserPictureDisplayingEnabled() {
 		if (boardDto == null) {
 			return true;
@@ -80,7 +71,6 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
 		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
-		toStore.setVerticalSizingFixedSize(dto.getVerticalSizingFixedSize());
 		toStore.setVersion(boardDto.getVersion());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
 		toStore.setWorkflow(boardDto.getWorkflow());

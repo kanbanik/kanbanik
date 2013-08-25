@@ -34,11 +34,6 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	protected WorkfloVerticalSizing getVerticalSizing() {
 		return WorkfloVerticalSizing.BALANCED;
 	}
-	
-	@Override
-	protected int getFixedSize() {
-		return 5;
-	}
 
 	@Override
 	protected boolean isUserPictureDisplayingEnabled() {
@@ -51,7 +46,6 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 		toStore.setId(null);
 		toStore.setName(dto.getName());
 		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
-		toStore.setVerticalSizingFixedSize(dto.getVerticalSizingFixedSize());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
 		toStore.setWorkflow(new WorkflowDto());
 		

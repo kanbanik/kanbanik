@@ -19,21 +19,20 @@ class Board(
   val workflow: Workflow,
   val tasks: List[Task],
   val userPictureShowingEnabled: Boolean,
-  val workfloVerticalSizing: WorkfloVerticalSizing,
-  val workfloVerticalSizingSize: Int) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val workfloVerticalSizing: WorkfloVerticalSizing) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def this(
     id: Option[ObjectId],
     name: String,
     version: Int) = {
-    this(id, name, version, new Workflow(None, List(), None), List(), true, WorkfloVerticalSizing.BALANCED, 0)
+    this(id, name, version, new Workflow(None, List(), None), List(), true, WorkfloVerticalSizing.BALANCED)
   }
 
   def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
     val removed = workflow.removeItem(item)
     val added = removed.addItem(item, beforeItem, destWorkflow)
 
-    new Board(id, name, version, added, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(id, name, version, added, tasks, userPictureShowingEnabled, workfloVerticalSizing)
   }
 
   def store: Board = {
@@ -53,8 +52,7 @@ class Board(
         Board.Fields.name.toString() -> name,
         Board.Fields.workflow.toString() -> workflow.asDbObject,
         Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
-        Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.getIndex(),
-        Board.Fields.workfloVerticalSizingSize.toString() -> workfloVerticalSizingSize)
+        Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.getIndex())
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
     }
@@ -62,35 +60,31 @@ class Board(
   }
 
   def withId(id: ObjectId) =
-    new Board(Some(id), name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(Some(id), name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
   
   def withName(name: String) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
 
   def withVersion(version: Int) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
 
   def withWorkflow(workflow: Workflow) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
 
   def withTasks(tasks: List[Task]) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
   
   def withUserPictureShowingEnabled(userPictureShowingEnabled: Boolean) =   
-  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
   
   def withWorkfloVerticalSizing(workfloVerticalSizing: WorkfloVerticalSizing) =   
-  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
-  
-  def withworkfloVerticalSizingSize(workfloVerticalSizingSize: Int) =   
-  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing, workfloVerticalSizingSize)
+  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
   
   private def asDbObject(): DBObject = {
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
       Board.Fields.name.toString() -> name,
       Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.getIndex(),
-      Board.Fields.workfloVerticalSizingSize.toString() -> workfloVerticalSizingSize,
       Board.Fields.version.toString() -> version,
       Board.Fields.workflow.toString() -> workflow.asDbObject,
       Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
@@ -110,7 +104,6 @@ object Board extends HasMongoConnection {
     val tasks = Value("tasks")
     val userPictureShowingEnabled = Value("showUserPictures")
     val workfloVerticalSizing = Value("workfloVerticalSizing")
-    val workfloVerticalSizingSize = Value("workfloVerticalSizingSize")
   }
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
@@ -166,14 +159,6 @@ object Board extends HasMongoConnection {
           WorkfloVerticalSizing.BALANCED
         } else {
           WorkfloVerticalSizing.fromId(res.asInstanceOf[Int])
-        }
-      },
-      {
-        val res = dbObject.get(Board.Fields.workfloVerticalSizingSize.toString())
-        if (res == null) {
-          0
-        } else {
-          res.asInstanceOf[Int]
         }
       }
       

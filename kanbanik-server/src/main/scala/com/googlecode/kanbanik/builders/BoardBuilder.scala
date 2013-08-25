@@ -29,7 +29,6 @@ class BoardBuilder extends BaseBuilder {
     res.setVersion(board.version)
     res.setShowUserPictureEnabled(board.userPictureShowingEnabled)
     res.setWorkfloVerticalSizing(board.workfloVerticalSizing)
-    res.setVerticalSizingFixedSize(board.workfloVerticalSizingSize)
     res
   }
 
@@ -56,8 +55,7 @@ class BoardBuilder extends BaseBuilder {
         } else {
           boardDto.getWorkfloVerticalSizing()
         }
-      },
-      boardDto.getVerticalSizingFixedSize())
+      })
 
     board.withWorkflow(workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))
 

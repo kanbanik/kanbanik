@@ -18,7 +18,6 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.TaskDto;
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class TaskContainer extends Composite {
@@ -62,16 +61,9 @@ public class TaskContainer extends Composite {
 	}
 
 	private void setupSizing(BoardDto board, WorkflowitemDto currentItem) {
-		boolean fixedSizeOnBoard = board.getWorkfloVerticalSizing() == WorkfloVerticalSizing.FIXED;
-		boolean fixedSizeOverriddenOnWorkflowitem = currentItem.getVerticalSize() != -1;
-		if (fixedSizeOnBoard || fixedSizeOverriddenOnWorkflowitem) {
-			int numOfTasks = 0;
-			if (fixedSizeOverriddenOnWorkflowitem) {
-				// this overrides the board setting
-				numOfTasks = currentItem.getVerticalSize();
-			} else {
-				numOfTasks = board.getVerticalSizingFixedSize();
-			}
+		boolean fixedSizeOnWorkflowitem = currentItem.getVerticalSize() != -1;
+		if (fixedSizeOnWorkflowitem) {
+			int numOfTasks = currentItem.getVerticalSize();
 			addStyleName(style.fixedContantPanelStyle());
 			String height = (numOfTasks * SIZE_OF_TASK) + "px";
 			setHeight(height);

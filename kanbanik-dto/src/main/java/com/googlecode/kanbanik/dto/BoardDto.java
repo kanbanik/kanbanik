@@ -17,8 +17,6 @@ public class BoardDto implements IdentifiableDto {
 	
 	private WorkflowDto workflow;
 	
-	private int verticalSizingFixedSize;
-	
 	private boolean showUserPictureEnabled;
 	
 	private List<TaskDto> tasks = new ArrayList<TaskDto>();
@@ -77,14 +75,6 @@ public class BoardDto implements IdentifiableDto {
 
 	public void setTasks(List<TaskDto> tasks) {
 		this.tasks = tasks;
-	}
-	
-	public int getVerticalSizingFixedSize() {
-		return verticalSizingFixedSize;
-	}
-
-	public void setVerticalSizingFixedSize(int verticalSizingFixedSize) {
-		this.verticalSizingFixedSize = verticalSizingFixedSize;
 	}
 
 	public boolean isShowUserPictureEnabled() {

@@ -1,15 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,11 +30,9 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 
 	private TextBox boardNameText = new TextBox(); 
 	
-	private Label workflowVerticalSizingLabel = new Label("Vertical Sizing");
+	private Label workflowVerticalSizingLabel = new Label("Balance vertical items' sizes");
 	
-	private ListBox workflowVerticalSizing = new ListBox();
-	
-	private TextBox fixedSize = new TextBox();
+	private CheckBox workflowVerticalSizing = new CheckBox();
 	
 	private Label showUserPictureLabel = new Label("Show assignee picture on tasks");
 	
@@ -63,23 +58,8 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 		namePanel.add(boardNameLabel);
 		namePanel.add(boardNameText);
 		
-		workflowVerticalSizingLabel.setWidth("160px");
-		workflowVerticalSizing.addItem("Balanced");
-		workflowVerticalSizing.addItem("Minimal Possible");
-		workflowVerticalSizing.addItem("Fixed Num of Tasks");
-		workflowVerticalSizing.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				updateFixedSizeVisibility();
-			}
-
-		});
-		
-		fixedSize.setVisible(false);
-		
 		balancedWorkflowPanel.add(workflowVerticalSizingLabel);
 		balancedWorkflowPanel.add(workflowVerticalSizing);
-		balancedWorkflowPanel.add(fixedSize);
 		
 		showUserPanel.add(showUserPictureLabel);
 		showUserPanel.add(showUserPictureBox);
@@ -99,9 +79,8 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 
 		public void onClick(ClickEvent event) {
 			boardNameText.setText(getBoardName());
-			workflowVerticalSizing.setSelectedIndex(getVerticalSizing().getIndex());
-			fixedSize.setValue(Integer.toString(getFixedSize()));
-			updateFixedSizeVisibility();
+			workflowVerticalSizing.setValue(getVerticalSizing() == WorkfloVerticalSizing.BALANCED);
+			
 			showUserPictureBox.setValue(isUserPictureDisplayingEnabled());
 			dialog.center();
 			boardNameText.setFocus(true);
@@ -112,25 +91,10 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	public void okClicked(PanelContainingDialog dialog) {
 		BoardDto dto = new BoardDto();
 		dto.setName(boardNameText.getText());
-		dto.setWorkfloVerticalSizing(WorkfloVerticalSizing.fromId(workflowVerticalSizing.getSelectedIndex()));
-		int size = 0;
-		try {
-			size = Integer.parseInt(fixedSize.getValue());
-		} catch (NumberFormatException e) {
-			// default already set
-		}
+		dto.setWorkfloVerticalSizing(workflowVerticalSizing.getValue() ? WorkfloVerticalSizing.BALANCED : WorkfloVerticalSizing.MIN_POSSIBLE);
 		
-		dto.setVerticalSizingFixedSize(size);
 		dto.setShowUserPictureEnabled(showUserPictureBox.getValue());
 		onOkClicked(dto);
-	}
-	
-	private void updateFixedSizeVisibility() {
-		if (WorkfloVerticalSizing.fromId(workflowVerticalSizing.getSelectedIndex()) == WorkfloVerticalSizing.FIXED) {
-			fixedSize.setVisible(true);
-		} else {
-			fixedSize.setVisible(false);
-		}
 	}
 	
 	public void cancelClicked(PanelContainingDialog dialog) {
@@ -150,8 +114,6 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	protected abstract boolean isUserPictureDisplayingEnabled();
 	
 	protected abstract String getBoardName();
-	
-	protected abstract int getFixedSize();
 	
 	protected abstract WorkfloVerticalSizing getVerticalSizing();
 	

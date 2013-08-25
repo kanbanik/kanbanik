@@ -54,18 +54,16 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
     assert(loaded.name === "someName")
     assert(loaded.userPictureShowingEnabled === true)
     assert(loaded.workfloVerticalSizing === WorkfloVerticalSizing.BALANCED)
-    assert(loaded.workfloVerticalSizingSize === 0)
   }
   
   it should "be able to edit the boards properties" in {
     val storedBoard = new Board(None, "someName", 1).store
-    val loaded = Board.byId(storedBoard.id.get, false).withName("name2").withUserPictureShowingEnabled(false).withWorkfloVerticalSizing(WorkfloVerticalSizing.FIXED).withworkfloVerticalSizingSize(12)
+    val loaded = Board.byId(storedBoard.id.get, false).withName("name2").withUserPictureShowingEnabled(false).withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE)
     loaded.store
     
     val edited = Board.byId(loaded.id.get, false)
     assert(loaded.name === "name2")
     assert(loaded.userPictureShowingEnabled === false)
-    assert(loaded.workfloVerticalSizing === WorkfloVerticalSizing.FIXED)
-    assert(loaded.workfloVerticalSizingSize === 12)
+    assert(loaded.workfloVerticalSizing === WorkfloVerticalSizing.MIN_POSSIBLE)
   }
 }

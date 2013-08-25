@@ -141,13 +141,11 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // edit board
     val boardToEdit = loadBoard()
     boardToEdit.setName("board1_renamed")
-    boardToEdit.setVerticalSizingFixedSize(12)
-    boardToEdit.setWorkfloVerticalSizing(WorkfloVerticalSizing.FIXED)
+    boardToEdit.setWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE)
     boardToEdit.setShowUserPictureEnabled(false)
     val editedBoard = new SaveBoardCommand().execute(new SimpleParams(boardToEdit))
     assert(editedBoard.getPayload().getPayload().getName() === "board1_renamed")
-    assert(editedBoard.getPayload().getPayload().getWorkfloVerticalSizing() === WorkfloVerticalSizing.FIXED)
-    assert(editedBoard.getPayload().getPayload().getVerticalSizingFixedSize() === 12)
+    assert(editedBoard.getPayload().getPayload().getWorkfloVerticalSizing() === WorkfloVerticalSizing.MIN_POSSIBLE)
     assert(editedBoard.getPayload().getPayload().isShowUserPictureEnabled() === false)
     // verify it did not destroy the workflow
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
