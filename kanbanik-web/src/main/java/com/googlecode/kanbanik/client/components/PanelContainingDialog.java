@@ -130,6 +130,13 @@ public class PanelContainingDialog extends DialogBox implements Closable,
 	@Override
 	public void close() {
 		hide();
+	}
+	
+	@Override
+	public void hide() {
+		super.hide();
+		
+		// to make sure that handler will never stay there
 		deactivateEnterEscapeBinding();
 	}
 	
@@ -175,7 +182,7 @@ public class PanelContainingDialog extends DialogBox implements Closable,
 		boolean isEnter = event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER;
 		boolean isEscape = event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ESCAPE;
 
-		if (!cancelled && isKeyUp) {
+		if (!cancelled && isKeyUp && isShowing()) {
 			if (isEnter) {
 				performOkAction();
 				event.cancel();
