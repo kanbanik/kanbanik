@@ -96,11 +96,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 	class WipLimitEnabledClickHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
-			if (!wipLimitEnabled.getValue()) {
-				wipLimitBox.setEnabled(false);
-			} else {
-				wipLimitBox.setEnabled(true);
-			}
+			wipLimitBox.setEnabled(wipLimitEnabled.getValue());
 		}
 		
 	}
@@ -108,11 +104,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 	class VerticalSizingEnabledClickHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
-			if (!verticalSizingEnabled.getValue()) {
-				verticalSizingSizeBox.setEnabled(false);
-			} else {
-				verticalSizingSizeBox.setEnabled(true);
-			}
+			verticalSizingSizeBox.setEnabled(verticalSizingEnabled.getValue());
 		}
 		
 	}

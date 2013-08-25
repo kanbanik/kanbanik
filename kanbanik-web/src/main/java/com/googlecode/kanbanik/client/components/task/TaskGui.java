@@ -10,6 +10,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.DOM;
@@ -17,6 +19,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
@@ -49,7 +52,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	Label ticketIdLabel;
 	
 	@UiField
-	Label dueDateLabel;
+	HTML dueDateLabel;
 	
 	@UiField(provided = true)
 	TextArea nameLabel;
@@ -75,6 +78,14 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	@UiField 
 	Style style;
 	
+	private static final TaskGuiTemplates TEMPLATE = GWT.create(TaskGuiTemplates.class);
+	
+	public interface TaskGuiTemplates extends SafeHtmlTemplates {
+	     @Template("<div class=\"{0}\">{1}</div>")
+	     SafeHtml messageWithLink(String style, String msg);
+	   }
+
+	
 	private TaskSelectionChangeListener taskSelectionChangeListener = new TaskSelectionChangeListener();
 	
 	public interface Style extends CssResource {
@@ -82,6 +93,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		String selected();
 		
 		String unselected();
+		
+		String missedStyle();
 	}
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
@@ -178,18 +191,23 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	    long diff = day1 - day2;
 	    
 	    if (diff < 0) {
-	    	dueDateLabel.setTitle("Due date deadline ("+dueDateText+") already missed");
-	    	dueDateLabel.setText("missed!");
+	    	dueDateLabel.setTitle("Due date deadline ("+dueDateText+") is already missed!");
+	    	dueDateLabel.setHTML(TEMPLATE.messageWithLink(style.missedStyle(), "missed!"));
 	    	return;
 	    }
 	    
 	    if (diff == 0) {
-	    	dueDateLabel.setTitle("Due date deadline is today!");
+	    	dueDateLabel.setTitle("Due date deadline ("+dueDateText+") is today!");
 	    	dueDateLabel.setText("today");
 	    	return;
 	    }
 	    
-	    dueDateLabel.setTitle("Due date deadline is " + dueDateText + " (in " + diff + " days)");
+	    dueDateLabel.setTitle("Due date deadline ("+dueDateText+") is in " + diff + " days.");
+	    if (diff > 365) {
+	    	dueDateLabel.setText(" > year");
+	    	return;
+	    }
+	    
 	    if (diff > 31) {
 	    	dueDateLabel.setText(" > month");
 	    	return;
@@ -201,7 +219,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	    }
 	    
 	    if (diff == 1) {
-	    	dueDateLabel.setText("1 day");
+	    	dueDateLabel.setText("tomorrow");
 	    	return;
 	    }
 	    

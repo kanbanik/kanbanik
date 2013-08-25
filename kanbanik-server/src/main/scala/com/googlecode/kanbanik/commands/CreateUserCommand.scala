@@ -18,6 +18,12 @@ class CreateUserCommand extends ServerCommand[SimpleParams[ManipulateUserDto], F
       return new FailableResult(new SimpleParams(new UserDto), false, "The user with this name already exists!")
     }
     
+    val name = params.getPayload().getUserName()
+    
+    if (name == null || name == "") {
+      return new FailableResult(new SimpleParams(new UserDto), false, "The user needs to have the name set!")
+    }
+    
     val hashedPass: (String, String) = hashPassword(params.getPayload().getPassword())
     
     val user = new User(

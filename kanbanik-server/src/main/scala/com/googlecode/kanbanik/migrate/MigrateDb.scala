@@ -133,12 +133,12 @@ class From2To3 extends MigrationPart {
       None,
       "Expedite",
       "For critical tasks. Can break all rules on the system.",
-      "f80070",
+      "e21714",
       1).store) + (3 -> new ClassOfService(
       None,
       "Intangible",
       "Nice to have but not critical.",
-      "5fe868",
+      "1eaa25",
       1).store) + (1 -> new ClassOfService(
       None,
       "Fixed Delivery Date",

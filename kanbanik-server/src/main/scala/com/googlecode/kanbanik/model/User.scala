@@ -77,6 +77,8 @@ object User extends HasMongoConnection {
     val salt = Value("salt")
   }
 
+  def apply() = new User("", "", "", "", "", 1)
+  
   def apply(name: String) = new User(name, "", "", "", "", 1)
   
   def all(): List[User] = {

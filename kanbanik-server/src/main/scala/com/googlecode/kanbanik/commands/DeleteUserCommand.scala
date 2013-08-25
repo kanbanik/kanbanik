@@ -18,13 +18,13 @@ class DeleteUserCommand extends ServerCommand[SimpleParams[UserDto], FailableRes
     	val user = User.byId(params.getPayload().getUserName())
     	
     	// this is an expensive operation - consider to have this info on the user directly to speed things up
-    	val tasksOfUser = for (board <- Board.all(true); task <- board.tasks if (task.assignee == user)) yield task
+    	val tasksOfUser = for (board <- Board.all(true); task <- board.tasks if (task.assignee.getOrElse(User()).name == user.name)) yield task
     	if (tasksOfUser.size == 0) {
     		user.withVersion(params.getPayload().getVersion()).delete
     			
     		new FailableResult(new VoidParams)  
     	} else {
-    	  new FailableResult(new VoidParams, false, "This user has tasks assigned - please delete them firs. Tasks: " + tasksOfUser.mkString(", "))
+    	  new FailableResult(new VoidParams, false, "This user has tasks assigned - please delete them firs. Tasks: " + tasksOfUser.map(_.id).mkString(", "))
     	}
     } else {
       new FailableResult(new VoidParams, false, "You can not delete the last user from the system - it would not be possible to log in again!")

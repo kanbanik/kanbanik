@@ -3,6 +3,10 @@
 
 	<ui:style type="com.googlecode.kanbanik.client.components.task.TaskGui.Style">
 	
+		.missedStyle {
+			color: red;
+		}
+	
 		.unselected {
 			
 		}
@@ -101,7 +105,7 @@
 				<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
 					<g:FlowPanel addStyleNames="{style.headerContentStyle}">
 						<g:Label addStyleNames="{style.idWidget}" ui:field="ticketIdLabel" />
-						<g:Label addStyleNames="{style.dueDateWidget}" ui:field="dueDateLabel"/>
+						<g:HTML addStyleNames="{style.dueDateWidget}" ui:field="dueDateLabel"/>
 					</g:FlowPanel>
 				</g:FocusPanel>
 				<g:FlowPanel addStyleNames="{style.toolbarStyle}">
