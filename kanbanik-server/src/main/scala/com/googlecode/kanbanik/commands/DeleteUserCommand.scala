@@ -24,7 +24,7 @@ class DeleteUserCommand extends ServerCommand[SimpleParams[UserDto], FailableRes
     			
     		new FailableResult(new VoidParams)  
     	} else {
-    	  new FailableResult(new VoidParams, false, "This user has tasks assigned - please delete them firs. Tasks: " + tasksOfUser.map(_.id).mkString(", "))
+    	  new FailableResult(new VoidParams, false, "This user has tasks assigned - please delete them firs. Tasks: " + tasksOfUser.map(_.ticketId).mkString(", "))
     	}
     } else {
       new FailableResult(new VoidParams, false, "You can not delete the last user from the system - it would not be possible to log in again!")
