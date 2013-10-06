@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.server;
 
+import com.googlecode.kanbanik.dto.*;
+import com.googlecode.kanbanik.dto.shell.*;
 import org.apache.shiro.SecurityUtils;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -30,8 +32,6 @@ import com.googlecode.kanbanik.commands.SaveBoardCommand;
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand;
 import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
-import com.googlecode.kanbanik.dto.shell.Params;
-import com.googlecode.kanbanik.dto.shell.Result;
 import com.googlecode.kanbanik.shared.ServerCommand;
 import com.googlecode.kanbanik.shared.UserNotLoggedInException;
 
@@ -46,9 +46,9 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		
 		// unsecure zone - anyone can call this commands whatever the user is logged in or not
 		if (command == ServerCommand.LOGIN_COMMAND) {
-			return (R) new LoginCommand().execute(params);
+			return (R) new LoginCommand().execute((SimpleParams<LoginDto>) params);
 		} else if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
-			return (R) new GetCurrentUserCommand().execute(params);
+			return (R) new GetCurrentUserCommand().execute((VoidParams) params);
 		}
 		
 		
@@ -59,53 +59,53 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		// secure zone - only logged in users can call this commands
 		
 		if (command == ServerCommand.LOGOUT_COMMAND) {
-			return (R) new LogoutCommand().execute(params);
+			return (R) new LogoutCommand().execute((VoidParams) params);
 		}else if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
-			return (R) new GetAllBoardsCommand().execute(params);
+			return (R) new GetAllBoardsCommand().execute((GetAllBoardsWithProjectsParams) params);
 		} else if (command == ServerCommand.MOVE_TASK) {
-			return (R) new MoveTaskCommand().execute(params);
+			return (R) new MoveTaskCommand().execute((MoveTaskParams) params);
 		} else if (command == ServerCommand.SAVE_TASK) {
-			return (R) new SaveTaskCommand().execute(params); 
+			return (R) new SaveTaskCommand().execute((SimpleParams<TaskDto>) params);
 		} else if (command == ServerCommand.GET_TASK) {
-			return (R) new GetTaskCommand().execute(params);
+			return (R) new GetTaskCommand().execute((SimpleParams<TaskDto>) params);
 		} else if (command == ServerCommand.DELETE_TASKS) {
-			return (R) new DeleteTasksCommand().execute(params);
+			return (R) new DeleteTasksCommand().execute((SimpleParams<ListDto<TaskDto>>) params);
 		} else if (command == ServerCommand.GET_ALL_PROJECTS) {
-			return (R) new GetAllProjectsCommand().execute(params);
+			return (R) new GetAllProjectsCommand().execute((VoidParams) params);
 		} else if (command == ServerCommand.SAVE_BOARD) {
-			return (R) new SaveBoardCommand().execute(params);
+			return (R) new SaveBoardCommand().execute((SimpleParams<BoardDto>) params);
 		} else if (command == ServerCommand.DELETE_BOARD) {
-			return (R) new DeleteBoardCommand().execute(params);
+			return (R) new DeleteBoardCommand().execute((SimpleParams<BoardDto>) params);
 		} else if (command == ServerCommand.SAVE_PROJECT) {
-			return (R) new SaveProjectCommand().execute(params);
+			return (R) new SaveProjectCommand().execute((SimpleParams<ProjectDto>) params);
 		} else if (command == ServerCommand.DELETE_PROJECT) {
-			return (R) new DeleteProjectCommand().execute(params);
+			return (R) new DeleteProjectCommand().execute((SimpleParams<ProjectDto>) params);
 		} else if (command == ServerCommand.ADD_PROJECTS_TO_BOARD) {
-			return (R) new AddProjectsToBoardCommand().execute(params);
+			return (R) new AddProjectsToBoardCommand().execute((SimpleParams<BoardWithProjectsDto>) params);
 		} else if (command == ServerCommand.REMOVE_PROJECTS_FROM_BOARD) {
-			return (R) new RemoveProjectFromBoardCommand().execute(params);
+			return (R) new RemoveProjectFromBoardCommand().execute((SimpleParams<BoardWithProjectsDto>) params);
 		} else if (command == ServerCommand.EDIT_WORKFLOW) {
-			return (R) new EditWorkflowCommand().execute(params);
+			return (R) new EditWorkflowCommand().execute((EditWorkflowParams) params);
 		} else if (command == ServerCommand.GET_BOARD) {
-			return (R) new GetBoardCommand().execute(params);
+			return (R) new GetBoardCommand().execute((SimpleParams<BoardDto>) params);
 		} else if (command == ServerCommand.DELETE_WORKFLOWITEM) {
-			return (R) new DeleteWorkflowitemCommand().execute(params);
+			return (R) new DeleteWorkflowitemCommand().execute((SimpleParams<WorkflowitemDto>) params);
 		} else if (command == ServerCommand.EDIT_WORKFLOWITEM_DATA) {
-			return (R) new EditWorkflowitemDataCommand().execute(params);
+			return (R) new EditWorkflowitemDataCommand().execute((SimpleParams<WorkflowitemDto>) params);
 		} else if (command == ServerCommand.GET_ALL_USERS_COMMAND) {
-			return (R) new GetAllUsersCommand().execute(params);
+			return (R) new GetAllUsersCommand().execute((VoidParams) params);
 		} else if (command == ServerCommand.EDIT_USER_COMMAND) {
-			return (R) new EditUserCommand().execute(params);
+			return (R) new EditUserCommand().execute((SimpleParams<ManipulateUserDto>) params);
 		} else if (command == ServerCommand.CREATE_USER_COMMAND) {
-			return (R) new CreateUserCommand().execute(params);
+			return (R) new CreateUserCommand().execute((SimpleParams<ManipulateUserDto>) params);
 		} else if (command == ServerCommand.DELETE_USER_COMMAND) {
-			return (R) new DeleteUserCommand().execute(params);
+			return (R) new DeleteUserCommand().execute((SimpleParams<UserDto>) params);
 		} else if (command == ServerCommand.SAVE_CLASS_OF_SERVICE) {
-			return (R) new SaveClassOfServiceCommand().execute(params);
+			return (R) new SaveClassOfServiceCommand().execute((SimpleParams<ClassOfServiceDto>) params);
 		} else if (command == ServerCommand.DELETE_CLASS_OF_SERVICE) {
-			return (R) new DeleteClassOfServiceCommand().execute(params);
+			return (R) new DeleteClassOfServiceCommand().execute((SimpleParams<ClassOfServiceDto>) params);
 		} else if (command == ServerCommand.GET_ALL_CLASS_OF_SERVICES) {
-			return (R) new GetAllClassOfServices().execute(params);
+			return (R) new GetAllClassOfServices().execute((VoidParams) params);
 		}
 
 		return null;
