@@ -1,6 +1,8 @@
 package com.googlecode.kanbanik
 
 import java.util.ArrayList
+import com.mongodb.DBObject
+
 package object commons {
 
   type JavaList[T] = java.util.List[T]
@@ -19,8 +21,20 @@ package object commons {
     }
   }
 
+  class ToDbWithDefault(dbObject: DBObject) {
+    def getWithDefault[T](key: Any, default: T): T = {
+      val res = dbObject.get(key.toString())
+        if (res != null) {
+          res.asInstanceOf[T]
+        } else {
+          default
+        }
+    }
+  }
+
   implicit def makeToJavaConvertableList[T](scalaList: List[T]): ToJavaConvertableList[T] = new ToJavaConvertableList[T](scalaList)
   
   implicit def makeToScalaConvertableList[T](javaList: JavaList[T]): ToScalaConvertableList[T] = new ToScalaConvertableList[T](javaList)
 
+  implicit def makeToWithDefault(dbObject: DBObject) = new ToDbWithDefault(dbObject)
 }

@@ -10,11 +10,11 @@ import com.mongodb.casbah.Imports.$pull
 import com.mongodb.casbah.Imports.$and
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
-import com.mongodb.BasicDBObjectBuilder
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.db.HasEntityLoader
 import com.mongodb.casbah.commons.conversions.scala._
 import com.mongodb.casbah.Imports._
+import com.googlecode.kanbanik.commons._
 
 class Task(
   val id: Option[ObjectId],
@@ -185,54 +185,45 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   def asDBObject(entity: Task): DBObject = {
     MongoDBObject(
-      Task.Fields.id.toString() -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
-      Task.Fields.name.toString() -> entity.name,
-      Task.Fields.description.toString() -> entity.description,
-      Task.Fields.classOfService.toString() -> entity.classOfService,
-      Task.Fields.ticketId.toString() -> entity.ticketId,
-      Task.Fields.version.toString() -> entity.version,
-      Task.Fields.order.toString() -> entity.order,
-      Task.Fields.projectId.toString() -> entity.project.id,
-      Task.Fields.classOfService.toString() -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
-      Task.Fields.assignee.toString() -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
-      Task.Fields.dueDate.toString() -> entity.dueData,
-      Task.Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
+      Fields.id.toString() -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
+      Fields.name.toString() -> entity.name,
+      Fields.description.toString() -> entity.description,
+      Fields.classOfService.toString() -> entity.classOfService,
+      Fields.ticketId.toString() -> entity.ticketId,
+      Fields.version.toString() -> entity.version,
+      Fields.order.toString() -> entity.order,
+      Fields.projectId.toString() -> entity.project.id,
+      Fields.classOfService.toString() -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
+      Fields.assignee.toString() -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
+      Fields.dueDate.toString() -> entity.dueData,
+      Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
   }
 
   def asEntity(dbObject: DBObject, boardProvider: Task => Board, projectProvider: Task => Project): Task = {
     val task = new Task(
-      Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
-      dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
-      loadOrNone[ObjectId, ClassOfService](Task.Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
-      dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String],
-      loadOrDefault[Int](Task.Fields.version.toString(), dbObject, 1),
-      dbObject.get(Task.Fields.order.toString()).asInstanceOf[String],
-      loadOrNone[String, User](Task.Fields.assignee.toString(), dbObject, loadUser(_)),
-      loadOrDefault[String](Task.Fields.dueDate.toString(), dbObject, ""),
+      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
+      dbObject.get(Fields.name.toString()).asInstanceOf[String],
+      dbObject.get(Fields.description.toString()).asInstanceOf[String],
+      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
+      dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
+      dbObject.getWithDefault[Int](Fields.version, 1),
+      dbObject.get(Fields.order.toString()).asInstanceOf[String],
+      loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
+      dbObject.getWithDefault[String](Fields.dueDate, ""),
       null,
       null)
 
-    val workflowitemId = dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]
+    val workflowitemId = dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId]
     val workflowitem = boardProvider(task).workflow.findItem(Workflowitem().withId(workflowitemId))
     val taskWithWorkflowitem = task.withWorkflowitem(workflowitem.get)
 
-    val projectId = dbObject.get(Task.Fields.projectId.toString()).asInstanceOf[ObjectId]
+    val projectId = dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
     if (projectId != null) {
       taskWithWorkflowitem.withProject(projectProvider(task))
     } else {
       taskWithWorkflowitem
     }
 
-  }
-
-  def loadOrDefault[T](dbField: String, dbObject: DBObject, default: T): T = {
-    val res = dbObject.get(dbField)
-    if (res == null) {
-      default
-    } else {
-      res.asInstanceOf[T]
-    }
   }
 
   def loadOrNone[T, R](dbField: String, dbObject: DBObject, f: T => Option[R]): Option[R] = {

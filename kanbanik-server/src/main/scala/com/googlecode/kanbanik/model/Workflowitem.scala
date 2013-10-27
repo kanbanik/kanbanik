@@ -5,11 +5,8 @@ import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dto.ItemType
 import com.mongodb.DBObject
-import com.mongodb.casbah.Imports.$set
-import com.mongodb.casbah.MongoConnection
-import com.mongodb.casbah.commons.MongoDBList
 import com.mongodb.casbah.commons.MongoDBObject
-import org.bson.types.BasicBSONList
+import com.googlecode.kanbanik.commons._
 
 class Workflowitem(
   val id: Option[ObjectId],
@@ -174,14 +171,7 @@ object Workflowitem extends HasMongoConnection {
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.wipLimit.toString()).asInstanceOf[Int],
-      {
-        val res = dbObject.get(Fields.verticalSize.toString())
-        if (res == null) {
-          -1
-        } else {
-          res.asInstanceOf[Int]
-        }
-      },
+      dbObject.getWithDefault[Int](Fields.verticalSize, -1),
       dbObject.get(Fields.itemType.toString()).asInstanceOf[String],
       dbObject.get(Fields.version.toString()).asInstanceOf[Int],
       {

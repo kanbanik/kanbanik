@@ -3,7 +3,6 @@ import org.bson.types.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.DBObject
 import com.mongodb.BasicDBList
-import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 import com.mongodb.casbah.Imports._
 import java.util.ArrayList
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
@@ -11,6 +10,7 @@ import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.commons._
 
 class Board(
   val id: Option[ObjectId],
@@ -140,51 +140,26 @@ object Board extends HasMongoConnection {
 
   def asEntity(dbObject: DBObject) = {
     val board = new Board(
-      Some(dbObject.get(Board.Fields.id.toString()).asInstanceOf[ObjectId]),
-      dbObject.get(Board.Fields.name.toString()).asInstanceOf[String],
-      determineVersion(dbObject.get(Board.Fields.version.toString())),
-      Workflow.asEntity(dbObject.get(Board.Fields.workflow.toString()).asInstanceOf[DBObject]),
+      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
+      dbObject.get(Fields.name.toString()).asInstanceOf[String],
+      dbObject.getWithDefault[Int](Fields.version, 1),
+      Workflow.asEntity(dbObject.get(Fields.workflow.toString()).asInstanceOf[DBObject]),
       List(),
-      {
-        val res = dbObject.get(Board.Fields.userPictureShowingEnabled.toString())
-        if (res == null) {
-          true
-        } else {
-          res.asInstanceOf[Boolean]
-        }
-      },
-      {
-        val res = dbObject.get(Board.Fields.workfloVerticalSizing.toString())
-        if (res == null) {
-          WorkfloVerticalSizing.BALANCED
-        } else {
-          WorkfloVerticalSizing.fromId(res.asInstanceOf[Int])
-        }
-      }
-      
+      dbObject.getWithDefault[Boolean](Fields.userPictureShowingEnabled, true),
+      WorkfloVerticalSizing.fromId(dbObject.getWithDefault[Int](Fields.workfloVerticalSizing, 0))
     )
 
     
     board.withWorkflow(board.workflow.withBoard(Some(board)))
 
-    val tasks = dbObject.get(Board.Fields.tasks.toString())
+    val tasks = dbObject.get(Fields.tasks.toString())
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
-      val list = dbObject.get(Board.Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
+      val list = dbObject.get(Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
       val projects = Project.allForBoard(board)
       val taskEnitities = list.map(Task.asEntity(_, board, projects))
       board.withTasks(taskEnitities)
     } else {
       board
     }
-
   }
-
-  private def determineVersion(res: Object) = {
-    if (res == null) {
-      1
-    } else {
-      res.asInstanceOf[Int]
-    }
-  }
-
 }

@@ -90,7 +90,7 @@ object User extends HasMongoConnection {
   def byId(name: String) = {
 
     using(createConnection) { conn =>
-      val dbProject = coll(conn, Coll.Users).findOne(MongoDBObject(User.Fields.id.toString() -> name)).getOrElse(throw new IllegalArgumentException("No such user with name: " + name))
+      val dbProject = coll(conn, Coll.Users).findOne(MongoDBObject(Fields.id.toString() -> name)).getOrElse(throw new IllegalArgumentException("No such user with name: " + name))
       asEntity(dbProject)
     }
 
@@ -98,22 +98,22 @@ object User extends HasMongoConnection {
 
   private def asEntity(dbObject: DBObject) = {
     new User(
-      dbObject.get(User.Fields.id.toString()).asInstanceOf[String],
-      dbObject.get(User.Fields.password.toString()).asInstanceOf[String],
-      dbObject.get(User.Fields.realName.toString()).asInstanceOf[String],
-      dbObject.get(User.Fields.pictureUrl.toString()).asInstanceOf[String],
-      dbObject.get(User.Fields.salt.toString()).asInstanceOf[String],
-      dbObject.get(User.Fields.version.toString()).asInstanceOf[Int])
+      dbObject.get(Fields.id.toString()).asInstanceOf[String],
+      dbObject.get(Fields.password.toString()).asInstanceOf[String],
+      dbObject.get(Fields.realName.toString()).asInstanceOf[String],
+      dbObject.get(Fields.pictureUrl.toString()).asInstanceOf[String],
+      dbObject.get(Fields.salt.toString()).asInstanceOf[String],
+      dbObject.get(Fields.version.toString()).asInstanceOf[Int])
   }
 
   private def asDBObject(entity: User): DBObject = {
     MongoDBObject(
-      User.Fields.id.toString() -> entity.name,
-      User.Fields.password.toString() -> entity.password,
-      User.Fields.realName.toString() -> entity.realName,
-      User.Fields.pictureUrl.toString() -> {if (entity.pictureUrl == null) "" else entity.pictureUrl} ,
-      User.Fields.salt.toString() -> entity.salt,
-      User.Fields.version.toString() -> entity.version)
+      Fields.id.toString() -> entity.name,
+      Fields.password.toString() -> entity.password,
+      Fields.realName.toString() -> entity.realName,
+      Fields.pictureUrl.toString() -> {if (entity.pictureUrl == null) "" else entity.pictureUrl} ,
+      Fields.salt.toString() -> entity.salt,
+      Fields.version.toString() -> entity.version)
 
   }
 
