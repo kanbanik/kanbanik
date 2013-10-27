@@ -20,8 +20,7 @@ class DeleteUserCommand extends ServerCommand[SimpleParams[UserDto], FailableRes
     	// this is an expensive operation - consider to have this info on the user directly to speed things up
     	val tasksOfUser = for (board <- Board.all(true); task <- board.tasks if (task.assignee.getOrElse(User()).name == user.name)) yield task
     	if (tasksOfUser.size == 0) {
-    		user.withVersion(params.getPayload().getVersion()).delete
-    			
+    		user.copy(version = params.getPayload().getVersion()).delete
     		new FailableResult(new VoidParams)  
     	} else {
     	  new FailableResult(new VoidParams, false, "This user has tasks assigned - please delete them firs. Tasks: " + tasksOfUser.map(_.ticketId).mkString(", "))

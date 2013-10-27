@@ -18,11 +18,14 @@ class EditUserCommand extends ServerCommand[SimpleParams[ManipulateUserDto], Fai
     } else {
       val user = User.byId(params.getPayload().getUserName())
       val hashedPass: (String, String) = hashPassword(params.getPayload().getNewPassword())
-      val newUser = 
-         user.withPassword(hashedPass._1, hashedPass._2).
-      	withRealName(params.getPayload().getRealName()).
-      	withVersion(params.getPayload().getVersion()).
-      	withPictureUrl(params.getPayload().getPictureUrl())
+
+      val newUser = user.copy(
+        password = hashedPass._1,
+        salt = hashedPass._2,
+        realName = params.getPayload().getRealName(),
+        version = params.getPayload().getVersion(),
+        pictureUrl = params.getPayload().getPictureUrl()
+      )
 
       new FailableResult(new SimpleParams(userBuilder.buildDto(newUser.store)))
     }

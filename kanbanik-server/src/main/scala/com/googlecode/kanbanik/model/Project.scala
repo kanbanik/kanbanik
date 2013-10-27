@@ -8,7 +8,7 @@ import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
 
-class Project(
+case class Project(
   val id: Option[ObjectId],
   val name: String,
   val version: Int,
@@ -38,12 +38,6 @@ class Project(
   def canEqual(other: Any) = {
     other.isInstanceOf[com.googlecode.kanbanik.model.Project]
   }
-
-  def withId(id: ObjectId) =
-    new Project(Some(id), name, version, boards)
-  
-  def withBoards(boards: Option[List[Board]]) =
-    new Project(id, name, version, boards)
 
   override def equals(other: Any) = {
     other match {

@@ -10,7 +10,7 @@ import com.mongodb.DBObject
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports.$set
 
-class User(
+case class User(
   val name: String,
   val password: String,
   val realName: String,
@@ -58,14 +58,7 @@ class User(
   def delete {
     versionedDelete(Coll.Users, versionedQuery(name, version))
   }
-  
-  def withRealName(realName: String) = new User(name, password, realName, pictureUrl, salt, version)
-  
-  def withPictureUrl(pictureUrl: String) = new User(name, password, realName, pictureUrl, salt, version)
-  
-  def withPassword(password: String, salt: String) = new User(name, password, realName, pictureUrl, salt, version)
-  
-  def withVersion(version: Int) = new User(name, password, realName, pictureUrl, salt, version)
+
 }
 
 object User extends HasMongoConnection {

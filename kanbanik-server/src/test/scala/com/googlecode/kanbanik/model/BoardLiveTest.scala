@@ -18,7 +18,7 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
       addItem(b, None).
       addItem(c, None)
 
-    val storedBoardWithItems = storedBoard.withWorkflow(storedWorkflowWithItems).store
+    val storedBoardWithItems = storedBoard.copy(workflow = storedWorkflowWithItems).store
     val loadedBoard = Board.byId(storedBoardWithItems.id.get, false)
 
     assert(loadedBoard.id.isDefined === true)
@@ -34,7 +34,7 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
       addItem(b0, None).
       addItem(c, None)
 
-    val storedBoardWithItems = storedBoard.withWorkflow(storedWorkflowWithItems).store
+    val storedBoardWithItems = storedBoard.copy(workflow = storedWorkflowWithItems).store
     val loadedBoard = Board.byId(storedBoardWithItems.id.get, false)
 
     assert(loadedBoard.id.isDefined === true)
@@ -58,7 +58,7 @@ class BoardLiveTest extends BaseWorkflowManipulatingTest {
   
   it should "be able to edit the boards properties" in {
     val storedBoard = new Board(None, "someName", 1).store
-    val loaded = Board.byId(storedBoard.id.get, false).withName("name2").withUserPictureShowingEnabled(false).withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE)
+    val loaded = Board.byId(storedBoard.id.get, false).copy(name = "name2", userPictureShowingEnabled = false, workfloVerticalSizing = WorkfloVerticalSizing.MIN_POSSIBLE)
     loaded.store
     
     val edited = Board.byId(loaded.id.get, false)

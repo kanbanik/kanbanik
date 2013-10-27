@@ -16,7 +16,7 @@ import com.mongodb.casbah.commons.conversions.scala._
 import com.mongodb.casbah.Imports._
 import com.googlecode.kanbanik.commons._
 
-class Task(
+case class Task(
   val id: Option[ObjectId],
   val name: String,
   val description: String,
@@ -65,66 +65,6 @@ class Task(
     val dbTask = dbTasks.filter(_.get(Task.Fields.id.toString()) == idToUpdate)
     // I have just put it to DB, it has to be there
     Task.asEntity(dbTask.head)
-  }
-
-  def withWorkflowitem(workflowitem: Workflowitem) = {
-    new Task(
-      id,
-      name,
-      description,
-      classOfService,
-      ticketId,
-      version,
-      order,
-      assignee,
-      dueData,
-      workflowitem,
-      project)
-  }
-
-  def withProject(project: Project) = {
-    new Task(
-      id,
-      name,
-      description,
-      classOfService,
-      ticketId,
-      version,
-      order,
-      assignee,
-      dueData,
-      workflowitem,
-      project)
-  }
-
-  def withOrder(order: String) = {
-    new Task(
-      id,
-      name,
-      description,
-      classOfService,
-      ticketId,
-      version,
-      order,
-      assignee,
-      dueData,
-      workflowitem,
-      project)
-  }
-
-  def withDescription(description: String) = {
-    new Task(
-      id,
-      name,
-      description,
-      classOfService,
-      ticketId,
-      version,
-      order,
-      assignee,
-      dueData,
-      workflowitem,
-      project)
   }
 
   def delete(boardId: ObjectId) {
@@ -214,12 +154,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
       null)
 
     val workflowitemId = dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId]
-    val workflowitem = boardProvider(task).workflow.findItem(Workflowitem().withId(workflowitemId))
-    val taskWithWorkflowitem = task.withWorkflowitem(workflowitem.get)
+    val workflowitem = boardProvider(task).workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
+    val taskWithWorkflowitem = task.copy(workflowitem = workflowitem.get)
 
     val projectId = dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
     if (projectId != null) {
-      taskWithWorkflowitem.withProject(projectProvider(task))
+      taskWithWorkflowitem.copy(project = projectProvider(task))
     } else {
       taskWithWorkflowitem
     }
@@ -241,7 +181,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
     def projectProvider(task: Task): Project = {
       val projectId = dbObject.get(Task.Fields.projectId.toString()).asInstanceOf[ObjectId]
       if (projectId != null) {
-        val thisProject = Project().withId(projectId)
+        val thisProject = Project().copy(id = Some(projectId))
         allProjcts.find(_.equals(thisProject)).getOrElse(throw new IllegalStateException("The project: " + projectId + " does not exists even this task: " + task.id + " is defied on it"))
       } else {
         null
@@ -254,13 +194,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
   def asEntity(dbObject: DBObject): Task = {
     def boardProvider(task: Task): Board = {
       val workflowitemId = dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]
-      Board.all(false).find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(throwEx(task, workflowitemId))
+      Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(throwEx(task, workflowitemId))
     }
 
     def projectProvider(task: Task): Project = {
       val projectId = dbObject.get(Task.Fields.projectId.toString()).asInstanceOf[ObjectId]
       if (projectId != null) {
-        val thisProject = Project().withId(projectId)
         Project.byId(projectId)
       } else {
         null

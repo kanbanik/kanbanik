@@ -110,7 +110,7 @@ class From2To3 extends MigrationPart {
       if (!isBalanced) {
         // consider only non balanced one as the balanced is the default
         val boardToUpdate = boards.find(_.id.get == id).getOrElse(return)
-        boardToUpdate.withWorkfloVerticalSizing(WorkfloVerticalSizing.MIN_POSSIBLE).store
+        boardToUpdate.copy(workfloVerticalSizing = WorkfloVerticalSizing.MIN_POSSIBLE).store
       }
     }
 
@@ -154,7 +154,7 @@ class From2To3 extends MigrationPart {
         val newTasks = oldTasks.map(_.asNewTask(classesOfService))
         var order = 0
         for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
-          newTask.withOrder(Integer.toString(order)).store
+          newTask.copy(order = Integer.toString(order)).store
           order += 100
         }
 
@@ -211,8 +211,8 @@ class From2To3 extends MigrationPart {
     }
 
     def findWorkflowitem(): Workflowitem = {
-      val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().withId(workflowitemId))).getOrElse(return null)
-      val workflowitem = board.workflow.findItem(Workflowitem().withId(workflowitemId))
+      val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
+      val workflowitem = board.workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
       workflowitem.getOrElse(null)
     }
 
@@ -224,7 +224,7 @@ class From2To3 extends MigrationPart {
             null
           } else {
             val projectId = projects.next.get(Project.Fields.id.toString())
-            Project().withId(projectId.asInstanceOf[ObjectId])
+            Project().copy(id = Some(projectId.asInstanceOf[ObjectId]))
           }
       }
     }

@@ -61,7 +61,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
 
     val currentWorkflow = workflowBuilder.buildEntity(currentDto.getParentWorkflow(), Some(currentBoard))
     val currentEntityId = if (currentDto.getId() == null) new ObjectId else new ObjectId(currentDto.getId()) 
-    val currentEntityIfExists = currentWorkflow.findItem(Workflowitem().withId(currentEntityId))
+    val currentEntityIfExists = currentWorkflow.findItem(Workflowitem().copy(id = Some(currentEntityId)))
     val currentEntity = currentEntityIfExists.getOrElse(workflowitemBuilder.buildEntity(currentDto, Some(currentWorkflow), Some(currentBoard)))
     val nextEntity = {
       if (nextDto == null) {
@@ -90,7 +90,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
       return false
     }
     
-    val destWorkflow = Workflow().withId(new ObjectId(destContextDto.getId()))
+    val destWorkflow = Workflow().copy(id = Some(new ObjectId(destContextDto.getId())))
     if (board.workflow == destWorkflow) {
       return false
     }

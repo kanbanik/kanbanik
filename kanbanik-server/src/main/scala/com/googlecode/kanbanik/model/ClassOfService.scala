@@ -8,7 +8,7 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 
-class ClassOfService(
+case class ClassOfService(
   val id: Option[ObjectId],
   val name: String,
   val description: String,
@@ -38,21 +38,6 @@ class ClassOfService(
   def delete {
     versionedDelete(Coll.ClassesOfService, versionedQuery(id.get, version))
   }
-
-  def withId(id: ObjectId) =
-    new ClassOfService(Some(id), name, description, colour, version)
-
-  def withName(name: String) =
-    new ClassOfService(id, name, description, colour, version)
-
-  def withDescription(description: String) =
-    new ClassOfService(id, name, description, colour, version)
-
-  def withColour(colour: String) =
-    new ClassOfService(id, name, description, colour, version)
-
-  def withVersion(version: Int) =
-    new ClassOfService(id, name, description, colour, version)
 
 }
 

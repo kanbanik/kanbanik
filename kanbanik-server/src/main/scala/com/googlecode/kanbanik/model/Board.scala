@@ -12,7 +12,7 @@ import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 import com.googlecode.kanbanik.commons._
 
-class Board(
+case class Board(
   val id: Option[ObjectId],
   val name: String,
   val version: Int,
@@ -59,27 +59,6 @@ class Board(
 
   }
 
-  def withId(id: ObjectId) =
-    new Board(Some(id), name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-  
-  def withName(name: String) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-
-  def withVersion(version: Int) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-
-  def withWorkflow(workflow: Workflow) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-
-  def withTasks(tasks: List[Task]) =
-    new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-  
-  def withUserPictureShowingEnabled(userPictureShowingEnabled: Boolean) =   
-  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-  
-  def withWorkfloVerticalSizing(workfloVerticalSizing: WorkfloVerticalSizing) =   
-  	new Board(id, name, version, workflow, tasks, userPictureShowingEnabled, workfloVerticalSizing)
-  
   private def asDbObject(): DBObject = {
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
@@ -139,7 +118,7 @@ object Board extends HasMongoConnection {
   }
 
   def asEntity(dbObject: DBObject) = {
-    val board = new Board(
+    val resBoard = new Board(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.getWithDefault[Int](Fields.version, 1),
@@ -150,16 +129,16 @@ object Board extends HasMongoConnection {
     )
 
     
-    board.withWorkflow(board.workflow.withBoard(Some(board)))
+    resBoard.copy(workflow = resBoard.workflow.copy(_board = Some(resBoard)))
 
     val tasks = dbObject.get(Fields.tasks.toString())
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
       val list = dbObject.get(Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
-      val projects = Project.allForBoard(board)
-      val taskEnitities = list.map(Task.asEntity(_, board, projects))
-      board.withTasks(taskEnitities)
+      val projects = Project.allForBoard(resBoard)
+      val taskEnitities = list.map(Task.asEntity(_, resBoard, projects))
+      resBoard.copy(tasks = taskEnitities)
     } else {
-      board
+      resBoard
     }
   }
 }

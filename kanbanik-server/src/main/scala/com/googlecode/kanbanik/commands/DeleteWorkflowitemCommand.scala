@@ -24,13 +24,13 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
   
   def execute(params: SimpleParams[WorkflowitemDto]): FailableResult[VoidParams] = {
 
-    val id = new ObjectId(params.getPayload().getId())
+    val theId = new ObjectId(params.getPayload().getId())
     
     val board = loadBoard(new ObjectId(params.getPayload().getParentWorkflow().getBoard().getId), true).getOrElse(
         return new FailableResult(new VoidParams, false, ServerMessages.entityDeletedMessage("board " + params.getPayload().getParentWorkflow().getBoard().getName()))
     )
     
-    val item = Workflowitem().withId(id)
+    val item = Workflowitem().copy(id = Some(theId))
     
     try {
     	board.workflow.containsItem(item)
@@ -39,7 +39,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
         return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("workflowitem"))
     }
     
-    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().withId(id))
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().copy(id = Some(theId)))
     if (tasksOnWorkflowitem.size != 0) {
       val ticketIds = tasksOnWorkflowitem.map(_.ticketId).mkString(", ")
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem. Tasks: [" + ticketIds + "]")
@@ -51,7 +51,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
     }
 
     try {
-    	board.withWorkflow(board.workflow.removeItem(foundItem.getOrElse(
+    	board.copy(workflow = board.workflow.removeItem(foundItem.getOrElse(
     			return new FailableResult(new VoidParams, false, "This workflowitem has been deleted by a different user. Please refresh your browser to get the current data")
     	))).store
     } catch {

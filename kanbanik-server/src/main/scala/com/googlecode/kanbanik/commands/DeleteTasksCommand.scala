@@ -40,9 +40,9 @@ class DeleteTasksCommand extends ServerCommand[SimpleParams[ListDto[TaskDto]], F
     val workflowitemId = new ObjectId(taskDto.getWorkflowitem().getId)
     
     val board = Board.byId(boardId, false)
-    board.workflow.containsItem(Workflowitem().withId(workflowitemId))
+    board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))
 
-    if (!board.workflow.containsItem(Workflowitem().withId(workflowitemId))) {
+    if (!board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))) {
       return new FailableResult(new VoidParams, false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
     }
     

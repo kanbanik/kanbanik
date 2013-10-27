@@ -7,7 +7,7 @@ import com.mongodb.BasicDBList
 import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 
-class Workflow(
+case class Workflow(
   val id: Option[ObjectId],
   val workflowitems: List[Workflowitem],
   val _board: Option[Board]) extends HasMongoConnection {
@@ -28,7 +28,7 @@ class Workflow(
       inItems match {
         case Nil => Nil
         case x :: xs => {
-          x.withWorkflow(x.nestedWorkflow.addItem(item, nextItem, destWorkflow)) :: addInInnerWorkflow(xs)
+          x.copy(nestedWorkflow = x.nestedWorkflow.addItem(item, nextItem, destWorkflow)) :: addInInnerWorkflow(xs)
         }
       }
     }
@@ -84,7 +84,7 @@ class Workflow(
   }
   
   def createWorkflow(item: Workflowitem, nested: List[Workflowitem]) = {
-	  item.withWorkflow(
+	  item.copy(nestedWorkflow =
 			  new Workflow(
 					  item.nestedWorkflow.id,
 					  nested, _board)
@@ -148,16 +148,6 @@ class Workflow(
 	  throw new IllegalStateException("The workflow : " + id + "has to have a board")
   }
 
-  def withWorkflowitems(workflowitems: List[Workflowitem]) =
-    new Workflow(id, workflowitems, _board)
-
-  def withId(id: ObjectId) =
-    new Workflow(Some(id), workflowitems, _board)
-
-  
-  def withBoard(board: Option[Board]) =
-    new Workflow(id, workflowitems, board)
-
   def asDbObject(): DBObject = {
     MongoDBObject(
       Workflow.Fields.id.toString() -> id.getOrElse(new ObjectId),
@@ -212,7 +202,7 @@ object Workflow extends HasMongoConnection {
       board)
 
     // it is filled in the second phase to avoid circular dependency 
-    workflow.withWorkflowitems(workflow.workflowitems.map(_.withParentWorkflow(workflow)))
+    workflow.copy(workflowitems = workflow.workflowitems.map(_.copy(_parentWorkflow = Some(workflow))))
 
   }
 

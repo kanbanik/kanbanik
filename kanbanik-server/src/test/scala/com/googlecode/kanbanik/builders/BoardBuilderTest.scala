@@ -21,7 +21,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
   val builder = new BoardBuilder()
 
   "buildDto() " should "be able to build a board without workflow" in {
-    val board = Board().withName("someName").withVersion(2).withWorkflow(Workflow())
+    val board = Board().copy(name = "someName", version = 2, workflow = Workflow())
     val res = builder.buildDto(board)
 
     assert(res.getName() === "someName")
@@ -29,13 +29,13 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
     assert(res.getWorkflow().getWorkflowitems().size() === 0)
   }
 
-  it should "be able to build a board without one level workflow" in {
+  it should "be able to build a board with one level workflow" in {
     val workflow = Workflow(
       List(
-        Workflowitem().withName("name1"),
-        Workflowitem().withName("name2"),
-        Workflowitem().withName("name3")))
-    val board = Board().withName("someName").withVersion(2).withWorkflow(workflow)
+        Workflowitem().copy(name = "name1"),
+        Workflowitem().copy(name = "name2"),
+        Workflowitem().copy(name = "name3")))
+    val board = Board().copy(name = "someName", version = 2, workflow = workflow)
 
     val res = builder.buildDto(board)
 
@@ -46,19 +46,19 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
 
   }
 
-  it should "be able to build a board without two level workflow" in {
+  it should "be able to build a board with two level workflow" in {
     val workflow = Workflow(
       List(
-        Workflowitem().withName("name1"),
-        Workflowitem().withName("name2").withWorkflow(
+        Workflowitem().copy(name = "name1"),
+        Workflowitem().copy(name = "name2").copy(nestedWorkflow =
           Workflow(
             List(
-              Workflowitem().withName("inner1"),
-              Workflowitem().withName("inner2"),
-              Workflowitem().withName("inner3")))),
-        Workflowitem().withName("name3")))
+              Workflowitem().copy(name = "inner1"),
+              Workflowitem().copy(name = "inner2"),
+              Workflowitem().copy(name = "inner3")))),
+        Workflowitem().copy(name = "name3")))
     
-        val board = Board().withName("someName").withVersion(2).withWorkflow(workflow)
+        val board = Board().copy(name = "someName", version = 2, workflow = workflow)
     val res = builder.buildDto(board)
     
     assert(res.getName() === "someName")    
@@ -82,7 +82,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
     
   }
   
-  "buildEntity() " should "be able to build a board without a one level workflow" in {
+  "buildEntity() " should "be able to build a board with a one level workflow" in {
     val board = new BoardDto()
     board.setName("some name")
     board.setVersion(2)
@@ -104,7 +104,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
     assert(res.workflow.workflowitems.map(_.name) == List("upper1", "upper2", "upper3"))
   }
   
-  "buildEntity() " should "be able to build a board without a two level workflow" in {
+  "buildEntity() " should "be able to build a board with a two level workflow" in {
     val board = new BoardDto()
     board.setName("some name")
     board.setVersion(2)

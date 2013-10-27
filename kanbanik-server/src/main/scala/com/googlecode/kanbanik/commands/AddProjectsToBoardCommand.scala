@@ -17,9 +17,9 @@ class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
     val toStore = {
       if (project.boards.isDefined) {
-        project.withBoards(Some(board :: project.boards.get))
+        project.copy(boards = Some(board :: project.boards.get))
       } else {
-        project.withBoards(Some(List(board)))
+        project.copy(boards = Some(List(board)))
       }
     }
     

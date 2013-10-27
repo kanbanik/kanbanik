@@ -37,7 +37,7 @@ class MoveTaskCommand extends ServerCommand[MoveTaskParams, FailableResult[Simpl
     )
     val newOrder = calculateNewOrder(params)
     try {
-    	val toStore = oldTask.withOrder(newOrder).withProject(newTask.project).withWorkflowitem(newTask.workflowitem)
+    	val toStore = oldTask.copy(order = newOrder, project = newTask.project, workflowitem = newTask.workflowitem)
     	val resTask = toStore.store
 	    return new FailableResult(new SimpleParams(taskBuilder.buildDto(resTask, None)))
     } catch {

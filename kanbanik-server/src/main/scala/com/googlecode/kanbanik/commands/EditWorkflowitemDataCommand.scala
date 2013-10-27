@@ -23,7 +23,7 @@ class EditWorkflowitemDataCommand extends ServerCommand[SimpleParams[Workflowite
     
     try {
     	val workflowReplaced = builtBoard.workflow.replaceItem(workflowitem)
-    	val storedBoard = builtBoard.withWorkflow(workflowReplaced).store	
+    	val storedBoard = builtBoard.copy(workflow = workflowReplaced).store
     	new FailableResult(new SimpleParams(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None)))
     } catch {
       case e: MidAirCollisionException =>

@@ -16,7 +16,7 @@ class WorkflowBuilder extends BaseBuilder {
         board
     )
     
-    res.withWorkflowitems(res.workflowitems.map(_.withParentWorkflow(res)))
+    res.copy(workflowitems = res.workflowitems.map(_.copy(_parentWorkflow = Some(res))))
   }
   
   def buildShallowDto(workflow: Workflow, board: Option[BoardDto]) = {

@@ -24,7 +24,7 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
       
       val newBoards = Some(project.boards.get.filter(_.id != board.id))
 
-      return new FailableResult(new SimpleParams(builder.buildDto(project.withBoards(newBoards).store)))
+      return new FailableResult(new SimpleParams(builder.buildDto(project.copy(boards = newBoards).store)))
     }
 
     new FailableResult(new SimpleParams)

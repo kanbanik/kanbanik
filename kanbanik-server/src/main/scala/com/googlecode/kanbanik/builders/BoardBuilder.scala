@@ -57,7 +57,7 @@ class BoardBuilder extends BaseBuilder {
         }
       })
 
-    board.withWorkflow(workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))
+    board.copy(workflow = workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))
 
   }
 

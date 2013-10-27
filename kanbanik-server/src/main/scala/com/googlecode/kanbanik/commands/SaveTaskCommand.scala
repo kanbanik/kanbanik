@@ -25,7 +25,7 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     try {
       val board = getBoard(taskDto, false)
       val workdlowitemId = new ObjectId(taskDto.getWorkflowitem().getId())
-      board.workflow.findItem(Workflowitem().withId(workdlowitemId)).getOrElse(throw new IllegalArgumentException())
+      board.workflow.findItem(Workflowitem().copy(id = Some(workdlowitemId))).getOrElse(throw new IllegalArgumentException())
     } catch {
       case e: IllegalArgumentException =>
         return new FailableResult(new SimpleParams(taskDto), false, "The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data.")
@@ -47,16 +47,16 @@ class SaveTaskCommand extends ServerCommand[SimpleParams[TaskDto], FailableResul
     if (task.id.isDefined) {
       task
     } else if (taskDto.getOrder != null) {
-      task.withOrder(taskDto.getOrder)
+      task.copy(order = taskDto.getOrder)
     } else {
       // only if not yet inserted and the order has not been sent, than look it up. But it is a REALLY heavy operation
-      task.withOrder(findOrder(taskDto))
+      task.copy(order = findOrder(taskDto))
     }
   }
 
   def findOrder(task: TaskDto) = {
     val board = getBoard(task, true)
-    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().withId(new ObjectId(task.getWorkflowitem().getId())))
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().copy(id = Some(new ObjectId(task.getWorkflowitem().getId()))))
     if (tasksOnWorkflowitem.size == 0) {
       "0"
     } else {

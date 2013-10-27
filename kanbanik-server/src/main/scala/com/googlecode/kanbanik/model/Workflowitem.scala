@@ -8,7 +8,7 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.commons._
 
-class Workflowitem(
+case class Workflowitem(
   val id: Option[ObjectId],
   val name: String,
   val wipLimit: Int,
@@ -34,95 +34,6 @@ class Workflowitem(
     val parentBoard = Board.all(false).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
     parentBoard.workflow.findItem(this).get.parentWorkflow
   }
-
-  // it has to be possible to do this in some cleaner way
-  def withName(name: String) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
-
-  def withWipLimit(wipLimit: Int) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
-
-  def withItemType(itemType: String) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
-
-  def withVersion(version: Int) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
-
-  def withWorkflow(newWorkflow: Workflow) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      newWorkflow,
-      _parentWorkflow);
-
-  def withParentWorkflow(parentWorkflow: Workflow) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      Some(parentWorkflow));
-
-  def withId(id: ObjectId) =
-    new Workflowitem(
-      Some(id),
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
-
-  def withVerticalSize(verticalSize: Int) =
-    new Workflowitem(
-      id,
-      name,
-      wipLimit,
-      verticalSize,
-      itemType,
-      version,
-      nestedWorkflow,
-      _parentWorkflow);
 
   def asDbObject(): DBObject = {
     MongoDBObject(
