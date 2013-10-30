@@ -58,4 +58,13 @@ class SerializationLearningTest extends FlatSpec {
     assert(extracted.version === None)
   }
 
+  it should "be possible to query it using XPath" in {
+    val json = parse("""
+         { "name": "Ignac"}
+                     """)
+
+    val res = (json \ "name").extract[String]
+    assert(res.toString === "Ignac")
+  }
+
 }
