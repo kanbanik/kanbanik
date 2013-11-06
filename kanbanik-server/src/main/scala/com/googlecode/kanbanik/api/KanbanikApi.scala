@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.api
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import net.liftweb.json._
 import com.googlecode.kanbanik.dtos._
+import net.liftweb.json.Serialization.write
 
 class KanbanikApi extends HttpServlet {
 
@@ -27,7 +28,10 @@ class KanbanikApi extends HttpServlet {
     val commandName = (json \ "commandName").extract[String]
     val extracted = json.extract[LoginDto]
 
-    resp.getWriter().print("username: " + extracted.userName + "pass: " + extracted.password + "command name: " + commandName)
+    val res = SomeResponse("this is a response text")
+    write(res)
+
+    resp.getWriter().print(write(res))
 
   }
 

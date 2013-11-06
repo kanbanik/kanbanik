@@ -13,7 +13,11 @@
 	
 	<inherits name="com.googlecode.kanbanik.kanbanik-dto" />
 
-	<entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
+    <inherits name="com.google.gwt.http.HTTP" />
+
+    <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+
+    <entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
 
 	<source path='client.components' />
 	<source path='client.editworkflow' />
@@ -26,7 +30,7 @@
 	<source path='client.modules.editworkflow.boards' />
 	<source path='client.modules.editworkflow.projects' />
 	<source path='client.messaging'/>
-	<source path="client.services"></source>
+	<source path='client.services'/>
 	<source path='client' />
 	<source path='shared' />
 	
