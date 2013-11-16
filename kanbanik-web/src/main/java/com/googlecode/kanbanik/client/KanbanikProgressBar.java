@@ -22,6 +22,8 @@ public class KanbanikProgressBar {
 	}
 	
 	public static void hide() {
-		dialog.hide();
+        if (dialog.isShowing()) {
+            dialog.hide();
+        }
 	}
 }

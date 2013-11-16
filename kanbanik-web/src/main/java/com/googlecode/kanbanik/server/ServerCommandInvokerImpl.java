@@ -45,13 +45,10 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		boolean isLoggedIn = SecurityUtils.getSubject().isAuthenticated();
 		
 		// unsecure zone - anyone can call this commands whatever the user is logged in or not
-		if (command == ServerCommand.LOGIN_COMMAND) {
-			return (R) new LoginCommand().execute((SimpleParams<LoginDto>) params);
-		} else if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
+		if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
 			return (R) new GetCurrentUserCommand().execute((VoidParams) params);
 		}
-		
-		
+
 		if (!isLoggedIn) {
 			throw new UserNotLoggedInException();
 		}

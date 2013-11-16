@@ -43,7 +43,6 @@ public class ErrorDialog extends DialogBox implements ClickHandler {
 
 		// it has to be scheduled deferred because the focus has to be taken after the button takes it
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-			@Override
 			public void execute() {
 				closeButton.setFocus(true);
 			}

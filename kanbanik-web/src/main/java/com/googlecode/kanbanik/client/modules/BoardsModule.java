@@ -88,7 +88,6 @@ public class BoardsModule {
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
 			panelWithDraggabls.addDomHandler(new ClickHandler() {
 				
-				@Override
 				public void onClick(ClickEvent event) {
 					MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
 				}

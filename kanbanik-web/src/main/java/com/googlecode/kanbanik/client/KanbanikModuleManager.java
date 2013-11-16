@@ -88,7 +88,6 @@ public class KanbanikModuleManager {
 
 	class LoginListener implements MessageListener<UserDto> {
 
-		@Override
 		public void messageArrived(Message<UserDto> message) {
 			showBoardsModule();
 		}
@@ -97,7 +96,6 @@ public class KanbanikModuleManager {
 	
 	class LogoutListener implements MessageListener<UserDto> {
 
-		@Override
 		public void messageArrived(Message<UserDto> message) {
 			showLoginModule();
 		}
