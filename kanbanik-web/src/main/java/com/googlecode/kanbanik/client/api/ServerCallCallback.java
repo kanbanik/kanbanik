@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.client.api;
 
-import com.google.gwt.http.client.RequestException;
 import com.googlecode.kanbanik.client.KanbanikProgressBar;
 import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.security.CurrentUser;
@@ -22,19 +21,20 @@ public abstract class ServerCallCallback<T> {
     }
 
     public void onFailure(Throwable exception) {
-        KanbanikProgressBar.hide();
-        new ErrorDialog(exception.getMessage() +
+        onFailure(exception.getMessage() +
                 " exception class: " +
                 exception.getClass().getName() +
-                ". For details please have a look into server logs.")
-        .center();
+                ". For details please have a look into server logs.");
 
-        anyFailure();
     }
 
     public void onFailure(Dtos.ErrorDto errorDto) {
+        onFailure(errorDto.getErrorMessage());
+    }
+
+    public void onFailure(String errorMsg) {
         KanbanikProgressBar.hide();
-        new ErrorDialog(errorDto.getErrorMessage()).center();
+        new ErrorDialog(errorMsg).center();
 
         anyFailure();
     }

@@ -34,16 +34,30 @@ import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
 import com.googlecode.kanbanik.shared.ServerCommand;
 import com.googlecode.kanbanik.shared.UserNotLoggedInException;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.session.mgt.WebSessionKey;
 
 public class ServerCommandInvokerImpl extends RemoteServiceServlet implements ServerCommandInvoker {
 
 	private static final long serialVersionUID = 5624445329544670227L;
 
 	// well... Anybody an idea how to get rid of this huge if-else statement?
+    // nvm, rewriting to scala anyway :)
 	@SuppressWarnings("unchecked")
 	public <P extends Params, R extends Result> R invokeCommand(ServerCommand command, P params) throws UserNotLoggedInException {
-		boolean isLoggedIn = SecurityUtils.getSubject().isAuthenticated();
-		
+        boolean isLoggedIn = false;
+
+        Subject subject = SecurityUtils.getSubject();
+
+        String sessionId = params.getSessionId();
+        if (sessionId != null && !"".equals(sessionId)) {
+            subject = new Subject.Builder().sessionId(sessionId).buildSubject();
+        }
+
+        isLoggedIn = subject.isAuthenticated();
+
 		// unsecure zone - anyone can call this commands whatever the user is logged in or not
 		if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
 			return (R) new GetCurrentUserCommand().execute((VoidParams) params);
@@ -54,7 +68,6 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		}
 		
 		// secure zone - only logged in users can call this commands
-		
 		if (command == ServerCommand.LOGOUT_COMMAND) {
 			return (R) new LogoutCommand().execute((VoidParams) params);
 		}else if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {

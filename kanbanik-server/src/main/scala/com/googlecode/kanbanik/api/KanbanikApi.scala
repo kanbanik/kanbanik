@@ -35,7 +35,10 @@ class KanbanikApi extends HttpServlet {
         command.get.execute(json)
         match {
           case Left(x) => resp.getWriter().print(write(x))
-          case Right(x) => resp.getWriter().print(write(x))
+          case Right(x) => {
+            resp.setStatus(452)
+            resp.getWriter().print(write(x))
+          }
         }
 
       }

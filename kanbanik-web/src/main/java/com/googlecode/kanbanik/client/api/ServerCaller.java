@@ -14,7 +14,7 @@ public class ServerCaller {
     public static <T, R> void sendRequest(final T dto, final Class<R> responseClass, final ServerCallCallback<R> callback) {
         KanbanikProgressBar.show();
 
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,  URL.encode(GWT.getHostPageBaseURL() + "/api"));
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,  URL.encode(GWT.getHostPageBaseURL() + "api"));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
 
         try {
@@ -32,9 +32,18 @@ public class ServerCaller {
                         Dtos.ErrorDto dto = DtoFactory.asDto(Dtos.ErrorDto.class, response.getText());
                         callback.onUserNotLoggedIn(dto);
                     } else {
-                        R responseDto = DtoFactory.asDto(responseClass, response.getText());
-                        callback.beforeSuccess(responseDto);
-                        callback.onSuccess(responseDto);
+                        R responseDto = null;
+                        try {
+                            responseDto = DtoFactory.asDto(responseClass, response.getText());
+
+                        } catch (Throwable t) {
+                            callback.onFailure("Unable to deserialize JSON: '" + response.getText() + "'");
+                        }
+
+                        if (responseDto != null) {
+                            callback.beforeSuccess(responseDto);
+                            callback.onSuccess(responseDto);
+                        }
                     }
                 }
             });

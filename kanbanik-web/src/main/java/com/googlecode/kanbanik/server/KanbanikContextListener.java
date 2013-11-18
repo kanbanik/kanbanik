@@ -5,6 +5,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.googlecode.kanbanik.model.KanbanikConnectionManager;
+import com.googlecode.kanbanik.security.KanbanikRealm;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.DefaultSecurityManager;
 
 public class KanbanikContextListener implements ServletContextListener {
 
@@ -14,6 +17,8 @@ public class KanbanikContextListener implements ServletContextListener {
 	}
 
 	public void contextInitialized(ServletContextEvent event) {
+        SecurityUtils.setSecurityManager(new DefaultSecurityManager(new KanbanikRealm()));
+
 		ServletContext context = event.getServletContext();
 		String server = context.getInitParameter("mongoServer");
 		String port = context.getInitParameter("mongoPort");

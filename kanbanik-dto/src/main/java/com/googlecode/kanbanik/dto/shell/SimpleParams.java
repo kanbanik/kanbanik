@@ -8,7 +8,9 @@ public class SimpleParams<T extends KanbanikDto> implements Params, Result  {
 	
 	private T payload;
 
-	public SimpleParams() {
+    private String sessionId;
+
+    public SimpleParams() {
 		// because of GWT
 	}
 	
@@ -19,5 +21,13 @@ public class SimpleParams<T extends KanbanikDto> implements Params, Result  {
 	public T getPayload() {
 		return payload;
 	}
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
 }

@@ -22,11 +22,13 @@ class LoginCommand extends Command[LoginDto, UserDto] {
       currentUser.login(new UsernamePasswordToken(params.userName, params.password))
       SecurityUtils.getSubject().getSession().setTimeout(timeout)
     } catch {
-      case e: Exception =>
+      case e: Exception => {
         return Right(ErrorDto("Login not successful!"))
+      }
     }
     
     val principal = currentUser.getPrincipal().asInstanceOf[User]
-    Left(userBuilder.buildDto2(principal))
+
+    Left(userBuilder.buildDto2(principal, SecurityUtils.getSubject.getSession.getId.toString))
   }
 }

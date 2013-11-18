@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.security;
 
+import com.google.gwt.user.client.Cookies;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
@@ -15,9 +16,12 @@ import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public final class CurrentUser implements MessageListener<UserDto> {
-	
-	private static final CurrentUser instance = new CurrentUser();
-	
+
+    private static final CurrentUser instance = new CurrentUser();
+    public static final String KANBANIK_SESSION_ID = "KanbanikSessionId";
+
+    private String sessionId;
+
 	private CurrentUser() {
 	}
 
@@ -47,6 +51,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
 	
 	public void logoutFrontend() {
 		unregisterListeners();
+        Cookies.removeCookie(KANBANIK_SESSION_ID);
 		MessageBus.sendMessage(new LogoutEvent(user, this));
 		
 		this.user = null;
@@ -76,6 +81,14 @@ public final class CurrentUser implements MessageListener<UserDto> {
 	public UserDto getUser() {
 		return user;
 	}
+
+    public String getSessionId() {
+        return Cookies.getCookie(KANBANIK_SESSION_ID);
+    }
+
+    public void setSessionId(String sessionId) {
+        Cookies.setCookie(KANBANIK_SESSION_ID, sessionId);
+    }
 
 	@Override
 	public void messageArrived(Message<UserDto> message) {

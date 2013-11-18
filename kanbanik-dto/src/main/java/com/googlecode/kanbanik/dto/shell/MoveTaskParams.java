@@ -15,7 +15,9 @@ public class MoveTaskParams implements Params {
 
 	private String nextOrder;
 
-	public MoveTaskParams() {
+    private String sessionId;
+
+    public MoveTaskParams() {
 	}
 
 	public MoveTaskParams(TaskDto task, ProjectDto project, String prevOrder, String nextOrder) {
@@ -57,5 +59,12 @@ public class MoveTaskParams implements Params {
 	public void setNextOrder(String nextOrder) {
 		this.nextOrder = nextOrder;
 	}
-	
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 }

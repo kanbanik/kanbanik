@@ -12,6 +12,8 @@ public class DtoFactory {
         AutoBean<Dtos.LoginDto> loginDto();
 
         AutoBean<Dtos.ErrorDto> errorDto();
+
+        AutoBean<Dtos.UserDto> userDto();
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);

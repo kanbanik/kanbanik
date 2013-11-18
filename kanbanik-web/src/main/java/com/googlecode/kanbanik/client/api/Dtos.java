@@ -15,7 +15,7 @@ public class Dtos {
         void setPassword(String password);
     }
 
-    public static interface UserDto extends BaseDto {
+    public static interface UserDto {
 
         void setUserName(String userName);
         String getUserName();
@@ -28,6 +28,9 @@ public class Dtos {
 
         public String getPictureUrl();
         public void setPictureUrl(String pictureUrl);
+
+        public String getSessionId();
+        public void setSessionId(String sessionId);
     }
 
     public static interface ErrorDto {

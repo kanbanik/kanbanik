@@ -12,8 +12,10 @@ public class EditWorkflowParams implements Params {
 	private WorkflowitemDto next;
 	
 	private WorkflowDto destContext;
-	
-	public EditWorkflowParams(WorkflowitemDto current, WorkflowitemDto next,
+
+    private String sessionId;
+
+    public EditWorkflowParams(WorkflowitemDto current, WorkflowitemDto next,
 			WorkflowDto destContext) {
 		super();
 		this.current = current;
@@ -48,4 +50,11 @@ public class EditWorkflowParams implements Params {
 		this.destContext = destContext;
 	}
 
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 }

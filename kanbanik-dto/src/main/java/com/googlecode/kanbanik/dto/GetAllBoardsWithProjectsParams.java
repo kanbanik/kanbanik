@@ -8,7 +8,9 @@ public class GetAllBoardsWithProjectsParams implements Params {
 
 	private boolean includeTasks;
 
-	public GetAllBoardsWithProjectsParams() {
+    private String sessionId;
+
+    public GetAllBoardsWithProjectsParams() {
 		// because of GWT serialization
 	}
 	
@@ -20,5 +22,12 @@ public class GetAllBoardsWithProjectsParams implements Params {
 	public boolean isIncludeTasks() {
 		return includeTasks;
 	}
-	
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 }
