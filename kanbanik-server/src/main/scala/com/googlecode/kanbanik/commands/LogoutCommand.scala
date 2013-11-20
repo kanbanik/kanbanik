@@ -1,13 +1,16 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.dto.shell.VoidParams
-import org.apache.shiro.SecurityUtils
+import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.dtos.StatusDto
+import com.googlecode.kanbanik.dtos.SessionDto
+import org.apache.shiro.subject.Subject
 
-class LogoutCommand extends ServerCommand[VoidParams, VoidParams] {
+class LogoutCommand extends Command[SessionDto, StatusDto] {
 
-  def execute(params: VoidParams): VoidParams = {
-    SecurityUtils.getSubject().logout()
-    new VoidParams
+  def execute(params: SessionDto): Either[StatusDto, ErrorDto] = {
+    val subject = new Subject.Builder().sessionId(params.sessionId).buildSubject
+    subject.logout()
+    Left(StatusDto(true, None))
   }
   
 }

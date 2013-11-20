@@ -8,6 +8,11 @@ public abstract class ServerCallCallback<T> {
 
     public void onSuccess(T response) {
         KanbanikProgressBar.hide();
+        success(response);
+    }
+
+    public void success(T response) {
+
     }
 
     public void beforeSuccess(T response) {

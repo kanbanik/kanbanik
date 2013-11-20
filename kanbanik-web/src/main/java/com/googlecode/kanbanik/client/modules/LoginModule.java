@@ -75,10 +75,7 @@ public class LoginModule extends Composite {
 
 	private void doLogin() {
 
-        Dtos.LoginDto loginDto = DtoFactory.loginDto();
-        loginDto.setUserName(name.getText());
-        loginDto.setPassword(password.getText());
-        loginDto.setCommandName(CommandNames.LOGIN.name);
+        Dtos.LoginDto loginDto = DtoFactory.loginDto(name.getText(), password.getText());
 
         ServerCaller.<Dtos.LoginDto, Dtos.UserDto>sendRequest(
                 loginDto,
@@ -90,7 +87,7 @@ public class LoginModule extends Composite {
                     }
 
                     @Override
-                    public void onSuccess(Dtos.UserDto response) {
+                    public void success(Dtos.UserDto response) {
                         CurrentUser.getInstance().setSessionId(response.getSessionId());
                         CurrentUser.getInstance().login(
                                 new UserDto(

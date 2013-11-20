@@ -59,18 +59,13 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
         isLoggedIn = subject.isAuthenticated();
 
 		// unsecure zone - anyone can call this commands whatever the user is logged in or not
-		if (command == ServerCommand.GET_CURRENT_USER_COMMAND) {
-			return (R) new GetCurrentUserCommand().execute((VoidParams) params);
-		}
 
 		if (!isLoggedIn) {
 			throw new UserNotLoggedInException();
 		}
 		
 		// secure zone - only logged in users can call this commands
-		if (command == ServerCommand.LOGOUT_COMMAND) {
-			return (R) new LogoutCommand().execute((VoidParams) params);
-		}else if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
+		if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
 			return (R) new GetAllBoardsCommand().execute((GetAllBoardsWithProjectsParams) params);
 		} else if (command == ServerCommand.MOVE_TASK) {
 			return (R) new MoveTaskCommand().execute((MoveTaskParams) params);

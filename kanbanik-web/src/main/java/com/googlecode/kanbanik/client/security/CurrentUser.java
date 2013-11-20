@@ -1,9 +1,10 @@
 package com.googlecode.kanbanik.client.security;
 
 import com.google.gwt.user.client.Cookies;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -11,9 +12,8 @@ import com.googlecode.kanbanik.client.messaging.messages.user.LoginEvent;
 import com.googlecode.kanbanik.client.messaging.messages.user.LogoutEvent;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
+import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 public final class CurrentUser implements MessageListener<UserDto> {
 
@@ -26,21 +26,20 @@ public final class CurrentUser implements MessageListener<UserDto> {
 	}
 
 	public void logout() {
-		new KanbanikServerCaller(new Runnable() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(getSessionId());
+        dto.setCommandName(CommandNames.LOGOUT.name);
+        ServerCaller.<Dtos.SessionDto, Dtos.StatusDto>sendRequest(
+                dto,
+                Dtos.StatusDto.class,
+                new ServerCallCallback<Dtos.StatusDto>() {
 
-			public void run() {
-				ServerCommandInvokerManager.getInvoker().<VoidParams, VoidParams> invokeCommand(
-								ServerCommand.LOGOUT_COMMAND,
-								new VoidParams(),
-								new BaseAsyncCallback<VoidParams>() {
-									
-									public void success(VoidParams res) {
-										CurrentUser.getInstance().logoutFrontend();
-									}
-								});
+                    @Override
+                    public void success(Dtos.StatusDto response) {
+                        CurrentUser.getInstance().logoutFrontend();
+                    }
+                }
+        );
 
-			}
-		});
 	}
 
 	public void login(UserDto user) {

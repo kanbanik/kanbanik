@@ -1,6 +1,6 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.dto.UserDto
+
 import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
@@ -9,13 +9,14 @@ import com.googlecode.kanbanik.builders.UserBuilder
 import com.googlecode.kanbanik.model.User
 import java.lang.String
 import org.apache.shiro.subject.Subject
+import com.googlecode.kanbanik.dtos.{SessionDto, ErrorDto, UserDto, EmptyDto}
 
-class GetCurrentUserCommand extends ServerCommand[VoidParams, FailableResult[SimpleParams[UserDto]]] {
+class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
   lazy val userBuilder = new UserBuilder
   
-  def execute(params: VoidParams): FailableResult[SimpleParams[UserDto]] = {
-    val sessionId: String = params.getSessionId
+  def execute(params: SessionDto): Either[UserDto, ErrorDto] = {
+    val sessionId: String = params.sessionId
 
     val user = if (sessionId != null && sessionId != "") {
       new Subject.Builder().sessionId(sessionId).buildSubject
@@ -25,9 +26,9 @@ class GetCurrentUserCommand extends ServerCommand[VoidParams, FailableResult[Sim
 
     if (user.isAuthenticated()) {
       val userPrincipal = user.getPrincipal().asInstanceOf[User]
-    	new FailableResult(new SimpleParams(userBuilder.buildDto(userPrincipal)))
+    	Left(userBuilder.buildDto2(userPrincipal, sessionId))
     } else {
-    	new FailableResult(new SimpleParams(new UserDto), false, "No user logged in.")
+    	Right(ErrorDto("No user logged in."))
     }
   }
   

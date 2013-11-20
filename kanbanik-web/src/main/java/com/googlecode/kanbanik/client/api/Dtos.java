@@ -15,6 +15,19 @@ public class Dtos {
         void setPassword(String password);
     }
 
+    public static interface SessionDto extends BaseDto {
+        String getSessionId();
+        void setSessionId(String sessionId);
+    }
+
+    public static interface StatusDto {
+        Boolean isSuccess();
+        void setSuccess(Boolean success);
+
+        void setReason(String reason);
+        String getReason();
+    }
+
     public static interface UserDto {
 
         void setUserName(String userName);
