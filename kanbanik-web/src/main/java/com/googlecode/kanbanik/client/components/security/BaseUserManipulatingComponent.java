@@ -15,15 +15,14 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
-import com.googlecode.kanbanik.dto.ManipulateUserDto;
-import com.googlecode.kanbanik.dto.UserDto;
 
-public abstract class BaseUserManipulatingComponent extends Composite implements PanelContainingDialolgListener, Closable, Component<UserDto>, ClickHandler {
+public abstract class BaseUserManipulatingComponent extends Composite implements PanelContainingDialolgListener, Closable, Component<Dtos.UserDto>, ClickHandler {
 
 	@UiField
 	Panel mainPanel;
@@ -73,7 +72,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 
 	protected abstract void makeServerCall();
 
-	protected abstract ManipulateUserDto createDto();
+	protected abstract Dtos.UserManipulationDto createDto();
 	
 	@Override
 	public void cancelClicked(PanelContainingDialog dialog) {
@@ -89,7 +88,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	}
 
 	@Override
-	public void setDto(UserDto dto) {
+	public void setDto(Dtos.UserDto dto) {
 	}
 
 	@Override

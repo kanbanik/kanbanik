@@ -12,35 +12,25 @@ import com.googlecode.kanbanik.commands.GetAllBoardsCommand
 import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commands.SaveBoardCommand
 import com.googlecode.kanbanik.commands.SaveProjectCommand
-import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commands.DeleteTasksCommand
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
 import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
-import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto
-import com.googlecode.kanbanik.dto.ProjectDto
-import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.dto.WorkflowDto
-import com.googlecode.kanbanik.dto.WorkflowitemDto
+import com.googlecode.kanbanik.dto._
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams
-import com.googlecode.kanbanik.dto.UserDto
 import com.googlecode.kanbanik.commands.CreateUserCommand
-import com.googlecode.kanbanik.dto.ManipulateUserDto
-import com.googlecode.kanbanik.dto.ClassOfServiceDto
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
-import com.googlecode.kanbanik.dto.ListDto
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
 
 /**
  * This are tests which expects working DB and are trying to simmulate some basic use
@@ -53,11 +43,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // creation phase
     
     // create user
-    val user = new ManipulateUserDto()
-    user.setUserName("user1")
-    user.setPassword("aaa")
-    user.setNewPassword("aaa")
-    val storedUser = new CreateUserCommand().execute(new SimpleParams(user))
+    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, "", 1, "aaa", "aaa"))
 
     // create board
     val board = new BoardDto()
@@ -129,7 +115,19 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     
     // edit task
     val taskToEdit = loadBoard().getTasks().get(0)
-    taskToEdit.setAssignee(storedUser.getPayload().getPayload())
+
+    storedUser match {
+      case Left(storedUserValue) => {
+        taskToEdit.setAssignee(new UserDto(
+          storedUserValue.userName,
+          storedUserValue.realName,
+          storedUserValue.pictureUrl,
+          storedUserValue.version
+        ))
+      }
+    }
+
+
     taskToEdit.setClassOfService(storedClassOfService.getPayload().getPayload())
     taskToEdit.setDueDate("yesterday")
     val editedTask = new SaveTaskCommand().execute(new SimpleParams(taskToEdit))

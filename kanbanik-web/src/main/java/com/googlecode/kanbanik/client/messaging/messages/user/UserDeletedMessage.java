@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.user;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.UserDto;
 
-public class UserDeletedMessage extends BaseMessage<UserDto> {
+public class UserDeletedMessage extends BaseMessage<Dtos.UserDto> {
 
-	public UserDeletedMessage(UserDto payload, Object source) {
+	public UserDeletedMessage(Dtos.UserDto payload, Object source) {
 		super(payload, source);
 	}
 

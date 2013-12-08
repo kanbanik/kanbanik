@@ -97,14 +97,6 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new DeleteWorkflowitemCommand().execute((SimpleParams<WorkflowitemDto>) params);
 		} else if (command == ServerCommand.EDIT_WORKFLOWITEM_DATA) {
 			return (R) new EditWorkflowitemDataCommand().execute((SimpleParams<WorkflowitemDto>) params);
-		} else if (command == ServerCommand.GET_ALL_USERS_COMMAND) {
-			return (R) new GetAllUsersCommand().execute((VoidParams) params);
-		} else if (command == ServerCommand.EDIT_USER_COMMAND) {
-			return (R) new EditUserCommand().execute((SimpleParams<ManipulateUserDto>) params);
-		} else if (command == ServerCommand.CREATE_USER_COMMAND) {
-			return (R) new CreateUserCommand().execute((SimpleParams<ManipulateUserDto>) params);
-		} else if (command == ServerCommand.DELETE_USER_COMMAND) {
-			return (R) new DeleteUserCommand().execute((SimpleParams<UserDto>) params);
 		} else if (command == ServerCommand.SAVE_CLASS_OF_SERVICE) {
 			return (R) new SaveClassOfServiceCommand().execute((SimpleParams<ClassOfServiceDto>) params);
 		} else if (command == ServerCommand.DELETE_CLASS_OF_SERVICE) {

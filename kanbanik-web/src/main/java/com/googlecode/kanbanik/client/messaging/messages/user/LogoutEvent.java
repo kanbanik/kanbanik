@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.user;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.UserDto;
 
-public class LogoutEvent extends BaseMessage<UserDto> {
+public class LogoutEvent extends BaseMessage<Dtos.UserDto> {
 
-	public LogoutEvent(UserDto payload, Object source) {
+	public LogoutEvent(Dtos.UserDto payload, Object source) {
 		super(payload, source);
 	}
 

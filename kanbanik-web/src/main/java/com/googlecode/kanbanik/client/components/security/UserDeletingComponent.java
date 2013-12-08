@@ -3,9 +3,10 @@ package com.googlecode.kanbanik.client.components.security;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
@@ -13,16 +14,12 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelCont
 import com.googlecode.kanbanik.client.components.WarningPanel;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
-import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 public class UserDeletingComponent implements ClickHandler, Closable,
-		Component<UserDto> {
+		Component<Dtos.UserDto> {
 
-	private UserDto dto;
+	private Dtos.UserDto dto;
 
 	private PanelContainingDialog yesNoDialog;
 
@@ -46,35 +43,25 @@ public class UserDeletingComponent implements ClickHandler, Closable,
 
 	class YesNoDialogListener implements PanelContainingDialolgListener {
 
-		private UserDto userDto;
+		private Dtos.UserDto userDto;
 
-		public YesNoDialogListener(UserDto userDto) {
+		public YesNoDialogListener(Dtos.UserDto userDto) {
 			this.userDto = userDto;
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
-			new KanbanikServerCaller(new Runnable() {
+            userDto.setCommandName(CommandNames.DELETE_USER.name);
+            ServerCaller.<Dtos.UserDto, Dtos.EmptyDto>sendRequest(
+                    userDto,
+                    Dtos.EmptyDto.class,
+                    new ResourceClosingCallback<Dtos.EmptyDto>(UserDeletingComponent.this) {
+                        @Override
+                        public void success(Dtos.EmptyDto response) {
+                            MessageBus.sendMessage(new UserDeletedMessage(userDto, UserDeletingComponent.this));
+                        }
+                    }
+            );
 
-				public void run() {
-
-					ServerCommandInvokerManager
-							.getInvoker()
-							.<SimpleParams<UserDto>, FailableResult<VoidParams>> invokeCommand(
-									ServerCommand.DELETE_USER_COMMAND,
-									new SimpleParams<UserDto>(userDto),
-									new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(
-											UserDeletingComponent.this) {
-
-										@Override
-										public void success(
-												FailableResult<VoidParams> result) {
-											MessageBus.sendMessage(new UserDeletedMessage(userDto, UserDeletingComponent.this));
-
-										}
-									});
-
-				}
-			});
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {
@@ -88,7 +75,7 @@ public class UserDeletingComponent implements ClickHandler, Closable,
 	}
 
 	@Override
-	public void setDto(UserDto dto) {
+	public void setDto(Dtos.UserDto dto) {
 		this.dto = dto;
 		warningPanel = new WarningPanel(
 				"Are you sure you want to delete user '" + dto.getRealName()

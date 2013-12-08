@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.client.modules;
 
-import java.util.List;
-
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,20 +7,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.BoardStyle;
-import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
-import com.googlecode.kanbanik.client.components.board.BoardPanel;
-import com.googlecode.kanbanik.client.components.board.BoardsPanel;
-import com.googlecode.kanbanik.client.components.board.NoContentWarningPanel;
-import com.googlecode.kanbanik.client.components.board.ProjectHeader;
-import com.googlecode.kanbanik.client.components.board.TaskContainer;
-import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
-import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
-import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
+import com.googlecode.kanbanik.client.*;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.components.board.*;
 import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
+import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -30,18 +22,13 @@ import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectio
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
-import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
-import com.googlecode.kanbanik.dto.ListDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.TaskDto;
-import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.*;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
+
+import java.util.List;
 
 public class BoardsModule {
 
@@ -158,26 +145,20 @@ public class BoardsModule {
 	}
 	
 	private void loadUsers(final ModuleInitializeCallback boardsModuleInitialized) {
-		new KanbanikServerCaller(new Runnable() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.GET_ALL_USERS_COMMAND.name);
+        ServerCaller.<Dtos.SessionDto, Dtos.UsersDto>sendRequest(
+                dto,
+                Dtos.UsersDto.class,
+                new ServerCallCallback<Dtos.UsersDto>() {
 
-			public void run() {
-				ServerCommandInvokerManager
-						.getInvoker()
-						.<VoidParams, SimpleParams<ListDto<UserDto>>> invokeCommand(
-								ServerCommand.GET_ALL_USERS_COMMAND,
-								new VoidParams(),
-								new BaseAsyncCallback<SimpleParams<ListDto<UserDto>>>() {
-
-									@Override
-									public void success(SimpleParams<ListDto<UserDto>> result) {
-										UsersManager.getInstance().initUsers(result.getPayload().getList());
-										loadClassesOfServices(boardsModuleInitialized);
-									}
-
-								});
-			}
-		});
-				
+                    @Override
+                    public void success(Dtos.UsersDto response) {
+                        UsersManager.getInstance().initUsers(response.getResult());
+                        loadClassesOfServices(boardsModuleInitialized);
+                    }
+                }
+        );
 	}
 	
 	private void loadClassesOfServices(final ModuleInitializeCallback boardsModuleInitialized) {

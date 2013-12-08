@@ -16,7 +16,7 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
   lazy val userBuilder = new UserBuilder
   
   def execute(params: SessionDto): Either[UserDto, ErrorDto] = {
-    val sessionId: String = params.sessionId
+    val sessionId = params.sessionId
 
     val user = if (sessionId != null && sessionId != "") {
       new Subject.Builder().sessionId(sessionId).buildSubject

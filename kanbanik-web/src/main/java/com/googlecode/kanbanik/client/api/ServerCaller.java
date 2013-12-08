@@ -2,14 +2,11 @@ package com.googlecode.kanbanik.client.api;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
-import com.google.gwt.user.client.Window;
 import com.googlecode.kanbanik.client.KanbanikProgressBar;
+import static com.googlecode.kanbanik.dto.ErrorCodes.APP_ERROR_STATUS;
+import static com.googlecode.kanbanik.dto.ErrorCodes.USER_NOT_LOGGED_IN_STATUS;
 
 public class ServerCaller {
-
-    private static final int APP_ERROR_STATUS = 452;
-
-    private static final int USER_NOT_LOGGED_IN_STATUS = 453;
 
     public static <T, R> void sendRequest(final T dto, final Class<R> responseClass, final ServerCallCallback<R> callback) {
         KanbanikProgressBar.show();

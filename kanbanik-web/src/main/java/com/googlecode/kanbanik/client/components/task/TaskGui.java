@@ -27,6 +27,8 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -42,6 +44,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.TaskDto;
+import scala.collection.parallel.Tasks;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
 	
@@ -142,8 +145,11 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			if (imageHandle != null) {
 				imageHandle.removeHandler();
 			}
-			
-			Image picture = UsersManager.getInstance().getPictureFor(taskDto.getAssignee());
+
+            Dtos.UserDto newUser = DtoFactory.userDto();
+            newUser.setPictureUrl(taskDto.getAssignee().getPictureUrl());
+
+			Image picture = UsersManager.getInstance().getPictureFor(newUser);
 			imageHandle = picture.addClickHandler(this);
 			assigneePicturePlace.clear();
 			assigneePicturePlace.add(picture);

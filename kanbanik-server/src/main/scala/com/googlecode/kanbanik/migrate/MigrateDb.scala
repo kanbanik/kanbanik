@@ -3,7 +3,6 @@ package com.googlecode.kanbanik.migrate
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
-import com.googlecode.kanbanik.dto.ManipulateUserDto
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.mongodb.DBObject
@@ -16,6 +15,7 @@ import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commons._
 import scala.Some
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
 
 class MigrateDb extends HasMongoConnection {
 
@@ -65,16 +65,17 @@ class From1To2 extends MigrationPart {
   def migrate {
 
     // create a default user
-    val userDto = new ManipulateUserDto(
+    val userDto = ManipulateUserDto(
       "admin",
       "Default User",
       null,
+      "sessionId",
       1,
       "admin",
       "admin")
 
     // create the first user
-    new CreateUserCommand().execute(new SimpleParams(userDto))
+    new CreateUserCommand().execute(userDto)
 
     setVersionTo(2)
   }

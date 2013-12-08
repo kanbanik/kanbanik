@@ -13,7 +13,7 @@ trait HasMongoConnection extends ResourceManipulation {
 
   object Coll extends Enumeration {
     val Workflowitems = Value("workflowitems")
-	val Workflow = Value("workflow")
+  	val Workflow = Value("workflow")
     val Boards = Value("boards")
     val Tasks = Value("tasks")
     val Projects = Value("projects")

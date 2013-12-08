@@ -1,20 +1,20 @@
 package com.googlecode.kanbanik.client.managers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Image;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.dto.UserDto;
+import com.googlecode.kanbanik.client.api.Dtos;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsersManager {
 
 	private static final UsersManager INSTANCE = new UsersManager();
 
-	private List<UserDto> users;
+	private List<Dtos.UserDto> users;
 
 	private static final Image defaultPicture = new Image(
 			KanbanikResources.INSTANCE.noUserPicture());
@@ -23,18 +23,18 @@ public class UsersManager {
 		return INSTANCE;
 	}
 
-	public void initUsers(List<UserDto> users) {
+	public void initUsers(List<Dtos.UserDto> users) {
 		this.users = users;
 	}
 
-	public List<UserDto> getUsers() {
+	public List<Dtos.UserDto> getUsers() {
 		if (users == null) {
-			return new ArrayList<UserDto>();
+			return new ArrayList<Dtos.UserDto>();
 		}
 		return users;
 	}
 
-	public Image getPictureFor(UserDto user) {
+	public Image getPictureFor(Dtos.UserDto user) {
 		if (user.getPictureUrl() == null) {
 			return defaultPicture;
 		}

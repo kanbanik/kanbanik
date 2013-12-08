@@ -15,11 +15,6 @@ import com.googlecode.kanbanik.client.modules.ControlPanelModule;
 import com.googlecode.kanbanik.client.modules.LoginModule;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class KanbanikModuleManager {
 	
@@ -51,12 +46,7 @@ public class KanbanikModuleManager {
 
                         @Override
                         public void success(Dtos.UserDto response) {
-                            autologin(new UserDto(
-                                    response.getUserName(),
-                                    response.getRealName(),
-                                    response.getPictureUrl(),
-                                    response.getVersion()
-                            ));
+                            autologin(response);
                         }
                     }
             );
@@ -76,7 +66,7 @@ public class KanbanikModuleManager {
 		RootPanel.get("mainSection").add(new LoginModule());
 	}
 
-	private void autologin(UserDto result) {
+	private void autologin(Dtos.UserDto result) {
 		CurrentUser.getInstance().login(result);
 	}
 	
@@ -93,17 +83,17 @@ public class KanbanikModuleManager {
 		MessageBus.registerListener(LogoutEvent.class, logoutListener);
 	}
 
-	class LoginListener implements MessageListener<UserDto> {
+	class LoginListener implements MessageListener<Dtos.UserDto> {
 
-		public void messageArrived(Message<UserDto> message) {
+		public void messageArrived(Message<Dtos.UserDto> message) {
 			showBoardsModule();
 		}
 		
 	}
 	
-	class LogoutListener implements MessageListener<UserDto> {
+	class LogoutListener implements MessageListener<Dtos.UserDto> {
 
-		public void messageArrived(Message<UserDto> message) {
+		public void messageArrived(Message<Dtos.UserDto> message) {
 			showLoginModule();
 		}
 		

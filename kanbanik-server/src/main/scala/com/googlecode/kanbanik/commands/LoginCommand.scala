@@ -20,6 +20,7 @@ class LoginCommand extends Command[LoginDto, UserDto] {
       SecurityUtils.getSubject().getSession().setTimeout(timeout)
     } catch {
       case e: Exception => {
+        e.printStackTrace()
         return Right(ErrorDto("Login not successful!"))
       }
     }

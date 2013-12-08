@@ -35,6 +35,7 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
@@ -83,7 +84,7 @@ public abstract class AbstractTaskEditingComponent {
 
 	private Map<String, ClassOfServiceDto> classOfServiceToName;
 	
-	private Map<String, UserDto> userToName;
+	private Map<String, Dtos.UserDto> userToName;
 
 	public AbstractTaskEditingComponent(HasClickHandlers clickHandler, BoardDto boardDto) {
 		this.clickHandler = clickHandler;
@@ -146,9 +147,9 @@ public abstract class AbstractTaskEditingComponent {
 		return res;
 	}
 
-	private Map<String, UserDto> initUserToName(List<UserDto> users) {
-		Map<String, UserDto> res = new HashMap<String, UserDto>();
-		for (UserDto user : users) {
+	private Map<String, Dtos.UserDto> initUserToName(List<Dtos.UserDto> users) {
+		Map<String, Dtos.UserDto> res = new HashMap<String, Dtos.UserDto>();
+		for (Dtos.UserDto user : users) {
 			res.put(user.getUserName(), user);
 		}
 		
@@ -338,7 +339,13 @@ public abstract class AbstractTaskEditingComponent {
 		}
 
 		taskDto.setClassOfService(selectedClassOfService);
-		taskDto.setAssignee(userToName.get(assigneeEditor.getValue().trim()));
+        Dtos.UserDto newUser = userToName.get(assigneeEditor.getValue().trim());
+		taskDto.setAssignee(new UserDto(
+                newUser.getUserName(),
+                newUser.getRealName(),
+                newUser.getPictureUrl(),
+                newUser.getVersion()
+        ));
 		if (dueDateCheckBox.getValue()) {
 			taskDto.setDueDate(dueDateTextBox.getText().trim());
 		} else {

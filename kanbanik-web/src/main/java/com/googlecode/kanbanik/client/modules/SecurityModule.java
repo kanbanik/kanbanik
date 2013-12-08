@@ -9,6 +9,10 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.components.security.UserAddingComponent;
 import com.googlecode.kanbanik.client.components.security.UserDeletingComponent;
@@ -20,16 +24,17 @@ import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.UserDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-public class SecurityModule extends Composite implements KanbanikModule, MessageListener<UserDto> {
+public class SecurityModule extends Composite implements KanbanikModule, MessageListener<Dtos.UserDto> {
 
 	@UiField(provided=true)
-	ListBoxWithAddEditDelete<UserDto> usersList;
+	ListBoxWithAddEditDelete<Dtos.UserDto> usersList;
 	
 	interface MyUiBinder extends UiBinder<Widget, SecurityModule> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -40,7 +45,7 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 		MessageBus.registerListener(UserEditedMessage.class, this);
 		MessageBus.registerListener(UserDeletedMessage.class, this);
 		
-		usersList = new ListBoxWithAddEditDelete<UserDto>(
+		usersList = new ListBoxWithAddEditDelete<Dtos.UserDto>(
 				"Users",
 				new IdProvider(),
 				new LabelProvider(),
@@ -55,50 +60,52 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 	
 	@Override
 	public void initialize(final ModuleInitializeCallback initializedCallback) {
-		
-		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<UserDto>>> invokeCommand(
-				ServerCommand.GET_ALL_USERS_COMMAND,
-				new VoidParams(),
-				new BaseAsyncCallback<SimpleParams<ListDto<UserDto>>>() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.GET_ALL_USERS_COMMAND.name);
+        ServerCaller.<Dtos.SessionDto, Dtos.UsersDto>sendRequest(
+                dto,
+                Dtos.UsersDto.class,
+                new ServerCallCallback<Dtos.UsersDto>() {
+                    @Override
+                    public void success(Dtos.UsersDto response) {
+                        usersList.setContent(response.getResult());
+                        usersList.setSelectedDto(CurrentUser.getInstance().getUser());
+                        initializedCallback.initialized(SecurityModule.this);
+                    }
+                }
 
-					@Override
-					public void success(SimpleParams<ListDto<UserDto>> result) {
-						usersList.setContent(result.getPayload().getList());
-						usersList.setSelectedDto(CurrentUser.getInstance().getUser());
-						initializedCallback.initialized(SecurityModule.this);
-					}
-				});
-		
+        );
+
 		setVisible(true);		
 	}
 	
-	class LabelProvider implements ListBoxWithAddEditDelete.LabelProvider<UserDto> {
+	class LabelProvider implements ListBoxWithAddEditDelete.LabelProvider<Dtos.UserDto> {
 
 		@Override
-		public String getLabel(UserDto t) {
+		public String getLabel(Dtos.UserDto t) {
 			return t.getRealName() + "(" + t.getUserName() + ")";
 		}
 		
 	}
 	
-	class IdProvider implements ListBoxWithAddEditDelete.IdProvider<UserDto> {
+	class IdProvider implements ListBoxWithAddEditDelete.IdProvider<Dtos.UserDto> {
 
 		@Override
-		public String getId(UserDto t) {
+		public String getId(Dtos.UserDto t) {
 			return t.getUserName();
 		}
 	}
 	
-	class Refresher implements ListBoxWithAddEditDelete.Refresher<UserDto> {
+	class Refresher implements ListBoxWithAddEditDelete.Refresher<Dtos.UserDto> {
 
 		@Override
-		public void refrehs(List<UserDto> items, UserDto newItem, int index) {
+		public void refrehs(List<Dtos.UserDto> items, Dtos.UserDto newItem, int index) {
 			items.set(index, newItem);
 		}
 	}
 
 	@Override
-	public void messageArrived(Message<UserDto> message) {
+	public void messageArrived(Message<Dtos.UserDto> message) {
 		if (message instanceof UserAddedMessage) {
 			usersList.addNewItem(message.getPayload());
 		} else if (message instanceof UserDeletedMessage) {

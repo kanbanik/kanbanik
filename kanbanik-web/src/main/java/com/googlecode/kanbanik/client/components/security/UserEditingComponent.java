@@ -8,17 +8,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.*;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
-import com.googlecode.kanbanik.dto.ManipulateUserDto;
-import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 public class UserEditingComponent extends BaseUserManipulatingComponent {
 
@@ -34,7 +28,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	interface MyUiBinder extends UiBinder<Widget, UserEditingComponent> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private UserDto dto;
+	private Dtos.UserDto dto;
 	
 	public UserEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -58,19 +52,21 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	}
 	
 	@Override
-	protected ManipulateUserDto createDto() {
-		return new ManipulateUserDto(
-			      username.getText(),
-			      realName.getText(),
-			      pictureUrl.getText(),
-			      dto.getVersion(),
-			      password.getText(),
-			      toChangePassword.getValue() ? newPassword.getText() : password.getText()
-				);
+	protected Dtos.UserManipulationDto createDto() {
+        Dtos.UserManipulationDto newDto = DtoFactory.userManipulationDto();
+        newDto.setUserName(username.getText());
+        newDto.setRealName(realName.getText());
+        newDto.setPictureUrl(pictureUrl.getText());
+        newDto.setVersion(dto.getVersion());
+        newDto.setPassword(password.getText());
+        newDto.setNewPassword(toChangePassword.getValue() ? newPassword.getText() : password.getText());
+        newDto.setCommandName(CommandNames.EDIT_USER.name);
+
+        return newDto;
 	}
 	
 	@Override
-	public void setDto(UserDto dto) {
+	public void setDto(Dtos.UserDto dto) {
 		super.setDto(dto);
 		this.dto = dto;
 		
@@ -88,27 +84,20 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 
 	@Override
 	protected void makeServerCall() {
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ManipulateUserDto>, FailableResult<SimpleParams<UserDto>>> invokeCommand(
-				ServerCommand.EDIT_USER_COMMAND,
-				new SimpleParams<ManipulateUserDto>(createDto()),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<UserDto>>>(UserEditingComponent.this) {
+        ServerCaller.<Dtos.UserManipulationDto, Dtos.UserDto>sendRequest(
+                createDto(),
+                Dtos.UserDto.class,
+                new ResourceClosingCallback<Dtos.UserDto>(this) {
+                    @Override
+                    public void success(Dtos.UserDto response) {
+                        MessageBus.sendMessage(new UserEditedMessage(response, UserEditingComponent.this));
+                        setDto(response);
 
-					@Override
-					public void success(FailableResult<SimpleParams<UserDto>> result) {
-						MessageBus.sendMessage(new UserEditedMessage(result.getPayload().getPayload(), UserEditingComponent.this));
-						setDto(result.getPayload().getPayload());
-						
-						clearPasswordFields();
-					}
-
-				});
-		}
-
-					});		
+                        clearPasswordFields();
+                    }
+                }
+        );
 	}
 
 	private void clearPasswordFields() {

@@ -5,17 +5,11 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.*;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
-import com.googlecode.kanbanik.dto.ManipulateUserDto;
-import com.googlecode.kanbanik.dto.UserDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 public class UserAddingComponent extends BaseUserManipulatingComponent{
 
@@ -43,14 +37,17 @@ public class UserAddingComponent extends BaseUserManipulatingComponent{
 	}
 
 	@Override
-	protected ManipulateUserDto createDto() {
-		return new ManipulateUserDto(
-			      username.getText(),
-			      realName.getText(),
-			      pictureUrl.getText(),
-			      1,
-			      password.getText(),
-			      password.getText());
+	protected Dtos.UserManipulationDto createDto() {
+        Dtos.UserManipulationDto dto = DtoFactory.userManipulationDto();
+        dto.setUserName(username.getText());
+        dto.setRealName(realName.getText());
+        dto.setPictureUrl(pictureUrl.getText());
+        dto.setVersion(1);
+        dto.setPassword(password.getText());
+        dto.setNewPassword(password.getText());
+
+        dto.setCommandName(CommandNames.CREATE_USER.name);
+		return dto;
 	}
 
 	@Override
@@ -70,24 +67,19 @@ public class UserAddingComponent extends BaseUserManipulatingComponent{
 	
 	@Override
 	protected void makeServerCall() {
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ManipulateUserDto>, FailableResult<SimpleParams<UserDto>>> invokeCommand(
-				ServerCommand.CREATE_USER_COMMAND,
-				new SimpleParams<ManipulateUserDto>(createDto()),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<UserDto>>>(UserAddingComponent.this) {
+        ServerCaller.<Dtos.UserManipulationDto, Dtos.UserDto>sendRequest(
+                createDto(),
+                Dtos.UserDto.class,
+                new ResourceClosingCallback<Dtos.UserDto>(this) {
+                    @Override
+                    public void success(Dtos.UserDto response) {
+                        MessageBus.sendMessage(new UserAddedMessage(response, UserAddingComponent.this));
+                        clearAllFields();
+                    }
+                }
+        );
 
-					@Override
-					public void success(FailableResult<SimpleParams<UserDto>> result) {
-						MessageBus.sendMessage(new UserAddedMessage(result.getPayload().getPayload(), UserAddingComponent.this));
-						clearAllFields();
-					}
-				});
-		}
-
-					});		
 	}
 	
 }

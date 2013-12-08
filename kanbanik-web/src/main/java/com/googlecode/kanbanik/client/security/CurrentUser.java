@@ -13,9 +13,8 @@ import com.googlecode.kanbanik.client.messaging.messages.user.LogoutEvent;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.UserDto;
 
-public final class CurrentUser implements MessageListener<UserDto> {
+public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
     private static final CurrentUser instance = new CurrentUser();
     public static final String KANBANIK_SESSION_ID = "KanbanikSessionId";
@@ -32,7 +31,6 @@ public final class CurrentUser implements MessageListener<UserDto> {
                 dto,
                 Dtos.StatusDto.class,
                 new ServerCallCallback<Dtos.StatusDto>() {
-
                     @Override
                     public void success(Dtos.StatusDto response) {
                         CurrentUser.getInstance().logoutFrontend();
@@ -42,7 +40,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
 
 	}
 
-	public void login(UserDto user) {
+	public void login(Dtos.UserDto user) {
 		this.user = user;
 		registerListeners();
 		MessageBus.sendMessage(new LoginEvent(user, this));
@@ -56,7 +54,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
 		this.user = null;
 	}
 	
-	private UserDto user; 
+	private Dtos.UserDto user;
 	
 	
 	private void unregisterListeners() {
@@ -77,7 +75,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
 		return instance;
 	}
 	
-	public UserDto getUser() {
+	public Dtos.UserDto getUser() {
 		return user;
 	}
 
@@ -90,7 +88,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
     }
 
 	@Override
-	public void messageArrived(Message<UserDto> message) {
+	public void messageArrived(Message<Dtos.UserDto> message) {
 		if (!thisUserManipulated(message)) {
 			return;
 		}
@@ -104,7 +102,7 @@ public final class CurrentUser implements MessageListener<UserDto> {
 		
 	}
 	
-	private boolean thisUserManipulated(Message<UserDto> message) {
+	private boolean thisUserManipulated(Message<Dtos.UserDto> message) {
 		return message.getPayload().getUserName().equals(user.getUserName());
 	}
 }

@@ -89,14 +89,7 @@ public class LoginModule extends Composite {
                     @Override
                     public void success(Dtos.UserDto response) {
                         CurrentUser.getInstance().setSessionId(response.getSessionId());
-                        CurrentUser.getInstance().login(
-                                new UserDto(
-                                        response.getUserName(),
-                                        response.getRealName(),
-                                        response.getPictureUrl(),
-                                        response.getVersion()
-                                ));
-
+                        CurrentUser.getInstance().login(response);
                     }
                 }
         );
