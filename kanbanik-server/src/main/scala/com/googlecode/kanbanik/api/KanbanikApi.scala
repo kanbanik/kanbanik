@@ -8,6 +8,7 @@ import com.googlecode.kanbanik.dto.CommandNames._
 import org.apache.shiro.subject.Subject
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dto.ErrorCodes._
+import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
 class KanbanikApi extends HttpServlet {
 
@@ -90,6 +91,9 @@ class KanbanikApi extends HttpServlet {
         }
       }
     } catch {
+      case e: MidAirCollisionException => {
+        respondAppError(ErrorDto("The data you are editing has been modifying by a different user. Please refresh to get the current data."), resp)
+      }
       case e : Throwable => {
         respondAppError(ErrorDto("Error while executing command: " + commandName + ". Error: " + e.getMessage + ". For details please look at the server logs."), resp)
         e.printStackTrace()
