@@ -26,6 +26,10 @@ public class DtoFactory {
         AutoBean<Dtos.EmptyDto> emptyDto();
 
         AutoBean<Dtos.UsersDto> usersDto();
+
+        AutoBean<Dtos.ClassOfServiceDto> classOfServiceDto();
+
+        AutoBean<Dtos.ClassOfServicesDto> classOfServicseDto();
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -55,6 +59,12 @@ public class DtoFactory {
 
     public static Dtos.UserManipulationDto userManipulationDto() {
         Dtos.UserManipulationDto dto = factory.userManipulationDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.ClassOfServiceDto classOfServiceDto() {
+        Dtos.ClassOfServiceDto dto = factory.classOfServiceDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         return dto;
     }

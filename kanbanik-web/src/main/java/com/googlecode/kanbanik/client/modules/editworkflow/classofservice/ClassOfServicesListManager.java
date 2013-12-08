@@ -1,11 +1,10 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.classofservice;
 
-import java.util.List;
-
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -15,16 +14,15 @@ import com.googlecode.kanbanik.client.messaging.messages.classesofservice.ClassO
 import com.googlecode.kanbanik.client.messaging.messages.classesofservice.ClassOfServiceEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
-import com.googlecode.kanbanik.dto.ListDto;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
-public class ClassOfServicesListManager implements MessageListener<ClassOfServiceDto>, ModulesLifecycleListener {
+import java.util.List;
+
+public class ClassOfServicesListManager implements MessageListener<Dtos.ClassOfServiceDto>, ModulesLifecycleListener {
 	
-	private ListBoxWithAddEditDelete<ClassOfServiceDto> listComponent;
+	private ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto> listComponent;
 
 	private ClassOfServiceCreatingComponent creatingComponent = new ClassOfServiceCreatingComponent();
 	private ClassOfServiceEditingComponent editingComponent = new ClassOfServiceEditingComponent();
@@ -36,9 +34,9 @@ public class ClassOfServicesListManager implements MessageListener<ClassOfServic
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 	
-	public ListBoxWithAddEditDelete<ClassOfServiceDto> create() {
+	public ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto> create() {
 
-		listComponent=  new ListBoxWithAddEditDelete<ClassOfServiceDto>(
+		listComponent=  new ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto>(
 				"Classes Of Service", 
 				new IdProvider(), 
 				new LabelProvider(),
@@ -55,57 +53,55 @@ public class ClassOfServicesListManager implements MessageListener<ClassOfServic
 		creatingComponent.setCurrentBoard(board);
 		editingComponent.setCurrentBoard(board);
 
-		new KanbanikServerCaller(
-				new Runnable() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.GET_ALL_CLASS_OF_SERVICE.name);
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
-				ServerCommand.GET_ALL_CLASS_OF_SERVICES,
-				new VoidParams(),
-				new BaseAsyncCallback<SimpleParams<ListDto<ClassOfServiceDto>>>() {
-					@Override
-					public void success(SimpleParams<ListDto<ClassOfServiceDto>> result) {
-						listComponent.setContent(result.getPayload().getList());
-					}
-				});
-		}
+        ServerCaller.<Dtos.SessionDto, Dtos.ClassOfServicesDto>sendRequest(
+                dto,
+                Dtos.ClassOfServicesDto.class,
+                new ServerCallCallback<Dtos.ClassOfServicesDto>() {
 
-					});
+                    @Override
+                    public void success(Dtos.ClassOfServicesDto response) {
+                        listComponent.setContent(response.getResult());
+                    }
+                }
+        );
 	}
 	
 	class IdProvider implements
-			ListBoxWithAddEditDelete.IdProvider<ClassOfServiceDto> {
+			ListBoxWithAddEditDelete.IdProvider<Dtos.ClassOfServiceDto> {
 
 		@Override
-		public String getId(ClassOfServiceDto dto) {
+		public String getId(Dtos.ClassOfServiceDto dto) {
 			return dto.getId();
 		}
 
 	}
 
 	class LabelProvider implements
-			ListBoxWithAddEditDelete.LabelProvider<ClassOfServiceDto> {
+			ListBoxWithAddEditDelete.LabelProvider<Dtos.ClassOfServiceDto> {
 
 		@Override
-		public String getLabel(ClassOfServiceDto dto) {
+		public String getLabel(Dtos.ClassOfServiceDto dto) {
 			return dto.getName();
 		}
 
 	}
 
 	class Refresher implements
-			ListBoxWithAddEditDelete.Refresher<ClassOfServiceDto> {
+			ListBoxWithAddEditDelete.Refresher<Dtos.ClassOfServiceDto> {
 
 		@Override
-		public void refrehs(List<ClassOfServiceDto> items,
-				ClassOfServiceDto newItem, int index) {
+		public void refrehs(List<Dtos.ClassOfServiceDto> items,
+                            Dtos.ClassOfServiceDto newItem, int index) {
 			items.set(index, newItem);
 		}
 
 	}
 
 	@Override
-	public void messageArrived(Message<ClassOfServiceDto> message) {
+	public void messageArrived(Message<Dtos.ClassOfServiceDto> message) {
 		if (message instanceof ClassOfServiceAddedMessage) {
 			listComponent.addNewItem(message.getPayload());
 		} else if (message instanceof ClassOfServiceEditedMessage) {

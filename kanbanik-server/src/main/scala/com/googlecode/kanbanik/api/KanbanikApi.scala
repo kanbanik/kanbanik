@@ -9,6 +9,7 @@ import org.apache.shiro.subject.Subject
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.dtos.ErrorDto
 
 class KanbanikApi extends HttpServlet {
 
@@ -61,14 +62,7 @@ class KanbanikApi extends HttpServlet {
     val (command, config) = commandWithConfig.get
 
     if (config.onlyLoggedIn) {
-      val sessionId: String = try {
-        (json \ "sessionId").extract[String]
-      } catch {
-        case _: Throwable => {
-          respondAppError(ErrorDto("The sessionId has to be set for command: " + commandJson), resp)
-          return
-        }
-      }
+      val sessionId: String = extractSessionId(json)
 
       if (sessionId == null || sessionId == "") {
         respondAppError(ErrorDto("The sessionId has to be set for command: " + commandJson), resp)
@@ -92,7 +86,7 @@ class KanbanikApi extends HttpServlet {
       }
     } catch {
       case e: MidAirCollisionException => {
-        respondAppError(ErrorDto("The data you are editing has been modifying by a different user. Please refresh to get the current data."), resp)
+        respondAppError(ErrorDto("This item has been modified by a different user. Please refresh your browser to get the current data."), resp)
       }
       case e : Throwable => {
         respondAppError(ErrorDto("Error while executing command: " + commandName + ". Error: " + e.getMessage + ". For details please look at the server logs."), resp)
@@ -102,6 +96,22 @@ class KanbanikApi extends HttpServlet {
     }
   }
 
+  def extractSessionId(json: JValue): String = {
+    val sessionId: String = try {
+      return (json \ "sessionId").extract[String]
+    } catch {
+      case _: Throwable => return ""
+    }
+
+    try {
+      return (json \ "sessionId").extract[Option[String]].get
+    } catch {
+      case _: Throwable => return ""
+    }
+
+    return ""
+  }
+
   val commands = Map[String, (WithExecute, CommandConfiguration)] (
     LOGIN.name -> (new LoginCommand(), CommandConfiguration(false)),
     LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(true)),
@@ -109,7 +119,10 @@ class KanbanikApi extends HttpServlet {
     CREATE_USER.name -> (new CreateUserCommand(), CommandConfiguration(true)),
     EDIT_USER.name -> (new EditUserCommand(), CommandConfiguration(true)),
     DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(true)),
-    GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(true))
+    GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(true)),
+    GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(true)),
+    EDIT_ALL_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
+    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(true))
 
   )
 

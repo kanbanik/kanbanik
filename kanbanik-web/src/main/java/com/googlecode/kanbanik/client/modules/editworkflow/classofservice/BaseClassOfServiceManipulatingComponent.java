@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.classofservice;
 
-import net.auroris.ColorPicker.client.ColorPicker;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -11,29 +9,22 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PushButton;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.google.gwt.user.client.ui.*;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
 import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import net.auroris.ColorPicker.client.ColorPicker;
 
 public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		implements PanelContainingDialolgListener, Closable,
-		Component<ClassOfServiceDto>, ClickHandler {
+		Component<Dtos.ClassOfServiceDto>, ClickHandler {
 	private PanelContainingDialog dialog;
 
 	private PanelContainingDialog colorPickerDialog;
@@ -69,7 +60,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	private static final ButtonTemplate template = GWT
 			.create(ButtonTemplate.class);
 
-	private ClassOfServiceDto classOfServiceDto;
+	private Dtos.ClassOfServiceDto classOfServiceDto;
 
 	public BaseClassOfServiceManipulatingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -125,7 +116,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	}
 
 	@Override
-	public void setDto(ClassOfServiceDto classOfServiceDto) {
+	public void setDto(Dtos.ClassOfServiceDto classOfServiceDto) {
 		this.classOfServiceDto = classOfServiceDto;
 	}
 
@@ -136,24 +127,18 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	
 	@Override
 	public void okClicked(PanelContainingDialog dialog) {
-		new KanbanikServerCaller(
-				new Runnable() {
+        ServerCaller.<Dtos.ClassOfServiceDto, Dtos.ClassOfServiceDto>sendRequest(
+                createDto(),
+                Dtos.ClassOfServiceDto.class,
+                new ServerCallCallback<Dtos.ClassOfServiceDto>() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ClassOfServiceDto>, FailableResult<SimpleParams<ClassOfServiceDto>>> invokeCommand(
-				ServerCommand.SAVE_CLASS_OF_SERVICE,
-				new SimpleParams<ClassOfServiceDto>(createDto()),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<ClassOfServiceDto>>>(BaseClassOfServiceManipulatingComponent.this) {
-
-					@Override
-					public void success(FailableResult<SimpleParams<ClassOfServiceDto>> result) {
-						classOfServiceSuccessfullyManipulated(result.getPayload().getPayload());
-						clearDialog();
-					}
-				});
-		}
-
-					});
+                    @Override
+                    public void success(Dtos.ClassOfServiceDto response) {
+                        classOfServiceSuccessfullyManipulated(response);
+                        clearDialog();
+                    }
+                }
+        );
 	}
 	
 	@Override
@@ -181,18 +166,19 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		this.currentBoard = currentBoard;
 	}
 
-	protected abstract void classOfServiceSuccessfullyManipulated(ClassOfServiceDto classOfService);
+	protected abstract void classOfServiceSuccessfullyManipulated(Dtos.ClassOfServiceDto classOfService);
 	
-	protected ClassOfServiceDto createDto() {
-		return new ClassOfServiceDto(
-				classOfServiceDto == null ? null : classOfServiceDto.getId(),
-				nameBox.getText(),
-				descriptionTextArea.getHtml(),
-				colorPicker.getHexColor(),
-				classOfServiceDto == null ? 1 : classOfServiceDto.getVersion());
+	protected Dtos.ClassOfServiceDto createDto() {
+        Dtos.ClassOfServiceDto res = DtoFactory.classOfServiceDto();
+        res.setId(classOfServiceDto == null ? null : classOfServiceDto.getId());
+        res.setName(nameBox.getText());
+        res.setDescription(descriptionTextArea.getHtml());
+        res.setColour(colorPicker.getHexColor());
+        res.setVersion(classOfServiceDto == null ? 1 : classOfServiceDto.getVersion());
+        return res;
 	}
 	
-	public ClassOfServiceDto getClassOfServiceDto() {
+	public Dtos.ClassOfServiceDto getClassOfServiceDto() {
 		return classOfServiceDto;
 	}
 	

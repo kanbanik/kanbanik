@@ -57,6 +57,28 @@ public class Dtos {
         void setNewPassword(String newPassword);
     }
 
+    public static interface ClassOfServiceDto extends BaseDto {
+        String getId();
+        void setId(String id);
+
+        String getName();
+        void setName(String name);
+
+        String getDescription();
+        void setDescription(String description);
+
+        String getColour();
+        void setColour(String colour);
+
+        int getVersion();
+        void setVersion(int version);
+    }
+
+    public static interface ClassOfServicesDto {
+        List<ClassOfServiceDto> getResult();
+        void setResult(List<ClassOfServiceDto> result);
+    }
+
     public static interface ErrorDto {
         String getErrorMessage();
         void setErrorMessage(String errorMessage);
@@ -70,7 +92,5 @@ public class Dtos {
     public static interface EmptyDto {
 
     }
-
-
 
 }

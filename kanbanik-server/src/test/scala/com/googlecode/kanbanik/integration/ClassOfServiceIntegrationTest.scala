@@ -5,47 +5,42 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.model.DbCleaner
-import com.googlecode.kanbanik.dto.ClassOfServiceDto
-import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.commands.SaveBoardCommand
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.model.Board
-import org.bson.types.ObjectId
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.model.ClassOfService
-import com.googlecode.kanbanik.model.Workflow
-import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dtos.ClassOfServiceDto
 
 @RunWith(classOf[JUnitRunner])
 class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
 
   "class of service" should "should be able to do the whole cycle" in {
-    val boardDto = new BoardDto
-    boardDto.setName("boardName")
-    boardDto.setWorkflow(new WorkflowDto())
-    
-    val resBoard = new SaveBoardCommand().execute(new SimpleParams(boardDto))
-    val board = Board.byId(new ObjectId(resBoard.getPayload().getPayload().getId()), false)
-    
-    val classOfServiceDto = new ClassOfServiceDto(
+    val classOfServiceDto = ClassOfServiceDto(
     		null,
     		"name 1",
     		"description 1",
     		"color 1",
-    		1
+    		1,
+        None
+
     )
     
-    val resClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(classOfServiceDto))
+    val resClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceDto) match {
+      case Left(x) => x
+      case Right(x) => fail("SaveClassOfServiceCommand failed")
+    }
+
     assert(ClassOfService.all.size === 1)
     assert(ClassOfService.all.head.name === "name 1")
     
-    resClassOfService.getPayload().getPayload().setName("name 2")
-    val renamedClassOfService = new SaveClassOfServiceCommand().execute(new SimpleParams(resClassOfService.getPayload().getPayload()))
+    val renamedClassOfServiceDto = resClassOfService.copy(name = "name 2")
+
+    val renamedClassOfService = new SaveClassOfServiceCommand().execute(renamedClassOfServiceDto) match {
+      case Left(x) => x
+      case Right(x) => fail("SaveClassOfServiceCommand failed")
+    }
     assert(ClassOfService.all.head.name === "name 2")
     
-    new DeleteClassOfServiceCommand().execute(new SimpleParams(renamedClassOfService.getPayload().getPayload()))
+    new DeleteClassOfServiceCommand().execute(renamedClassOfService)
     assert(ClassOfService.all.size === 0)
   }
   

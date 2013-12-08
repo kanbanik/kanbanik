@@ -1,32 +1,24 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.shell.FailableResult
-import com.googlecode.kanbanik.dto.ClassOfServiceDto
-import com.googlecode.kanbanik.dto.shell.VoidParams
 import com.googlecode.kanbanik.builders.ClassOfServiceBuilder
 import com.googlecode.kanbanik.db.HasEntityLoader
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.ClassOfService
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.exceptions.MidAirCollisionException
+import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, ClassOfServiceDto}
 
-class DeleteClassOfServiceCommand extends ServerCommand[SimpleParams[ClassOfServiceDto], FailableResult[VoidParams]] with HasEntityLoader {
+class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] with HasEntityLoader {
 
-  val classOfServiceBuilder = new ClassOfServiceBuilder
+  lazy val classOfServiceBuilder = new ClassOfServiceBuilder
 
-  def execute(params: SimpleParams[ClassOfServiceDto]): FailableResult[VoidParams] = {
-    val entity = classOfServiceBuilder.buildEntity(params.getPayload)
-    val dbEntity = loadClassOfService(entity.id.get).getOrElse(return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("class of service")))
+  def execute(params: ClassOfServiceDto): Either[EmptyDto, ErrorDto] = {
+    val entity = classOfServiceBuilder.buildEntity2(params)
+
+    loadClassOfService(entity.id.get).getOrElse(
+      return Right(ErrorDto(ServerMessages.entityDeletedMessage("class of service")))
+    )
+
+    entity.delete
     
-    try {
-    	entity.delete
-    } catch {
-      case e: MidAirCollisionException =>
-        return new FailableResult(new VoidParams(), false, ServerMessages.midAirCollisionException)
-    }
-    
-    return new FailableResult(new VoidParams)
+    return Left(EmptyDto())
   }
   
 }

@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.classesofservice;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 
-public class ClassOfServiceAddedMessage extends BaseMessage<ClassOfServiceDto> {
+public class ClassOfServiceAddedMessage extends BaseMessage<Dtos.ClassOfServiceDto> {
 
-	public ClassOfServiceAddedMessage(ClassOfServiceDto payload, Object source) {
+	public ClassOfServiceAddedMessage(Dtos.ClassOfServiceDto payload, Object source) {
 		super(payload, source);
 	}
 

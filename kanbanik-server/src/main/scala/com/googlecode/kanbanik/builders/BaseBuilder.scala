@@ -11,4 +11,12 @@ class BaseBuilder {
       Some(new ObjectId(entity.getId()))
     }
   }
+
+  def determineId2(entity: {def id: String}): Option[ObjectId] = {
+    if (entity == null || entity.id == null) {
+      None
+    } else {
+      Some(new ObjectId(entity.id))
+    }
+  }
 }

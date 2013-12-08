@@ -10,6 +10,8 @@ package object dtos {
 
   case class ManipulateUserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, password: String, newPassword: String)
 
+  case class ClassOfServiceDto(id: String, name: String, description: String, colour: String, version: Int, sessionId: Option[String])
+
   case class ErrorDto(errorMessage: String)
 
   case class StatusDto(success: Boolean, reason: Option[String])

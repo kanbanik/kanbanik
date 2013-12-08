@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -29,7 +30,6 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycl
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 
 public class BoardsBox extends Composite {
@@ -44,7 +44,7 @@ public class BoardsBox extends Composite {
 	SimplePanel projectsToBoardAddingContainer;
 	
 	@UiField(provided=true)
-	ListBoxWithAddEditDelete<ClassOfServiceDto> classOfServiceList;
+	ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto> classOfServiceList;
 	
 	private ProjectsToBoardAdding projectToBoardAdding;
 	
