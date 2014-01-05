@@ -28,6 +28,7 @@ import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BoardsModule {
@@ -162,26 +163,33 @@ public class BoardsModule {
 	}
 	
 	private void loadClassesOfServices(final ModuleInitializeCallback boardsModuleInitialized) {
-		new KanbanikServerCaller(new Runnable() {
 
-			public void run() {
-				ServerCommandInvokerManager
-						.getInvoker()
-						.<VoidParams, SimpleParams<ListDto<ClassOfServiceDto>>> invokeCommand(
-								ServerCommand.GET_ALL_CLASS_OF_SERVICES,
-								new VoidParams(),
-								new BaseAsyncCallback<SimpleParams<ListDto<ClassOfServiceDto>>>() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.GET_ALL_CLASS_OF_SERVICE.name);
 
-									@Override
-									public void success(SimpleParams<ListDto<ClassOfServiceDto>> result) {
-										ClassOfServicesManager.getInstance().setClassesOfServices(result.getPayload().getList());
-										loadBoards(boardsModuleInitialized);
-									}
+        ServerCaller.<Dtos.SessionDto, Dtos.ClassOfServicesDto>sendRequest(
+                dto,
+                Dtos.ClassOfServicesDto.class,
+                new ServerCallCallback<Dtos.ClassOfServicesDto>() {
 
-								});
-			}
-		});
-		
+                    @Override
+                    public void success(Dtos.ClassOfServicesDto response) {
+                        List<ClassOfServiceDto> oldDtos = new ArrayList<ClassOfServiceDto>();
+                        for (Dtos.ClassOfServiceDto newDto : response.getResult()) {
+                            ClassOfServiceDto dto = new ClassOfServiceDto();
+                            dto.setId(newDto.getId());
+                            dto.setName(newDto.getName());
+                            dto.setDescription(newDto.getDescription());
+                            dto.setColour(newDto.getColour());
+                            dto.setVersion(newDto.getVersion());
+                            oldDtos.add(dto);
+                        }
+
+                        ClassOfServicesManager.getInstance().setClassesOfServices(oldDtos);
+                        loadBoards(boardsModuleInitialized);
+                    }
+                }
+        );
 
 	}
 	

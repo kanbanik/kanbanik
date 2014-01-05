@@ -3,12 +3,13 @@ package com.googlecode.kanbanik.builders
 import com.googlecode.kanbanik.dto.ClassOfServiceDto
 import com.googlecode.kanbanik.model.ClassOfService
 import com.googlecode.kanbanik.dtos.{ClassOfServiceDto => NewClassOfServiceDto}
+import org.bson.types.ObjectId
 
 class ClassOfServiceBuilder extends BaseBuilder {
 
   def buildDto2(classOfService: ClassOfService) = {
     NewClassOfServiceDto(
-      classOfService.id.get.toString,
+      Some(classOfService.id.get.toString),
       classOfService.name,
       classOfService.description,
       classOfService.colour,
@@ -19,7 +20,14 @@ class ClassOfServiceBuilder extends BaseBuilder {
 
   def buildEntity2(classOfServiceDto: NewClassOfServiceDto) = {
     new ClassOfService(
-      determineId2(classOfServiceDto),
+      {
+        if (classOfServiceDto.id != null && classOfServiceDto.id.isDefined) {
+          Some(new ObjectId(classOfServiceDto.id.get))
+        } else {
+          None
+        }
+
+      },
       classOfServiceDto.name,
       classOfServiceDto.description,
       classOfServiceDto.colour,

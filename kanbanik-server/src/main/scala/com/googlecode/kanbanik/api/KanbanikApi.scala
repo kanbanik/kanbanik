@@ -121,7 +121,8 @@ class KanbanikApi extends HttpServlet {
     DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(true)),
     GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(true)),
     GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(true)),
-    EDIT_ALL_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
+    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
+    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
     DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(true))
 
   )

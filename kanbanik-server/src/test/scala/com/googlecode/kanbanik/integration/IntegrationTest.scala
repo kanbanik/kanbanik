@@ -132,7 +132,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
 
 
     taskToEdit.setClassOfService(new OldClassOfServiceDto(
-      storedClassOfService.id,
+      storedClassOfService.id.get,
         storedClassOfService.name,
         storedClassOfService.description,
         storedClassOfService.colour,

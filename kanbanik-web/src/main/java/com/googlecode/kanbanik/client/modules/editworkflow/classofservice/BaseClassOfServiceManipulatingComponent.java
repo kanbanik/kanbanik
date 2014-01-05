@@ -10,10 +10,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.googlecode.kanbanik.client.api.DtoFactory;
-import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.api.ServerCallCallback;
-import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.api.*;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
@@ -130,7 +127,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
         ServerCaller.<Dtos.ClassOfServiceDto, Dtos.ClassOfServiceDto>sendRequest(
                 createDto(),
                 Dtos.ClassOfServiceDto.class,
-                new ServerCallCallback<Dtos.ClassOfServiceDto>() {
+                new ResourceClosingCallback<Dtos.ClassOfServiceDto>(dialog) {
 
                     @Override
                     public void success(Dtos.ClassOfServiceDto response) {

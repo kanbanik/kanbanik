@@ -7,6 +7,7 @@ import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Closable;
@@ -16,6 +17,8 @@ import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelCont
 import com.googlecode.kanbanik.client.components.WarningPanel;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.classesofservice.ClassOfServiceDeletedMessage;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.dto.shell.VoidParams;
@@ -62,10 +65,13 @@ public class ClassOfServiceDeletingComponent implements Component<Dtos.ClassOfSe
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
+            classOfServiceDto.setCommandName(CommandNames.DELETE_CLASS_OF_SERVICE.name);
+            classOfServiceDto.setSessionId(CurrentUser.getInstance().getSessionId());
+
             ServerCaller.<Dtos.ClassOfServiceDto, Dtos.EmptyDto>sendRequest(
                     classOfServiceDto,
                     Dtos.EmptyDto.class,
-                    new ServerCallCallback<Dtos.EmptyDto>() {
+                    new ResourceClosingCallback<Dtos.EmptyDto>(yesNoDialog) {
 
                         @Override
                         public void success(Dtos.EmptyDto response) {
