@@ -340,12 +340,17 @@ public abstract class AbstractTaskEditingComponent {
 
 		taskDto.setClassOfService(selectedClassOfService);
         Dtos.UserDto newUser = userToName.get(assigneeEditor.getValue().trim());
-		taskDto.setAssignee(new UserDto(
-                newUser.getUserName(),
-                newUser.getRealName(),
-                newUser.getPictureUrl(),
-                newUser.getVersion()
-        ));
+		if (newUser != null) {
+            taskDto.setAssignee(new UserDto(
+                    newUser.getUserName(),
+                    newUser.getRealName(),
+                    newUser.getPictureUrl(),
+                    newUser.getVersion()
+            ));
+        } else {
+            taskDto.setAssignee(null);
+        }
+
 		if (dueDateCheckBox.getValue()) {
 			taskDto.setDueDate(dueDateTextBox.getText().trim());
 		} else {
