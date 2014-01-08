@@ -12,7 +12,7 @@ public class ServerCaller {
         KanbanikProgressBar.show();
 
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,  URL.encode(GWT.getHostPageBaseURL() + "api"));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         try {
             Request response = builder.sendRequest(DtoFactory.asJson(dto), new RequestCallback() {

@@ -37,6 +37,7 @@ class KanbanikApi extends HttpServlet {
   }
 
   private def process(req : HttpServletRequest, resp : HttpServletResponse) {
+    resp.setCharacterEncoding("UTF-8")
     val commandJson = req.getParameter("command")
     if (commandJson == null) {
       respondAppError(ErrorDto("command has to be set!"), resp)
