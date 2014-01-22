@@ -16,7 +16,15 @@ public enum CommandNames {
     GET_ALL_CLASS_OF_SERVICE("getAllClassOfServices"),
     EDIT_CLASS_OF_SERVICE("editClassOfService"),
     CREATE_CLASS_OF_SERVICE("createClassOfService"),
-    DELETE_CLASS_OF_SERVICE("deleteClassOfService")
+    DELETE_CLASS_OF_SERVICE("deleteClassOfService"),
+
+    // project
+    GET_ALL_PROJECTS("getAllProjects"),
+    EDIT_PROJECT("editProject"),
+    CREATE_PROJECT("createProject"),
+    DELETE_PROJECT("deleteProject"),
+    ADD_PROJECT_TO_BOARD("addProjectToBoard"),
+    REMOVE_PROJECT_FROM_BOARD("removeProjectFromBoard")
     ;
 
     public String name;

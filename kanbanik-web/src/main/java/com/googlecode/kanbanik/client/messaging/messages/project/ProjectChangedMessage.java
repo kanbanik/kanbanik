@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.client.messaging.messages.project;
 
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
 
 public class ProjectChangedMessage extends BaseMessage<ProjectDto> {
 

@@ -1,39 +1,34 @@
 package com.googlecode.kanbanik.server;
 
-import com.googlecode.kanbanik.dto.*;
-import com.googlecode.kanbanik.dto.shell.*;
-import org.apache.shiro.SecurityUtils;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.kanbanik.client.services.ServerCommandInvoker;
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand;
-import com.googlecode.kanbanik.commands.CreateUserCommand;
 import com.googlecode.kanbanik.commands.DeleteBoardCommand;
-import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand;
-import com.googlecode.kanbanik.commands.DeleteProjectCommand;
 import com.googlecode.kanbanik.commands.DeleteTasksCommand;
-import com.googlecode.kanbanik.commands.DeleteUserCommand;
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand;
-import com.googlecode.kanbanik.commands.EditUserCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowCommand;
 import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand;
 import com.googlecode.kanbanik.commands.GetAllBoardsCommand;
-import com.googlecode.kanbanik.commands.GetAllClassOfServices;
-import com.googlecode.kanbanik.commands.GetAllProjectsCommand;
-import com.googlecode.kanbanik.commands.GetAllUsersCommand;
 import com.googlecode.kanbanik.commands.GetBoardCommand;
-import com.googlecode.kanbanik.commands.GetCurrentUserCommand;
 import com.googlecode.kanbanik.commands.GetTaskCommand;
-import com.googlecode.kanbanik.commands.LoginCommand;
-import com.googlecode.kanbanik.commands.LogoutCommand;
 import com.googlecode.kanbanik.commands.MoveTaskCommand;
 import com.googlecode.kanbanik.commands.RemoveProjectFromBoardCommand;
 import com.googlecode.kanbanik.commands.SaveBoardCommand;
-import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand;
-import com.googlecode.kanbanik.commands.SaveProjectCommand;
 import com.googlecode.kanbanik.commands.SaveTaskCommand;
+import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
+import com.googlecode.kanbanik.dto.ListDto;
+import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import com.googlecode.kanbanik.dto.shell.EditWorkflowParams;
+import com.googlecode.kanbanik.dto.shell.MoveTaskParams;
+import com.googlecode.kanbanik.dto.shell.Params;
+import com.googlecode.kanbanik.dto.shell.Result;
+import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 import com.googlecode.kanbanik.shared.UserNotLoggedInException;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
 public class ServerCommandInvokerImpl extends RemoteServiceServlet implements ServerCommandInvoker {
@@ -72,20 +67,10 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 			return (R) new GetTaskCommand().execute((SimpleParams<TaskDto>) params);
 		} else if (command == ServerCommand.DELETE_TASKS) {
 			return (R) new DeleteTasksCommand().execute((SimpleParams<ListDto<TaskDto>>) params);
-		} else if (command == ServerCommand.GET_ALL_PROJECTS) {
-			return (R) new GetAllProjectsCommand().execute((VoidParams) params);
 		} else if (command == ServerCommand.SAVE_BOARD) {
 			return (R) new SaveBoardCommand().execute((SimpleParams<BoardDto>) params);
 		} else if (command == ServerCommand.DELETE_BOARD) {
 			return (R) new DeleteBoardCommand().execute((SimpleParams<BoardDto>) params);
-		} else if (command == ServerCommand.SAVE_PROJECT) {
-			return (R) new SaveProjectCommand().execute((SimpleParams<ProjectDto>) params);
-		} else if (command == ServerCommand.DELETE_PROJECT) {
-			return (R) new DeleteProjectCommand().execute((SimpleParams<ProjectDto>) params);
-		} else if (command == ServerCommand.ADD_PROJECTS_TO_BOARD) {
-			return (R) new AddProjectsToBoardCommand().execute((SimpleParams<BoardWithProjectsDto>) params);
-		} else if (command == ServerCommand.REMOVE_PROJECTS_FROM_BOARD) {
-			return (R) new RemoveProjectFromBoardCommand().execute((SimpleParams<BoardWithProjectsDto>) params);
 		} else if (command == ServerCommand.EDIT_WORKFLOW) {
 			return (R) new EditWorkflowCommand().execute((EditWorkflowParams) params);
 		} else if (command == ServerCommand.GET_BOARD) {

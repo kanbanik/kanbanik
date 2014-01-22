@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -192,7 +194,7 @@ public class BoardsBox extends Composite {
 
 	}
 	
-	public void editBoard(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
+	public void editBoard(BoardWithProjectsDto boardWithProjects, List<Dtos.ProjectDto> allProjects) {
 		if (projectToBoardAdding != null) {
 			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
 		}

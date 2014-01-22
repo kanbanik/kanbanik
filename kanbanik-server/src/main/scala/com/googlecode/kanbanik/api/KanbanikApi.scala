@@ -10,33 +10,34 @@ import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.ErrorDto
+import com.googlecode.kanbanik.dtos.ErrorDto
 
 class KanbanikApi extends HttpServlet {
 
   implicit val formats = DefaultFormats
 
-  type WithExecute = { def execute(parsedJson: JValue): Either[AnyRef, ErrorDto] }
+  type WithExecute = {def execute(parsedJson: JValue): Either[AnyRef, ErrorDto]}
 
 
-  override def doGet(req : HttpServletRequest, resp : HttpServletResponse) = {
+  override def doGet(req: HttpServletRequest, resp: HttpServletResponse) = {
     process(req, resp)
   }
 
-  override def doPost(req : HttpServletRequest, resp : HttpServletResponse) = {
+  override def doPost(req: HttpServletRequest, resp: HttpServletResponse) = {
     process(req, resp)
   }
 
-  def respondAppError(data: ErrorDto, resp : HttpServletResponse) {
+  def respondAppError(data: ErrorDto, resp: HttpServletResponse) {
     resp.setStatus(APP_ERROR_STATUS)
     resp.getWriter().print(write(data))
   }
 
-  def respond(data: AnyRef, resp : HttpServletResponse, status: Int) {
+  def respond(data: AnyRef, resp: HttpServletResponse, status: Int) {
     resp.setStatus(status)
     resp.getWriter().print(write(data))
   }
 
-  private def process(req : HttpServletRequest, resp : HttpServletResponse) {
+  private def process(req: HttpServletRequest, resp: HttpServletResponse) {
     resp.setCharacterEncoding("UTF-8")
     val commandJson = req.getParameter("command")
     if (commandJson == null) {
@@ -48,7 +49,7 @@ class KanbanikApi extends HttpServlet {
     val commandName = try {
       (json \ "commandName").extract[String]
     } catch {
-      case _ : Throwable => {
+      case _: Throwable => {
         respondAppError(ErrorDto("The command name has to be defined! Received data: " + commandJson), resp)
         return
       }
@@ -89,7 +90,7 @@ class KanbanikApi extends HttpServlet {
       case e: MidAirCollisionException => {
         respondAppError(ErrorDto("This item has been modified by a different user. Please refresh your browser to get the current data."), resp)
       }
-      case e : Throwable => {
+      case e: Throwable => {
         respondAppError(ErrorDto("Error while executing command: " + commandName + ". Error: " + e.getMessage + ". For details please look at the server logs."), resp)
         e.printStackTrace()
         // todo log
@@ -113,18 +114,30 @@ class KanbanikApi extends HttpServlet {
     return ""
   }
 
-  val commands = Map[String, (WithExecute, CommandConfiguration)] (
-    LOGIN.name -> (new LoginCommand(), CommandConfiguration(false)),
-    LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(true)),
-    GET_CURRENT_USER.name -> (new GetCurrentUserCommand(), CommandConfiguration(true)),
-    CREATE_USER.name -> (new CreateUserCommand(), CommandConfiguration(true)),
-    EDIT_USER.name -> (new EditUserCommand(), CommandConfiguration(true)),
-    DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(true)),
-    GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(true)),
-    GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(true)),
-    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
-    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(true)),
-    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(true))
+  val commands = Map[String, (WithExecute, CommandConfiguration)](
+    LOGIN.name ->(new LoginCommand(), CommandConfiguration(false)),
+    LOGOUT.name ->(new LogoutCommand(), CommandConfiguration(true)),
+
+    // user
+    GET_CURRENT_USER.name ->(new GetCurrentUserCommand(), CommandConfiguration(true)),
+    CREATE_USER.name ->(new CreateUserCommand(), CommandConfiguration(true)),
+    EDIT_USER.name ->(new EditUserCommand(), CommandConfiguration(true)),
+    DELETE_USER.name ->(new DeleteUserCommand(), CommandConfiguration(true)),
+    GET_ALL_USERS_COMMAND.name ->(new GetAllUsersCommand(), CommandConfiguration(true)),
+
+    // class of service
+    GET_ALL_CLASS_OF_SERVICE.name ->(new GetAllClassOfServices(), CommandConfiguration(true)),
+    EDIT_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true)),
+    CREATE_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true)),
+    DELETE_CLASS_OF_SERVICE.name ->(new DeleteClassOfServiceCommand(), CommandConfiguration(true)),
+
+    // project
+    GET_ALL_PROJECTS.name ->(new GetAllProjectsCommand(), CommandConfiguration(true)),
+    EDIT_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true)),
+    CREATE_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true)),
+    DELETE_PROJECT.name ->(new DeleteProjectCommand(), CommandConfiguration(true)),
+    ADD_PROJECT_TO_BOARD.name ->(new AddProjectsToBoardCommand(), CommandConfiguration(true)),
+    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true))
 
   )
 

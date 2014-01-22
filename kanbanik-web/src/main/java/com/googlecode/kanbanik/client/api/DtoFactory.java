@@ -30,6 +30,12 @@ public class DtoFactory {
         AutoBean<Dtos.ClassOfServiceDto> classOfServiceDto();
 
         AutoBean<Dtos.ClassOfServicesDto> classOfServicseDto();
+
+        AutoBean<Dtos.ProjectDto> projectDto();
+
+        AutoBean<Dtos.ProjectsDto> projectsDto();
+
+        AutoBean<Dtos.ProjectWithBoardDto> projectWithBoardDto();
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -45,6 +51,10 @@ public class DtoFactory {
 
     public static Dtos.ErrorDto errorDto() {
         return factory.errorDto().as();
+    }
+
+    public static Dtos.SessionDto sessionDto() {
+        return sessionDto(CurrentUser.getInstance().getSessionId());
     }
 
     public static Dtos.SessionDto sessionDto(String sessionId) {
@@ -65,6 +75,18 @@ public class DtoFactory {
 
     public static Dtos.ClassOfServiceDto classOfServiceDto() {
         Dtos.ClassOfServiceDto dto = factory.classOfServiceDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.ProjectDto projectDto() {
+        Dtos.ProjectDto dto = factory.projectDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.ProjectWithBoardDto projectWithBoardDto() {
+        Dtos.ProjectWithBoardDto dto = factory.projectWithBoardDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         return dto;
     }

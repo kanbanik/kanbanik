@@ -21,23 +21,36 @@ import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.{ClassOfServiceDto => OldClassOfServiceDto}
-import com.googlecode.kanbanik.model.DbCleaner
-import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.{Board, DbCleaner, Project}
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
-import com.googlecode.kanbanik.dtos.{ClassOfServiceDto, EmptyDto, ManipulateUserDto}
+import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.dto.{ProjectDto => OldProjectDto}
+import com.googlecode.kanbanik.builders.ProjectBuilder
+import com.googlecode.kanbanik.dto.TaskDto
+import com.googlecode.kanbanik.dto.UserDto
+import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dto.WorkflowitemDto
+import scala.Some
+import com.googlecode.kanbanik.dto.BoardDto
+import com.googlecode.kanbanik.dtos.ProjectDto
+import com.googlecode.kanbanik.dtos.ClassOfServiceDto
+import com.googlecode.kanbanik.dto.ListDto
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import com.googlecode.kanbanik.dto.WorkflowDto
+import com.googlecode.kanbanik.dtos.EmptyDto
 
 /**
- * This are tests which expects working DB and are trying to simmulate some basic use
- * cases of the users. They are really calling commands and so on.
+ * This are tests which expects working DB and are trying to simulate some basic use
+ * cases of the users. They are calling real commands
  */
 @RunWith(classOf[JUnitRunner])
 class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTestManipulation {
-  "Kanbanik" should "be able to create a new setup from scratch" in {
+  "Kanbanik" should "be able to create a new setup from scratch use it and delete it" in {
       val start = System.currentTimeMillis()
     // creation phase
     
@@ -59,21 +72,24 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     }
     
     // create project
-    val project = new ProjectDto()
-    project.setName("project1")
-    val storedProject = new SaveProjectCommand().execute(new SimpleParams(project))
+    val project = new ProjectDto(None, Some("project1"), None, 1)
+    val storedProject = new SaveProjectCommand().execute(project) match {
+      case Left(x) => x
+      case Right(x) => fail()
+    }
     
     // assign project to board
-    val boardWithProjects = new BoardWithProjectsDto()
-    boardWithProjects.setBoard(storedBoard.getPayload().getPayload())
-    boardWithProjects.addProject(storedProject.getPayload().getPayload())
-    val storedBoardWithProjects = new AddProjectsToBoardCommand().execute(new SimpleParams(boardWithProjects)).getPayload().getPayload()
+    val projectWithBoard = ProjectWithBoardDto(storedProject, storedBoard.getPayload().getPayload().getId)
+    val storedBoardWithProjects = new AddProjectsToBoardCommand().execute(projectWithBoard) match {
+      case Left(x) => x
+      case Right(x) => fail()
+    }
 
     // create workflow
-    val workflow = storedBoardWithProjects.getBoard().getWorkflow()
-    val item1 = itemDtoWithName("item1", storedBoardWithProjects.getBoard().getWorkflow())
-    val item2 = itemDtoWithName("item2", storedBoardWithProjects.getBoard().getWorkflow())
-    val item3 = itemDtoWithName("item3", storedBoardWithProjects.getBoard().getWorkflow())
+    val workflow = loadWorkflow()
+    val item1 = itemDtoWithName("item1", workflow)
+    val item2 = itemDtoWithName("item2", workflow)
+    val item3 = itemDtoWithName("item3", workflow)
     
     editWorkflow(itemDtoWithName("item1", loadWorkflow), null, loadWorkflow)
     editWorkflow(itemDtoWithName("item2", loadWorkflow), null, loadWorkflow)
@@ -88,7 +104,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     taskDto.setName("taskName1")
     taskDto.setDescription("desc")
     taskDto.setClassOfService(null)
-    taskDto.setProject(storedProject.getPayload().getPayload())
+    taskDto.setProject(toOldProject(storedProject))
     taskDto.setWorkflowitem(loadWorkflow.getWorkflowitems().get(0))
     
     val storedTask = new SaveTaskCommand().execute(new SimpleParams(taskDto))
@@ -161,8 +177,12 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // edit project
     val projectToEdit = loadProject()
     projectToEdit.setName("project1_renamed")
-    val editProject = new SaveProjectCommand().execute(new SimpleParams(projectToEdit))
-    assert(editProject.getPayload().getPayload().getName() === "project1_renamed")
+    val editProject = new SaveProjectCommand().execute(toNewProject(projectToEdit)) match {
+      case Left(x) => x
+      case Right(x) => fail()
+    }
+
+    assert(editProject.name === "project1_renamed")
     assert(Project.all.size === 1)
     // delete phase
     
@@ -184,7 +204,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     assert(loadWorkflowitems().size() === 0)
     
     // delete project
-    new DeleteProjectCommand().execute(new SimpleParams(loadProject))
+    new DeleteProjectCommand().execute(toNewProject(loadProject))
     assert(loadAllBoards.head.getProjectsOnBoard().size() === 0)
     
     // delete class of service
@@ -231,6 +251,16 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     )
     
     new EditWorkflowCommand().execute(editWorkflowParams)
+  }
+
+  def toOldProject(project: ProjectDto): OldProjectDto = {
+    val projectBuilder = new ProjectBuilder()
+    projectBuilder.buildDto(projectBuilder.buildEntity2(project))
+  }
+
+  def toNewProject(project: OldProjectDto): ProjectDto = {
+    val projectBuilder = new ProjectBuilder()
+    projectBuilder.buildDto2(projectBuilder.buildEntity(project))
   }
 
   after {

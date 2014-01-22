@@ -20,7 +20,7 @@ import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedM
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
 
 public class ProjectWidget extends Composite implements HasDragHandle, MessageListener<ProjectDto>, ModulesLifecycleListener {
 	

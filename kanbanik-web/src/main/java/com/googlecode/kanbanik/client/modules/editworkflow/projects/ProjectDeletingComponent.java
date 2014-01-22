@@ -2,10 +2,11 @@ package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -15,11 +16,8 @@ import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMe
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.AbstractDeletingComponent;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 public class ProjectDeletingComponent extends AbstractDeletingComponent implements ModulesLifecycleListener, MessageListener<ProjectDto> {
 
@@ -41,21 +39,21 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 
 	@Override
 	protected void onOkClicked() {
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<ProjectDto>, FailableResult<VoidParams>> invokeCommand(
-				ServerCommand.DELETE_PROJECT,
-				new SimpleParams<ProjectDto>(projectDto),
-				new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(ProjectDeletingComponent.this) {
+        projectDto.setCommandName(CommandNames.DELETE_PROJECT.name);
+        projectDto.setSessionId(CurrentUser.getInstance().getSessionId());
 
-					@Override
-					public void success(FailableResult<VoidParams> result) {
-						MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
-					}
-				});
-		}});
+        ServerCaller.<Dtos.ProjectDto, Dtos.EmptyDto>sendRequest(
+                projectDto,
+                Dtos.EmptyDto.class,
+                new ResourceClosingCallback<Dtos.EmptyDto>(ProjectDeletingComponent.this) {
+
+                    @Override
+                    public void success(Dtos.EmptyDto response) {
+                        MessageBus.sendMessage(new ProjectDeletedMessage(projectDto, this));
+                    }
+                }
+        );
 	}
 	
 	public void activated() {

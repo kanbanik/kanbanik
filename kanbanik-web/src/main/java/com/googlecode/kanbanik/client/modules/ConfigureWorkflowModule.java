@@ -7,6 +7,10 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
@@ -14,11 +18,11 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardRefresh
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
 import com.googlecode.kanbanik.dto.ListDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ConfigureWorkflowModule extends HorizontalPanel implements KanbanikModule {
@@ -68,7 +72,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	public void selectedBoardChanged(final BoardWithProjectsDto selectedDto) {
 		if (selectedDto == null) {
 			// this means that no board is changed - e.g. the last one has been deleted
-			removeEverithing();
+			removeEverything();
 		}
 		
 		
@@ -80,57 +84,84 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	private void editBoard(final BoardWithProjectsDto boardWithProjects) {
 		// well, this is a hack. It should listen to ProjectAddedMessage and update the projects.
-		
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<VoidParams, SimpleParams<ListDto<ProjectDto>>> invokeCommand(
-				ServerCommand.GET_ALL_PROJECTS,
-				new VoidParams(),
-				new BaseAsyncCallback<SimpleParams<ListDto<ProjectDto>>>() {
+        Dtos.SessionDto req = DtoFactory.sessionDto();
+        req.setCommandName(CommandNames.GET_ALL_PROJECTS.name);
 
-					@Override
-					public void success(SimpleParams<ListDto<ProjectDto>> result) {
-						refreshProjectsOnBoard(boardWithProjects, result);
-						
-						removeEverithing();
-						
-						if (boardWithProjects != null) {
-							workflowEditingComponent.initialize(boardWithProjects);
-							add(workflowEditingComponent);
-						}
+        ServerCaller.<Dtos.SessionDto, Dtos.ProjectsDto>sendRequest(
+                req,
+                Dtos.ProjectsDto.class,
+                new ServerCallCallback<Dtos.ProjectsDto>() {
 
-						boardsBox.editBoard(boardWithProjects, result.getPayload().getList());
-					}
+                    @Override
+                    public void success(Dtos.ProjectsDto result) {
+                        refreshProjectsOnBoard(boardWithProjects, result);
 
-					private void refreshProjectsOnBoard(
-							final BoardWithProjectsDto boardWithProjects,
-							SimpleParams<ListDto<ProjectDto>> result) {
-						
-						if (boardWithProjects == null) {
-							return;
-						}
-						
-						String boardId = boardWithProjects.getBoard().getId();
-						List<ProjectDto> projectsOnBoard = new ArrayList<ProjectDto>();
-						
-						for (ProjectDto projectDto : result.getPayload().getList()) {
-							for (BoardDto boardDto : projectDto.getBoards()) {
-								if (boardDto.getId().equals(boardId)) {
-									projectsOnBoard.add(projectDto);
-									break;
-								}
-							}
-						}
-						
-						boardWithProjects.setProjects(projectsOnBoard);
-					}
-				});
-		}});
+                        removeEverything();
+
+                        if (boardWithProjects != null) {
+                            workflowEditingComponent.initialize(boardWithProjects);
+                            add(workflowEditingComponent);
+                        }
+
+                        boardsBox.editBoard(boardWithProjects, result.getResult());
+                    }
+
+                }
+        );
 	}
 
-	private void removeEverithing() {
+    private void refreshProjectsOnBoard(
+            final BoardWithProjectsDto boardWithProjects,
+            Dtos.ProjectsDto result) {
+
+        if (boardWithProjects == null) {
+            return;
+        }
+
+        String boardId = boardWithProjects.getBoard().getId();
+        List<Dtos.ProjectDto> projectsOnBoard = new ArrayList<Dtos.ProjectDto>();
+
+        for (Dtos.ProjectDto projectDto : result.getResult()) {
+            if (projectDto.getBoardIds() == null) {
+                continue;
+            }
+
+            for (String projectOnBoardId : projectDto.getBoardIds()) {
+                if (projectOnBoardId.equals(boardId)) {
+                    projectsOnBoard.add(projectDto);
+                    break;
+                }
+            }
+        }
+
+        boardWithProjects.setProjects(asOldProjects(projectsOnBoard));
+    }
+
+    private List<ProjectDto> asOldProjects(List<Dtos.ProjectDto> newProjects) {
+        List<ProjectDto> oldProjects = new ArrayList<ProjectDto>();
+
+        for (Dtos.ProjectDto newProject : newProjects) {
+            ProjectDto oldProject = new ProjectDto();
+
+            oldProject.setId(newProject.getId());
+            oldProject.setName(newProject.getName());
+            oldProject.setVersion(newProject.getVersion());
+            List<BoardDto> boards = new ArrayList<BoardDto>();
+            for (String id : newProject.getBoardIds()) {
+                BoardDto board = new BoardDto();
+                board.setId(id);
+                boards.add(board);
+            }
+
+            oldProject.setBoards(boards);
+            oldProjects.add(oldProject);
+        }
+        return oldProjects;
+
+    }
+
+	private void removeEverything() {
 		if (workflowEditingComponent != null) {
 			remove(workflowEditingComponent);	
 		}

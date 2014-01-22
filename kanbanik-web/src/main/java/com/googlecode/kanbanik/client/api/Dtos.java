@@ -79,6 +79,33 @@ public class Dtos {
         void setResult(List<ClassOfServiceDto> result);
     }
 
+    public static interface ProjectDto extends BaseDto {
+        String getId();
+        void setId(String id);
+
+        String getName();
+        void setName(String name);
+
+        int getVersion();
+        void setVersion(int version);
+
+        List<String> getBoardIds();
+        void setBoardIds(List<String> boardIds);
+    }
+
+    public static interface ProjectsDto {
+        List<ProjectDto> getResult();
+        void setResult(List<ProjectDto> result);
+    }
+
+    public static interface ProjectWithBoardDto extends BaseDto {
+        void setProject(ProjectDto project);
+        ProjectDto getProject();
+
+        void setBoardId(String boardId);
+        String getBoardId();
+    }
+
     public static interface ErrorDto {
         String getErrorMessage();
         void setErrorMessage(String errorMessage);

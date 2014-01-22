@@ -11,10 +11,10 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
 
 public abstract class AbstractProjectEditingComponent implements PanelContainingDialolgListener, Closable {
-	
+
 	private Panel panel = new HorizontalPanel();
 
 	private Label projectNameLabel = new Label("Project Name: ");

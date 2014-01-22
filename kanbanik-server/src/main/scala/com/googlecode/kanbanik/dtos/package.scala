@@ -12,7 +12,9 @@ package object dtos {
 
   case class ClassOfServiceDto(id: Option[String], name: String, description: String, colour: String, version: Int, sessionId: Option[String])
 
-  case class ProjectDto(name: String, id: String, boards: List[BoardDto], version: Int)
+  case class ProjectDto(id: Option[String], name: Option[String], boardIds: Option[List[String]], version: Int)
+
+  case class ProjectWithBoardDto(project: ProjectDto, boardId: String)
 
   object WorkfloVerticalSizing extends Enumeration {
     val BALANCED = Value(0)
