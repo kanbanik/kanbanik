@@ -17,7 +17,7 @@ import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.TaskDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class TaskContainer extends Composite {
@@ -111,6 +111,7 @@ public class TaskContainer extends Composite {
 	}
 
 	public void add(TaskGui task) {
+
 		BigDecimal taskOrder = asBigDecimal(task.getDto().getOrder());
 		
 		for (TaskDto currenTask : getTasks()) {

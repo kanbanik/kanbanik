@@ -1,23 +1,33 @@
 package com.googlecode.kanbanik.client.components.board;
 
-import java.util.List;
-
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
+import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectEditingComponent;
+import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.FailableResult;
 import com.googlecode.kanbanik.dto.shell.MoveTaskParams;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+
+import java.util.List;
+
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskMovingDropController extends FlowPanelDropController {
 
@@ -44,11 +54,11 @@ public class TaskMovingDropController extends FlowPanelDropController {
 	}
 
 	private void notifyDropped(final TaskGui task) {
-		final WorkflowitemDto prevWorkflowitem = task.getDto().getWorkflowitem();
-		final ProjectDto prevProject = task.getDto().getProject();
+		final String prevWorkflowitem = task.getDto().getWorkflowitemId();
+		final String prevProject = task.getDto().getProjectId();
 		
-		task.getDto().setWorkflowitem(workflowitem);
-		task.getDto().setProject(project);
+		task.getDto().setWorkflowitemId(workflowitem.getId());
+		task.getDto().setProjectId(project.getId());
 		
 		TaskDto prevTask = null;
 		TaskDto nextTask = null;
@@ -66,41 +76,33 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		
 		final String prevOrder = prevTask != null ? prevTask.getOrder() : null;
 		final String nextOrder = nextTask != null ? nextTask.getOrder() : null;
-		
-		new KanbanikServerCaller(
-				new Runnable() {
+        Dtos.MoveTaskDto moveTaskDto = DtoFactory.moveTaskDto();
+        moveTaskDto.setCommandName(CommandNames.MOVE_TASK.name);
+        moveTaskDto.setPrevOrder(prevOrder);
+        moveTaskDto.setNextOrder(nextOrder);
+        moveTaskDto.setTask(task.getDto());
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<MoveTaskParams, FailableResult<SimpleParams<TaskDto>>> invokeCommand(
-				ServerCommand.MOVE_TASK,
-				new MoveTaskParams(task.getDto(), project, prevOrder, nextOrder),
-				new BaseAsyncCallback<FailableResult<SimpleParams<TaskDto>>>() {
+        ServerCaller.<Dtos.MoveTaskDto, TaskDto>sendRequest(
+                moveTaskDto,
+                TaskDto.class,
+                new ServerCallCallback<TaskDto>() {
 
-					@Override
-					public void onFailure(Throwable caught) {
-						super.onFailure(caught);
-						// reconstruct to the previous state (at least in memory)
-						// TODO move the item really back to its prev place
-						task.getDto().setWorkflowitem(prevWorkflowitem);
-						task.getDto().setProject(prevProject);
-						
-						MessageBus.sendMessage(new TaskChangedMessage(task.getDto(), TaskMovingDropController.this));
-					}
+                    @Override
+                    public void success(TaskDto response) {
+                        MessageBus.sendMessage(new TaskChangedMessage(response, TaskMovingDropController.this));
+                    }
 
-					@Override
-					public void success(FailableResult<SimpleParams<TaskDto>> result) {
-						super.success(result);
-						
-						MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskMovingDropController.this));
-					}
-					
-					@Override
-					public void failure(FailableResult<SimpleParams<TaskDto>> result) {
-						super.failure(result);
-						MessageBus.sendMessage(new TaskChangedMessage(result.getPayload().getPayload(), TaskMovingDropController.this));
-					}
-				});
-		}});
-		
+                    @Override
+                    public void anyFailure() {
+                        // reconstruct to the previous state (at least in memory)
+                        // TODO move the item really back to its prev place
+                        task.getDto().setWorkflowitemId(prevWorkflowitem);
+                        task.getDto().setProjectId(prevProject);
+
+                        MessageBus.sendMessage(new TaskChangedMessage(task.getDto(), TaskMovingDropController.this));
+                    }
+                }
+        );
+
 	}
 }

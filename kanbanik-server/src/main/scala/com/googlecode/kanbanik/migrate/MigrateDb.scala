@@ -154,10 +154,10 @@ class From2To3 extends MigrationPart {
         val oldTasks = coll(conn, oldTasksCollection).find().map(asOldEntity(_))
         val newTasks = oldTasks.map(_.asNewTask(classesOfService))
         var order = 0
-        for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
-          newTask.copy(order = Integer.toString(order)).store
-          order += 100
-        }
+//        for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
+//          newTask.copy(order = Integer.toString(order)).store
+//          order += 100
+//        }
 
     }
 
@@ -189,25 +189,26 @@ class From2To3 extends MigrationPart {
     val workflowitemId: ObjectId) {
 
     def asNewTask(classesOfService: Map[Int, ClassOfService]): Task = {
-      new Task(
-        None, // because I want to create a new one
-        name,
-        description,
-        {
-          if (classesOfService.contains(classOfService)) {
-            classesOfService.get(classOfService)
-          } else {
-            classesOfService.get(2)
-          }
-
-        },
-        ticketId,
-        1, // because I basically want to create a new one
-        "",
-        None,
-        "",
-        findWorkflowitem(),
-        findProject())
+//      new Task(
+//        None, // because I want to create a new one
+//        name,
+//        description,
+//        {
+//          if (classesOfService.contains(classOfService)) {
+//            classesOfService.get(classOfService)
+//          } else {
+//            classesOfService.get(2)
+//          }
+//
+//        },
+//        ticketId,
+//        1, // because I basically want to create a new one
+//        "",
+//        None,
+//        "",
+//        findWorkflowitem(),
+//        findProject())
+      null
 
     }
 

@@ -43,8 +43,8 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.TaskDto;
-import scala.collection.parallel.Tasks;
+import com.googlecode.kanbanik.dto.BoardDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
 	
@@ -103,10 +103,13 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	
-	public TaskGui(TaskDto taskDto) {
+
+    private BoardDto boardDto;
+
+	public TaskGui(TaskDto taskDto, BoardDto boardDto) {
 		
 		nameLabel = new ClickHandlingTextArea();
+        this.boardDto = boardDto;
 		
 		initWidget(uiBinder.createAndBindUi(this));
 		
@@ -121,7 +124,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 		
-		new TaskEditingComponent(this, editButton);
+		new TaskEditingComponent(this, editButton, boardDto);
 		new TaskDeletingComponent(this, deleteButton);
 		
 		setupAccordingDto(taskDto);
@@ -137,7 +140,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
 
-		boolean showingPictureEnabled = taskDto.getWorkflowitem().getParentWorkflow().getBoard().isShowUserPictureEnabled();
+		boolean showingPictureEnabled = boardDto.isShowUserPictureEnabled();
 		boolean hasAssignee = taskDto.getAssignee() != null;
 		boolean assigneeHasPictue = hasAssignee && taskDto.getAssignee().getPictureUrl() != null && !"".equals(taskDto.getAssignee().getPictureUrl());
 

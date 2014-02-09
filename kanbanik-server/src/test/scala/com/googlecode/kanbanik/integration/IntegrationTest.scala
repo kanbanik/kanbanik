@@ -4,7 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.kanbanik.builders.WorkflowitemTestManipulation
+import com.googlecode.kanbanik.builders.{TaskBuilder, WorkflowitemTestManipulation, ProjectBuilder}
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand
 import com.googlecode.kanbanik.commands.EditWorkflowCommand
 import com.googlecode.kanbanik.commands.EditWorkflowitemDataCommand
@@ -18,10 +18,9 @@ import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
 import com.googlecode.kanbanik.dto._
 import com.googlecode.kanbanik.dto.shell.EditWorkflowParams
-import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.dto.{ClassOfServiceDto => OldClassOfServiceDto}
-import com.googlecode.kanbanik.model.{Board, DbCleaner, Project}
+import com.googlecode.kanbanik.model.{Task, Board, DbCleaner, Project}
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
@@ -30,8 +29,7 @@ import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
 import com.googlecode.kanbanik.dtos._
 import com.googlecode.kanbanik.dto.{ProjectDto => OldProjectDto}
-import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.dto.TaskDto
+import com.googlecode.kanbanik.dto.{TaskDto => OldTaskDto}
 import com.googlecode.kanbanik.dto.UserDto
 import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
 import com.googlecode.kanbanik.dto.WorkflowitemDto
@@ -39,10 +37,13 @@ import scala.Some
 import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.dtos.ProjectDto
 import com.googlecode.kanbanik.dtos.ClassOfServiceDto
+import com.googlecode.kanbanik.dtos.{UserDto => NewUserDto}
+import com.googlecode.kanbanik.dtos.TaskDto
 import com.googlecode.kanbanik.dto.ListDto
 import com.googlecode.kanbanik.dtos.ManipulateUserDto
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.dtos.EmptyDto
+import org.bson.types.ObjectId
 
 /**
  * This are tests which expects working DB and are trying to simulate some basic use
@@ -64,9 +65,9 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     val storedBoard = new SaveBoardCommand().execute(new SimpleParams(board))
     
     // create class of service
-    val classOfService = ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", 1, None)
+    val classOfServiceToCreate = ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", 1, None)
 
-    val storedClassOfService = new SaveClassOfServiceCommand().execute(classOfService) match {
+    val storedClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceToCreate) match {
       case Left(x) => x
       case Right(x) => fail()
     }
@@ -99,18 +100,30 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     assert(loadProject().getName() === "project1")
 
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item1", "item2", "item3"))
+
+    val taskDto = TaskDto(
+      None,
+      "taskName1",
+      "desc",
+      None,
+      None,
+      loadWorkflow.getWorkflowitems().get(0).getId,
+      1,
+      storedProject.id.get.toString,
+      None,
+      None,
+      None,
+      loadWorkflow.getBoard.getId
+    )
     
-    val taskDto = new TaskDto()
-    taskDto.setName("taskName1")
-    taskDto.setDescription("desc")
-    taskDto.setClassOfService(null)
-    taskDto.setProject(toOldProject(storedProject))
-    taskDto.setWorkflowitem(loadWorkflow.getWorkflowitems().get(0))
-    
-    val storedTask = new SaveTaskCommand().execute(new SimpleParams(taskDto))
-    assert(storedTask.getPayload().getPayload().getName === "taskName1")
-    assert(storedTask.getPayload().getPayload().getClassOfService === null)
-    assert(storedTask.getPayload().getPayload().getAssignee === null)
+    val storedTask = new SaveTaskCommand().execute(taskDto) match {
+      case Left(x) => x
+      case Right(x) => fail()
+    }
+
+    assert(storedTask.name === "taskName1")
+    assert(storedTask.classOfService === null)
+    assert(storedTask.assignee === null)
     
     // edit phase
 
@@ -125,38 +138,38 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     assert(asWorkflowList(loadWorkflow).map(_.getName()) === List("item3", "item1_renamed", "item2"))
     
     // move task
-    val taskToMove = loadBoard().getTasks().get(0)
-    taskToMove.setWorkflowitem(loadWorkflow.getWorkflowitems().get(2))
-    val moveTaskParams = new MoveTaskParams(taskToMove, loadProject(), null, null)
-    val movedTask = new MoveTaskCommand().execute(moveTaskParams)
-    assert(movedTask.getPayload().getPayload().getWorkflowitem().getName() === "item2")
+    val taskToNotMove = toNewTask(loadBoard().getTasks().get(0))
+    val taskToMove = taskToNotMove.copy(workflowitemId = loadWorkflow.getWorkflowitems().get(2).getId)
+    val moveTaskParams = new MoveTaskDto(taskToMove, null, null)
+
+
+    val movedTask = new MoveTaskCommand().execute(moveTaskParams) match {
+      case Left(x) => x
+      case Right(_) => fail()
+    }
+
+    val expectedId = loadWorkflow.getWorkflowitems().get(2).getId
+    assert(movedTask.workflowitemId === expectedId)
     assert(loadBoard().getTasks().get(0).getWorkflowitem().getName() === "item2")
     
     // edit task
-    val taskToEdit = loadBoard().getTasks().get(0)
+    val taskToEdit = toNewTask(loadBoard().getTasks().get(0))
 
-    storedUser match {
-      case Left(storedUserValue) => {
-        taskToEdit.setAssignee(new UserDto(
-          storedUserValue.userName,
-          storedUserValue.realName,
-          storedUserValue.pictureUrl,
-          storedUserValue.version
-        ))
-      }
+    val assigneeToTask = storedUser match {
+      case Left(storedUserValue) => storedUserValue
+      case Right(_) => fail()
     }
 
+    val editedTaskToEdit = taskToEdit.copy(
+      assignee = Some(assigneeToTask),
+      classOfService = Some(storedClassOfService),
+      dueDate = Some("yesterday"))
 
-    taskToEdit.setClassOfService(new OldClassOfServiceDto(
-      storedClassOfService.id.get,
-        storedClassOfService.name,
-        storedClassOfService.description,
-        storedClassOfService.colour,
-        storedClassOfService.version
-    ))
+    val editedTask = new SaveTaskCommand().execute(editedTaskToEdit) match {
+      case Left(x) => x
+      case Right(_) => fail()
+    }
 
-    taskToEdit.setDueDate("yesterday")
-    val editedTask = new SaveTaskCommand().execute(new SimpleParams(taskToEdit))
     assert(loadBoard().getTasks().get(0).getDueDate() === "yesterday")
     assert(loadBoard().getTasks().get(0).getClassOfService().getName() === "eXpedite")
     assert(loadBoard().getTasks().get(0).getAssignee().getUserName() === "user1")
@@ -187,9 +200,7 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     // delete phase
     
     // delete task
-    val list = new ListDto[TaskDto]()
-    list.addItem(editedTask.getPayload().getPayload())
-    new DeleteTasksCommand().execute(new SimpleParams(list))
+    new DeleteTasksCommand().execute(TasksDto(List(editedTask)))
     assert(loadBoard().getTasks().size() === 0)
     
     // delete workflowitems
@@ -251,6 +262,12 @@ class IntegrationTests extends FlatSpec with BeforeAndAfter with WorkflowitemTes
     )
     
     new EditWorkflowCommand().execute(editWorkflowParams)
+  }
+
+  def toNewTask(oldTask: OldTaskDto): TaskDto = {
+    // not a correct way - only until the refactoring is finished
+    val taskBuilder = new TaskBuilder
+    taskBuilder.buildDto2(Task.byId(new ObjectId(oldTask.getId)))
   }
 
   def toOldProject(project: ProjectDto): OldProjectDto = {

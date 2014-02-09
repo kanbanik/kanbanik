@@ -8,6 +8,8 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.List;
+
 public class DtoFactory {
 
     interface BeanFactory extends AutoBeanFactory {
@@ -36,6 +38,13 @@ public class DtoFactory {
         AutoBean<Dtos.ProjectsDto> projectsDto();
 
         AutoBean<Dtos.ProjectWithBoardDto> projectWithBoardDto();
+
+        AutoBean<Dtos.TaskDto> taskDto();
+
+        AutoBean<Dtos.TasksDto> tasksDto();
+
+        AutoBean<Dtos.MoveTaskDto> moveTaskDto();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -81,6 +90,25 @@ public class DtoFactory {
 
     public static Dtos.ProjectDto projectDto() {
         Dtos.ProjectDto dto = factory.projectDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.TaskDto taskDto() {
+        Dtos.TaskDto dto = factory.taskDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.TasksDto tasksDto(List<Dtos.TaskDto> values) {
+        Dtos.TasksDto dto = factory.tasksDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        dto.setValues(values);
+        return dto;
+    }
+
+    public static Dtos.MoveTaskDto moveTaskDto() {
+        Dtos.MoveTaskDto dto = factory.moveTaskDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         return dto;
     }

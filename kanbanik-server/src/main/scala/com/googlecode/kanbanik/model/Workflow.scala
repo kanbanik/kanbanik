@@ -181,6 +181,7 @@ object Workflow extends HasMongoConnection {
   def apply() = new Workflow(Some(new ObjectId()), List(), None)
   def apply(items: List[Workflowitem]) = new Workflow(Some(new ObjectId()), items, None)
   def apply(id: ObjectId, items: List[Workflowitem]) = new Workflow(Some(id), items, None)
+  def apply(board: Board) = new Workflow(Some(new ObjectId()), List(), Some(board))
 
   def asEntity(dbObject: DBObject): Workflow = {
     asEntity(dbObject, None)

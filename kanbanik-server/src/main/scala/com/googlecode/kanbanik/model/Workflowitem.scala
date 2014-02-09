@@ -77,6 +77,23 @@ object Workflowitem extends HasMongoConnection {
 
   def apply() = new Workflowitem(Some(new ObjectId()), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
 
+  def apply(id: String) = new Workflowitem(Some(new ObjectId(id)), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+
+  def apply(id: ObjectId) = new Workflowitem(Some(id), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+
+  def apply(id: String, parent: Workflow) =
+    new Workflowitem(
+      Some(new ObjectId(id)),
+      "",
+      -1,
+      -1,
+      ItemType.HORIZONTAL.asStringValue(),
+      1,
+      Workflow(),
+      Some(parent)
+    )
+
+
   def asEntity(dbObject: DBObject, workflow: Option[Workflow]): Workflowitem = {
     new Workflowitem(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),

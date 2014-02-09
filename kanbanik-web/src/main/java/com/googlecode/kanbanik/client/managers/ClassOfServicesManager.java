@@ -1,9 +1,11 @@
 package com.googlecode.kanbanik.client.managers;
 
+import com.googlecode.kanbanik.client.security.CurrentUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
+import static com.googlecode.kanbanik.client.api.Dtos.ClassOfServiceDto;
 
 public class ClassOfServicesManager {
 
@@ -42,19 +44,79 @@ public class ClassOfServicesManager {
 		classesOfServices.add(dto);
 	}
 	
-	class DefaultClassOfService extends ClassOfServiceDto {
+	class DefaultClassOfService implements ClassOfServiceDto {
 
 		private static final long serialVersionUID = 157065282059901799L;
-		
-		@Override
-		public String getName() {
-			return "Default Class Of Service";
-		}
-		
-		@Override
-		public String getColour() {
-			return "92c1f0";
-		}
-	}
+
+        @Override
+        public String getColour() {
+            return "92c1f0";
+        }
+
+        @Override
+        public String getName() {
+            return "Default Class Of Service";
+        }
+
+        @Override
+        public String getSessionId() {
+            return CurrentUser.getInstance().getSessionId();
+        }
+
+        @Override
+        public String getId() {
+            return null;
+        }
+
+        @Override
+        public void setId(String id) {
+
+        }
+
+        @Override
+        public void setName(String name) {
+
+        }
+
+        @Override
+        public String getDescription() {
+            return null;
+        }
+
+        @Override
+        public void setDescription(String description) {
+
+        }
+
+        @Override
+        public void setColour(String colour) {
+
+        }
+
+        @Override
+        public int getVersion() {
+            return 0;
+        }
+
+        @Override
+        public void setVersion(int version) {
+
+        }
+
+        @Override
+        public String getCommandName() {
+            return null;
+        }
+
+        @Override
+        public void setCommandName(String commandName) {
+
+        }
+
+        @Override
+        public void setSessionId(String sessionId) {
+
+        }
+    }
 	
 }

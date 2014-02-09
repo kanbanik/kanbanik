@@ -97,7 +97,7 @@ class EditWorkflowCommand extends ServerCommand[EditWorkflowParams, FailableResu
     
     val destPasrentItem = board.workflow.findParentItem(destWorkflow).getOrElse(throw new IllegalStateException("The workflow: " + destContextDto.getId() + " is defined on no item."))
 
-    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == destPasrentItem)
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitemId == destPasrentItem.id.get)
     tasksOnWorkflowitem.size != 0
   }
 

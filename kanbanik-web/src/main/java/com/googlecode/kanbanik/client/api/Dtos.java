@@ -116,6 +116,60 @@ public class Dtos {
         void setResult(List<UserDto> result);
     }
 
+    public static interface TaskDto extends BaseDto {
+        String getId();
+        void setId(String id);
+
+        String getName();
+        void setName(String name);
+
+        String getDescription();
+        void setDescription(String description);
+
+        ClassOfServiceDto getClassOfService();
+        void setClassOfService(ClassOfServiceDto classOfService);
+
+        String getTicketId();
+        void setTicketId(String ticketId);
+
+        String getWorkflowitemId();
+        void setWorkflowitemId(String workflowitemId);
+
+        int getVersion();
+        void setVersion(int version);
+
+        String getProjectId();
+        void setProjectId(String projectId);
+
+        UserDto getAssignee();
+        void setAssignee(UserDto assignee);
+
+        String getOrder();
+        void setOrder(String order);
+
+        String getDueDate();
+        void setDueDate(String dueDate);
+
+        String getBoardId();
+        void setBoardId(String boardId);
+    }
+
+    public static interface TasksDto extends BaseDto {
+        List<TaskDto> getValues();
+        void setValues(List<TaskDto> result);
+    }
+
+    public static interface MoveTaskDto extends BaseDto {
+        TaskDto getTask();
+        void setTask(TaskDto task);
+
+        String getPrevOrder();
+        void setPrevOrder(String prevOrder);
+
+        String getNextOrder();
+        void setNextOrder(String nextOrder);
+    }
+
     public static interface EmptyDto {
 
     }

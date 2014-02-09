@@ -134,8 +134,7 @@ object Board extends HasMongoConnection {
     val tasks = dbObject.get(Fields.tasks.toString())
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
       val list = dbObject.get(Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
-      val projects = Project.allForBoard(resBoard)
-      val taskEnitities = list.map(Task.asEntity(_, resBoard, projects))
+      val taskEnitities = list.map(Task.asEntity(_))
       resBoard.copy(tasks = taskEnitities)
     } else {
       resBoard

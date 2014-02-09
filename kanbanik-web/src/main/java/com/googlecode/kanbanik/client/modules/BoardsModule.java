@@ -7,12 +7,22 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.*;
+import com.googlecode.kanbanik.client.BaseAsyncCallback;
+import com.googlecode.kanbanik.client.BoardStyle;
+import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.KanbanikServerCaller;
+import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
-import com.googlecode.kanbanik.client.components.board.*;
+import com.googlecode.kanbanik.client.components.board.BoardPanel;
+import com.googlecode.kanbanik.client.components.board.BoardsPanel;
+import com.googlecode.kanbanik.client.components.board.NoContentWarningPanel;
+import com.googlecode.kanbanik.client.components.board.ProjectHeader;
+import com.googlecode.kanbanik.client.components.board.TaskContainer;
+import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
+import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
 import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
 import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
@@ -23,12 +33,17 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.*;
+import com.googlecode.kanbanik.dto.BoardDto;
+import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
+import com.googlecode.kanbanik.dto.CommandNames;
+import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
+import com.googlecode.kanbanik.dto.ListDto;
+import com.googlecode.kanbanik.dto.ProjectDto;
+import com.googlecode.kanbanik.dto.TaskDto;
+import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
 import com.googlecode.kanbanik.shared.ServerCommand;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BoardsModule {
@@ -45,10 +60,15 @@ public class BoardsModule {
 	private void addTasks(final SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		for (BoardWithProjectsDto boardWithProjects : result.getPayload().getList()) {
 			for (TaskDto task : boardWithProjects.getBoard().getTasks()) {
-				MessageBus.sendMessage(new TaskAddedMessage(task, this));
+				MessageBus.sendMessage(new TaskAddedMessage(asNewTask(task), this));
 			}
 		}
 	}
+
+    private Dtos.TaskDto asNewTask(TaskDto oldTask) {
+        // anyway the backend ignores it for now so this is just to find it simpler
+        return DtoFactory.taskDto();
+    }
 
 	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
 		BoardsPanel panel = new BoardsPanel();
@@ -174,18 +194,7 @@ public class BoardsModule {
 
                     @Override
                     public void success(Dtos.ClassOfServicesDto response) {
-                        List<ClassOfServiceDto> oldDtos = new ArrayList<ClassOfServiceDto>();
-                        for (Dtos.ClassOfServiceDto newDto : response.getResult()) {
-                            ClassOfServiceDto dto = new ClassOfServiceDto();
-                            dto.setId(newDto.getId());
-                            dto.setName(newDto.getName());
-                            dto.setDescription(newDto.getDescription());
-                            dto.setColour(newDto.getColour());
-                            dto.setVersion(newDto.getVersion());
-                            oldDtos.add(dto);
-                        }
-
-                        ClassOfServicesManager.getInstance().setClassesOfServices(oldDtos);
+                        ClassOfServicesManager.getInstance().setClassesOfServices(response.getResult());
                         loadBoards(boardsModuleInitialized);
                     }
                 }
@@ -234,11 +243,11 @@ public class BoardsModule {
 
 		@Override
 		protected Widget createWorkflowitemPlace(
-				PickupDragController dragController,
-				WorkflowitemDto currentItem, ProjectDto project,
-				Widget childTable) {
+                PickupDragController dragController,
+                WorkflowitemDto currentItem, ProjectDto project,
+                Widget childTable, BoardDto board) {
 			return new WorkflowitemPlace(currentItem, project, childTable,
-					dragController);
+					dragController, board);
 		}
 
 	}

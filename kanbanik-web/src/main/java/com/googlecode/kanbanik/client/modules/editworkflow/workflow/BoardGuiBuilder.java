@@ -40,13 +40,13 @@ public abstract class BoardGuiBuilder {
 				
 				setupBoard(childTable, workflow.getBoard());
 				
-				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable);
+				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable, workflow.getBoard());
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
 				buildBoard(currentItem.getNestedWorkflow(), project, childTable, dragController, 0, 0);
 			} else {
 				Widget taskContainer = createWorkflowitemPlaceContentWidget(dragController, currentItem, project, workflow.getBoard());
-				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, taskContainer);
+				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, taskContainer, workflow.getBoard());
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
 				setupBoard(table, workflow.getBoard());
@@ -79,5 +79,5 @@ public abstract class BoardGuiBuilder {
 	
 	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, BoardDto board);
 	
-	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, Widget childTable);
+	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, Widget childTable, BoardDto board);
 }

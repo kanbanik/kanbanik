@@ -20,8 +20,9 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
+import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.TaskDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class WorkflowitemPlace extends Composite implements
@@ -48,10 +49,13 @@ public class WorkflowitemPlace extends Composite implements
 	private final DragController dragController;
 
 	private final String projectDtoId;
-	
-	public WorkflowitemPlace(WorkflowitemDto workflowitemDto,
-			ProjectDto projectDto, Widget body, DragController dragController) {
 
+    private BoardDto board;
+
+	public WorkflowitemPlace(WorkflowitemDto workflowitemDto,
+                             ProjectDto projectDto, Widget body, DragController dragController, BoardDto board) {
+
+        this.board = board;
 		this.workflowitemDto = workflowitemDto;
 		this.projectDtoId = projectDto.getId();
 		contentPanel = body;
@@ -102,7 +106,7 @@ public class WorkflowitemPlace extends Composite implements
 			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
 				return;
 			}
-			TaskGui task = new TaskGui(taskDto);
+			TaskGui task = new TaskGui(taskDto, board);
 			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer) contentPanel).add(task);
 		}
@@ -110,16 +114,16 @@ public class WorkflowitemPlace extends Composite implements
 	}
 
 	private boolean isThisPlace(TaskDto taskDto) {
-		if (taskDto.getWorkflowitem() == null) {
+		if (taskDto.getWorkflowitemId() == null) {
 			return false;
 		}
 
-		if (workflowitemDto.getId().equals(taskDto.getWorkflowitem().getId())) {
-			if (taskDto.getProject() == null) {
+		if (workflowitemDto.getId().equals(taskDto.getWorkflowitemId())) {
+			if (taskDto.getProjectId() == null) {
 				return false;
 			}
 
-			return projectDtoId.equals(taskDto.getProject().getId());
+			return projectDtoId.equals(taskDto.getProjectId());
 		}
 
 		return false;

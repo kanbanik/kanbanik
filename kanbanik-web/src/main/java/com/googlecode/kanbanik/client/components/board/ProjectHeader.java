@@ -42,7 +42,7 @@ public class ProjectHeader extends Composite {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addDisabledButtonImage()));
 		}
 		
-		new TaskAddingComponent(project, board, getInputQueue(rootDto), addButton);
+		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
 	}
 
 	

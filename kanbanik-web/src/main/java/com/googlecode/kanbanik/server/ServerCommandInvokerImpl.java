@@ -59,14 +59,6 @@ public class ServerCommandInvokerImpl extends RemoteServiceServlet implements Se
 		// secure zone - only logged in users can call this commands
 		if (command == ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS) {
 			return (R) new GetAllBoardsCommand().execute((GetAllBoardsWithProjectsParams) params);
-		} else if (command == ServerCommand.MOVE_TASK) {
-			return (R) new MoveTaskCommand().execute((MoveTaskParams) params);
-		} else if (command == ServerCommand.SAVE_TASK) {
-			return (R) new SaveTaskCommand().execute((SimpleParams<TaskDto>) params);
-		} else if (command == ServerCommand.GET_TASK) {
-			return (R) new GetTaskCommand().execute((SimpleParams<TaskDto>) params);
-		} else if (command == ServerCommand.DELETE_TASKS) {
-			return (R) new DeleteTasksCommand().execute((SimpleParams<ListDto<TaskDto>>) params);
 		} else if (command == ServerCommand.SAVE_BOARD) {
 			return (R) new SaveBoardCommand().execute((SimpleParams<BoardDto>) params);
 		} else if (command == ServerCommand.DELETE_BOARD) {

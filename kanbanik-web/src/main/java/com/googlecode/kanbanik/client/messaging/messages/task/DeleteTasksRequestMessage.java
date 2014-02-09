@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.client.messaging.messages.task;
 import java.util.List;
 
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.TaskDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class DeleteTasksRequestMessage extends BaseMessage<List<TaskDto>> {
 

@@ -17,8 +17,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRe
 import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRsponseMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.TaskDto;
-
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 // listens on delete keyboard event and performs the tasks delete
 public class DeleteKeyListener implements ModulesLifecycleListener, NativePreviewHandler {

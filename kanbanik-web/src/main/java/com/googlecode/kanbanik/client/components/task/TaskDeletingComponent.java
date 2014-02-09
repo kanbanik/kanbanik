@@ -9,7 +9,7 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.DeleteTasksRequestMessage;
-import com.googlecode.kanbanik.dto.TaskDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskDeletingComponent implements ClickHandler {
 

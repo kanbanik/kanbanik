@@ -39,7 +39,7 @@ class DeleteWorkflowitemCommand extends ServerCommand[SimpleParams[WorkflowitemD
         return new FailableResult(new VoidParams(), false, ServerMessages.entityDeletedMessage("workflowitem"))
     }
     
-    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitem == Workflowitem().copy(id = Some(theId)))
+    val tasksOnWorkflowitem = board.tasks.filter(_.workflowitemId == theId)
     if (tasksOnWorkflowitem.size != 0) {
       val ticketIds = tasksOnWorkflowitem.map(_.ticketId).mkString(", ")
       return new FailableResult(new VoidParams, false, "This workflowitem can not be deleted, because there are tasks associated with this workflowitem. Tasks: [" + ticketIds + "]")

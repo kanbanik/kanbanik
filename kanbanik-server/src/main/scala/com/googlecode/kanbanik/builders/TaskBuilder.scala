@@ -1,185 +1,100 @@
 package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.model.Task
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.TaskManipulation
-import com.googlecode.kanbanik.model.Project
 import com.googlecode.kanbanik.dto.BoardDto
 import scala.collection.mutable.HashMap
 import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.commons._
+import com.googlecode.kanbanik.dtos.{TaskDto => NewTaskDto}
+import com.googlecode.kanbanik.dto.TaskDto
+import scala.Some
 
 class TaskBuilder extends TaskManipulation {
 
   lazy val classOfServiceBuilder = new ClassOfServiceBuilder
   
   lazy val userBuilder = new UserBuilder
-  
-  def buildDto(task: Task, cache: Option[WorkflowitemCache]): TaskDto = {
-    val dto = new TaskDto
-    dto.setId(task.id.get.toString())
-    dto.setName(task.name)
-    dto.setDescription(task.description)
-    if (task.classOfService.isDefined) {
-    	dto.setClassOfService(classOfServiceBuilder.buildDto(task.classOfService.get))
-    }
 
-    if (cache.isDefined) {
-      dto.setWorkflowitem(cache.get.getWorkflowitem(task.workflowitem.id.get).getOrElse(workflowitemBuilder.buildShallowDto(task.workflowitem, None)))
-    } else {
-      dto.setWorkflowitem(workflowitemBuilder.buildShallowDto(task.workflowitem, None))
-    }
-
-    dto.setTicketId(task.ticketId)
-    dto.setVersion(task.version)
-    dto.setOrder(task.order)
-    dto.setDueDate(task.dueData)
-    if (task.assignee.isDefined) {
-    	dto.setAssignee(userBuilder.buildDto(task.assignee.get))
-    }
-
-    dto.setProject(projectBuilder.buildShallowDto(task.project))
-    dto
+  def buildDto2(task: Task): NewTaskDto = {
+    NewTaskDto(
+      Some(task.id.get.toString),
+      task.name,
+      task.description,
+      {
+          if (task.classOfService.isDefined) {
+            Some(classOfServiceBuilder.buildDto2(task.classOfService.get))
+          } else {
+            None
+          }
+      },
+      Some(task.ticketId),
+      task.workflowitemId.toString,
+      task.version,
+      task.projectId.toString,
+      {
+        if (task.assignee.isDefined) {
+          Some(userBuilder.buildDto2(task.assignee.get, ""))
+        } else {
+          None
+        }
+      },
+      Some(task.order),
+      if (task.dueData == null || task.dueData == "") {
+        None
+      } else {
+        Some(task.dueData)
+      },
+      task.boardId.toString
+    )
   }
 
-  def buildEntity(taskDto: TaskDto): Task = {
+  def buildEntity2(taskDto: NewTaskDto): Task = {
     new Task(
-      determineId(taskDto),
-      taskDto.getName(),
-      taskDto.getDescription(),
-      {
-        if (taskDto.getClassOfService() == null) {
-          None
-        } else {
-          Some(classOfServiceBuilder.buildEntity(taskDto.getClassOfService()))
-        }
-      },
-      determineTicketId(taskDto),
-      taskDto.getVersion(),
-      taskDto.getOrder(),
-      {
-        if (taskDto.getAssignee() == null) {
-          None
-        } else {
-          Some(userBuilder.buildEntity(taskDto.getAssignee()))
-        }
-      },
-      taskDto.getDueDate(),
-      workflowitemBuilder.buildShallowEntity(taskDto.getWorkflowitem(), None, None),
-      projectBuilder.buildShallowEntity(taskDto.getProject()))
+    {
+      if (!taskDto.id.isDefined) {
+        None
+      } else {
+        Some(new ObjectId(taskDto.id.get))
+      }
+    },
+    taskDto.name,
+    taskDto.description,
+    {
+      if (!taskDto.classOfService.isDefined) {
+        None
+      } else {
+        Some(classOfServiceBuilder.buildEntity2(taskDto.classOfService.get))
+      }
+    },
+    determineTicketId2(taskDto),
+    taskDto.version,
+    taskDto.order.get,
+    {
+      if (!taskDto.assignee.isDefined) {
+        None
+      } else {
+        Some(userBuilder.buildEntity2(taskDto.assignee.get))
+      }
+    },
+    taskDto.dueDate.getOrElse(""),
+    new ObjectId(taskDto.workflowitemId),
+    new ObjectId(taskDto.boardId),
+    new ObjectId(taskDto.projectId)
+    )
   }
 
-  private def determineId(taskDto: TaskDto): Option[ObjectId] = {
-    if (taskDto.getId() != null) {
-      return Some(new ObjectId(taskDto.getId()))
-    }
-
-    None
-
-  }
-
-  private def determineTicketId(taskDto: TaskDto): String = {
-    if (taskDto.getId() == null) {
+  private def determineTicketId2(taskDto: NewTaskDto): String = {
+    if (!taskDto.id.isDefined) {
       return generateUniqueTicketId()
     }
 
-    if (taskDto.getId() != null && taskDto.getTicketId() == null) {
-      throw new IllegalStateException("The task " + taskDto.getId() + " has not set a ticket id!")
+    if (taskDto.id.isDefined && !taskDto.ticketId.isDefined) {
+      throw new IllegalStateException("The task " + taskDto.id.get + " has not set a ticket id!")
     }
 
-    taskDto.getTicketId()
+    taskDto.ticketId.get
   }
-
-  private[builders] def workflowitemBuilder = new WorkflowitemBuilder
-
-  private[builders] def projectBuilder = new ProjectBuilder
-}
-
-class WorkflowitemCache(val boards: List[BoardDto]) {
-
-  val alreadyFoundItems = HashMap[ObjectId, WorkflowitemDto]()
-
-  def getWorkflowitem(id: ObjectId): Option[WorkflowitemDto] = {
-    val res = alreadyFoundItems.get(id)
-    if (res.isDefined) {
-      res
-    } else {
-      findItem(id)
-    }
-
-  }
-
-  private def findItem(id: ObjectId): Option[WorkflowitemDto] = {
-
-    def traverseBoards(boardsToTraverse: List[BoardDto]): Option[WorkflowitemDto] = {
-      boardsToTraverse match {
-        case Nil => None
-        case first :: rest => {
-          val res = findOnBoard(id, first)
-          if (res.isDefined) {
-            res
-          } else {
-            traverseBoards(rest)
-          }
-        }
-      }
-    }
-
-    val found = traverseBoards(boards)
-
-    if (found.isDefined) {
-      alreadyFoundItems.put(id, found.get)
-    }
-
-    found
-  }
-
-  private def findOnBoard(id: ObjectId, board: BoardDto): Option[WorkflowitemDto] = {
-
-    def traverseWorkflowitems(workflowitems: List[WorkflowitemDto]): Option[WorkflowitemDto] = {
-      workflowitems match {
-        case Nil => None
-        case first :: rest => {
-          if (new ObjectId(first.getId()) == id) {
-            return Some(copyToShallowWorkflowitem(first))
-          }
-
-          val nested = traverseWorkflowitems(asList(first.getNestedWorkflow().getWorkflowitems()))
-          if (nested.isDefined) {
-            nested
-          } else {
-            traverseWorkflowitems(rest)
-          }
-        }
-      }
-    }
-
-    def copyToShallowWorkflowitem(from: WorkflowitemDto): WorkflowitemDto = {
-      val res = new WorkflowitemDto()
-      res.setId(from.getId)
-      res.setName(from.getName)
-      res.setVersion(from.getVersion)
-      res.setItemType(from.getItemType())
-      res.setWipLimit(from.getWipLimit())
-
-      val parentBoard = new BoardDto
-      parentBoard.setName(from.getParentWorkflow().getBoard().getName)
-      parentBoard.setId(from.getParentWorkflow().getBoard().getId)
-      parentBoard.setVersion(from.getParentWorkflow().getBoard().getVersion)
-      parentBoard.setShowUserPictureEnabled(from.getParentWorkflow().getBoard().isShowUserPictureEnabled())
-      parentBoard.setWorkfloVerticalSizing(from.getParentWorkflow().getBoard().getWorkfloVerticalSizing())
-
-      val parentWorkflow = new WorkflowDto
-      parentWorkflow.setId(from.getParentWorkflow().getId)
-      parentWorkflow.setBoard(parentBoard)
-      res.setParentWorkflow(parentWorkflow)
-
-      res
-    }
-    traverseWorkflowitems(asList(board.getWorkflow().getWorkflowitems()))
-  }
-
-  def asList(items: java.util.List[WorkflowitemDto]) = items.toScalaList
 }

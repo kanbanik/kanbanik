@@ -35,9 +35,8 @@ class BoardBuilder extends BaseBuilder {
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = buildShallowDto(board)
     res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
-    val cache = new WorkflowitemCache(List(res))
-    val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
-    res.setTasks(tasks.toJavaList)
+//    val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
+//    res.setTasks(tasks.toJavaList)
     res
   }
 
@@ -47,7 +46,8 @@ class BoardBuilder extends BaseBuilder {
       boardDto.getName(),
       boardDto.getVersion(),
       Workflow(),
-      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task)),
+      List(),
+//      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task)),
       boardDto.isShowUserPictureEnabled(),
       {
         if (boardDto.getWorkfloVerticalSizing() == null) {

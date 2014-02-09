@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -11,10 +12,10 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskResponseMessage;
 import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ClassOfServiceDto;
 import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.TaskDto;
 import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
+import static com.googlecode.kanbanik.client.api.Dtos.ClassOfServiceDto;
 
 
 public class TaskAddingComponent extends AbstractTaskEditingComponent {
@@ -25,8 +26,8 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 	
 	private static final GetFirstTaskResponseMessageListener getFirstTaskResponseMessageListener = new GetFirstTaskResponseMessageListener();
 
-	public TaskAddingComponent(ProjectDto project, BoardDto board, WorkflowitemDto inputQueue, HasClickHandlers clickHandler) {
-		super(clickHandler, board);
+	public TaskAddingComponent(ProjectDto project, WorkflowitemDto inputQueue, HasClickHandlers clickHandler, BoardDto boardDto) {
+		super(clickHandler, boardDto);
 		this.project = project;
 		this.inputQueue = inputQueue;
 		initialize();
@@ -44,9 +45,9 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
 	@Override
 	protected TaskDto createBasicDTO() {
-		TaskDto taskDto = new TaskDto();
-		taskDto.setProject(project);
-		taskDto.setWorkflowitem(inputQueue);
+		TaskDto taskDto = DtoFactory.taskDto();
+		taskDto.setProjectId(project.getId());
+		taskDto.setWorkflowitemId(inputQueue.getId());
 		taskDto.setOrder(findOrder());
 		return taskDto;
 	}
@@ -90,7 +91,7 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
 	@Override
 	protected int getVersion() {
-		return 0;
+		return 1;
 	}
 
 	@Override

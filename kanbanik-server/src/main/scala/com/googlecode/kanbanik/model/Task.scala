@@ -26,16 +26,18 @@ case class Task(
   val order: String,
   val assignee: Option[User],
   val dueData: String,
-  val workflowitem: Workflowitem,
-  val project: Project) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val workflowitemId: ObjectId,
+  val boardId: ObjectId,
+  val projectId: ObjectId) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store(): Task = {
     val idToUpdate = id.getOrElse({
       val obj = Task.asDBObject(this)
       using(createConnection) { conn =>
         val update = $push(Coll.Tasks.toString() -> obj)
-        val res = coll(conn, Coll.Boards).findAndModify(MongoDBObject(SimpleField.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+        coll(conn, Coll.Boards).findAndModify(MongoDBObject(SimpleField.id.toString() -> boardId), null, null, false, update, true, false)
       }
+
       return Task.asEntity(obj)
     })
 
@@ -49,8 +51,10 @@ case class Task(
         Coll.Tasks.toString() + ".$." + Task.Fields.assignee.toString() -> { if (assignee.isDefined) assignee.get.name else None },
         Coll.Tasks.toString() + ".$." + Task.Fields.ticketId.toString() -> ticketId,
         Coll.Tasks.toString() + ".$." + Task.Fields.order.toString() -> order,
-        Coll.Tasks.toString() + ".$." + Task.Fields.projectId.toString() -> project.id,
-        Coll.Tasks.toString() + ".$." + Task.Fields.workflowitem.toString() -> workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
+        Coll.Tasks.toString() + ".$." + Task.Fields.projectId.toString() -> projectId,
+        Coll.Tasks.toString() + ".$." + Task.Fields.workflowitem.toString() -> workflowitemId,
+        Coll.Tasks.toString() + ".$." + Task.Fields.boardId.toString() -> boardId
+      )
 
       val idField = Coll.Tasks.toString() + "." + SimpleField.id.toString()
       val versionField = Coll.Tasks.toString() + "." + SimpleField.version.toString()
@@ -93,6 +97,10 @@ case class Task(
 
   }
 
+  def project: Project = Project.byId(projectId)
+
+  def board: Board = Board.byId(boardId, false)
+
 }
 
 object Task extends HasMongoConnection with HasEntityLoader {
@@ -106,6 +114,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
     val classOfService = Value("classOfService")
     val assignee = Value("assignee")
     val dueDate = Value("dueDate")
+    val boardId = Value("boardId")
   }
 
   def byId(id: ObjectId): Task = {
@@ -132,15 +141,17 @@ object Task extends HasMongoConnection with HasEntityLoader {
       Fields.ticketId.toString() -> entity.ticketId,
       Fields.version.toString() -> entity.version,
       Fields.order.toString() -> entity.order,
-      Fields.projectId.toString() -> entity.project.id,
+      Fields.projectId.toString() -> entity.projectId,
       Fields.classOfService.toString() -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
       Fields.assignee.toString() -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
       Fields.dueDate.toString() -> entity.dueData,
-      Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
+      Fields.workflowitem.toString() -> entity.workflowitemId,
+      Fields.boardId.toString() -> entity.boardId
+    )
   }
 
-  def asEntity(dbObject: DBObject, boardProvider: Task => Board, projectProvider: Task => Project): Task = {
-    val task = new Task(
+  def asEntity(dbObject: DBObject): Task = {
+    Task(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.description.toString()).asInstanceOf[String],
@@ -150,20 +161,10 @@ object Task extends HasMongoConnection with HasEntityLoader {
       dbObject.get(Fields.order.toString()).asInstanceOf[String],
       loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
       dbObject.getWithDefault[String](Fields.dueDate, ""),
-      null,
-      null)
-
-    val workflowitemId = dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId]
-    val workflowitem = boardProvider(task).workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
-    val taskWithWorkflowitem = task.copy(workflowitem = workflowitem.get)
-
-    val projectId = dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
-    if (projectId != null) {
-      taskWithWorkflowitem.copy(project = projectProvider(task))
-    } else {
-      taskWithWorkflowitem
-    }
-
+      dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
+      dbObject.get(Fields.boardId.toString()).asInstanceOf[ObjectId],
+      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
+    )
   }
 
   def loadOrNone[T, R](dbField: String, dbObject: DBObject, f: T => Option[R]): Option[R] = {
@@ -174,40 +175,4 @@ object Task extends HasMongoConnection with HasEntityLoader {
       f(res.asInstanceOf[T])
     }
   }
-
-  def asEntity(dbObject: DBObject, board: Board, allProjcts: List[Project]): Task = {
-    def boardProvider(task: Task): Board = board
-
-    def projectProvider(task: Task): Project = {
-      val projectId = dbObject.get(Task.Fields.projectId.toString()).asInstanceOf[ObjectId]
-      if (projectId != null) {
-        val thisProject = Project().copy(id = Some(projectId))
-        allProjcts.find(_.equals(thisProject)).getOrElse(throw new IllegalStateException("The project: " + projectId + " does not exists even this task: " + task.id + " is defied on it"))
-      } else {
-        null
-      }
-    }
-
-    asEntity(dbObject, task => boardProvider(task), task => projectProvider(task))
-  }
-
-  def asEntity(dbObject: DBObject): Task = {
-    def boardProvider(task: Task): Board = {
-      val workflowitemId = dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId]
-      Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(throwEx(task, workflowitemId))
-    }
-
-    def projectProvider(task: Task): Project = {
-      val projectId = dbObject.get(Task.Fields.projectId.toString()).asInstanceOf[ObjectId]
-      if (projectId != null) {
-        Project.byId(projectId)
-      } else {
-        null
-      }
-    }
-
-    asEntity(dbObject, task => boardProvider(task), task => projectProvider(task))
-  }
-
-  def throwEx(task: Task, workflowitemId: ObjectId) = throw new IllegalStateException("The task " + task.id + " which is on workflowitem: " + workflowitemId + " does not exist on any board")
 }

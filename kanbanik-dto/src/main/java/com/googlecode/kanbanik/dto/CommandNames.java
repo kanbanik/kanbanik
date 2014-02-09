@@ -24,7 +24,14 @@ public enum CommandNames {
     CREATE_PROJECT("createProject"),
     DELETE_PROJECT("deleteProject"),
     ADD_PROJECT_TO_BOARD("addProjectToBoard"),
-    REMOVE_PROJECT_FROM_BOARD("removeProjectFromBoard")
+    REMOVE_PROJECT_FROM_BOARD("removeProjectFromBoard"),
+
+    // task
+    MOVE_TASK("moveTask"),
+    CREATE_TASK("createTask"),
+    EDIT_TASK("editTask"),
+    GET_TASK("getTask"),
+    DELETE_TASK("deleteTask")
     ;
 
     public String name;

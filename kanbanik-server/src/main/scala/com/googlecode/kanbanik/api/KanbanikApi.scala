@@ -137,7 +137,14 @@ class KanbanikApi extends HttpServlet {
     CREATE_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true)),
     DELETE_PROJECT.name ->(new DeleteProjectCommand(), CommandConfiguration(true)),
     ADD_PROJECT_TO_BOARD.name ->(new AddProjectsToBoardCommand(), CommandConfiguration(true)),
-    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true))
+    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true)),
+
+    // task
+    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(true)),
+    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
+    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
+    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true)),
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true))
 
   )
 

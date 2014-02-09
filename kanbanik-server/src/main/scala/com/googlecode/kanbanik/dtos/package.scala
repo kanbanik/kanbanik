@@ -32,7 +32,22 @@ package object dtos {
 
   case class WorkflowitemDto(name: String, id: String, wipLimit: Option[Int], itemType: String, version: Int, nestedWorkflow: Option[WorkflowDto], parentWorkflow: Option[WorkflowDto], verticalSize: Option[Int])
 
-  case class TaskDto(id: String, name: String, description: String, classOfService: ClassOfServiceDto, ticketId: String, workflowitem: WorkflowitemDto, version: Int, project: ProjectDto, assignee: Option[UserDto], dueDate: Option[String])
+  case class TaskDto(id: Option[String],
+                     name: String,
+                     description: String,
+                     classOfService: Option[ClassOfServiceDto],
+                     ticketId: Option[String],
+                     workflowitemId: String,
+                     version: Int,
+                     projectId: String,
+                     assignee: Option[UserDto],
+                     order: Option[String],
+                     dueDate: Option[String],
+                     boardId: String)
+
+  case class MoveTaskDto(task: TaskDto, prevOrder: Option[String], nextOrder: Option[String])
+
+  case class TasksDto(values: List[TaskDto])
 
   case class ErrorDto(errorMessage: String)
 
