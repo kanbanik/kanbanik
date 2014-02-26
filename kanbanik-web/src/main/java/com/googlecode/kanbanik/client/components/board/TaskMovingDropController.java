@@ -3,9 +3,6 @@ package com.googlecode.kanbanik.client.components.board;
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
@@ -17,12 +14,6 @@ import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMe
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectEditingComponent;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.MoveTaskParams;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 
 import java.util.List;
@@ -31,11 +22,11 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskMovingDropController extends FlowPanelDropController {
 
-	private WorkflowitemDto workflowitem;
-	private final ProjectDto project;
+	private Dtos.WorkflowitemDto workflowitem;
+	private final Dtos.ProjectDto project;
 	private final TaskContainer taskContainer;
 	
-	public TaskMovingDropController(TaskContainer dropTarget, WorkflowitemDto workflowitem, ProjectDto project) {
+	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project) {
 		super(dropTarget.asFlowPanel());
 		taskContainer = dropTarget;
 		this.workflowitem = workflowitem;

@@ -50,17 +50,6 @@
         <url-pattern>/api</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>commandInvoker</servlet-name>
-		<servlet-class>com.googlecode.kanbanik.server.ServerCommandInvokerImpl
-		</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>commandInvoker</servlet-name>
-		<url-pattern>/kanbanik/commandInvoker</url-pattern>
-	</servlet-mapping>
-
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>kanbanik.html</welcome-file>

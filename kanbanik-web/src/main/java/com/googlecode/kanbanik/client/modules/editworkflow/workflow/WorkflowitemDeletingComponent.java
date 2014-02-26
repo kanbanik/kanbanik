@@ -3,9 +3,10 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
@@ -15,21 +16,18 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
-public class WorkflowitemDeletingComponent implements ClickHandler, Closable, MessageListener<WorkflowitemDto> {
+public class WorkflowitemDeletingComponent implements ClickHandler, Closable, MessageListener<Dtos.WorkflowitemDto> {
 
 	private PanelContainingDialog yesNoDialog;
 	
 	private WarningPanel warningPanel;
 
-	private WorkflowitemDto dto;
+	private Dtos.WorkflowitemDto dto;
 	
-	public WorkflowitemDeletingComponent(WorkflowitemDto dto, HasClickHandlers clickHandler) {
+	public WorkflowitemDeletingComponent(Dtos.WorkflowitemDto dto, HasClickHandlers clickHandler) {
 		this.dto = dto;
 		clickHandler.addClickHandler(this);
 		warningPanel = new WarningPanel("Are you sure to delete this workflowitem '" + dto.getName() + "' ?");
@@ -57,21 +55,21 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
-			
-			new KanbanikServerCaller(
-					new Runnable() {
-						public void run() {
-			ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, FailableResult<VoidParams>> invokeCommand(
-					ServerCommand.DELETE_WORKFLOWITEM,
-					new SimpleParams<WorkflowitemDto>(dto),
-					new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(WorkflowitemDeletingComponent.this) {
 
-						@Override
-						public void success(FailableResult<VoidParams> result) {
-							MessageBus.sendMessage(new BoardsRefreshRequestMessage(dto.getParentWorkflow().getBoard(), this));
-						}
-					});
-			}});
+            dto.setCommandName(CommandNames.DELETE_WORKFLOWITEM.name);
+            dto.setSessionId(CurrentUser.getInstance().getSessionId());
+
+            ServerCaller.<Dtos.WorkflowitemDto, Dtos.EmptyDto>sendRequest(
+                    dto,
+                    Dtos.EmptyDto.class,
+                    new ResourceClosingCallback<Dtos.EmptyDto>(dialog) {
+
+                        @Override
+                        public void success(Dtos.EmptyDto response) {
+                            MessageBus.sendMessage(new BoardsRefreshRequestMessage(dto.getParentWorkflow().getBoard(), this));
+                        }
+                    }
+            );
 		}
 
 		public void cancelClicked(PanelContainingDialog dialog) {
@@ -79,7 +77,7 @@ class YesNoDialogListener implements PanelContainingDialolgListener {
 		}
 	}
 
-	public void messageArrived(Message<WorkflowitemDto> message) {
+	public void messageArrived(Message<Dtos.WorkflowitemDto> message) {
 		if (dto.getId() != null && dto.getId().equals(message.getPayload().getId())) {
 			dto = message.getPayload();
 		}

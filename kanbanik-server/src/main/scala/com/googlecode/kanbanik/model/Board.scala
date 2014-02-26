@@ -1,16 +1,11 @@
 package com.googlecode.kanbanik.model
-import org.bson.types.ObjectId
+
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.DBObject
-import com.mongodb.BasicDBList
 import com.mongodb.casbah.Imports._
-import java.util.ArrayList
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
-import com.googlecode.kanbanik.exceptions.ResourceLockedException
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
-import com.googlecode.kanbanik.commons._
+import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
 
 case class Board(
   val id: Option[ObjectId],
@@ -19,7 +14,7 @@ case class Board(
   val workflow: Workflow,
   val tasks: List[Task],
   val userPictureShowingEnabled: Boolean,
-  val workfloVerticalSizing: WorkfloVerticalSizing) extends HasMongoConnection with HasMidAirCollisionDetection {
+  val workfloVerticalSizing: WorkfloVerticalSizing.Value) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def this(
     id: Option[ObjectId],
@@ -52,7 +47,7 @@ case class Board(
         Board.Fields.name.toString() -> name,
         Board.Fields.workflow.toString() -> workflow.asDbObject,
         Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
-        Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.getIndex())
+        Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.id)
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
     }
@@ -63,7 +58,7 @@ case class Board(
     MongoDBObject(
       Board.Fields.id.toString() -> new ObjectId,
       Board.Fields.name.toString() -> name,
-      Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.getIndex(),
+      Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.id,
       Board.Fields.version.toString() -> version,
       Board.Fields.workflow.toString() -> workflow.asDbObject,
       Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
@@ -125,7 +120,7 @@ object Board extends HasMongoConnection {
       Workflow.asEntity(dbObject.get(Fields.workflow.toString()).asInstanceOf[DBObject]),
       List(),
       dbObject.getWithDefault[Boolean](Fields.userPictureShowingEnabled, true),
-      WorkfloVerticalSizing.fromId(dbObject.getWithDefault[Int](Fields.workfloVerticalSizing, 0))
+      WorkfloVerticalSizing.fromId(dbObject.getWithDefault[Int](Fields.workfloVerticalSizing, -1))
     )
 
     

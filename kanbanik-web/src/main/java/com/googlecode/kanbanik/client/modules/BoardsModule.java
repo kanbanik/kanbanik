@@ -7,11 +7,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
@@ -33,16 +30,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
-import com.googlecode.kanbanik.dto.ListDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.TaskDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 import java.util.List;
 
@@ -57,25 +45,19 @@ public class BoardsModule {
 		new DeleteTasksMessageListener().initialize();
 	}
 
-	private void addTasks(final SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-		for (BoardWithProjectsDto boardWithProjects : result.getPayload().getList()) {
-			for (TaskDto task : boardWithProjects.getBoard().getTasks()) {
-				MessageBus.sendMessage(new TaskAddedMessage(asNewTask(task), this));
+	private void addTasks(final Dtos.BoardsWithProjectsDto result) {
+		for (Dtos.BoardWithProjectsDto boardWithProjects : result.getValues()) {
+			for (Dtos.TaskDto task : boardWithProjects.getBoard().getTasks()) {
+				MessageBus.sendMessage(new TaskAddedMessage(task, this));
 			}
 		}
 	}
 
-    private Dtos.TaskDto asNewTask(TaskDto oldTask) {
-        // anyway the backend ignores it for now so this is just to find it simpler
-        return DtoFactory.taskDto();
-    }
-
-	private Widget buildBoard(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
+	private Widget buildBoard(Dtos.BoardsWithProjectsDto result) {
 		BoardsPanel panel = new BoardsPanel();
 		panel.getElement().setId("boards");
 
-		List<BoardWithProjectsDto> boardsWithProjects = result.getPayload()
-				.getList();
+		List<Dtos.BoardWithProjectsDto> boardsWithProjects = result.getValues();
 
 		if (boardsWithProjects == null || boardsWithProjects.size() == 0) {
 			createNoBoardsPanel(panel);
@@ -87,10 +69,10 @@ public class BoardsModule {
 	}
 
 	private void createBoardsPanel(BoardsPanel panel,
-			List<BoardWithProjectsDto> boardsWithProjects) {
+			List<Dtos.BoardWithProjectsDto> boardsWithProjects) {
 		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
-		for (BoardWithProjectsDto boardWithProjects : boardsWithProjects) {
-			BoardDto board = boardWithProjects.getBoard();
+		for (Dtos.BoardWithProjectsDto boardWithProjects : boardsWithProjects) {
+			Dtos.BoardDto board = boardWithProjects.getBoard();
 
 			FlexTable boardTable = new FlexTable();
 			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
@@ -104,13 +86,11 @@ public class BoardsModule {
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
 			panelWithDraggabls.add(boardTable);
-			List<ProjectDto> projectsOnBoard = boardWithProjects
-					.getProjectsOnBoard();
+			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard().getValues();
 			if (projectsOnBoard == null || projectsOnBoard.size() == 0) {
 				addNoProjects(boardTable);
 			} else {
-				addProjcets(dragController, board, boardBuilder, boardTable,
-						projectsOnBoard);
+				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
 			}
 			panel.addBoard(new BoardPanel(board.getName(), panelWithDraggabls));
 
@@ -128,10 +108,10 @@ public class BoardsModule {
 	}
 
 	private void addProjcets(PickupDragController dragController,
-			BoardDto board, BoardBoardGuiBuilder boardBuilder,
-			FlexTable boardTable, List<ProjectDto> projectsOnBoard) {
+			Dtos.BoardDto board, BoardBoardGuiBuilder boardBuilder,
+			FlexTable boardTable, List<Dtos.ProjectDto> projectsOnBoard) {
 		int row = 0;
-		for (ProjectDto project : projectsOnBoard) {
+		for (Dtos.ProjectDto project : projectsOnBoard) {
 			boardTable.setWidget(row, 0, new ProjectHeader(board, project));
 			FlexTable projectTable = new FlexTable();
 			projectTable.setStyleName(style.board());
@@ -175,7 +155,7 @@ public class BoardsModule {
 
                     @Override
                     public void success(Dtos.UsersDto response) {
-                        UsersManager.getInstance().initUsers(response.getResult());
+                        UsersManager.getInstance().initUsers(response.getValues());
                         loadClassesOfServices(boardsModuleInitialized);
                     }
                 }
@@ -194,7 +174,7 @@ public class BoardsModule {
 
                     @Override
                     public void success(Dtos.ClassOfServicesDto response) {
-                        ClassOfServicesManager.getInstance().setClassesOfServices(response.getResult());
+                        ClassOfServicesManager.getInstance().setClassesOfServices(response.getValues());
                         loadBoards(boardsModuleInitialized);
                     }
                 }
@@ -203,29 +183,19 @@ public class BoardsModule {
 	}
 	
 	private void loadBoards(final ModuleInitializeCallback boardsModuleInitialized) {
-		new KanbanikServerCaller(new Runnable() {
+        ServerCaller.<Dtos.GetAllBoardsWithProjectsDto, Dtos.BoardsWithProjectsDto>sendRequest(
+                DtoFactory.getAllBoardsWithProjectsDto(true),
+                Dtos.BoardsWithProjectsDto.class,
+                new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
 
-			public void run() {
-				ServerCommandInvokerManager
-						.getInvoker()
-						.<GetAllBoardsWithProjectsParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
-								ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
-								new GetAllBoardsWithProjectsParams(true),
-								new BaseAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
-
-									@Override
-									public void success(
-											SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-										Widget boards = buildBoard(result);
-										addTasks(result);
-										boardsModuleInitialized.initialized(boards);
-									}
-
-
-
-								});
-			}
-		});
+                    @Override
+                    public void success(Dtos.BoardsWithProjectsDto response) {
+                        Widget boards = buildBoard(response);
+                        addTasks(response);
+                        boardsModuleInitialized.initialized(boards);
+                    }
+                }
+        );
 	}
 	
 	class BoardBoardGuiBuilder extends BoardGuiBuilder {
@@ -233,7 +203,7 @@ public class BoardsModule {
 		@Override
 		protected Widget createWorkflowitemPlaceContentWidget(
 				PickupDragController dragController,
-				WorkflowitemDto currentItem, ProjectDto project, BoardDto board) {
+				Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
 			TaskContainer taskContainer = new TaskContainer(board, currentItem);
 			DropController dropController = new TaskMovingDropController(
 					taskContainer, currentItem, project);
@@ -244,8 +214,8 @@ public class BoardsModule {
 		@Override
 		protected Widget createWorkflowitemPlace(
                 PickupDragController dragController,
-                WorkflowitemDto currentItem, ProjectDto project,
-                Widget childTable, BoardDto board) {
+                Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project,
+                Widget childTable, Dtos.BoardDto board) {
 			return new WorkflowitemPlace(currentItem, project, childTable,
 					dragController, board);
 		}

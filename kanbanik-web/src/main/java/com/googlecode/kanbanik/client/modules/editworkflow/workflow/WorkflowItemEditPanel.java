@@ -9,7 +9,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
-import com.googlecode.kanbanik.dto.ItemType;
+import com.googlecode.kanbanik.client.api.Dtos;
 
 public class WorkflowItemEditPanel extends FlowPanel {
 
@@ -76,7 +76,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		wipLimitBox.setEnabled(false);
 	}
 	
-	public void setType(ItemType itemType) {
+	public void setType(Dtos.ItemType itemType) {
 		Panel panel = new FlowPanel();
 		panel.add(horizontal);
 		panel.add(vertical);
@@ -86,7 +86,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		nameValue.add(panel);
 		add(nameValue);
 		
-		if (itemType == ItemType.HORIZONTAL) {
+		if (itemType == Dtos.ItemType.HORIZONTAL) {
 			horizontal.setValue(true);
 		} else {
 			vertical.setValue(true);
@@ -153,12 +153,12 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		}
 	}
 
-	public ItemType getItemType() {
+	public Dtos.ItemType getItemType() {
 		if (horizontal.getValue()) {
-			return ItemType.HORIZONTAL;
+			return Dtos.ItemType.HORIZONTAL;
 		}
 		
-		return ItemType.VERTICAL;
+		return Dtos.ItemType.VERTICAL;
 	}
 	
 }

@@ -13,12 +13,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class TaskContainer extends Composite {
 
@@ -43,7 +42,7 @@ public class TaskContainer extends Composite {
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	public TaskContainer(BoardDto board, WorkflowitemDto currentItem) {
+	public TaskContainer(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
 		initWidget(uiBinder.createAndBindUi(this));
 		setupSizing(board, currentItem);
 		registerListeners();
@@ -60,7 +59,7 @@ public class TaskContainer extends Composite {
 		}, ClickEvent.getType());
 	}
 
-	private void setupSizing(BoardDto board, WorkflowitemDto currentItem) {
+	private void setupSizing(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
 		boolean fixedSizeOnWorkflowitem = currentItem.getVerticalSize() != -1;
 		if (fixedSizeOnWorkflowitem) {
 			int numOfTasks = currentItem.getVerticalSize();

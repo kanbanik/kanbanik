@@ -14,7 +14,7 @@ package object commons {
       javaList
     }
   }
-  
+
   class ToScalaConvertableList[T](list: JavaList[T]) {
     def toScalaList(): List[T] = {
       list.toArray().toList.asInstanceOf[List[T]]
@@ -33,7 +33,7 @@ package object commons {
   }
 
   implicit def makeToJavaConvertableList[T](scalaList: List[T]): ToJavaConvertableList[T] = new ToJavaConvertableList[T](scalaList)
-  
+
   implicit def makeToScalaConvertableList[T](javaList: JavaList[T]): ToScalaConvertableList[T] = new ToScalaConvertableList[T](javaList)
 
   implicit def makeToWithDefault(dbObject: DBObject) = new ToDbWithDefault(dbObject)

@@ -31,7 +31,18 @@ public enum CommandNames {
     CREATE_TASK("createTask"),
     EDIT_TASK("editTask"),
     GET_TASK("getTask"),
-    DELETE_TASK("deleteTask")
+    DELETE_TASK("deleteTask"),
+
+    // board / workflow
+    EDIT_WORKFLOWITEM_DATA("editWorkflowitemData"),
+    DELETE_WORKFLOWITEM("deleteWorkflowitem"),
+    EDIT_WORKFLOW("editWorkflow"),
+    GET_ALL_BOARDS_WITH_PROJECTS("getAllBoardsWithProjects"),
+    CREATE_BOARD("createBoard"),
+    GET_BOARD("getBoard"),
+    EDIT_BOARD("editsBoard"),
+    DELETE_BOARD("deleteBoard"),
+
     ;
 
     public String name;

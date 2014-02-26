@@ -1,8 +1,5 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.projects;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -13,13 +10,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -28,16 +22,11 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectDeletedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
-import com.googlecode.kanbanik.client.api.Dtos.ProjectDto;
+
+import java.util.List;
 
 public class ProjectsToBoardAdding extends Composite implements ModulesLifecycleListener {
 
@@ -45,7 +34,7 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
     private static final String TO_BE_ADDED = "LEFT";
 
-    private BoardWithProjectsDto boardWithProjects;
+    private Dtos.BoardWithProjectsDto boardWithProjects;
 
     private List<ProjectDto> projects;
 
@@ -72,7 +61,7 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
 
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-    public ProjectsToBoardAdding(BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
+    public ProjectsToBoardAdding(Dtos.BoardWithProjectsDto boardWithProjects, List<ProjectDto> allProjects) {
         super();
         this.boardWithProjects = boardWithProjects;
         this.projects = allProjects;
@@ -105,9 +94,9 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
         dragController.registerDropController(projectsOfBoardDropController);
 
 
-        if (boardWithProjects != null) {
+        if (boardWithProjects != null && projects != null) {
             for (ProjectDto project : projects) {
-                if (contains(asNewProject(boardWithProjects.getProjectsOnBoard()), project)) {
+                if (contains(boardWithProjects.getProjectsOnBoard().getValues(), project)) {
                     addProjectToPanel(projectsOfBoard, ON_BOARD, project);
                 } else {
                     addProjectToPanel(toBeAdded, TO_BE_ADDED, project);
@@ -116,25 +105,6 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
         } else {
             disable();
         }
-    }
-
-    private List<ProjectDto> asNewProject(List<com.googlecode.kanbanik.dto.ProjectDto> oldProjects) {
-        List<ProjectDto> projects = new ArrayList<ProjectDto>();
-        for (com.googlecode.kanbanik.dto.ProjectDto oldProject : oldProjects) {
-            ProjectDto project = DtoFactory.projectDto();
-            project.setId(oldProject.getId());
-            project.setName(oldProject.getName());
-            project.setVersion(oldProject.getVersion());
-            List<String> boardIds = new ArrayList<String>();
-            for (BoardDto boardDto : oldProject.getBoards()) {
-                boardIds.add(boardDto.getId());
-            }
-            project.setBoardIds(boardIds);
-
-            projects.add(project);
-        }
-
-        return projects;
     }
 
     private void addProjectToPanel(Panel panel, String position, ProjectDto project) {

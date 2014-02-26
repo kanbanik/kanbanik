@@ -15,9 +15,6 @@ import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.dto.UserDto;
 
 public class LoginModule extends Composite {
 	

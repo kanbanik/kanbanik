@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -30,14 +29,11 @@ import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectCreat
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectsToBoardAdding;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
 
 public class BoardsBox extends Composite {
 
 	@UiField(provided=true)
-	ListBoxWithAddEditDelete<BoardWithProjectsDto> boardsList;
+	ListBoxWithAddEditDelete<Dtos.BoardWithProjectsDto> boardsList;
 
 	@UiField
 	PushButton addProjectButton;
@@ -57,39 +53,39 @@ public class BoardsBox extends Composite {
 	
 	public BoardsBox(final ConfigureWorkflowModule configureWorkflowModule) {
 		
-		class IdProvider implements ListBoxWithAddEditDelete.IdProvider<BoardWithProjectsDto> {
+		class IdProvider implements ListBoxWithAddEditDelete.IdProvider<Dtos.BoardWithProjectsDto> {
 
 			@Override
-			public String getId(BoardWithProjectsDto dto) {
+			public String getId(Dtos.BoardWithProjectsDto dto) {
 				return dto.getBoard().getId();
 			}
 			
 		}
 		
-		class LabelProvider implements ListBoxWithAddEditDelete.LabelProvider<BoardWithProjectsDto> {
+		class LabelProvider implements ListBoxWithAddEditDelete.LabelProvider<Dtos.BoardWithProjectsDto> {
 
 			@Override
-			public String getLabel(BoardWithProjectsDto dto) {
+			public String getLabel(Dtos.BoardWithProjectsDto dto) {
 				return dto.getBoard().getName();
 			}
 			
 		}
 		
-		class Refresher implements ListBoxWithAddEditDelete.Refresher<BoardWithProjectsDto> {
+		class Refresher implements ListBoxWithAddEditDelete.Refresher<Dtos.BoardWithProjectsDto> {
 
 			@Override
-			public void refrehs(List<BoardWithProjectsDto> items,
-					BoardWithProjectsDto newItem, int index) {
+			public void refrehs(List<Dtos.BoardWithProjectsDto> items,
+					Dtos.BoardWithProjectsDto newItem, int index) {
 				items.get(index).setBoard(newItem.getBoard());
 			}
 			
 		}
 		
-		class OnChangeListener implements ListBoxWithAddEditDelete.OnChangeListener<BoardWithProjectsDto> {
+		class OnChangeListener implements ListBoxWithAddEditDelete.OnChangeListener<Dtos.BoardWithProjectsDto> {
 
 			@Override
-			public void onChanged(List<BoardWithProjectsDto> items,
-					BoardWithProjectsDto selectedItem) {
+			public void onChanged(List<Dtos.BoardWithProjectsDto> items,
+					Dtos.BoardWithProjectsDto selectedItem) {
 				if (items.size() == 0) {
 					if (projectToBoardAdding != null) {
 						projectToBoardAdding.disable();
@@ -103,8 +99,7 @@ public class BoardsBox extends Composite {
 			
 		}
 		
-		
-		boardsList = new ListBoxWithAddEditDelete<BoardWithProjectsDto>(
+		boardsList = new ListBoxWithAddEditDelete<Dtos.BoardWithProjectsDto>(
 				"Boards",
 				new IdProvider(), 
 				new LabelProvider(),
@@ -127,15 +122,15 @@ public class BoardsBox extends Composite {
 		
 	}
 	
-	public void selectedBoardChanged(BoardDto board) {
+	public void selectedBoardChanged(Dtos.BoardDto board) {
 		classOfServicesListManager.selectedBoardChanged(board);
 	}
 	
-	public void setBoards(List<BoardWithProjectsDto> allBoards) {
+	public void setBoards(List<Dtos.BoardWithProjectsDto> allBoards) {
 		boardsList.setContent(allBoards);
 	}
 	
-	class MessageListeners implements MessageListener<BoardDto>, ModulesLifecycleListener {
+	class MessageListeners implements MessageListener<Dtos.BoardDto>, ModulesLifecycleListener {
 
 		public MessageListeners() {
 			new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
@@ -143,19 +138,21 @@ public class BoardsBox extends Composite {
 			MessageBus.registerListener(BoardChangedMessage.class, this);
 		}
 
-		public void messageArrived(Message<BoardDto> message) {
-			BoardDto dto = message.getPayload();
-			
+		public void messageArrived(Message<Dtos.BoardDto> message) {
+			Dtos.BoardDto dto = message.getPayload();
+            Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
+            boardWithProjectsDto.setBoard(dto);
+
 			if (message instanceof BoardCreatedMessage) {
-				boardsList.addNewItem(new BoardWithProjectsDto(dto));	
+				boardsList.addNewItem(boardWithProjectsDto);
 			} else if (message instanceof BoardDeletedMessage) {
-				boardsList.removeItem(new BoardWithProjectsDto(dto));
+				boardsList.removeItem(boardWithProjectsDto);
 			} else if (message instanceof BoardEditedMessage) {
-				boardsList.editItem(new BoardWithProjectsDto(dto));
+				boardsList.editItem(boardWithProjectsDto);
 			} else if (message instanceof BoardRefreshedMessage) {
-				boardsList.refresh(new BoardWithProjectsDto(dto));
+				boardsList.refresh(boardWithProjectsDto);
 			} else if (message instanceof BoardChangedMessage) {
-				boardsList.refresh(new BoardWithProjectsDto(dto));
+				boardsList.refresh(boardWithProjectsDto);
 			}
 			
 		}
@@ -194,7 +191,7 @@ public class BoardsBox extends Composite {
 
 	}
 	
-	public void editBoard(BoardWithProjectsDto boardWithProjects, List<Dtos.ProjectDto> allProjects) {
+	public void editBoard(Dtos.BoardWithProjectsDto boardWithProjects, List<Dtos.ProjectDto> allProjects) {
 		if (projectToBoardAdding != null) {
 			projectsToBoardAddingContainer.remove(projectToBoardAdding);	
 		}

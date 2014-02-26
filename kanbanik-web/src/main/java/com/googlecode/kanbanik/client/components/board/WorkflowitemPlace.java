@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -20,10 +21,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class WorkflowitemPlace extends Composite implements
 		MessageListener<TaskDto>, ModulesLifecycleListener {
@@ -44,16 +42,16 @@ public class WorkflowitemPlace extends Composite implements
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private final WorkflowitemDto workflowitemDto;
+	private final Dtos.WorkflowitemDto workflowitemDto;
 
 	private final DragController dragController;
 
 	private final String projectDtoId;
 
-    private BoardDto board;
+    private Dtos.BoardDto board;
 
-	public WorkflowitemPlace(WorkflowitemDto workflowitemDto,
-                             ProjectDto projectDto, Widget body, DragController dragController, BoardDto board) {
+	public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
+                             Dtos.ProjectDto projectDto, Widget body, DragController dragController, Dtos.BoardDto board) {
 
         this.board = board;
 		this.workflowitemDto = workflowitemDto;
@@ -150,10 +148,10 @@ public class WorkflowitemPlace extends Composite implements
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 	
-	class GetFirstTaskRequestMessageListener implements MessageListener<WorkflowitemDto> {
+	class GetFirstTaskRequestMessageListener implements MessageListener<Dtos.WorkflowitemDto> {
 
 		@Override
-		public void messageArrived(Message<WorkflowitemDto> message) {
+		public void messageArrived(Message<Dtos.WorkflowitemDto> message) {
 			if (!(contentPanel instanceof TaskContainer)) {
 				return;
 			}

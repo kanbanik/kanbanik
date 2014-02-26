@@ -75,8 +75,8 @@ public class Dtos {
     }
 
     public static interface ClassOfServicesDto {
-        List<ClassOfServiceDto> getResult();
-        void setResult(List<ClassOfServiceDto> result);
+        List<ClassOfServiceDto> getValues();
+        void setValues(List<ClassOfServiceDto> values);
     }
 
     public static interface ProjectDto extends BaseDto {
@@ -94,8 +94,8 @@ public class Dtos {
     }
 
     public static interface ProjectsDto {
-        List<ProjectDto> getResult();
-        void setResult(List<ProjectDto> result);
+        List<ProjectDto> getValues();
+        void setValues(List<ProjectDto> values);
     }
 
     public static interface ProjectWithBoardDto extends BaseDto {
@@ -112,8 +112,8 @@ public class Dtos {
     }
 
     public static interface UsersDto {
-        List<UserDto> getResult();
-        void setResult(List<UserDto> result);
+        List<UserDto> getValues();
+        void setValues(List<UserDto> values);
     }
 
     public static interface TaskDto extends BaseDto {
@@ -156,7 +156,7 @@ public class Dtos {
 
     public static interface TasksDto extends BaseDto {
         List<TaskDto> getValues();
-        void setValues(List<TaskDto> result);
+        void setValues(List<TaskDto> values);
     }
 
     public static interface MoveTaskDto extends BaseDto {
@@ -168,6 +168,155 @@ public class Dtos {
 
         String getNextOrder();
         void setNextOrder(String nextOrder);
+    }
+
+    public static interface WorkflowitemDto extends BaseDto {
+        String getName();
+        void setName(String name);
+
+        String getId();
+        void setId(String id);
+
+        int getWipLimit();
+        void setWipLimit(int wipLimit);
+
+        String getItemType();
+        void setItemType(String itemType);
+
+        int getVersion();
+        void setVersion(int version);
+
+        WorkflowDto getNestedWorkflow();
+        void setNestedWorkflow(WorkflowDto nestedWorkflow);
+
+        WorkflowDto getParentWorkflow();
+        void setParentWorkflow(WorkflowDto parentWorkflow);
+
+        int getVerticalSize();
+        void setVerticalSize(int verticalSize);
+    }
+
+    public static enum ItemType {
+        HORIZONTAL("H"),
+        VERTICAL("V");
+
+        private String type;
+        private ItemType(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+       public static ItemType from(String type) {
+           if ("H".equals(type)) {
+               return HORIZONTAL;
+           }
+
+           if ("V".equals(type)) {
+               return VERTICAL;
+           }
+
+           return HORIZONTAL;
+       }
+
+    }
+
+    public static interface WorkflowDto extends BaseDto {
+        String getId();
+        void setId(String id);
+
+        List<WorkflowitemDto> getWorkflowitems();
+        void setWorkflowitems(List<WorkflowitemDto> workflowitems);
+
+        BoardDto getBoard();
+        void setBoard(BoardDto board);
+    }
+
+    public static interface BoardDto extends BaseDto {
+        void setName(String name);
+        String getName();
+
+        String getId();
+        void setId(String id);
+
+        int getVersion();
+        void setVersion(int version);
+
+        int getWorkflowVerticalSizing();
+        void setWorkflowVerticalSizing(int workflowVerticalSizing);
+
+        WorkflowDto getWorkflow();
+        void setWorkflow(WorkflowDto workflow);
+
+        List<TaskDto> getTasks();
+        void setTasks(List<TaskDto> tasks);
+
+        boolean isShowUserPictureEnabled();
+        void setShowUserPictureEnabled(boolean showUserPictureEnabled);
+    }
+
+    public static interface BoardWithProjectsDto extends BaseDto {
+        void setBoard(BoardDto board);
+        BoardDto getBoard();
+
+        void setProjectsOnBoard(ProjectsDto projectsOnBoard);
+        ProjectsDto getProjectsOnBoard();
+
+    }
+
+    public static interface BoardsWithProjectsDto extends BaseDto {
+        List<BoardWithProjectsDto> getValues();
+        void setValues(List<BoardWithProjectsDto> values);
+    }
+
+    public static interface GetAllBoardsWithProjectsDto extends BaseDto {
+        void setIncludeTasks(Boolean includeTasks);
+        Boolean isIncludeTasks();
+    }
+
+    public static interface EditWorkflowParams extends BaseDto {
+        void setCurrent(WorkflowitemDto current);
+        WorkflowitemDto getCurrent();
+
+        void setNext(WorkflowitemDto next);
+        WorkflowitemDto getNext();
+
+        void setDestinationWorkflow(WorkflowDto next);
+        WorkflowDto getDestinationWorkflow();
+
+        void setBoard(BoardDto board);
+        BoardDto getBoard();
+
+    }
+
+    public static enum WorkflowVerticalSizing {
+        BALANCED(-1),
+        MIN_POSSIBLE(1);
+
+        private int sizing;
+
+        private WorkflowVerticalSizing(int sizing) {
+            this.sizing = sizing;
+        }
+
+        public int getSizing() {
+            return sizing;
+        }
+
+        public static WorkflowVerticalSizing from(int i) {
+            if (i == 0 || i == -1) {
+                return BALANCED;
+            }
+
+            if (i == 1) {
+                return MIN_POSSIBLE;
+            }
+
+            // default
+            return BALANCED;
+        }
     }
 
     public static interface EmptyDto {

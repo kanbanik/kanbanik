@@ -1,28 +1,24 @@
 package com.googlecode.kanbanik.commands
-import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.dto.shell.FailableResult
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.BoardDto
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
+import com.googlecode.kanbanik.dtos.{ErrorDto, BoardDto}
 
-class SaveBoardCommand extends ServerCommand[SimpleParams[BoardDto], FailableResult[SimpleParams[BoardDto]]] {
+class SaveBoardCommand extends Command[BoardDto, BoardDto] {
+
   lazy val boardBuilder = new BoardBuilder()
 
-  def execute(params: SimpleParams[BoardDto]): FailableResult[SimpleParams[BoardDto]] = {
+  def execute(boardDto: BoardDto): Either[BoardDto, ErrorDto] = {
     val storedBoard: Board = {
       try {
-        boardBuilder.buildEntity(params.getPayload()).store
+        boardBuilder.buildEntity(boardDto).store
       } catch {
-        case e: MidAirCollisionException =>
-          return new FailableResult(new SimpleParams(), false, ServerMessages.midAirCollisionException)
         case e: IllegalArgumentException =>
-          return new FailableResult(new SimpleParams(), false, ServerMessages.entityDeletedMessage("board"))
+          return Right(ErrorDto(ServerMessages.entityDeletedMessage("board")))
+
       }
     }
     
-    new FailableResult(new SimpleParams(boardBuilder.buildDto(storedBoard, None)))
+    Left(boardBuilder.buildDto(storedBoard, None))
   }
 }

@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
@@ -8,7 +9,6 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent {
 
     private TaskGui taskGui;
 
-    public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler, BoardDto boardDto) {
+    public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler, Dtos.BoardDto boardDto) {
         super(clickHandler, boardDto);
         this.taskGui = taskGui;
         initialize();

@@ -4,18 +4,14 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.commands.CreateUserCommand
-import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.model._
 import org.bson.types.ObjectId
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.dto.TaskDto
-import com.googlecode.kanbanik.commands.MoveTaskCommand
 import com.googlecode.kanbanik.commons._
 import scala.Some
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
-import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
 
 class MigrateDb extends HasMongoConnection {
 

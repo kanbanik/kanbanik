@@ -1,15 +1,8 @@
 package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dto.TaskDto
 import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.TaskManipulation
-import com.googlecode.kanbanik.dto.BoardDto
-import scala.collection.mutable.HashMap
-import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.dto.WorkflowDto
-import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.{TaskDto => NewTaskDto}
-import com.googlecode.kanbanik.dto.TaskDto
 import scala.Some
 
 class TaskBuilder extends TaskManipulation {
@@ -22,7 +15,13 @@ class TaskBuilder extends TaskManipulation {
     NewTaskDto(
       Some(task.id.get.toString),
       task.name,
-      task.description,
+      {
+        if (task.description == null || task.description == "") {
+          None
+        } else {
+          Some(task.description)
+        }
+      },
       {
           if (task.classOfService.isDefined) {
             Some(classOfServiceBuilder.buildDto2(task.classOfService.get))
@@ -61,7 +60,7 @@ class TaskBuilder extends TaskManipulation {
       }
     },
     taskDto.name,
-    taskDto.description,
+    taskDto.description.getOrElse(""),
     {
       if (!taskDto.classOfService.isDefined) {
         None
@@ -71,7 +70,7 @@ class TaskBuilder extends TaskManipulation {
     },
     determineTicketId2(taskDto),
     taskDto.version,
-    taskDto.order.get,
+    taskDto.order.getOrElse(null),
     {
       if (!taskDto.assignee.isDefined) {
         None

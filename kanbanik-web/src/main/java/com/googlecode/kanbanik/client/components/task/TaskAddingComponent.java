@@ -5,28 +5,26 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskResponseMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 import static com.googlecode.kanbanik.client.api.Dtos.ClassOfServiceDto;
 
 
 public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
-	private final WorkflowitemDto inputQueue;
+	private final Dtos.WorkflowitemDto inputQueue;
 	
-	private final ProjectDto project;
+	private final Dtos.ProjectDto project;
 	
 	private static final GetFirstTaskResponseMessageListener getFirstTaskResponseMessageListener = new GetFirstTaskResponseMessageListener();
 
-	public TaskAddingComponent(ProjectDto project, WorkflowitemDto inputQueue, HasClickHandlers clickHandler, BoardDto boardDto) {
+	public TaskAddingComponent(Dtos.ProjectDto project, Dtos.WorkflowitemDto inputQueue, HasClickHandlers clickHandler, Dtos.BoardDto boardDto) {
 		super(clickHandler, boardDto);
 		this.project = project;
 		this.inputQueue = inputQueue;

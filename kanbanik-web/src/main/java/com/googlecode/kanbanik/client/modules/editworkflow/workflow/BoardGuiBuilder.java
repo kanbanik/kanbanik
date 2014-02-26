@@ -5,12 +5,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikResources;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ItemType;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
-import com.googlecode.kanbanik.dto.WorkflowDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
+import com.googlecode.kanbanik.client.api.Dtos;
 
 public abstract class BoardGuiBuilder {
 	
@@ -21,8 +16,8 @@ public abstract class BoardGuiBuilder {
 	}
 	
 	public void buildBoard(
-			WorkflowDto workflow,
-			ProjectDto project,
+			Dtos.WorkflowDto workflow,
+			Dtos.ProjectDto project,
 			FlexTable table,
 			PickupDragController dragController, 
 			int row, 
@@ -32,9 +27,9 @@ public abstract class BoardGuiBuilder {
 			return;
 		}
 		
-		WorkflowDto currentDto = workflow;
+		Dtos.WorkflowDto currentDto = workflow;
 		
-		for (WorkflowitemDto currentItem : currentDto.getWorkflowitems()) {
+		for (Dtos.WorkflowitemDto currentItem : currentDto.getWorkflowitems()) {
 			if (currentItem.getNestedWorkflow().getWorkflowitems().size() > 0) {
 				FlexTable childTable = new FlexTable();
 				
@@ -52,9 +47,9 @@ public abstract class BoardGuiBuilder {
 				setupBoard(table, workflow.getBoard());
 			}
 
-			if (currentItem.getItemType() == ItemType.HORIZONTAL) {
+			if (currentItem.getItemType().equals(Dtos.ItemType.HORIZONTAL.getType())) {
 				column++;
-			} else if (currentItem.getItemType() == ItemType.VERTICAL) {
+			} else if (currentItem.getItemType().equals(Dtos.ItemType.VERTICAL.getType())) {
 				row++;
 			} else {
 				throw new IllegalStateException("Unsupported item type: '"
@@ -65,11 +60,11 @@ public abstract class BoardGuiBuilder {
 	}
 
 	
-	private void setupBoard(FlexTable table, BoardDto board) {
-		WorkfloVerticalSizing sizing = board.getWorkfloVerticalSizing();
-		if (sizing == WorkfloVerticalSizing.BALANCED) {
+	private void setupBoard(FlexTable table, Dtos.BoardDto board) {
+        Dtos.WorkflowVerticalSizing sizing = Dtos.WorkflowVerticalSizing.from(board.getWorkflowVerticalSizing());
+		if (sizing == Dtos.WorkflowVerticalSizing.BALANCED) {
 			table.addStyleName("balanced-table");
-		} else if (sizing == WorkfloVerticalSizing.MIN_POSSIBLE) {
+		} else if (sizing == Dtos.WorkflowVerticalSizing.MIN_POSSIBLE) {
 			table.addStyleName("not-balanced-table");
 		}
 		
@@ -77,7 +72,7 @@ public abstract class BoardGuiBuilder {
 		table.setWidth("100%");
 	}
 	
-	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, BoardDto board);
+	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board);
 	
-	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, WorkflowitemDto currentItem, ProjectDto project, Widget childTable, BoardDto board);
+	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Widget childTable, Dtos.BoardDto board);
 }

@@ -15,7 +15,6 @@ import com.googlecode.kanbanik.client.messaging.messages.classesofservice.ClassO
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public class ClassOfServicesListManager implements MessageListener<Dtos.ClassOfS
 		return listComponent;
 	}
 	
-	public void selectedBoardChanged(final BoardDto board) {
+	public void selectedBoardChanged(final Dtos.BoardDto board) {
 		creatingComponent.setCurrentBoard(board);
 		editingComponent.setCurrentBoard(board);
 
@@ -63,7 +62,7 @@ public class ClassOfServicesListManager implements MessageListener<Dtos.ClassOfS
 
                     @Override
                     public void success(Dtos.ClassOfServicesDto response) {
-                        listComponent.setContent(response.getResult());
+                        listComponent.setContent(response.getValues());
                     }
                 }
         );

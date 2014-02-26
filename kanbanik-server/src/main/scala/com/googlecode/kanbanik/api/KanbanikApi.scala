@@ -11,6 +11,8 @@ import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dtos.ErrorDto
+import com.googlecode.kanbanik.dtos.ErrorDto
+import com.googlecode.kanbanik.dtos.ErrorDto
 
 class KanbanikApi extends HttpServlet {
 
@@ -144,7 +146,18 @@ class KanbanikApi extends HttpServlet {
     CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
     EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
     GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true))
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true)),
+
+    // board / workflowitem
+    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(true)),
+    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(true)),
+    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(true)),
+
+    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true)),
+    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true)),
+    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(true)),
+    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(true)),
+    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(true))
 
   )
 

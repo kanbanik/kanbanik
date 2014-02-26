@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.googlecode.kanbanik.client.BaseAsyncCallback;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
@@ -16,14 +13,7 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequ
 import com.googlecode.kanbanik.client.modules.editworkflow.boards.BoardsBox;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardRefreshRequestListener;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams;
-import com.googlecode.kanbanik.dto.ListDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
 
 public class ConfigureWorkflowModule extends HorizontalPanel implements KanbanikModule {
 
@@ -40,36 +30,32 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
 	public void initialize(final ModuleInitializeCallback initializedCallback) {
 		add(boardsBox);
-		
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<GetAllBoardsWithProjectsParams, SimpleParams<ListDto<BoardWithProjectsDto>>> invokeCommand(
-				ServerCommand.GET_ALL_BOARDS_WITH_PROJECTS,
-				new GetAllBoardsWithProjectsParams(false),
-				new BaseAsyncCallback<SimpleParams<ListDto<BoardWithProjectsDto>>>() {
+        ServerCaller.<Dtos.GetAllBoardsWithProjectsDto, Dtos.BoardsWithProjectsDto>sendRequest(
+                DtoFactory.getAllBoardsWithProjectsDto(false),
+                Dtos.BoardsWithProjectsDto.class,
+                new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
 
-					@Override
-					public void success(SimpleParams<ListDto<BoardWithProjectsDto>> result) {
-						List<BoardWithProjectsDto> boards = result.getPayload().getList();
-						boardsBox.setBoards(boards);
-						if (boards.size() != 0) {
-							selectedBoardChanged(boards.iterator().next());	
-						} else {
-							selectedBoardChanged(null);
-						}
-						
-						initializedCallback.initialized(ConfigureWorkflowModule.this);
-					}
-				});
-					}});
+                    @Override
+                    public void success(Dtos.BoardsWithProjectsDto response) {
+                        List<Dtos.BoardWithProjectsDto> boards = response.getValues();
+                        boardsBox.setBoards(boards);
+                        if (boards.size() != 0) {
+                            selectedBoardChanged(boards.iterator().next());
+                        } else {
+                            selectedBoardChanged(null);
+                        }
+
+                        initializedCallback.initialized(ConfigureWorkflowModule.this);
+                    }
+                }
+        );
 
 		setVisible(true);
 		
 	}
 
-	public void selectedBoardChanged(final BoardWithProjectsDto selectedDto) {
+	public void selectedBoardChanged(final Dtos.BoardWithProjectsDto selectedDto) {
 		if (selectedDto == null) {
 			// this means that no board is changed - e.g. the last one has been deleted
 			removeEverything();
@@ -82,7 +68,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		boardsBox.selectedBoardChanged(selectedDto == null ? null : selectedDto.getBoard());
 	}
 
-	private void editBoard(final BoardWithProjectsDto boardWithProjects) {
+	private void editBoard(final Dtos.BoardWithProjectsDto boardWithProjects) {
 		// well, this is a hack. It should listen to ProjectAddedMessage and update the projects.
 
         Dtos.SessionDto req = DtoFactory.sessionDto();
@@ -104,7 +90,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
                             add(workflowEditingComponent);
                         }
 
-                        boardsBox.editBoard(boardWithProjects, result.getResult());
+                        boardsBox.editBoard(boardWithProjects, result.getValues());
                     }
 
                 }
@@ -112,7 +98,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 	}
 
     private void refreshProjectsOnBoard(
-            final BoardWithProjectsDto boardWithProjects,
+            final Dtos.BoardWithProjectsDto boardWithProjects,
             Dtos.ProjectsDto result) {
 
         if (boardWithProjects == null) {
@@ -121,8 +107,8 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 
         String boardId = boardWithProjects.getBoard().getId();
         List<Dtos.ProjectDto> projectsOnBoard = new ArrayList<Dtos.ProjectDto>();
-
-        for (Dtos.ProjectDto projectDto : result.getResult()) {
+        List<Dtos.ProjectDto> projectDtos = result.getValues() != null ? result.getValues() : new ArrayList<Dtos.ProjectDto>();
+        for (Dtos.ProjectDto projectDto : projectDtos) {
             if (projectDto.getBoardIds() == null) {
                 continue;
             }
@@ -135,30 +121,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
             }
         }
 
-        boardWithProjects.setProjects(asOldProjects(projectsOnBoard));
-    }
-
-    private List<ProjectDto> asOldProjects(List<Dtos.ProjectDto> newProjects) {
-        List<ProjectDto> oldProjects = new ArrayList<ProjectDto>();
-
-        for (Dtos.ProjectDto newProject : newProjects) {
-            ProjectDto oldProject = new ProjectDto();
-
-            oldProject.setId(newProject.getId());
-            oldProject.setName(newProject.getName());
-            oldProject.setVersion(newProject.getVersion());
-            List<BoardDto> boards = new ArrayList<BoardDto>();
-            for (String id : newProject.getBoardIds()) {
-                BoardDto board = new BoardDto();
-                board.setId(id);
-                boards.add(board);
-            }
-
-            oldProject.setBoards(boards);
-            oldProjects.add(oldProject);
-        }
-        return oldProjects;
-
+        boardWithProjects.setProjectsOnBoard(DtoFactory.projectsDto(projectsOnBoard));
     }
 
 	private void removeEverything() {

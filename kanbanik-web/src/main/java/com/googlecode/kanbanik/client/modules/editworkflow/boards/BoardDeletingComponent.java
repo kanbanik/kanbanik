@@ -2,10 +2,11 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -14,16 +15,12 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessa
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardDeletedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.dto.shell.VoidParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
-public class BoardDeletingComponent extends AbstractDeletingComponent implements ModulesLifecycleListener, MessageListener<BoardDto>, Component<BoardWithProjectsDto> {
+public class BoardDeletingComponent extends AbstractDeletingComponent implements ModulesLifecycleListener, MessageListener<Dtos.BoardDto>, Component<Dtos.BoardWithProjectsDto> {
 
-	private BoardDto boardDto;
+	private Dtos.BoardDto boardDto;
 
 	public BoardDeletingComponent(HasClickHandlers clickHandler) {
 		super(clickHandler);
@@ -47,26 +44,26 @@ public class BoardDeletingComponent extends AbstractDeletingComponent implements
 
 	@Override
 	protected void onOkClicked() {
-		new KanbanikServerCaller(
-				new Runnable() {
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<VoidParams>> invokeCommand(
-				ServerCommand.DELETE_BOARD,
-				new SimpleParams<BoardDto>(boardDto),
-				new ResourceClosingAsyncCallback<FailableResult<VoidParams>>(BoardDeletingComponent.this) {
+        boardDto.setSessionId(CurrentUser.getInstance().getSessionId());
+        boardDto.setCommandName(CommandNames.DELETE_BOARD.name);
 
-					@Override
-					public void success(FailableResult<VoidParams> result) {
-						MessageBus.sendMessage(new BoardDeletedMessage(boardDto, this));
-					}
-				});}});
-		
+        ServerCaller.<Dtos.BoardDto, Dtos.EmptyDto>sendRequest(
+                boardDto,
+                Dtos.EmptyDto.class,
+                new ResourceClosingCallback<Dtos.EmptyDto>(BoardDeletingComponent.this) {
+
+                    @Override
+                    public void success(Dtos.EmptyDto response) {
+                        MessageBus.sendMessage(new BoardDeletedMessage(boardDto, this));
+                    }
+                }
+        );
 	}
 
 	@Override
-	public void messageArrived(Message<BoardDto> message) {
-		if (message.getPayload().equals(boardDto)) {
+	public void messageArrived(Message<Dtos.BoardDto> message) {
+		if (message.getPayload().getId().equals(boardDto.getId())) {
 			boardDto = message.getPayload();
 		}
 	}
@@ -90,7 +87,7 @@ public class BoardDeletingComponent extends AbstractDeletingComponent implements
 	}
 
 	@Override
-	public void setDto(BoardWithProjectsDto dto) {
+	public void setDto(Dtos.BoardWithProjectsDto dto) {
 		this.boardDto = dto.getBoard();
 	}
 }

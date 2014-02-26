@@ -43,7 +43,6 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
@@ -104,9 +103,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 
-    private BoardDto boardDto;
+    private Dtos.BoardDto boardDto;
 
-	public TaskGui(TaskDto taskDto, BoardDto boardDto) {
+	public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto) {
 		
 		nameLabel = new ClickHandlingTextArea();
         this.boardDto = boardDto;

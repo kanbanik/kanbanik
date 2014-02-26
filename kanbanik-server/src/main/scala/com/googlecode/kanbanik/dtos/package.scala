@@ -17,8 +17,11 @@ package object dtos {
   case class ProjectWithBoardDto(project: ProjectDto, boardId: String)
 
   object WorkfloVerticalSizing extends Enumeration {
-    val BALANCED = Value(0)
+    val BALANCED = Value(-1)
     val MIN_POSSIBLE = Value(1)
+
+    def fromId(id: Int) = if(id == 0 || id == -1) BALANCED else MIN_POSSIBLE
+
   }
 
   object WorkflowitemType extends Enumeration {
@@ -26,15 +29,34 @@ package object dtos {
     val VERTICAL = Value("V")
   }
 
-  case class BoardDto(id: String, version: Int, name: String, workflowVerticalSizing: Int, workflow: Option[WorkflowDto], showUserPictureEnabled: Boolean, tasks: Option[List[TaskDto]])
+  case class BoardDto(id: Option[String],
+                      version: Int,
+                      name: String,
+                      workflowVerticalSizing: Int,
+                      workflow: Option[WorkflowDto],
+                      showUserPictureEnabled: Option[Boolean],
+                      tasks: Option[List[TaskDto]])
 
-  case class WorkflowDto(id: String, workflowitems: Option[List[WorkflowitemDto]], board: BoardDto)
+  case class WorkflowDto(id: Option[String], workflowitems: Option[List[WorkflowitemDto]], board: BoardDto)
 
-  case class WorkflowitemDto(name: String, id: String, wipLimit: Option[Int], itemType: String, version: Int, nestedWorkflow: Option[WorkflowDto], parentWorkflow: Option[WorkflowDto], verticalSize: Option[Int])
+  case class GetAllBoardsWithProjectsDto(includeTasks: Option[Boolean])
+
+  case class BoardWithProjectsDto(board: BoardDto, projectsOnBoard: Option[ProjectsDto])
+
+  case class WorkflowitemDto(name: String,
+                             id: Option[String],
+                             wipLimit: Option[Int],
+                             itemType: String,
+                             version: Int,
+                             nestedWorkflow: Option[WorkflowDto],
+                             parentWorkflow: Option[WorkflowDto],
+                             verticalSize: Option[Int])
+
+  case class EditWorkflowParams(current: WorkflowitemDto, next: Option[WorkflowitemDto], destinationWorkflow: WorkflowDto, board: BoardDto)
 
   case class TaskDto(id: Option[String],
                      name: String,
-                     description: String,
+                     description: Option[String],
                      classOfService: Option[ClassOfServiceDto],
                      ticketId: Option[String],
                      workflowitemId: String,
@@ -49,11 +71,13 @@ package object dtos {
 
   case class TasksDto(values: List[TaskDto])
 
+  case class ProjectsDto(values: List[ProjectDto])
+
   case class ErrorDto(errorMessage: String)
 
   case class StatusDto(success: Boolean, reason: Option[String])
 
-  case class ListDto[T](result: List[T])
+  case class ListDto[T](values: List[T])
 
   case class EmptyDto()
 

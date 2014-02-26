@@ -1,49 +1,47 @@
 package com.googlecode.kanbanik.commands
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.shell.VoidParams
+
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.dto.ListDto
-import com.googlecode.kanbanik.dto.BoardDto
-import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.dto.GetAllBoardsWithProjectsParams
+import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.dtos.ErrorDto
+import com.googlecode.kanbanik.dtos.GetAllBoardsWithProjectsDto
+import com.googlecode.kanbanik.dtos.ListDto
+import scala.Some
+import com.googlecode.kanbanik.dtos.BoardWithProjectsDto
 
-class GetAllBoardsCommand extends ServerCommand[GetAllBoardsWithProjectsParams, SimpleParams[ListDto[BoardWithProjectsDto]]] {
+class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[BoardWithProjectsDto]] {
 
-  def execute(params: GetAllBoardsWithProjectsParams): SimpleParams[ListDto[BoardWithProjectsDto]] = {
-    val res = new ListDto[BoardWithProjectsDto]()
-    Board.all(params.isIncludeTasks()).foreach(board => { res.addItem(new BoardWithProjectsDto(getBoardBuilder.buildDto(board, None))) })
-    
-    buildProjectsForBoard(res)
-    
-    new SimpleParams(res)
-  }
-  
-  private[commands] def buildProjectsForBoard(res: ListDto[BoardWithProjectsDto]) {
-    for (project <- allProjects) {
-      val projectDto = getProjectBuilder.buildDto(project)
+  lazy val boardBuilder = new BoardBuilder()
 
-      for (i <- 0 until res.getList().size()) {
-        val boardToProjects = res.getList().get(i)
-        if (projectDto.getBoards().contains(boardToProjects.getBoard())) {
-          boardToProjects.addProject(projectDto)
+  lazy val projectBuilder = new ProjectBuilder()
+
+  def execute(params: GetAllBoardsWithProjectsDto): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
+
+    val loadedBoards = Board.all(params.includeTasks.getOrElse(false))
+    val loadedProjects = Project.all()
+
+    val res = ListDto(
+      loadedBoards.map(
+        board => BoardWithProjectsDto(
+        boardBuilder.buildDto(board), {
+          val projectDtos = loadedProjects.filter(
+            project => project.boards.getOrElse(List[Board]()).filter(
+              projectsBoard => projectsBoard.id == board.id).size > 0
+          ).map(projectOnBoard => projectBuilder.buildDto2(projectOnBoard))
+
+          if (projectDtos.size > 0) {
+            Some(ProjectsDto(projectDtos))
+          } else {
+            None
+          }
         }
+        )
+      )
+    )
 
-      }
-
-    }
-   
+    Left(res)
   }
-  
-  // all only because of testing
-  private[commands] def getBoardBuilder = new BoardBuilder()
-  
-  private[commands] def getProjectBuilder = new ProjectBuilder()
-  
-  private[commands] def allProjects = Project.all()
-  
+
 }

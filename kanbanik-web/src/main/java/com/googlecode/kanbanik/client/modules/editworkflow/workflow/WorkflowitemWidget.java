@@ -13,13 +13,13 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
-public class WorkflowitemWidget extends Composite implements HasDragHandle, MessageListener<WorkflowitemDto> {
+public class WorkflowitemWidget extends Composite implements HasDragHandle, MessageListener<Dtos.WorkflowitemDto> {
 	
 	@UiField
 	PushButton editButton;
@@ -41,9 +41,9 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 
 	private Widget child;
 
-	private WorkflowitemDto workflowitem;
+	private Dtos.WorkflowitemDto workflowitem;
 	
-	public WorkflowitemWidget(WorkflowitemDto workflowitem) {
+	public WorkflowitemWidget(Dtos.WorkflowitemDto workflowitem) {
 		this.workflowitem = workflowitem;
 		initWidget(uiBinder.createAndBindUi(this));
 		refreshWorkflowitemName();
@@ -60,12 +60,12 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 		workflowitemName.setText(createHeader(workflowitem));
 	}
 
-	private String createHeader(WorkflowitemDto workflowitem) {
+	private String createHeader(Dtos.WorkflowitemDto workflowitem) {
 		String wip = workflowitem.getWipLimit() == -1 ? "" : " (" + workflowitem.getWipLimit() + ")";
 		return workflowitem.getName() + wip;
 	}
 	
-	public WorkflowitemWidget(WorkflowitemDto workflowitem, Widget child) {
+	public WorkflowitemWidget(Dtos.WorkflowitemDto workflowitem, Widget child) {
 		this(workflowitem);
 		this.child = child;
 		content.add(child);
@@ -83,11 +83,11 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 		return header;
 	}
 
-	public WorkflowitemDto getWorkflowitem() {
+	public Dtos.WorkflowitemDto getWorkflowitem() {
 		return workflowitem;
 	}
 
-	public void messageArrived(Message<WorkflowitemDto> message) {
+	public void messageArrived(Message<Dtos.WorkflowitemDto> message) {
 		if (workflowitem.getId() != null && workflowitem.getId().equals(message.getPayload().getId())) {
 			workflowitem = message.getPayload();
 			refreshWorkflowitemName();

@@ -1,16 +1,9 @@
 package com.googlecode.kanbanik.builders
-import com.googlecode.kanbanik.dto.BoardDto
+
 import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Workflowitem
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dto.WorkflowitemDto
-import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.model.Workflow
-import com.googlecode.kanbanik.dto.TaskDto
-import scala.collection.mutable.ListBuffer
-import java.util.ArrayList
-import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, BoardDto, WorkflowDto}
 
 class BoardBuilder extends BaseBuilder {
 
@@ -22,43 +15,56 @@ class BoardBuilder extends BaseBuilder {
     buildDto(board, None)
   }
 
-  def buildShallowDto(board: Board): BoardDto = {
-    val res = new BoardDto
-    res.setName(board.name)
-    res.setId(board.id.get.toString())
-    res.setVersion(board.version)
-    res.setShowUserPictureEnabled(board.userPictureShowingEnabled)
-    res.setWorkfloVerticalSizing(board.workfloVerticalSizing)
-    res
+  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
+    val res = buildShallowDto(board).copy(
+      tasks = Some(board.tasks.map(taskBuilder.buildDto2(_)))
+    )
+
+    res.copy(
+      workflow = Some(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
+    )
   }
 
-  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
-    val res = buildShallowDto(board)
-    res.setWorkflow(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
-//    val tasks = board.tasks.map(taskBuilder.buildDto(_, Some(cache)))
-//    res.setTasks(tasks.toJavaList)
-    res
+  def buildShallowDto(board: Board): BoardDto = {
+    BoardDto(
+      Some(board.id.get.toString()),
+      board.version,
+      board.name,
+      board.workfloVerticalSizing.id,
+      None,
+      Some(board.userPictureShowingEnabled),
+      None
+    )
+
   }
 
   def buildEntity(boardDto: BoardDto): Board = {
     val board = new Board(
-      determineId(boardDto),
-      boardDto.getName(),
-      boardDto.getVersion(),
-      Workflow(),
-      List(),
-//      boardDto.getTasks().toScalaList.map(task => taskBuilder.buildEntity(task)),
-      boardDto.isShowUserPictureEnabled(),
-      {
-        if (boardDto.getWorkfloVerticalSizing() == null) {
-          WorkfloVerticalSizing.BALANCED
-        } else {
-          boardDto.getWorkfloVerticalSizing()
-        }
-      })
+    {
+      if (boardDto.id != null && boardDto.id != "" && boardDto.id.isDefined) {
+        Some(new ObjectId(boardDto.id.get))
+      } else {
+        None
+      }
+    },
+    boardDto.name,
+    boardDto.version,
+    Workflow(),
+    boardDto.tasks.getOrElse(List()).map(task => taskBuilder.buildEntity2(task)),
+    boardDto.showUserPictureEnabled.getOrElse(false),
+    {
+      if (boardDto.workflowVerticalSizing == null) {
+        WorkfloVerticalSizing.BALANCED
+      } else {
+        WorkfloVerticalSizing.fromId(boardDto.workflowVerticalSizing)
+      }
+    })
 
-    board.copy(workflow = workflowBuilder.buildEntity(boardDto.getWorkflow(), Some(board)))
-
+    if (boardDto.workflow.isDefined) {
+      board.copy(workflow = workflowBuilder.buildEntity(boardDto.workflow.get, Some(board)))
+    } else {
+      board
+    }
   }
 
   private[builders] def workflowitemBuilder = new WorkflowitemBuilder

@@ -10,15 +10,14 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
 
-public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener, Closable, Component<BoardWithProjectsDto> {
+public abstract class AbstractBoardEditingComponent implements PanelContainingDialolgListener, Closable, Component<Dtos.BoardWithProjectsDto> {
 	
 	private Panel mainPanel = new VerticalPanel();
 	
@@ -79,7 +78,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 
 		public void onClick(ClickEvent event) {
 			boardNameText.setText(getBoardName());
-			workflowVerticalSizing.setValue(getVerticalSizing() == WorkfloVerticalSizing.BALANCED);
+			workflowVerticalSizing.setValue(getVerticalSizing() == Dtos.WorkflowVerticalSizing.BALANCED);
 			
 			showUserPictureBox.setValue(isUserPictureDisplayingEnabled());
 			dialog.center();
@@ -89,9 +88,9 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 
 	public void okClicked(PanelContainingDialog dialog) {
-		BoardDto dto = new BoardDto();
+		Dtos.BoardDto dto = DtoFactory.boardDto();
 		dto.setName(boardNameText.getText());
-		dto.setWorkfloVerticalSizing(workflowVerticalSizing.getValue() ? WorkfloVerticalSizing.BALANCED : WorkfloVerticalSizing.MIN_POSSIBLE);
+		dto.setWorkflowVerticalSizing(workflowVerticalSizing.getValue() ? Dtos.WorkflowVerticalSizing.BALANCED.getSizing() : Dtos.WorkflowVerticalSizing.MIN_POSSIBLE.getSizing());
 		
 		dto.setShowUserPictureEnabled(showUserPictureBox.getValue());
 		onOkClicked(dto);
@@ -102,7 +101,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 	
 	@Override
-	public void setDto(BoardWithProjectsDto dto) {
+	public void setDto(Dtos.BoardWithProjectsDto dto) {
 		
 	}
 	
@@ -115,7 +114,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	
 	protected abstract String getBoardName();
 	
-	protected abstract WorkfloVerticalSizing getVerticalSizing();
+	protected abstract Dtos.WorkflowVerticalSizing getVerticalSizing();
 	
-	protected abstract void onOkClicked(BoardDto dto);
+	protected abstract void onOkClicked(Dtos.BoardDto dto);
 }

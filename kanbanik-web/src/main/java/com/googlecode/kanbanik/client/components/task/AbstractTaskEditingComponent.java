@@ -38,9 +38,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectio
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
-import com.googlecode.kanbanik.dto.BoardDto;
 import com.googlecode.kanbanik.dto.CommandNames;
-import com.googlecode.kanbanik.model.Board;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,9 +83,9 @@ public abstract class AbstractTaskEditingComponent {
 
     private Map<String, Dtos.UserDto> userToName;
 
-    private BoardDto board;
+    private Dtos.BoardDto board;
 
-    public AbstractTaskEditingComponent(HasClickHandlers clickHandler, BoardDto board) {
+    public AbstractTaskEditingComponent(HasClickHandlers clickHandler, Dtos.BoardDto board) {
         this.clickHandler = clickHandler;
         this.name = "Task Details";
         this.board = board;

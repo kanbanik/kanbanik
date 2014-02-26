@@ -1,13 +1,8 @@
 package com.googlecode.kanbanik.commands
-import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dto.shell.SimpleParams
-import com.googlecode.kanbanik.dto.shell.VoidParams
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto
+
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.dto.shell.FailableResult
 import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.dto.ProjectDto
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
 
 class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {

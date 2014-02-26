@@ -9,10 +9,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.task.TaskAddingComponent;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class ProjectHeader extends Composite {
 
@@ -27,11 +25,11 @@ public class ProjectHeader extends Composite {
 	@UiField
 	PushButton addButton;
 	
-	public ProjectHeader(BoardDto board, ProjectDto project) {
+	public ProjectHeader(Dtos.BoardDto board, Dtos.ProjectDto project) {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		projectName.setText(project.getName());
-		WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
+		Dtos.WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
 		
 		if (rootDto != null) {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
@@ -46,7 +44,7 @@ public class ProjectHeader extends Composite {
 	}
 
 	
-	private WorkflowitemDto getInputQueue(WorkflowitemDto root) {
+	private Dtos.WorkflowitemDto getInputQueue(Dtos.WorkflowitemDto root) {
 		if (root == null) {
 			return null;
 		}

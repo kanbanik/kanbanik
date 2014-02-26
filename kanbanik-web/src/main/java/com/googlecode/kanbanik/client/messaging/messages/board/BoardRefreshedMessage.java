@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.board;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
 
-public class BoardRefreshedMessage extends BaseMessage<BoardDto> {
+public class BoardRefreshedMessage extends BaseMessage<Dtos.BoardDto> {
 
-	public BoardRefreshedMessage(BoardDto payload, Object source) {
+	public BoardRefreshedMessage(Dtos.BoardDto payload, Object source) {
 		super(payload, source);
 	}
 

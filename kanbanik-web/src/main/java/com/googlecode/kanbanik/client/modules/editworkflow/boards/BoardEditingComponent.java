@@ -2,10 +2,12 @@ package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
 import com.googlecode.kanbanik.client.Modules;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -13,14 +15,9 @@ import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessa
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
-public class BoardEditingComponent extends AbstractBoardEditingComponent implements ModulesLifecycleListener, MessageListener<BoardDto>  {
+public class BoardEditingComponent extends AbstractBoardEditingComponent implements ModulesLifecycleListener, MessageListener<Dtos.BoardDto>  {
 	
 	public BoardEditingComponent(HasClickHandlers hasClickHandler) {
 		super(hasClickHandler, "Edit Board");
@@ -37,7 +34,7 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		registerListeners();
 	}
 
-	private BoardDto boardDto;
+	private Dtos.BoardDto boardDto;
 
 	@Override
 	protected String getBoardName() {
@@ -48,12 +45,12 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	}
 	
 	@Override
-	protected WorkfloVerticalSizing getVerticalSizing() {
+	protected Dtos.WorkflowVerticalSizing getVerticalSizing() {
 		if (boardDto == null) {
-			return WorkfloVerticalSizing.BALANCED;
+			return Dtos.WorkflowVerticalSizing.BALANCED;
 		}
 		
-		return boardDto.getWorkfloVerticalSizing();
+		return Dtos.WorkflowVerticalSizing.from(boardDto.getWorkflowVerticalSizing());
 	}
 	
 	@Override
@@ -66,41 +63,38 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	}
 
 	@Override
-	protected void onOkClicked(BoardDto dto) {
-		final BoardDto toStore = new BoardDto();
+	protected void onOkClicked(Dtos.BoardDto dto) {
+		final Dtos.BoardDto toStore = DtoFactory.boardDto();
 		toStore.setId(boardDto.getId());
 		toStore.setName(dto.getName());
-		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
+		toStore.setWorkflowVerticalSizing(dto.getWorkflowVerticalSizing());
 		toStore.setVersion(boardDto.getVersion());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
 		toStore.setWorkflow(boardDto.getWorkflow());
-		
-		new KanbanikServerCaller(
-				new Runnable() {
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<SimpleParams<BoardDto>>> invokeCommand(
-				ServerCommand.SAVE_BOARD,
-				new SimpleParams<BoardDto>(toStore),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<BoardDto>>>(BoardEditingComponent.this) {
+        toStore.setCommandName(CommandNames.EDIT_BOARD.name);
 
-					@Override
-					public void success(FailableResult<SimpleParams<BoardDto>> result) {
-						MessageBus.sendMessage(new BoardEditedMessage(result.getPayload().getPayload(), this));
-						MessageBus.sendMessage(new BoardChangedMessage(result.getPayload().getPayload(), this));
-					}
-				});
-		}});
-		
+        ServerCaller.<Dtos.BoardDto, Dtos.BoardDto>sendRequest(
+                toStore,
+                Dtos.BoardDto.class,
+                new ResourceClosingCallback<Dtos.BoardDto>(BoardEditingComponent.this) {
+
+                    @Override
+                    public void success(Dtos.BoardDto response) {
+                        MessageBus.sendMessage(new BoardEditedMessage(response, this));
+                        MessageBus.sendMessage(new BoardChangedMessage(response, this));
+                    }
+                }
+        );
 	}
 
 	@Override
-	public void setDto(BoardWithProjectsDto dto) {
+	public void setDto(Dtos.BoardWithProjectsDto dto) {
 		this.boardDto = dto.getBoard();
 	}
 
 	@Override
-	public void messageArrived(Message<BoardDto> message) {
-		if (message.getPayload().equals(boardDto)) {
+	public void messageArrived(Message<Dtos.BoardDto> message) {
+		if (message.getPayload().getId().equals(boardDto.getId())) {
 			boardDto = message.getPayload();
 		}
 	}

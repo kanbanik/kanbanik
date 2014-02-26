@@ -1,12 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.board;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
 
+public class BoardEditedMessage extends BaseMessage<Dtos.BoardDto> {
 
-public class BoardEditedMessage extends BaseMessage<BoardDto> {
-
-	public BoardEditedMessage(BoardDto payload, Object source) {
+	public BoardEditedMessage(Dtos.BoardDto payload, Object source) {
 		super(payload, source);
 	}
 

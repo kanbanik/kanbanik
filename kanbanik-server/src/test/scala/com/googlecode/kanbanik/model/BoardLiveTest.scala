@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.model
 
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing
+import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
+
 
 class BoardLiveTest extends BaseWorkflowManipulatingTest {
 

@@ -45,6 +45,20 @@ public class DtoFactory {
 
         AutoBean<Dtos.MoveTaskDto> moveTaskDto();
 
+        AutoBean<Dtos.WorkflowitemDto> workflowitemDto();
+
+        AutoBean<Dtos.WorkflowDto> workflowDto();
+
+        AutoBean<Dtos.BoardDto> boardDto();
+
+        AutoBean<Dtos.BoardWithProjectsDto> boardWithProjectsDto();
+
+        AutoBean<Dtos.BoardsWithProjectsDto> boardsWithProjectsDto();
+
+        AutoBean<Dtos.GetAllBoardsWithProjectsDto> getAllBoardsWithProjectsDto();
+
+        AutoBean<Dtos.EditWorkflowParams> editWorkflowParams();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -126,6 +140,50 @@ public class DtoFactory {
     public static Dtos.UserDto userDto() {
         Dtos.UserDto dto = factory.userDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.WorkflowitemDto workflowitemDto() {
+        Dtos.WorkflowitemDto dto = factory.workflowitemDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.WorkflowDto workflowDto() {
+        Dtos.WorkflowDto dto = factory.workflowDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.BoardDto boardDto() {
+        Dtos.BoardDto dto = factory.boardDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        return dto;
+    }
+
+    public static Dtos.GetAllBoardsWithProjectsDto getAllBoardsWithProjectsDto(boolean includeTasks) {
+        Dtos.GetAllBoardsWithProjectsDto dto = factory.getAllBoardsWithProjectsDto().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        dto.setIncludeTasks(includeTasks);
+        dto.setCommandName(CommandNames.GET_ALL_BOARDS_WITH_PROJECTS.name);
+        return dto;
+    }
+
+    public static Dtos.BoardWithProjectsDto boardWithProjectsDto() {
+        Dtos.BoardWithProjectsDto dto = factory.boardWithProjectsDto().as();
+        return dto;
+    }
+
+    public static Dtos.ProjectsDto projectsDto(List<Dtos.ProjectDto> projects) {
+        Dtos.ProjectsDto dto = factory.projectsDto().as();
+        dto.setValues(projects);
+        return dto;
+    }
+
+    public static Dtos.EditWorkflowParams editWorkflowParams() {
+        Dtos.EditWorkflowParams dto = factory.editWorkflowParams().as();
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.EDIT_WORKFLOW.name);
         return dto;
     }
 

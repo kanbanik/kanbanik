@@ -19,21 +19,17 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.BoardWithProjectsDto;
-import com.googlecode.kanbanik.dto.ItemType;
-import com.googlecode.kanbanik.dto.ProjectDto;
-import com.googlecode.kanbanik.dto.WorkflowDto;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
 public class WorkflowEditingComponent extends Composite implements
-		ModulesLifecycleListener, MessageListener<BoardDto> {
+		ModulesLifecycleListener, MessageListener<Dtos.BoardDto> {
 
 	interface MyUiBinder extends UiBinder<Widget, WorkflowEditingComponent> {
 	}
@@ -57,14 +53,14 @@ public class WorkflowEditingComponent extends Composite implements
 
 	private AbsolutePanel panelWithDraggabls;
 
-	private BoardDto boardDto;
+	private Dtos.BoardDto boardDto;
 
 	public WorkflowEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
-	public void initialize(BoardWithProjectsDto boardWithProjects) {
+	public void initialize(Dtos.BoardWithProjectsDto boardWithProjects) {
 		this.boardDto = boardWithProjects.getBoard();
 		renderBoard();
 		
@@ -76,21 +72,23 @@ public class WorkflowEditingComponent extends Composite implements
 			return;
 		}
 		
-		WorkflowitemDto horizontal = new WorkflowitemDto();
+		Dtos.WorkflowitemDto horizontal = DtoFactory.workflowitemDto();
 		horizontal.setParentWorkflow(boardDto.getWorkflow());
 		horizontal.setNestedWorkflow(createNestedWorkflow());
-		horizontal.setItemType(ItemType.HORIZONTAL);
+		horizontal.setItemType(Dtos.ItemType.HORIZONTAL.getType());
 		horizontal.setName("Horizontal Item");
 		horizontal.setWipLimit(-1);
 		horizontal.setVerticalSize(-1);
-		
-		WorkflowitemDto vertical = new WorkflowitemDto();
+        horizontal.setVersion(1);
+
+        Dtos.WorkflowitemDto vertical = DtoFactory.workflowitemDto();
 		vertical.setParentWorkflow(boardDto.getWorkflow());
 		vertical.setNestedWorkflow(createNestedWorkflow());
-		vertical.setItemType(ItemType.VERTICAL);
+		vertical.setItemType(Dtos.ItemType.VERTICAL.getType());
 		vertical.setName("Vertical Item");
 		vertical.setWipLimit(-1);
 		vertical.setVerticalSize(-1);
+        vertical.setVersion(1);
 		
 		WorkflowItemPalette paletteContent = new WorkflowItemPalette(dragController);
 		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(horizontal, imageResourceAsPanel(KanbanikResources.INSTANCE.rightDropArrowImage())));
@@ -110,8 +108,8 @@ public class WorkflowEditingComponent extends Composite implements
 		mainContentPanel.add(designPanel);
 	}
 
-	private WorkflowDto createNestedWorkflow() {
-		WorkflowDto dto = new WorkflowDto();
+	private Dtos.WorkflowDto createNestedWorkflow() {
+		Dtos.WorkflowDto dto = DtoFactory.workflowDto();
 		dto.setBoard(boardDto);
 		return dto;
 	}
@@ -166,16 +164,16 @@ public class WorkflowEditingComponent extends Composite implements
 		initAndAddPalette(dragController, mainContentPanel);
 	}
 
-	public void buildBoard(WorkflowDto parentWorkflow,
-			WorkflowDto currentWorkflow, ProjectDto project, FlexTable table,
+	public void buildBoard(Dtos.WorkflowDto parentWorkflow,
+			Dtos.WorkflowDto currentWorkflow, Dtos.ProjectDto project, FlexTable table,
 			PickupDragController dragController, int row, int column) {
 		if (currentWorkflow == null || currentWorkflow.getWorkflowitems().size() == 0) {
 			return;
 		}
 
-		WorkflowitemDto current = currentWorkflow.getWorkflowitems().get(0);
+		Dtos.WorkflowitemDto current = currentWorkflow.getWorkflowitems().get(0);
 		
-		if (current.getItemType() == ItemType.HORIZONTAL) {
+		if (Dtos.ItemType.from(current.getItemType()) == Dtos.ItemType.HORIZONTAL) {
 			table.setWidget(
 					row,
 					column,
@@ -183,7 +181,7 @@ public class WorkflowEditingComponent extends Composite implements
 							current, Position.BEFORE,
 							KanbanikResources.INSTANCE.rightDropArrowImage()));
 			column++;
-		} else if (current.getItemType() == ItemType.VERTICAL) {
+		} else if (Dtos.ItemType.from(current.getItemType()) == Dtos.ItemType.VERTICAL) {
 			table.setWidget(
 					row,
 					column,
@@ -197,7 +195,7 @@ public class WorkflowEditingComponent extends Composite implements
 					+ current.getItemType() + "'");
 		}
 
-		for(WorkflowitemDto currentItem : currentWorkflow.getWorkflowitems()) {
+		for(Dtos.WorkflowitemDto currentItem : currentWorkflow.getWorkflowitems()) {
 			if (currentItem.getNestedWorkflow().getWorkflowitems().size() != 0) {
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
@@ -223,7 +221,7 @@ public class WorkflowEditingComponent extends Composite implements
 								project, dropTarget));
 			}
 
-			if (currentItem.getItemType() == ItemType.HORIZONTAL) {
+			if (Dtos.ItemType.from(currentItem.getItemType()) == Dtos.ItemType.HORIZONTAL) {
 				column++;
 				table.setWidget(
 						row,
@@ -231,7 +229,7 @@ public class WorkflowEditingComponent extends Composite implements
 						createDropTarget(dragController, currentWorkflow,
 								currentItem, Position.AFTER, KanbanikResources.INSTANCE.rightDropArrowImage()));
 				column++;
-			} else if (currentItem.getItemType() == ItemType.VERTICAL) {
+			} else if (Dtos.ItemType.from(currentItem.getItemType()) == Dtos.ItemType.VERTICAL) {
 				row++;
 				table.setWidget(
 						row,
@@ -249,7 +247,7 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private Panel createDropTarget(PickupDragController dragController,
-			WorkflowDto contextItem, WorkflowitemDto currentItem,
+			Dtos.WorkflowDto contextItem, Dtos.WorkflowitemDto currentItem,
 			Position position, ImageResource image) {
 		FlowPanel dropTarget = new FlowPanel();
 		dropTarget.setStyleName(style.dropTargetStyle());
@@ -261,7 +259,7 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 
 	private Widget createWorkflowitemPlace(PickupDragController dragController,
-			WorkflowitemDto currentItem, ProjectDto project, Widget childTable) {
+			Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Widget childTable) {
 
 		FlowPanel dropTarget = new FlowPanel();
 		DropController dropController = new DropDisablingDropController(
@@ -319,7 +317,7 @@ public class WorkflowEditingComponent extends Composite implements
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}
 
-	public void messageArrived(Message<BoardDto> message) {
+	public void messageArrived(Message<Dtos.BoardDto> message) {
 		boardDto = message.getPayload();
 		
 		if (boardDto == null) {

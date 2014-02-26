@@ -8,7 +8,6 @@ import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.DeleteUserCommand
 import com.googlecode.kanbanik.commands.EditUserCommand
 import com.googlecode.kanbanik.commands.GetAllUsersCommand
-import com.googlecode.kanbanik.dto.shell.SimpleParams
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.model.User
 import org.apache.shiro.SecurityUtils
@@ -86,7 +85,7 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
 
   def assertNumOfUsersIs(expected: Int) {
     new GetAllUsersCommand().execute(SessionDto("")) match {
-      case Left(allUsers) => assert(allUsers.result.size === expected)
+      case Left(allUsers) => assert(allUsers.values.size === expected)
     }
   }
 

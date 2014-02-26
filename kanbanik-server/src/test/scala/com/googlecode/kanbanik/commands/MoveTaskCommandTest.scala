@@ -3,7 +3,6 @@ package com.googlecode.kanbanik.commands
 import org.scalatest.FlatSpec
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.kanbanik.dto.shell.MoveTaskParams
 import com.googlecode.kanbanik.dtos.MoveTaskDto
 
 @RunWith(classOf[JUnitRunner])

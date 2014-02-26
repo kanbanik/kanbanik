@@ -3,9 +3,11 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -13,20 +15,18 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
-public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler, MessageListener<WorkflowitemDto> {
+public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler, MessageListener<Dtos.WorkflowitemDto> {
 
 	private WorkflowItemEditPanel panel;
 
-	private WorkflowitemDto dto;
+	private Dtos.WorkflowitemDto dto;
 	
 	private PanelContainingDialog dialog;
 	
-	public WorkflowitemEditingComponent(WorkflowitemDto dto, HasClickHandlers clickHandlers) {
+	public WorkflowitemEditingComponent(Dtos.WorkflowitemDto dto, HasClickHandlers clickHandlers) {
 		super();
 		this.dto = dto;
 		clickHandlers.addClickHandler(this);
@@ -50,13 +50,13 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		}
 		
 		
-		panel.setType(dto.getItemType());
+		panel.setType(Dtos.ItemType.from(dto.getItemType()));
 	}
 	
 	private void flushDto() {
 		dto.setName(panel.getName());
 		dto.setWipLimit(panel.getWipLimit());
-		dto.setItemType(panel.getItemType());
+		dto.setItemType(panel.getItemType().getType());
 		dto.setVerticalSize(panel.getVerticalSize());
 	}
 
@@ -73,25 +73,24 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 
 	public void okClicked(final PanelContainingDialog dialog) {
 		flushDto();
-		
-		new KanbanikServerCaller(
-				new Runnable() {
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<WorkflowitemDto>, FailableResult<SimpleParams<WorkflowitemDto>>> invokeCommand(
-				ServerCommand.EDIT_WORKFLOWITEM_DATA,
-				new SimpleParams<WorkflowitemDto>(dto),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<WorkflowitemDto>>>(dialog) {
+        dto.setCommandName(CommandNames.EDIT_WORKFLOWITEM_DATA.name);
+        dto.setSessionId(CurrentUser.getInstance().getSessionId());
 
-					@Override
-					public void success(FailableResult<SimpleParams<WorkflowitemDto>> result) {
-						MessageBus.sendMessage(new WorkflowitemChangedMessage(result.getPayload().getPayload(), this));
-						MessageBus.sendMessage(new BoardsRefreshRequestMessage(result.getPayload().getPayload().getParentWorkflow().getBoard(), this));
-					}
-				}); 
-		}});		
+        ServerCaller.<Dtos.WorkflowitemDto, Dtos.WorkflowitemDto>sendRequest(
+                dto,
+                Dtos.WorkflowitemDto.class,
+                new ResourceClosingCallback<Dtos.WorkflowitemDto>(dialog) {
+
+                    @Override
+                    public void success(Dtos.WorkflowitemDto response) {
+                        MessageBus.sendMessage(new WorkflowitemChangedMessage(response, this));
+                        MessageBus.sendMessage(new BoardsRefreshRequestMessage(response.getParentWorkflow().getBoard(), this));
+                    }
+                }
+        );
 	}
 
-	public void messageArrived(Message<WorkflowitemDto> message) {
+	public void messageArrived(Message<Dtos.WorkflowitemDto> message) {
 		if (dto.getId() != null && dto.getId().equals(message.getPayload().getId())) {
 			dto = message.getPayload();
 		}

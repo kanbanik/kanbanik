@@ -1,18 +1,14 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.boards;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.googlecode.kanbanik.client.KanbanikServerCaller;
-import com.googlecode.kanbanik.client.ResourceClosingAsyncCallback;
-import com.googlecode.kanbanik.client.ServerCommandInvokerManager;
+import com.googlecode.kanbanik.client.api.DtoFactory;
+import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessage;
-import com.googlecode.kanbanik.dto.BoardDto;
-import com.googlecode.kanbanik.dto.WorkfloVerticalSizing;
-import com.googlecode.kanbanik.dto.WorkflowDto;
-import com.googlecode.kanbanik.dto.shell.FailableResult;
-import com.googlecode.kanbanik.dto.shell.SimpleParams;
-import com.googlecode.kanbanik.shared.ServerCommand;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 
 public class BoardCreatingComponent extends AbstractBoardEditingComponent {
@@ -31,8 +27,8 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	}
 	
 	@Override
-	protected WorkfloVerticalSizing getVerticalSizing() {
-		return WorkfloVerticalSizing.BALANCED;
+	protected Dtos.WorkflowVerticalSizing getVerticalSizing() {
+		return Dtos.WorkflowVerticalSizing.BALANCED;
 	}
 
 	@Override
@@ -41,30 +37,29 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	}
 
 	@Override
-	protected void onOkClicked(final BoardDto dto) {
-		final BoardDto toStore = new BoardDto();
+	protected void onOkClicked(final Dtos.BoardDto dto) {
+		final Dtos.BoardDto toStore = DtoFactory.boardDto();
 		toStore.setId(null);
 		toStore.setName(dto.getName());
-		toStore.setWorkfloVerticalSizing(dto.getWorkfloVerticalSizing());
+		toStore.setWorkflowVerticalSizing(dto.getWorkflowVerticalSizing());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
-		toStore.setWorkflow(new WorkflowDto());
-		
-		new KanbanikServerCaller(
-				new Runnable() {
+		toStore.setWorkflow(DtoFactory.workflowDto());
+        toStore.setCommandName(CommandNames.CREATE_BOARD.name);
+        toStore.setVersion(1);
 
-					public void run() {
-		ServerCommandInvokerManager.getInvoker().<SimpleParams<BoardDto>, FailableResult<SimpleParams<BoardDto>>> invokeCommand(
-				ServerCommand.SAVE_BOARD,
-				new SimpleParams<BoardDto>(toStore),
-				new ResourceClosingAsyncCallback<FailableResult<SimpleParams<BoardDto>>>(BoardCreatingComponent.this) {
+        ServerCaller.<Dtos.BoardDto, Dtos.BoardDto>sendRequest(
+                toStore,
+                Dtos.BoardDto.class,
+                new ResourceClosingCallback<Dtos.BoardDto>(BoardCreatingComponent.this) {
 
-					@Override
-					public void success(FailableResult<SimpleParams<BoardDto>> result) {
-						MessageBus.sendMessage(new BoardCreatedMessage( result.getPayload().getPayload(), BoardCreatingComponent.this));	
-						MessageBus.sendMessage(new BoardChangedMessage( result.getPayload().getPayload(), BoardCreatingComponent.this));
-					}
-				});
-		}});
+                    @Override
+                    public void success(Dtos.BoardDto response) {
+                        MessageBus.sendMessage(new BoardCreatedMessage(response, BoardCreatingComponent.this));
+                        MessageBus.sendMessage(new BoardChangedMessage(response, BoardCreatingComponent.this));
+                    }
+                }
+        );
+
 	}
 
 }

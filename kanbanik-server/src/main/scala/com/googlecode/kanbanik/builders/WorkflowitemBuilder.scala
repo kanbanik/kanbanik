@@ -1,81 +1,73 @@
 package com.googlecode.kanbanik.builders
+
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dto.ItemType
-import com.googlecode.kanbanik.dto.WorkflowitemDto
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Workflowitem
-import com.googlecode.kanbanik.dto.WorkflowDto
 import com.googlecode.kanbanik.model.Workflow
+import com.googlecode.kanbanik.dtos.{WorkflowitemDto, WorkflowDto}
 
 
 class WorkflowitemBuilder extends BaseBuilder {
-  
+
   def buildShallowEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
-     new Workflowitem(
-        {
-          if (dto.getId() == null) {
-            Some(new ObjectId)
-          } else {
-            Some(new ObjectId(dto.getId()))
-          }
-        },
-        dto.getName(),
-        dto.getWipLimit(),
-        dto.getVerticalSize(),
-        dto.getItemType().asStringValue(),
-        dto.getVersion(),
-        // don't calculate it if not needed
-        Workflow(), 
-        parentWorkflow
-    )
-  }
-  
-  def buildEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
     new Workflowitem(
-        {
-          if (dto.getId() == null) {
-            Some(new ObjectId)
-          } else {
-            Some(new ObjectId(dto.getId()))
-          }
-        },
-        dto.getName(),
-        dto.getWipLimit(),
-        dto.getVerticalSize(),
-        dto.getItemType().asStringValue(),
-        dto.getVersion(),
-        workflowBuilder.buildEntity(dto.getNestedWorkflow(), board), 
-        parentWorkflow
+    {
+      if (dto.id == null || !dto.id.isDefined) {
+        Some(new ObjectId)
+      } else {
+        Some(new ObjectId(dto.id.get))
+      }
+    },
+    dto.name,
+    dto.wipLimit.getOrElse(0),
+    dto.verticalSize.getOrElse(-1),
+    dto.itemType,
+    dto.version,
+    // don't calculate it if not needed
+    Workflow(),
+    parentWorkflow
     )
   }
-  
-   def buildShallowDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
-    val dto = new WorkflowitemDto
-    dto.setId(workflowitem.id.get.toString())
-    dto.setName(workflowitem.name)
-    dto.setWipLimit(workflowitem.wipLimit)
-    dto.setVerticalSize(workflowitem.verticalSize)
-    dto.setItemType(ItemType.asItemType(workflowitem.itemType))
-    dto.setVersion(workflowitem.version)
-    dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
-    dto
+
+  def buildEntity(dto: WorkflowitemDto, parentWorkflow: Option[Workflow], board: Option[Board]): Workflowitem = {
+    val shallow = buildShallowEntity(dto, parentWorkflow, board)
+    if (dto.nestedWorkflow.isDefined) {
+      shallow.copy(nestedWorkflow = workflowBuilder.buildEntity(dto.nestedWorkflow.get, board))
+    } else {
+      shallow
+    }
+
   }
-  
+
+  def buildShallowDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
+    WorkflowitemDto(
+      workflowitem.name,
+      Some(workflowitem.id.get.toString()),
+      Some(workflowitem.wipLimit),
+      workflowitem.itemType,
+      workflowitem.version,
+      None,
+      Some(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow)))),
+      Some(workflowitem.verticalSize)
+    )
+  }
+
   def buildDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     val dto = buildShallowDto(workflowitem, parentWorkflow)
-    dto.setNestedWorkflow(workflowBuilder.buildDto(workflowitem.nestedWorkflow, parentBoard(parentWorkflow)))
-    dto.setParentWorkflow(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
-    dto
+    dto.copy(
+      nestedWorkflow = Some(workflowBuilder.buildDto(workflowitem.nestedWorkflow, parentBoard(parentWorkflow))),
+      parentWorkflow = Some(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow))))
+    )
   }
-  
+
   def parentBoard(parentWorkflow: Option[WorkflowDto]) = {
     if (!parentWorkflow.isDefined) {
       None
     } else {
-      Some(parentWorkflow.get.getBoard())
+      Some(parentWorkflow.get.board)
     }
   }
-  
+
   def workflowBuilder = new WorkflowBuilder
 }
   

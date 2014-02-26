@@ -16,7 +16,6 @@ import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
-import com.googlecode.kanbanik.dto.BoardDto;
 import net.auroris.ColorPicker.client.ColorPicker;
 
 public abstract class BaseClassOfServiceManipulatingComponent extends Composite
@@ -37,7 +36,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 	final ColorPicker colorPicker = new ColorPicker();
 
-	private BoardDto currentBoard;
+	private Dtos.BoardDto currentBoard;
 	
 	interface MyUiBinder extends
 			UiBinder<Widget, BaseClassOfServiceManipulatingComponent> {
@@ -155,11 +154,11 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		setColour("003d89");
 	}
 	
-	public BoardDto getCurrentBoard() {
+	public Dtos.BoardDto getCurrentBoard() {
 		return currentBoard;
 	}
 
-	public void setCurrentBoard(BoardDto currentBoard) {
+	public void setCurrentBoard(Dtos.BoardDto currentBoard) {
 		this.currentBoard = currentBoard;
 	}
 

@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.messaging.messages.task;
 
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
-import com.googlecode.kanbanik.dto.WorkflowitemDto;
 
-public class GetFirstTaskRequestMessage extends BaseMessage<WorkflowitemDto> {
+public class GetFirstTaskRequestMessage extends BaseMessage<Dtos.WorkflowitemDto> {
 
-	public GetFirstTaskRequestMessage(WorkflowitemDto payload, Object source) {
+	public GetFirstTaskRequestMessage(Dtos.WorkflowitemDto payload, Object source) {
 		super(payload, source);
 	}
 

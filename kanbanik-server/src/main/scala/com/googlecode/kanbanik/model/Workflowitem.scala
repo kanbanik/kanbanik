@@ -3,9 +3,9 @@ package com.googlecode.kanbanik.model
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.dto.ItemType
 import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
+import com.googlecode.kanbanik.dtos.WorkflowitemType
 import com.googlecode.kanbanik.commons._
 
 case class Workflowitem(
@@ -75,11 +75,11 @@ object Workflowitem extends HasMongoConnection {
     val nestedWorkflow = Value("nestedWorkflow")
   }
 
-  def apply() = new Workflowitem(Some(new ObjectId()), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+  def apply() = new Workflowitem(Some(new ObjectId()), "", -1, -1, WorkflowitemType.HORIZONTAL.toString, 1, Workflow(), None)
 
-  def apply(id: String) = new Workflowitem(Some(new ObjectId(id)), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+  def apply(id: String) = new Workflowitem(Some(new ObjectId(id)), "", -1, -1, WorkflowitemType.HORIZONTAL.toString, 1, Workflow(), None)
 
-  def apply(id: ObjectId) = new Workflowitem(Some(id), "", -1, -1, ItemType.HORIZONTAL.asStringValue(), 1, Workflow(), None)
+  def apply(id: ObjectId) = new Workflowitem(Some(id), "", -1, -1, WorkflowitemType.HORIZONTAL.toString, 1, Workflow(), None)
 
   def apply(id: String, parent: Workflow) =
     new Workflowitem(
@@ -87,7 +87,7 @@ object Workflowitem extends HasMongoConnection {
       "",
       -1,
       -1,
-      ItemType.HORIZONTAL.asStringValue(),
+      WorkflowitemType.HORIZONTAL.toString,
       1,
       Workflow(),
       Some(parent)
