@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.migrate
 
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.mongodb.casbah.Imports.$set
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.mongodb.DBObject
@@ -12,12 +12,22 @@ import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.commons._
 import scala.Some
 import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
+import scala.Some
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import scala.Some
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import scala.Some
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
+import scala.Some
+import com.googlecode.kanbanik.dtos.ManipulateUserDto
 
 class MigrateDb extends HasMongoConnection {
 
   val versionMigrations = Map(
     1 -> List(new From1To2, new From2To3),
-    2 -> List(new From2To3))
+    2 -> List(new From2To3),
+    3 -> List(new From3To4)
+  )
 
   def migrateDbIfNeeded {
     using(createConnection) {
@@ -149,61 +159,119 @@ class From2To3 extends MigrationPart {
       conn =>
         val oldTasks = coll(conn, oldTasksCollection).find().map(asOldEntity(_))
         val newTasks = oldTasks.map(_.asNewTask(classesOfService))
-        var order = 0
-//        for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
-//          newTask.copy(order = Integer.toString(order)).store
-//          order += 100
-//        }
 
+        var order = 0
+        for (newTask <- newTasks if (newTask.project != null && newTask.workflowitem != null)) {
+          newTask.copy(order = Integer.toString(order)).store
+          order += 100
+        }
     }
 
     def asOldEntity(dbObject: DBObject) = {
       new OldTask(
-        Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
-        dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
-        dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
-        dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
-        dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String], {
-          val res = dbObject.get(Task.Fields.version.toString())
-          if (res == null) {
-            1
-          } else {
-            res.asInstanceOf[Int]
-          }
-        },
-        dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId])
+      Some(dbObject.get(Task.Fields.id.toString()).asInstanceOf[ObjectId]),
+      dbObject.get(Task.Fields.name.toString()).asInstanceOf[String],
+      dbObject.get(Task.Fields.description.toString()).asInstanceOf[String],
+      dbObject.get(Task.Fields.classOfService.toString()).asInstanceOf[Int],
+      dbObject.get(Task.Fields.ticketId.toString()).asInstanceOf[String], {
+        val res = dbObject.get(Task.Fields.version.toString())
+        if (res == null) {
+          1
+        } else {
+          res.asInstanceOf[Int]
+        }
+      },
+      dbObject.get(Task.Fields.workflowitem.toString()).asInstanceOf[ObjectId])
 
     }
   }
 
-  class OldTask(val id: Option[ObjectId],
-    val name: String,
-    val description: String,
-    val classOfService: Int,
-    val ticketId: String,
-    val version: Int,
-    val workflowitemId: ObjectId) {
+  case class NewTask(
+                      val id: Option[ObjectId],
+                      val name: String,
+                      val description: String,
+                      val classOfService: Option[ClassOfService],
+                      val ticketId: String,
+                      val version: Int,
+                      val order: String,
+                      val assignee: Option[User],
+                      val dueData: String,
+                      val workflowitem: Workflowitem,
+                      val project: Project) {
 
-    def asNewTask(classesOfService: Map[Int, ClassOfService]): Task = {
-//      new Task(
-//        None, // because I want to create a new one
-//        name,
-//        description,
-//        {
-//          if (classesOfService.contains(classOfService)) {
-//            classesOfService.get(classOfService)
-//          } else {
-//            classesOfService.get(2)
-//          }
-//
-//        },
-//        ticketId,
-//        1, // because I basically want to create a new one
-//        "",
-//        None,
-//        "",
-//        findWorkflowitem(),
-//        findProject())
+    object Fields extends DocumentField {
+      val description = Value("description")
+      val ticketId = Value("ticketId")
+      val order = Value("order")
+      val projectId = Value("projectId")
+      val workflowitem = Value("workflowitem")
+      val classOfService = Value("classOfService")
+      val assignee = Value("assignee")
+      val dueDate = Value("dueDate")
+    }
+
+    def asDBObject(entity: NewTask): DBObject = {
+
+      MongoDBObject(
+        Fields.id.toString() -> {
+          if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id
+        },
+        Fields.name.toString() -> entity.name,
+        Fields.description.toString() -> entity.description,
+        Fields.classOfService.toString() -> entity.classOfService,
+        Fields.ticketId.toString() -> entity.ticketId,
+        Fields.version.toString() -> entity.version,
+        Fields.order.toString() -> entity.order,
+        Fields.projectId.toString() -> entity.project.id,
+        Fields.classOfService.toString() -> {
+          if (entity.classOfService.isDefined) entity.classOfService.get.id else None
+        },
+        Fields.assignee.toString() -> {
+          if (entity.assignee.isDefined) entity.assignee.get.name else None
+        },
+        Fields.dueDate.toString() -> entity.dueData,
+        Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
+    }
+
+    def store() {}
+
+    using(createConnection) {
+      conn =>
+        val update = $push(Coll.Tasks.toString() -> asDBObject(this))
+        coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+    }
+
+
+  }
+
+  class OldTask(val id: Option[ObjectId],
+                val name: String,
+                val description: String,
+                val classOfService: Int,
+                val ticketId: String,
+                val version: Int,
+                val workflowitemId: ObjectId) {
+
+    def asNewTask(classesOfService: Map[Int, ClassOfService]): NewTask = {
+
+      new NewTask(
+      None, // because I want to create a new one
+      name,
+      description, {
+        if (classesOfService.contains(classOfService)) {
+          classesOfService.get(classOfService)
+        } else {
+          classesOfService.get(2)
+        }
+
+      },
+      ticketId,
+      1, // because I basically want to create a new one
+      "",
+      None,
+      "",
+      findWorkflowitem(),
+      findProject())
       null
 
     }
@@ -242,3 +310,82 @@ class From2To3 extends MigrationPart {
   }
 
 }
+
+class From3To4 extends MigrationPart {
+  def migrate: Unit = {
+    using(createConnection) {
+      conn => {
+        for (board <- coll(conn, "boards").find()) {
+          val tasks = board.get("tasks")
+          if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
+            val list = board.get("tasks").asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
+            for (task <- list) {
+              asNewTask(task, board.get("id").asInstanceOf[ObjectId]).store
+            }
+          }
+          }
+
+        }
+      }
+    }
+
+  object Fields extends DocumentField {
+    val description = Value("description")
+    val ticketId = Value("ticketId")
+    val order = Value("order")
+    val projectId = Value("projectId")
+    val workflowitem = Value("workflowitem")
+    val classOfService = Value("classOfService")
+    val assignee = Value("assignee")
+    val dueDate = Value("dueDate")
+    val boardId = Value("boardId")
+  }
+
+  def asNewTask(dbObject: DBObject, boardId: ObjectId): Task = {
+    new Task(
+      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
+      dbObject.get(Fields.name.toString()).asInstanceOf[String],
+      dbObject.get(Fields.description.toString()).asInstanceOf[String],
+      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
+      dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
+      dbObject.getWithDefault[Int](Fields.version, 1),
+      dbObject.get(Fields.order.toString()).asInstanceOf[String],
+      loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
+      dbObject.getWithDefault[String](Fields.dueDate, ""),
+      dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
+      boardId,
+      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
+    )
+
+  }
+
+  def loadOrNone[T, R](dbField: String, dbObject: DBObject, f: T => Option[R]): Option[R] = {
+    val res = dbObject.get(dbField)
+    if (res == null) {
+      None
+    } else {
+      f(res.asInstanceOf[T])
+    }
+  }
+
+  def loadClassOfService(id: ObjectId) = {
+    try {
+      Some(ClassOfService.byId(id))
+    } catch {
+      case e: IllegalArgumentException =>
+        None
+    }
+
+  }
+
+  def loadUser(name: String) = {
+    try {
+      Some(User.byId(name))
+    } catch {
+      case e: IllegalArgumentException =>
+        None
+    }
+
+  }
+
+  }

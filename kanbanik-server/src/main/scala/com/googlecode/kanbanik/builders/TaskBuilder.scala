@@ -46,7 +46,14 @@ class TaskBuilder extends TaskManipulation {
       } else {
         Some(task.dueData)
       },
-      task.boardId.toString
+    {
+      if (task.boardId == null) {
+        null
+      } else {
+        task.boardId.toString
+      }
+    }
+
     )
   }
 
