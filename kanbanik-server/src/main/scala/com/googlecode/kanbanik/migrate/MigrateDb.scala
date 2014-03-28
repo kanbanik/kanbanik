@@ -320,7 +320,7 @@ class From3To4 extends MigrationPart {
           if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
             val list = board.get("tasks").asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
             for (task <- list) {
-              asNewTask(task, board.get("id").asInstanceOf[ObjectId]).store
+              asNewTask(task, board.get("_id").asInstanceOf[ObjectId]).store
             }
           }
           }
