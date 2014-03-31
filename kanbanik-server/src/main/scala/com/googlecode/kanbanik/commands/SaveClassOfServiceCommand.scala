@@ -8,9 +8,9 @@ class SaveClassOfServiceCommand extends Command[ClassOfServiceDto, ClassOfServic
   lazy val classOfServiceBuilder = new ClassOfServiceBuilder()
 
   def execute(params: ClassOfServiceDto): Either[ClassOfServiceDto, ErrorDto] = {
-    val entity = classOfServiceBuilder.buildEntity2(params)
+    val entity = classOfServiceBuilder.buildEntity(params)
 
-    Left(classOfServiceBuilder.buildDto2(entity.store))
+    Left(classOfServiceBuilder.buildDto(entity.store))
   }
 
 }

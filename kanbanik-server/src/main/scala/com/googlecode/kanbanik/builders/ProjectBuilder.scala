@@ -8,7 +8,7 @@ import com.googlecode.kanbanik.dtos.{ProjectDto => NewProjectDto}
 
 class ProjectBuilder {
 
-  def buildDto2(project: Project) = {
+  def buildDto(project: Project) = {
     NewProjectDto(
       Some(project.id.get.toString),
       Some(project.name),
@@ -21,7 +21,7 @@ class ProjectBuilder {
     )
   }
 
-  def buildEntity2(projectDto: NewProjectDto): Project = {
+  def buildEntity(projectDto: NewProjectDto): Project = {
     new Project(
     {
       if (!projectDto.id.isDefined) {

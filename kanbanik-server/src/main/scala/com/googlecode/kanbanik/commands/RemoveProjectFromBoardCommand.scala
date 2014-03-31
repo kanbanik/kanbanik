@@ -23,7 +23,7 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
       val newBoards = Some(project.boards.get.filter(_.id != board.id))
 
       val stored = project.copy(boards = newBoards).store
-      Left(ProjectWithBoardDto(builder.buildDto2(stored), board.id.get.toString))
+      Left(ProjectWithBoardDto(builder.buildDto(stored), board.id.get.toString))
     } else {
       Right(ErrorDto("Project is on no boards - nothing to do"))
     }

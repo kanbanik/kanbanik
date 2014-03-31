@@ -19,6 +19,6 @@ class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
       }
     }
 
-    Left(ProjectWithBoardDto(builder.buildDto2(toStore.store), board.id.get.toString))
+    Left(ProjectWithBoardDto(builder.buildDto(toStore.store), board.id.get.toString))
   }
 }

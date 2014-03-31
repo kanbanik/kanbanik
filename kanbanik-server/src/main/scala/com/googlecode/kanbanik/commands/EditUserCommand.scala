@@ -24,7 +24,7 @@ class EditUserCommand extends Command[ManipulateUserDto, UserDto] with Credentia
         pictureUrl = params.pictureUrl
       ).store
 
-      new Left(userBuilder.buildDto2(newUser, params.sessionId))
+      new Left(userBuilder.buildDto(newUser, params.sessionId))
     }
   }
 }

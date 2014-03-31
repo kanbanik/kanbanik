@@ -12,7 +12,7 @@ class GetAllProjectsCommand extends Command[EmptyDto, ListDto[ProjectDto]] {
 
   def execute(params: EmptyDto): Either[ListDto[ProjectDto], ErrorDto] = {
 
-    val dtos = Project.all().map(projectBuilder.buildDto2(_))
+    val dtos = Project.all().map(projectBuilder.buildDto(_))
 
     Left(ListDto(dtos))
   }

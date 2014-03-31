@@ -17,7 +17,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
         return Right(ErrorDto(ServerMessages.entityDeletedMessage("task")))
     )
     
-    val newTask = taskBuilder.buildEntity2(params.task)
+    val newTask = taskBuilder.buildEntity(params.task)
     
     val somethingFaildResult = Right(ErrorDto("Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the currrent data."))
     val realBoard = loadBoard(newTask.boardId, false).getOrElse(
@@ -35,7 +35,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
     val newOrder = calculateNewOrder(params)
     val toStore = oldTask.copy(order = newOrder, projectId = newTask.projectId, workflowitemId = newTask.workflowitemId)
     val resTask = toStore.store
-    Left(taskBuilder.buildDto2(resTask))
+    Left(taskBuilder.buildDto(resTask))
 
   }
   

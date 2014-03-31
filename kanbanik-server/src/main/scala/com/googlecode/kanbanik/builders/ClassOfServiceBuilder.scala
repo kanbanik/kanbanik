@@ -6,7 +6,7 @@ import org.bson.types.ObjectId
 
 class ClassOfServiceBuilder extends BaseBuilder {
 
-  def buildDto2(classOfService: ClassOfService) = {
+  def buildDto(classOfService: ClassOfService) = {
     NewClassOfServiceDto(
       Some(classOfService.id.get.toString),
       classOfService.name,
@@ -17,7 +17,7 @@ class ClassOfServiceBuilder extends BaseBuilder {
     )
   }
 
-  def buildEntity2(classOfServiceDto: NewClassOfServiceDto) = {
+  def buildEntity(classOfServiceDto: NewClassOfServiceDto) = {
     new ClassOfService(
       {
         if (classOfServiceDto.id != null && classOfServiceDto.id.isDefined) {

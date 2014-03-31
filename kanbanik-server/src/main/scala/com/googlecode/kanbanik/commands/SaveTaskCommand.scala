@@ -24,10 +24,10 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
         return Right(ErrorDto("The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data."))
     }
 
-    val task = taskBuilder.buildEntity2(taskDto)
+    val task = taskBuilder.buildEntity(taskDto)
 
     val stored = setOrderIfNeeded(taskDto, task).store
-    return Left(taskBuilder.buildDto2(stored))
+    return Left(taskBuilder.buildDto(stored))
   }
   
   def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {

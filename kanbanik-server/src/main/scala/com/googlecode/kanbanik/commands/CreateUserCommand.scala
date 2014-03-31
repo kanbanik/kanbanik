@@ -32,7 +32,7 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
     		1
     ).store
     
-    new Left(userBuilder.buildDto2(user, params.sessionId))
+    new Left(userBuilder.buildDto(user, params.sessionId))
   }
 
 }

@@ -12,6 +12,6 @@ class GetTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
   def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
     val res = Task.byId(new ObjectId(taskDto.id.get))
-    Left(taskBuilder.buildDto2(res))
+    Left(taskBuilder.buildDto(res))
   }
 }

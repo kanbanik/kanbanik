@@ -22,7 +22,7 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
     if (user.isAuthenticated()) {
       val userPrincipal = user.getPrincipal().asInstanceOf[User]
-    	Left(userBuilder.buildDto2(userPrincipal, sessionId))
+    	Left(userBuilder.buildDto(userPrincipal, sessionId))
     } else {
     	Right(ErrorDto("No user logged in."))
     }

@@ -38,7 +38,7 @@ class DeleteTasksCommand extends Command[TasksDto, EmptyDto] with TaskManipulati
       return Right(ErrorDto("The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data."))
     }
     
-    val task = taskBuilder.buildEntity2(taskDto)
+    val task = taskBuilder.buildEntity(taskDto)
       
     try {
     	task.delete(boardId)

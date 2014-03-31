@@ -11,7 +11,7 @@ class TaskBuilder extends TaskManipulation {
   
   lazy val userBuilder = new UserBuilder
 
-  def buildDto2(task: Task): NewTaskDto = {
+  def buildDto(task: Task): NewTaskDto = {
     NewTaskDto(
       Some(task.id.get.toString),
       task.name,
@@ -24,7 +24,7 @@ class TaskBuilder extends TaskManipulation {
       },
       {
           if (task.classOfService.isDefined) {
-            Some(classOfServiceBuilder.buildDto2(task.classOfService.get))
+            Some(classOfServiceBuilder.buildDto(task.classOfService.get))
           } else {
             None
           }
@@ -35,7 +35,7 @@ class TaskBuilder extends TaskManipulation {
       task.projectId.toString,
       {
         if (task.assignee.isDefined) {
-          Some(userBuilder.buildDto2(task.assignee.get, ""))
+          Some(userBuilder.buildDto(task.assignee.get, ""))
         } else {
           None
         }
@@ -57,7 +57,7 @@ class TaskBuilder extends TaskManipulation {
     )
   }
 
-  def buildEntity2(taskDto: NewTaskDto): Task = {
+  def buildEntity(taskDto: NewTaskDto): Task = {
     new Task(
     {
       if (!taskDto.id.isDefined) {
@@ -72,17 +72,17 @@ class TaskBuilder extends TaskManipulation {
       if (!taskDto.classOfService.isDefined) {
         None
       } else {
-        Some(classOfServiceBuilder.buildEntity2(taskDto.classOfService.get))
+        Some(classOfServiceBuilder.buildEntity(taskDto.classOfService.get))
       }
     },
-    determineTicketId2(taskDto),
+    determineTicketId(taskDto),
     taskDto.version,
     taskDto.order.getOrElse(null),
     {
       if (!taskDto.assignee.isDefined) {
         None
       } else {
-        Some(userBuilder.buildEntity2(taskDto.assignee.get))
+        Some(userBuilder.buildEntity(taskDto.assignee.get))
       }
     },
     taskDto.dueDate.getOrElse(""),
@@ -92,7 +92,7 @@ class TaskBuilder extends TaskManipulation {
     )
   }
 
-  private def determineTicketId2(taskDto: NewTaskDto): String = {
+  private def determineTicketId(taskDto: NewTaskDto): String = {
     if (!taskDto.id.isDefined) {
       return generateUniqueTicketId()
     }

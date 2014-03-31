@@ -17,7 +17,7 @@ class BoardBuilder extends BaseBuilder {
 
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
     val res = buildShallowDto(board).copy(
-      tasks = Some(board.tasks.map(taskBuilder.buildDto2(_)))
+      tasks = Some(board.tasks.map(taskBuilder.buildDto(_)))
     )
 
     res.copy(
@@ -50,7 +50,7 @@ class BoardBuilder extends BaseBuilder {
     boardDto.name,
     boardDto.version,
     Workflow(),
-    boardDto.tasks.getOrElse(List()).map(task => taskBuilder.buildEntity2(task)),
+    boardDto.tasks.getOrElse(List()).map(task => taskBuilder.buildEntity(task)),
     boardDto.showUserPictureEnabled.getOrElse(false),
     {
       if (boardDto.workflowVerticalSizing == null) {

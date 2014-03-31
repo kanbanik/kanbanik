@@ -29,7 +29,7 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
           val projectDtos = loadedProjects.filter(
             project => project.boards.getOrElse(List[Board]()).filter(
               projectsBoard => projectsBoard.id == board.id).size > 0
-          ).map(projectOnBoard => projectBuilder.buildDto2(projectOnBoard))
+          ).map(projectOnBoard => projectBuilder.buildDto(projectOnBoard))
 
           if (projectDtos.size > 0) {
             Some(ProjectsDto(projectDtos))

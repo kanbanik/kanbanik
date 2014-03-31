@@ -10,7 +10,7 @@ class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] w
   lazy val classOfServiceBuilder = new ClassOfServiceBuilder
 
   def execute(params: ClassOfServiceDto): Either[EmptyDto, ErrorDto] = {
-    val entity = classOfServiceBuilder.buildEntity2(params)
+    val entity = classOfServiceBuilder.buildEntity(params)
 
     loadClassOfService(entity.id.get).getOrElse(
       return Right(ErrorDto(ServerMessages.entityDeletedMessage("class of service")))

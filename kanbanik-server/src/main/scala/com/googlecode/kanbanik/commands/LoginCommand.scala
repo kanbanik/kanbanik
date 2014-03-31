@@ -27,6 +27,6 @@ class LoginCommand extends Command[LoginDto, UserDto] {
     
     val principal = currentUser.getPrincipal().asInstanceOf[User]
 
-    Left(userBuilder.buildDto2(principal, SecurityUtils.getSubject.getSession.getId.toString))
+    Left(userBuilder.buildDto(principal, SecurityUtils.getSubject.getSession.getId.toString))
   }
 }

@@ -9,6 +9,6 @@ class GetAllUsersCommand extends Command[SessionDto, ListDto[UserDto]] with Cred
   lazy val userBuilder = new UserBuilder
 
   def execute(params: SessionDto): Either[ListDto[UserDto], ErrorDto] = {
-    Left(ListDto(User.all.map(userBuilder.buildDto2(_, params.sessionId))))
+    Left(ListDto(User.all.map(userBuilder.buildDto(_, params.sessionId))))
   }
 }
