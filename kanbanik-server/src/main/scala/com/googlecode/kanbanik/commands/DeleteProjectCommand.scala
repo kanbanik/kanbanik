@@ -18,7 +18,7 @@ class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectVal
 
     loadProject(new ObjectId(params.id.get)).getOrElse(return Right(ErrorDto(ServerMessages.entityDeletedMessage("project"))))
     
-    val project = projectBuilder.buildEntity2(params)
+    val project = projectBuilder.buildEntity(params)
     
     val (deletable, msg) = canBeDeleted(project)
     if (!deletable) {

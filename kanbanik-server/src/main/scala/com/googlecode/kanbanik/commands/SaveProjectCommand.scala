@@ -22,8 +22,8 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
       }
     }
 
-    val project = projectBuilder.buildEntity2(params)
-    Left(projectBuilder.buildDto2(project.store))
+    val project = projectBuilder.buildEntity(params)
+    Left(projectBuilder.buildDto(project.store))
   }
   
 }

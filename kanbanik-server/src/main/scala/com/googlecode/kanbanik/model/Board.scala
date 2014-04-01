@@ -86,7 +86,7 @@ object Board extends HasMongoConnection {
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
-          // does not retrive the description of the task even it retrieves tasks
+          // does not retrieve the description of the task even it retrieves tasks
           MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)
         } else {
           MongoDBObject(Board.Fields.tasks.toString() -> 0)
@@ -129,7 +129,9 @@ object Board extends HasMongoConnection {
     val tasks = dbObject.get(Fields.tasks.toString())
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
       val list = dbObject.get(Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
-      val taskEnitities = list.map(Task.asEntity(_))
+      val allUsers = User.all()
+      val allClassOfServices = ClassOfService.all()
+      val taskEnitities = list.map(Task.asEntity(_, allClassOfServices, allUsers))
       resBoard.copy(tasks = taskEnitities)
     } else {
       resBoard

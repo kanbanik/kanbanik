@@ -151,15 +151,27 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   def asEntity(dbObject: DBObject): Task = {
+    asEntity(dbObject, ClassOfService.all(), User.all())
+  }
+
+  def asEntity(dbObject: DBObject, classesOfServices: List[ClassOfService], users: List[User]): Task = {
+
+    def byIdFromList[R, I](in: List[R], comparator: (R, I) => Boolean)(id: I): Option[R] = {
+      in match {
+        case x :: xs => if (comparator(x, id)) Some(x) else byIdFromList(xs, comparator)(id)
+        case Nil => None
+      }
+    }
+
     Task(
       Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.description.toString()).asInstanceOf[String],
-      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
+      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, byIdFromList(classesOfServices, (x: ClassOfService, id: ObjectId) => x.id.isDefined && x.id.get == id)),
       dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
       dbObject.getWithDefault[Int](Fields.version, 1),
       dbObject.get(Fields.order.toString()).asInstanceOf[String],
-      loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
+      loadOrNone[String, User](Fields.assignee.toString(), dbObject, byIdFromList(users, (x: User, id: String) => x.name == id)),
       dbObject.getWithDefault[String](Fields.dueDate, ""),
       dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
       dbObject.get(Fields.boardId.toString()).asInstanceOf[ObjectId],

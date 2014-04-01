@@ -42,14 +42,4 @@ class ProjectBuilder {
     )
   }
 
-  def dtosToEntities[E, D](dtos: java.util.List[D], f: D => E): Option[List[E]] = {
-    val entities = dtos.toScalaList.map(f(_))
-
-    if (entities.length == 0) {
-      None
-    } else {
-      Some(entities)
-    }
-  }
-
 }
