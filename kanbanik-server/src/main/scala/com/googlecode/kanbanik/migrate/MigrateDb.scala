@@ -66,6 +66,7 @@ trait MigrationPart extends HasMongoConnection {
 
 }
 
+// from 0.2.3 -> 0.2.4
 class From1To2 extends MigrationPart {
 
   def migrate {
@@ -87,6 +88,7 @@ class From1To2 extends MigrationPart {
   }
 }
 
+// from 0.2.4 -> 0.2.5
 class From2To3 extends MigrationPart {
   private val oldTasksCollection = "tasks"
   private val boardsCollection = "boards"
@@ -253,27 +255,25 @@ class From2To3 extends MigrationPart {
                 val workflowitemId: ObjectId) {
 
     def asNewTask(classesOfService: Map[Int, ClassOfService]): NewTask = {
-
       new NewTask(
-      None, // because I want to create a new one
-      name,
-      description, {
-        if (classesOfService.contains(classOfService)) {
-          classesOfService.get(classOfService)
-        } else {
-          classesOfService.get(2)
-        }
+        None, // because I want to create a new one
+        name,
+        description, {
+          if (classesOfService.contains(classOfService)) {
+            classesOfService.get(classOfService)
+          } else {
+            classesOfService.get(2)
+          }
 
-      },
-      ticketId,
-      1, // because I basically want to create a new one
-      "",
-      None,
-      "",
-      findWorkflowitem(),
-      findProject())
-      null
-
+        },
+        ticketId,
+        1, // because I basically want to create a new one
+        "",
+        None,
+        "",
+        findWorkflowitem(),
+        findProject()
+      )
     }
 
     def findWorkflowitem(): Workflowitem = {
@@ -311,6 +311,7 @@ class From2To3 extends MigrationPart {
 
 }
 
+// from 0.2.5 -> 0.2.6
 class From3To4 extends MigrationPart {
   def migrate: Unit = {
     using(createConnection) {

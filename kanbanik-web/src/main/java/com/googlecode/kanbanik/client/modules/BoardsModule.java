@@ -86,7 +86,7 @@ public class BoardsModule {
 			PickupDragController dragController = new PickupDragController(
 					panelWithDraggabls, false);
 			panelWithDraggabls.add(boardTable);
-			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard().getValues();
+			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard() != null ? boardWithProjects.getProjectsOnBoard().getValues() : null;
 			if (projectsOnBoard == null || projectsOnBoard.size() == 0) {
 				addNoProjects(boardTable);
 			} else {
