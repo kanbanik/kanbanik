@@ -41,8 +41,8 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
   
   
   def calculateNewOrder(params: MoveTaskDto) = {
-    val prevOrder = params.prevOrder.getOrElse(null)
-    val nextOrder = params.nextOrder.getOrElse(null)
+    val prevOrder = orderOrNull(params.prevOrder)
+    val nextOrder = orderOrNull(params.nextOrder)
 
     if (prevOrder == null && nextOrder == null) {
       // the only one in the workflow
@@ -74,5 +74,14 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
       }
     }
 
+  }
+
+  private def orderOrNull(order: Option[String]) = {
+    val orderWithEmpty = order.getOrElse(null)
+    if (orderWithEmpty == "") {
+      null
+    } else {
+      orderWithEmpty
+    }
   }
 }

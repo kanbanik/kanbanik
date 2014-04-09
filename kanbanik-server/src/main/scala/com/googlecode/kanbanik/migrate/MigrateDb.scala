@@ -10,33 +10,29 @@ import org.bson.types.ObjectId
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.commons._
-import scala.Some
 import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
 import scala.Some
-import com.googlecode.kanbanik.dtos.ManipulateUserDto
-import scala.Some
-import com.googlecode.kanbanik.dtos.ManipulateUserDto
-import scala.Some
-import com.googlecode.kanbanik.dtos.ManipulateUserDto
-import scala.Some
-import com.googlecode.kanbanik.dtos.ManipulateUserDto
+
 
 class MigrateDb extends HasMongoConnection {
 
   val versionMigrations = Map(
-    1 -> List(new From1To2, new From2To3),
-    2 -> List(new From2To3),
+    1 -> List(new From1To2, new From2To3, new From3To4),
+    2 -> List(new From2To3, new From3To4),
     3 -> List(new From3To4)
   )
 
   def migrateDbIfNeeded {
+    System.out.println("migration started")
     using(createConnection) {
       conn =>
         val version = coll(conn, Coll.KanbanikVersion).findOne()
         if (version.isDefined) {
           val curVersion = version.get.get("version").asInstanceOf[Int]
+          System.out.println("version defined and is: " + curVersion)
           runAllFrom(curVersion)
         } else {
+          System.out.println("version is 1")
           coll(conn, Coll.KanbanikVersion) += MongoDBObject("version" -> 1)
           runAllFrom(1)
         }
@@ -45,9 +41,14 @@ class MigrateDb extends HasMongoConnection {
   }
 
   def runAllFrom(curVersion: Int) {
+    System.out.println("running all from: " + curVersion)
     val migrationParts = versionMigrations.get(curVersion)
     if (migrationParts.isDefined) {
-      for (part <- migrationParts.get) part.migrate
+      for (part <- migrationParts.get) {
+        System.out.println("START migration using " + part.getClass)
+        part.migrate
+        System.out.println("END migration using " + part.getClass)
+      }
     }
   }
 
@@ -70,7 +71,6 @@ trait MigrationPart extends HasMongoConnection {
 class From1To2 extends MigrationPart {
 
   def migrate {
-
     // create a default user
     val userDto = ManipulateUserDto(
       "admin",
@@ -103,9 +103,10 @@ class From2To3 extends MigrationPart {
 
     migrateTasks(classesOfServices)
 
+    deleteOldTasks()
+
     setVersionTo(3)
 
-    // do not do any cleanup - if something goes wrong than at least the old data will stay in place
   }
 
   def migrateBoard() {
@@ -188,6 +189,13 @@ class From2To3 extends MigrationPart {
     }
   }
 
+  def deleteOldTasks() {
+    using(createConnection) {
+      conn =>
+        coll(conn, oldTasksCollection).remove(MongoDBObject())
+    }
+  }
+
   case class NewTask(
                       val id: Option[ObjectId],
                       val name: String,
@@ -235,14 +243,13 @@ class From2To3 extends MigrationPart {
         Fields.workflowitem.toString() -> entity.workflowitem.id.getOrElse(throw new IllegalArgumentException("Task can not exist without a workflowitem")))
     }
 
-    def store() {}
-
-    using(createConnection) {
-      conn =>
-        val update = $push(Coll.Tasks.toString() -> asDBObject(this))
-        coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+    def store() {
+      using(createConnection) {
+        conn =>
+          val update = $push(Coll.Tasks.toString() -> asDBObject(this))
+          coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+      }
     }
-
 
   }
 
@@ -256,23 +263,22 @@ class From2To3 extends MigrationPart {
 
     def asNewTask(classesOfService: Map[Int, ClassOfService]): NewTask = {
       new NewTask(
-        None, // because I want to create a new one
-        name,
-        description, {
-          if (classesOfService.contains(classOfService)) {
-            classesOfService.get(classOfService)
-          } else {
-            classesOfService.get(2)
-          }
-
-        },
-        ticketId,
-        1, // because I basically want to create a new one
-        "",
-        None,
-        "",
-        findWorkflowitem(),
-        findProject()
+      None, // because I want to create a new one
+      name,
+      description, {
+        if (classesOfService.contains(classOfService)) {
+          classesOfService.get(classOfService)
+        } else {
+          classesOfService.get(2)
+        }
+      },
+      ticketId,
+      1, // because I basically want to create a new one
+      "",
+      None,
+      "",
+      findWorkflowitem(),
+      findProject()
       )
     }
 
@@ -313,22 +319,34 @@ class From2To3 extends MigrationPart {
 
 // from 0.2.5 -> 0.2.6
 class From3To4 extends MigrationPart {
-  def migrate: Unit = {
+  def migrate {
     using(createConnection) {
       conn => {
         for (board <- coll(conn, "boards").find()) {
           val tasks = board.get("tasks")
           if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
             val list = board.get("tasks").asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
-            for (task <- list) {
-              asNewTask(task, board.get("_id").asInstanceOf[ObjectId]).store
-            }
-          }
-          }
+            val oldTaskIds = list.map(_.get(Fields.id.toString))
 
+            // create new tasks
+            for (task <- list) {
+              asNewTask(task, board.get(Fields.id.toString()).asInstanceOf[ObjectId]).store
+            }
+
+            // delete old tasks
+            for (oldId <- oldTaskIds) {
+              val update = $pull(Coll.Tasks.toString() -> MongoDBObject(Fields.id.toString() -> oldId.asInstanceOf[ObjectId]))
+              coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString() -> board.get(Fields.id.toString()).asInstanceOf[ObjectId]), update)
+            }
+
+          }
         }
+
       }
     }
+
+    setVersionTo(4)
+  }
 
   object Fields extends DocumentField {
     val description = Value("description")
@@ -344,7 +362,7 @@ class From3To4 extends MigrationPart {
 
   def asNewTask(dbObject: DBObject, boardId: ObjectId): Task = {
     new Task(
-      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
+      None,
       dbObject.get(Fields.name.toString()).asInstanceOf[String],
       dbObject.get(Fields.description.toString()).asInstanceOf[String],
       loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
@@ -389,4 +407,4 @@ class From3To4 extends MigrationPart {
 
   }
 
-  }
+}
