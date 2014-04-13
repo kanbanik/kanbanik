@@ -77,7 +77,7 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 			return;
 		}
 		
-		if (message.getPayload().equals(projectDto)) {
+		if (message.getPayload().getId().equals(projectDto.getId())) {
 			projectDto = message.getPayload();
 		}
 	}

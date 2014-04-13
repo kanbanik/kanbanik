@@ -16,9 +16,7 @@ class BoardBuilder extends BaseBuilder {
   }
 
   def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
-    val res = buildShallowDto(board).copy(
-      tasks = Some(board.tasks.map(taskBuilder.buildDto(_)))
-    )
+    val res = buildShallowDto(board)
 
     res.copy(
       workflow = Some(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))

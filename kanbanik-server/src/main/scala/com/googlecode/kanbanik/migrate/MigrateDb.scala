@@ -338,7 +338,6 @@ class From3To4 extends MigrationPart {
               val update = $pull(Coll.Tasks.toString() -> MongoDBObject(Fields.id.toString() -> oldId.asInstanceOf[ObjectId]))
               coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString() -> board.get(Fields.id.toString()).asInstanceOf[ObjectId]), update)
             }
-
           }
         }
 
@@ -367,7 +366,14 @@ class From3To4 extends MigrationPart {
       dbObject.get(Fields.description.toString()).asInstanceOf[String],
       loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
       dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
-      dbObject.getWithDefault[Int](Fields.version, 1),
+      {
+        val version = dbObject.getWithDefault[Int](Fields.version, 1)
+        if (version != 0) {
+          version
+        } else {
+          1
+        }
+      },
       dbObject.get(Fields.order.toString()).asInstanceOf[String],
       loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
       dbObject.getWithDefault[String](Fields.dueDate, ""),

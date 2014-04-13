@@ -47,7 +47,7 @@ package object dtos {
                              id: Option[String],
                              wipLimit: Option[Int],
                              itemType: String,
-                             version: Int,
+                             version: Option[Int],
                              nestedWorkflow: Option[WorkflowDto],
                              parentWorkflow: Option[WorkflowDto],
                              verticalSize: Option[Int])

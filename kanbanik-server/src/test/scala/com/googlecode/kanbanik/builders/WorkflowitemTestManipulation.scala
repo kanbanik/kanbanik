@@ -15,7 +15,7 @@ trait WorkflowitemTestManipulation {
       Some(new ObjectId().toString()),
       None,
       WorkflowitemType.HORIZONTAL.toString,
-      1,
+      Some(1),
       None,
       parentWorkflow,
       None

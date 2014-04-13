@@ -51,6 +51,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		
 		
 		panel.setType(Dtos.ItemType.from(dto.getItemType()));
+        panel.setupMessages();
 	}
 	
 	private void flushDto() {
@@ -72,6 +73,10 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 	}
 
 	public void okClicked(final PanelContainingDialog dialog) {
+        if (!panel.validate()) {
+            return;
+        }
+
 		flushDto();
         dto.setCommandName(CommandNames.EDIT_WORKFLOWITEM_DATA.name);
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
@@ -95,4 +100,6 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 			dto = message.getPayload();
 		}
 	}
+
+
 }

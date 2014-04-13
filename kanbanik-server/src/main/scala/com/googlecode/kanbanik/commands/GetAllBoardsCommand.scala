@@ -2,8 +2,7 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.builders.BoardBuilder
+import com.googlecode.kanbanik.builders.{TaskBuilder, ProjectBuilder, BoardBuilder}
 import com.googlecode.kanbanik.dtos._
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dtos.GetAllBoardsWithProjectsDto
@@ -17,6 +16,8 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
 
   lazy val projectBuilder = new ProjectBuilder()
 
+  val taskBuilder = new TaskBuilder
+
   def execute(params: GetAllBoardsWithProjectsDto): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
 
     val loadedBoards = Board.all(params.includeTasks.getOrElse(false))
@@ -25,7 +26,9 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
     val res = ListDto(
       loadedBoards.map(
         board => BoardWithProjectsDto(
-        boardBuilder.buildDto(board), {
+        boardBuilder.buildDto(board).copy(
+          tasks = Some(board.tasks.map(taskBuilder.buildDto(_)))
+        ), {
           val projectDtos = loadedProjects.filter(
             project => project.boards.getOrElse(List[Board]()).filter(
               projectsBoard => projectsBoard.id == board.id).size > 0

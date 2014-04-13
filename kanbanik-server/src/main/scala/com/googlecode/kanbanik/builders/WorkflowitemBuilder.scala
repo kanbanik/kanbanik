@@ -22,7 +22,7 @@ class WorkflowitemBuilder extends BaseBuilder {
     dto.wipLimit.getOrElse(0),
     dto.verticalSize.getOrElse(-1),
     dto.itemType,
-    dto.version,
+    dto.version.getOrElse(0),
     // don't calculate it if not needed
     Workflow(),
     parentWorkflow
@@ -45,7 +45,7 @@ class WorkflowitemBuilder extends BaseBuilder {
       Some(workflowitem.id.get.toString()),
       Some(workflowitem.wipLimit),
       workflowitem.itemType,
-      workflowitem.version,
+      Some(workflowitem.version),
       None,
       Some(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow)))),
       Some(workflowitem.verticalSize)

@@ -1,10 +1,12 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusWidget;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -26,8 +28,12 @@ public class WorkflowItemEditPanel extends FlowPanel {
 	private RadioButton horizontal = new RadioButton("itemTypeGroup", "Horizontal");
 
 	private RadioButton vertical = new RadioButton("itemTypeGroup", "Vertical");
+
+    private HTML messages;
 	
 	public void setWipLimit(int wipLimit) {
+        messages = new HTML();
+
 		wipLimitBox = new TextBox();
 		Panel panel = createNameWaluePair("WIP Limit: ", Integer.toString(wipLimit), wipLimitBox);
 		
@@ -42,7 +48,6 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		wipLimitEnabled.addClickHandler(new WipLimitEnabledClickHandler());
 		panel.add(wipLimitEnabled);
 		setWidth("223px");
-		
 	}
 	
 	public void setVerticalSizingEnabled(boolean enabled, String reason) {
@@ -92,8 +97,15 @@ public class WorkflowItemEditPanel extends FlowPanel {
 			vertical.setValue(true);
 		}
 	}
-	
-	class WipLimitEnabledClickHandler implements ClickHandler {
+
+    public void setupMessages() {
+        messages.setHTML("");
+        messages.getElement().getStyle().setColor("red");
+        messages.getElement().getStyle().setFontWeight(Style.FontWeight.BOLD);
+        add(messages);
+    }
+
+    class WipLimitEnabledClickHandler implements ClickHandler {
 
 		public void onClick(ClickEvent event) {
 			wipLimitBox.setEnabled(wipLimitEnabled.getValue());
@@ -160,5 +172,29 @@ public class WorkflowItemEditPanel extends FlowPanel {
 		
 		return Dtos.ItemType.VERTICAL;
 	}
-	
+
+    public void setMessages(String messages) {
+        this.messages.setHTML(messages);
+    }
+
+    public boolean validate() {
+        String messagesTexts = "";
+        boolean valid = true;
+
+        if (wipLimitEnabled.getValue() && getWipLimit() < 0) {
+            messagesTexts += "<li>WIP limit has to be a positive integer";
+            valid = false;
+        }
+
+        if (verticalSizingEnabled.getValue() && getVerticalSize() < 0) {
+            messagesTexts += "<li>Vertical size has to be a positive integer";
+            valid = false;
+        }
+
+        if (!valid) {
+            messages.setHTML(messagesTexts);
+        }
+
+        return valid;
+    }
 }
