@@ -15,12 +15,13 @@ trait ProjectValidation {
   }
 
   def canBeRemoved(project: Project, board: Board): (Boolean, String) = {
+    // especially here it is wasteful - but since there is rarely more than one board...
     val tasksOnProject = findTasksOnProject(project)
     if (tasksOnProject.isEmpty) {
       return (true, "")
     }
 
-    val tasks = tasksOnProject.filter(_.boardId == board.id)
+    val tasks = tasksOnProject.filter(_.boardId == board.id.get)
     if (tasks.size == 0) {
       return (true, "")
     }
@@ -40,6 +41,6 @@ trait ProjectValidation {
 
   // REALLY heavy operation! It is based on assumption that there will be only few boards 
   // in the system - mostly one. As soon as this will not be true anymore, needs to be optimized!
-  private def findTasksOnProject(project: Project) = for (board <- Board.all(true); task <- board.tasks; if (task.projectId.equals(project.id.get))) yield task
+  private def findTasksOnProject(project: Project) = for (board <- Board.all(true); task <- board.tasks; if (task.projectId == project.id.get)) yield task
 
 }

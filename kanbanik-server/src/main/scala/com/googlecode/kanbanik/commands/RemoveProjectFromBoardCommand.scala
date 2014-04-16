@@ -1,8 +1,7 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.{Task, Project, Board}
 import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
 
