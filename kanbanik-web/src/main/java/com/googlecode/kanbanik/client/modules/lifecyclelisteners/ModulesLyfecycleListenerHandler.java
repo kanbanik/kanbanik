@@ -18,9 +18,9 @@ public class ModulesLyfecycleListenerHandler {
 		this.listener = listener;
 		
 		ActivatedListener activatedListener = new ActivatedListener();
-		DeactivatedListener deactivatedListener = new DeactivatedListener(activatedListener);
 		MessageBus.registerListener(ModuleActivatedMessage.class, activatedListener);
-		MessageBus.registerListener(ModuleDeactivatedMessage.class, deactivatedListener);
+		MessageBus.registerListener(ModuleDeactivatedMessage.class, new DeactivatedListener(activatedListener));
+        activatedListener = null;
 	}
 
 	class ActivatedListener implements MessageListener<Class<?>> {
@@ -46,6 +46,8 @@ public class ModulesLyfecycleListenerHandler {
 				MessageBus.unregisterListener(ModuleActivatedMessage.class, activatedListener);
 				MessageBus.unregisterListener(ModuleDeactivatedMessage.class, this);
 				listener.deactivated();
+                listener = null;
+                activatedListener = null;
 			}
 		}
 		
