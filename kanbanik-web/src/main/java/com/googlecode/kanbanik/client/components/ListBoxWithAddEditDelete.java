@@ -1,6 +1,9 @@
 package com.googlecode.kanbanik.client.components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -186,6 +189,25 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			resetButtonAvailability();
 		}
 
+        private void sortItems() {
+            Comparator<T> comparator = new Comparator<T>() {
+                @Override
+                public int compare(T t, T t2) {
+                    return labelProvider.getLabel(t).compareTo(labelProvider.getLabel(t2));
+                }
+            };
+
+            Collections.sort(items, comparator);
+            while (getItemCount() > 0) {
+                removeItem(0);
+            }
+
+            for (T dto : items) {
+                addItem(labelProvider.getLabel(dto));
+            }
+
+        }
+
 		private void resetButtonAvailability() {
 			editButton.setEnabled(selectedDto != null);
 			deleteButton.setEnabled(selectedDto != null);
@@ -228,6 +250,8 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		private void editItem(T dto) {
 			refresh(dto);
 			setItemText(indexOf(dto), labelProvider.getLabel(dto));
+            sortItems();
+            setSelectedIndex(indexOf(dto));
 			onChange();
 		}
 
@@ -235,6 +259,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			int toRemove = indexOf(dto);
 			items.remove(toRemove);
 			removeItem(toRemove);
+            sortItems();
 			if (items.size() > 0) {
 				setSelectedIndex(0);
 			}
@@ -245,7 +270,8 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		private void addNewItem(T dto) {
 			items.add(dto);
 			addItem(labelProvider.getLabel(dto));
-			setSelectedIndex(items.size() - 1);
+            sortItems();
+			setSelectedIndex(indexOf(dto));
 			onChange();
 		}
 
