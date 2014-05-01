@@ -186,6 +186,7 @@ public class BoardsBox extends Composite {
 			MessageBus.unregisterListener(BoardEditedMessage.class, this);
 			MessageBus.unregisterListener(BoardRefreshedMessage.class, this);
 			MessageBus.unregisterListener(BoardChangedMessage.class, this);
+            new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		}
 
 	}
