@@ -13,13 +13,16 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
-public class WorkflowitemWidget extends Composite implements HasDragHandle, MessageListener<Dtos.WorkflowitemDto> {
+public class WorkflowitemWidget extends Composite implements HasDragHandle, MessageListener<Dtos.WorkflowitemDto>,ModulesLifecycleListener {
 	
 	@UiField
 	PushButton editButton;
@@ -35,8 +38,20 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 	
 	@UiField
 	Panel content;
-	
-	interface MyUiBinder extends UiBinder<Widget, WorkflowitemWidget> {}
+
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(WorkflowitemChangedMessage.class, this)) {
+            MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
+        }
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(WorkflowitemChangedMessage.class, this);
+    }
+
+    interface MyUiBinder extends UiBinder<Widget, WorkflowitemWidget> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	private Widget child;
@@ -52,7 +67,8 @@ public class WorkflowitemWidget extends Composite implements HasDragHandle, Mess
 		
 		new WorkflowitemDeletingComponent(workflowitem, deleteButton);
 		new WorkflowitemEditingComponent(workflowitem, editButton);
-		
+
+        new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 

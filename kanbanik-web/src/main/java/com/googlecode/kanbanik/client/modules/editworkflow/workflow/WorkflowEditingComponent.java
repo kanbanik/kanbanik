@@ -309,11 +309,9 @@ public class WorkflowEditingComponent extends Composite implements
 
 	public void deactivated() {
 		unregisterListeners();
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 	
 	public void unregisterListeners() {
-		
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
 	}
 

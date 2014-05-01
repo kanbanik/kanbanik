@@ -56,7 +56,7 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
 
   def all() = {
     using(createConnection) { conn =>
-      coll(conn, Coll.ClassesOfService).find().map(asEntity(_)).toList
+      coll(conn, Coll.ClassesOfService).find().sort(MongoDBObject(ClassOfService.Fields.name.toString() -> 1)).map(asEntity(_)).toList
     }
   }
   

@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
@@ -16,10 +17,12 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
-public class WorkflowitemDeletingComponent implements ClickHandler, Closable, MessageListener<Dtos.WorkflowitemDto> {
+public class WorkflowitemDeletingComponent implements ClickHandler, Closable, MessageListener<Dtos.WorkflowitemDto>,ModulesLifecycleListener {
 
 	private PanelContainingDialog yesNoDialog;
 	
@@ -31,6 +34,8 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 		this.dto = dto;
 		clickHandler.addClickHandler(this);
 		warningPanel = new WarningPanel("Are you sure to delete this workflowitem '" + dto.getName() + "' ?");
+
+        new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
@@ -49,7 +54,19 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 		yesNoDialog.close();
 	}
 
-class YesNoDialogListener implements PanelContainingDialolgListener {
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(WorkflowitemChangedMessage.class, this)) {
+            MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
+        }
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(WorkflowitemChangedMessage.class, this);
+    }
+
+    class YesNoDialogListener implements PanelContainingDialolgListener {
 		
 		public YesNoDialogListener() {
 		}

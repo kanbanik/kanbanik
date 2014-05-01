@@ -50,10 +50,10 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		
 		initWidget(uiBinder.createAndBindUi(this));
-		
+
 		MessageBus.registerListener(ProjectEditedMessage.class, this);
 		MessageBus.registerListener(ProjectChangedMessage.class, this);
-		
+
 		projectName.setText(project.getName());
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
@@ -109,6 +109,5 @@ public class ProjectWidget extends Composite implements HasDragHandle, MessageLi
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectEditedMessage.class, this);
 		MessageBus.unregisterListener(ProjectChangedMessage.class, this);
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 }

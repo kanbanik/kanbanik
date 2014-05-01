@@ -78,7 +78,6 @@ public class BoardDeletingComponent extends AbstractDeletingComponent implements
 	@Override
 	public void deactivated() {
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 	@Override

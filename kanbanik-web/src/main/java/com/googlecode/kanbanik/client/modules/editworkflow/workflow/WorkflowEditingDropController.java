@@ -9,6 +9,7 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikProgressBar;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
@@ -21,10 +22,12 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent.Position;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
-public class WorkflowEditingDropController extends FlowPanelDropController implements MessageListener<Dtos.WorkflowitemDto> {
+public class WorkflowEditingDropController extends FlowPanelDropController implements MessageListener<Dtos.WorkflowitemDto>,ModulesLifecycleListener {
 	
 	private Dtos.WorkflowDto contextItem;
 
@@ -39,6 +42,9 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 		this.contextItem = contextItem;
 		this.currentItem = currentItem;
 		this.position = position;
+
+        new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
+
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
@@ -132,13 +138,20 @@ public class WorkflowEditingDropController extends FlowPanelDropController imple
 	}
 
 	public void messageArrived(Message<Dtos.WorkflowitemDto> message) {
-		// TODO ref - check if this is still needed
-//		if (contextItem != null && message.getPayload().getId().equals(contextItem.getId())) {
-//			contextItem = message.getPayload();
-//		}
-		
 		if (currentItem != null && message.getPayload().getId().equals(currentItem.getId())) {
 			currentItem = message.getPayload();
 		}
 	}
+
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(WorkflowitemChangedMessage.class, this)) {
+            MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
+        }
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(WorkflowitemChangedMessage.class, this);
+    }
 }

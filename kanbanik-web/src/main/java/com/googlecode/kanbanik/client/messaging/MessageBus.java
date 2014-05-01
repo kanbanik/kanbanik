@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.messaging;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ public class MessageBus {
 		if (message == null) {
 			return;
 		}
-		
+
 		if (listeners == null) {
 			return;
 		}
@@ -27,7 +28,7 @@ public class MessageBus {
 		notifyListeners(message, listenersForType);
 	}
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
 	private static void notifyListeners(Message<?> message,
 			List<MessageListener<?>> listenersForType) {
 		
@@ -53,11 +54,11 @@ public class MessageBus {
 		if (listeners == null) {
 			listeners = new HashMap<Class<?>, List<MessageListener<?>>>();
 		}
-		
+
 		if (!listeners.containsKey(messageType)) {
 			listeners.put(messageType, new ArrayList<MessageListener<?>>());
 		}
-		
+
 		listeners.get(messageType).add(listener);
 	}
 	
@@ -71,7 +72,11 @@ public class MessageBus {
 		}
 		
 		List<MessageListener<?>> listenersOfType = listeners.get(messageType);
-		listenersOfType.remove(listener);
+
+        // in case it has been registered multiple times
+        while (listenersOfType.remove(listener)) {
+            // just remove it
+        }
 	}
 	
 	public static void removeAllListeners() {
@@ -101,5 +106,4 @@ public class MessageBus {
 		
 		return false;
 	}
-	
 }

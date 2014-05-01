@@ -109,7 +109,6 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 	@Override
 	public void deactivated() {
 		MessageBus.unregisterListener(BoardChangedMessage.class, this);
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 }

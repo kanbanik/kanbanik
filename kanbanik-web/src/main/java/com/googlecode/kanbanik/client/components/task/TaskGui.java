@@ -348,14 +348,12 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	@Override
 	public void deactivated() {
 		unregisterListeners();
-		
-		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 
 	private void unregisterListeners() {
 		MessageBus.unregisterListener(TaskEditedMessage.class, this);
 		MessageBus.unregisterListener(TaskChangedMessage.class, this);
-		MessageBus.registerListener(TaskDeletedMessage.class, this);
+		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
 		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
 	}

@@ -24,7 +24,7 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent imp
 	public ProjectEditingComponent(ProjectDto projectDto, HasClickHandlers clickHandlers) {
 		super(clickHandlers, "Edit Project");
 		this.projectDto = projectDto;
-		
+
 		MessageBus.registerListener(ProjectChangedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
@@ -85,7 +85,6 @@ public class ProjectEditingComponent extends AbstractProjectEditingComponent imp
 	@Override
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectChangedMessage.class, this);
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 	
 	

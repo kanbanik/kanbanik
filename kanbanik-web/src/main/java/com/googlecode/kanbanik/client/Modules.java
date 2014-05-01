@@ -7,8 +7,10 @@ import com.googlecode.kanbanik.client.modules.ControlPanelModule;
 public enum Modules {
 	
 	BOARDS(BoardsModule.class), 
-	CONTROL(ControlPanelModule.class), 
+	CONTROL(ControlPanelModule.class),
+    SECURITY_MODULE(ConfigureWorkflowModule.class),
 	CONFIGURE(ConfigureWorkflowModule.class);
+
 
 	private Class<?> clazz;
 	

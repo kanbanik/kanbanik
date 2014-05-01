@@ -52,7 +52,6 @@ public class WorkflowitemPlace extends Composite implements
 
 	public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
                              Dtos.ProjectDto projectDto, Widget body, DragController dragController, Dtos.BoardDto board) {
-
         this.board = board;
 		this.workflowitemDto = workflowitemDto;
 		this.projectDtoId = projectDto.getId();
@@ -74,7 +73,7 @@ public class WorkflowitemPlace extends Composite implements
 
 		MessageBus.registerListener(TaskAddedMessage.class, this);
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
-
+        MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
 	}
 
 	private void setupWipLimit() {
@@ -145,7 +144,6 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.unregisterListener(TaskAddedMessage.class, this);
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
-		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 	
 	class GetFirstTaskRequestMessageListener implements MessageListener<Dtos.WorkflowitemDto> {

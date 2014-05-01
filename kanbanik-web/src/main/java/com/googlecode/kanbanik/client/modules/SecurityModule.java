@@ -7,6 +7,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
@@ -21,19 +22,22 @@ import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
-public class SecurityModule extends Composite implements KanbanikModule, MessageListener<Dtos.UserDto> {
+public class SecurityModule extends Composite implements KanbanikModule, MessageListener<Dtos.UserDto>,ModulesLifecycleListener {
 
 	@UiField(provided=true)
 	ListBoxWithAddEditDelete<Dtos.UserDto> usersList;
-	
-	interface MyUiBinder extends UiBinder<Widget, SecurityModule> {}
+
+    interface MyUiBinder extends UiBinder<Widget, SecurityModule> {}
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
 	public SecurityModule() {
-		
+        new ModulesLyfecycleListenerHandler(Modules.SECURITY_MODULE, this);
+
 		MessageBus.registerListener(UserAddedMessage.class, this);
 		MessageBus.registerListener(UserEditedMessage.class, this);
 		MessageBus.registerListener(UserDeletedMessage.class, this);
@@ -76,7 +80,7 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 
 		@Override
 		public String getLabel(Dtos.UserDto t) {
-			return t.getRealName() + "(" + t.getUserName() + ")";
+			return t.getRealName() + " (" + t.getUserName() + ")";
 		}
 		
 	}
@@ -96,6 +100,28 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 			items.set(index, newItem);
 		}
 	}
+
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(UserAddedMessage.class, this)) {
+            MessageBus.registerListener(UserAddedMessage.class, this);
+        }
+
+        if (!MessageBus.listens(UserEditedMessage.class, this)) {
+            MessageBus.registerListener(UserEditedMessage.class, this);
+        }
+
+        if (!MessageBus.listens(UserDeletedMessage.class, this)) {
+            MessageBus.registerListener(UserDeletedMessage.class, this);
+        }
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(UserAddedMessage.class, this);
+        MessageBus.unregisterListener(UserEditedMessage.class, this);
+        MessageBus.unregisterListener(UserDeletedMessage.class, this);
+    }
 
 	@Override
 	public void messageArrived(Message<Dtos.UserDto> message) {

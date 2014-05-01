@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
@@ -15,10 +16,12 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardsRefreshRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.workflowitem.WorkflowitemChangedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
-public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler, MessageListener<Dtos.WorkflowitemDto> {
+public class WorkflowitemEditingComponent implements PanelContainingDialolgListener, ClickHandler, MessageListener<Dtos.WorkflowitemDto>,ModulesLifecycleListener {
 
 	private WorkflowItemEditPanel panel;
 
@@ -30,6 +33,9 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		super();
 		this.dto = dto;
 		clickHandlers.addClickHandler(this);
+
+        new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
+
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
 	}
 
@@ -102,4 +108,15 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 	}
 
 
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(WorkflowitemChangedMessage.class, this)) {
+            MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
+        }
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(WorkflowitemChangedMessage.class, this);
+    }
 }

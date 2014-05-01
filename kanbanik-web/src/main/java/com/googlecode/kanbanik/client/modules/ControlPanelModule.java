@@ -24,7 +24,9 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 	private SimplePanel configureWorkflowContent = new SimplePanel();
 	
 	private SimplePanel securityContent = new SimplePanel();
-	
+
+    private Class<?> currentlyActiveModule;
+
 	public ControlPanelModule() {
 		
 		add(boardsContent, "Boards");
@@ -43,8 +45,9 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		public void initialized(Widget widget) {
 			boardsContent.clear();
 			boardsContent.add(widget);
-			MessageBus.sendMessage(new ModuleDeactivatedMessage(ConfigureWorkflowModule.class, this));
+
 			MessageBus.sendMessage(new ModuleActivatedMessage(BoardsModule.class, this));
+            currentlyActiveModule = BoardsModule.class;
 		}
 	}
 	
@@ -53,8 +56,9 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		public void initialized(Widget widget) {
 			configureWorkflowContent.clear();
 			configureWorkflowContent.add(widget);
+
 			MessageBus.sendMessage(new ModuleActivatedMessage(ConfigureWorkflowModule.class, this));
-			MessageBus.sendMessage(new ModuleDeactivatedMessage(BoardsModule.class, this));
+            currentlyActiveModule = ConfigureWorkflowModule.class;
 		}
 	}
 	
@@ -64,15 +68,18 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 		public void initialized(Widget widget) {
 			securityContent.clear();
 			securityContent.add(widget);
-			
-			MessageBus.sendMessage(new ModuleDeactivatedMessage(BoardsModule.class, this));
-			MessageBus.sendMessage(new ModuleActivatedMessage(BoardsModule.class, this));
-			// no events in users so far
+
+			MessageBus.sendMessage(new ModuleActivatedMessage(SecurityModule.class, this));
+            currentlyActiveModule = SecurityModule.class;
 		}
 		
 	}
 	
 	public void onSelection(SelectionEvent<Integer> event) {
+        if (currentlyActiveModule != null) {
+            MessageBus.sendMessage(new ModuleDeactivatedMessage(currentlyActiveModule, this));
+        }
+
 		if (event.getSelectedItem() == 0) {
 			boardsModule.initialize(new BoardsRefreshed());
 		} else if (event.getSelectedItem() == 1) {

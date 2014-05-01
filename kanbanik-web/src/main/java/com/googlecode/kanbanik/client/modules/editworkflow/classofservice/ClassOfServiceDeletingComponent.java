@@ -33,7 +33,7 @@ public class ClassOfServiceDeletingComponent implements Component<Dtos.ClassOfSe
 	public void setDto(Dtos.ClassOfServiceDto dto) {
 		this.dto = dto;
 		warningPanel = new WarningPanel(
-				"Are you sure you want to delete class of service'" + dto.getName() + "'?");
+				"Are you sure you want to delete class of service '" + dto.getName() + "'?");
 	}
 
 	@Override

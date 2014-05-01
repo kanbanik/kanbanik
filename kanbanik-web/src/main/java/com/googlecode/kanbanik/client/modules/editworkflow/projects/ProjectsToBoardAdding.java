@@ -246,6 +246,5 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
     public void deactivated() {
         MessageBus.unregisterListener(ProjectAddedMessage.class, projectChangedListener);
         MessageBus.unregisterListener(ProjectDeletedMessage.class, projectChangedListener);
-        new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
     }
 }

@@ -60,6 +60,7 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 		
 		// this is safe - the messaging is synchronous even it does not look that way
 		TaskDto firstTaskOrder = getFirstTaskResponseMessageListener.getFirstTask();
+        MessageBus.unregisterListener(GetFirstTaskResponseMessage.class, getFirstTaskResponseMessageListener);
 		return firstTaskOrder != null ? getNewTaskOrder(firstTaskOrder) : "0";
 	}
 

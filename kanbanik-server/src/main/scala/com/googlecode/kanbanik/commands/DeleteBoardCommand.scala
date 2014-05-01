@@ -25,7 +25,7 @@ class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnec
     }
     
     if (isOnProject(boardId)) {
-      return Right(ErrorDto("There are projects on this board. Please remove them from the board first and than delete this board."))
+      return Right(ErrorDto("There are projects on this board. Please remove them from the board first and then delete this board."))
     }
 
     val board = boardBuilder.buildEntity(params)

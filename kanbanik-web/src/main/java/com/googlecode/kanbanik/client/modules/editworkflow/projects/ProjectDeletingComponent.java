@@ -26,7 +26,7 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 	public ProjectDeletingComponent(ProjectDto projectDto, HasClickHandlers hasClickHandler) {
 		super(hasClickHandler);
 		this.projectDto = projectDto;
-		
+
 		MessageBus.registerListener(ProjectEditedMessage.class, this);
 		MessageBus.registerListener(ProjectChangedMessage.class, this);
 		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
@@ -69,7 +69,6 @@ public class ProjectDeletingComponent extends AbstractDeletingComponent implemen
 	public void deactivated() {
 		MessageBus.unregisterListener(ProjectEditedMessage.class, this);
 		MessageBus.unregisterListener(ProjectChangedMessage.class, this);
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 	}
 
 	public void messageArrived(Message<ProjectDto> message) {

@@ -130,8 +130,6 @@ public class ClassOfServicesListManager implements MessageListener<Dtos.ClassOfS
 		MessageBus.unregisterListener(ClassOfServiceAddedMessage.class, this);
 		MessageBus.unregisterListener(ClassOfServiceEditedMessage.class, this);
 		MessageBus.unregisterListener(ClassOfServiceDeletedMessage.class, this);
-		
-		new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);		
 	}
 	
 	
