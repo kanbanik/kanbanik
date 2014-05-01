@@ -47,7 +47,7 @@
 	<g:FlowPanel addStyleNames="{style.mainPanel}" ui:field="mainPanel">
 		<g:FlowPanel addStyleNames="{style.labels}">
 			<g:Label addStyleNames="{style.labelStyle}" text="Username(*): "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Real Name(*): "/>
+			<g:Label addStyleNames="{style.labelStyle}" text="Real Name: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Image Url: "/>
 			<g:Label addStyleNames="{style.imagePreviewLabel}" ui:field="assigneePicturePreviewLabel"/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Password(*): "/>
