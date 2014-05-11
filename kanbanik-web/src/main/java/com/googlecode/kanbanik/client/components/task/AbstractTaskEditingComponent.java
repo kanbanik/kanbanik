@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.googlecode.kanbanik.client.api.Dtos.ClassOfServiceDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
@@ -219,11 +218,11 @@ public abstract class AbstractTaskEditingComponent {
         return dueDatePanel;
     }
 
-    private void fillOracle(Set<String> suggestions, MultiWordSuggestOracle oracle) {
-        oracle.addAll(suggestions);
+    private void fillOracle(Map<String, String> suggestions, MultiWordSuggestOracle oracle) {
+        oracle.addAll(suggestions.keySet());
 
         List<Suggestion> defaults = new ArrayList<Suggestion>();
-        for (String suggestion : suggestions) {
+        for (Map.Entry<String, String> suggestion : suggestions.entrySet()) {
             defaults.add(new SimpleSuggestion(suggestion));
         }
         oracle.setDefaultSuggestions(defaults);
@@ -246,11 +245,20 @@ public abstract class AbstractTaskEditingComponent {
 
 
         classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getAll());
-        fillOracle(classOfServiceToName.keySet(), (MultiWordSuggestOracle) classOfServiceEditor.getSuggestOracle());
+        Map<String, String> classOfServiceSuggestionMap = new HashMap<String, String>();
+        for (Map.Entry<String, Dtos.ClassOfServiceDto> entry : classOfServiceToName.entrySet()) {
+            // enough, no need for description...
+            classOfServiceSuggestionMap.put(entry.getKey(), entry.getKey());
+        }
+        fillOracle(classOfServiceSuggestionMap, (MultiWordSuggestOracle) classOfServiceEditor.getSuggestOracle());
         classOfServiceEditor.setValue(getClassOfServiceAsString());
 
         userToName = initUserToName(UsersManager.getInstance().getUsers());
-        fillOracle(userToName.keySet(), (MultiWordSuggestOracle) assigneeEditor.getSuggestOracle());
+        Map<String, String> userSuggestionMap = new HashMap<String, String>();
+        for (Map.Entry<String, Dtos.UserDto> entry : userToName.entrySet()) {
+            userSuggestionMap.put(entry.getKey(), entry.getKey() + " (" + entry.getValue().getRealName() + ")");
+        }
+        fillOracle(userSuggestionMap, (MultiWordSuggestOracle) assigneeEditor.getSuggestOracle());
         assigneeEditor.setValue(getUser());
 
         boolean dueDateSet = getDueDate() != null && !"".equals(getDueDate());
@@ -424,20 +432,20 @@ public abstract class AbstractTaskEditingComponent {
 
     class SimpleSuggestion implements Suggestion {
 
-        private String str;
+        private Map.Entry<String, String> entry;
 
-        public SimpleSuggestion(String str) {
-            this.str = str;
+        public SimpleSuggestion(Map.Entry<String, String> entry) {
+            this.entry = entry;
         }
 
         @Override
         public String getDisplayString() {
-            return str;
+            return entry.getValue();
         }
 
         @Override
         public String getReplacementString() {
-            return str;
+            return entry.getKey();
         }
 
     }

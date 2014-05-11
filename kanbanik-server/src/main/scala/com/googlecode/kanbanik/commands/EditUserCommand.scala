@@ -13,6 +13,10 @@ class EditUserCommand extends Command[ManipulateUserDto, UserDto] with Credentia
     if (!isAuthenticated(params.userName, params.password)) {
       Right(ErrorDto("The credentials provided are not correct!"))
     } else {
+      if (params.newPassword == "") {
+        Right(ErrorDto("The password can not be empty!"))
+      }
+
       val user = User.byId(params.userName)
       val (resPassword, resSalt): (String, String) = hashPassword(params.newPassword)
 

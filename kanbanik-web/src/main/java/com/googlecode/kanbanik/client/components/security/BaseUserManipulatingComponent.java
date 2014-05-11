@@ -159,11 +159,15 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	}
 	
 	protected String checkPasswords(TextBox box1, TextBox box2) {
+        if (isEmpty(box1) || isEmpty(box2)) {
+            return "<li>The password can not be changed to empty";
+        }
+
 		if (!(isEmpty(box1) && isEmpty(box2))) {
 			String pass1 = box1.getText();
 			String pass2 = box2.getText();
 			if (!pass1.equals(pass2)) {
-				return "<li>The password fields must be equal!";
+				return "<li>The password fields must be equal";
 			}
 		}
 		return "";

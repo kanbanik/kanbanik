@@ -121,6 +121,8 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
         MessageBus.unregisterListener(UserAddedMessage.class, this);
         MessageBus.unregisterListener(UserEditedMessage.class, this);
         MessageBus.unregisterListener(UserDeletedMessage.class, this);
+
+        new ModulesLyfecycleListenerHandler(Modules.SECURITY_MODULE, this);
     }
 
 	@Override
