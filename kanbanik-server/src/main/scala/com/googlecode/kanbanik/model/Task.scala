@@ -15,6 +15,7 @@ import com.googlecode.kanbanik.db.HasEntityLoader
 import com.mongodb.casbah.commons.conversions.scala._
 import com.mongodb.casbah.Imports._
 import com.googlecode.kanbanik.commons._
+import com.mongodb.casbah.Imports
 
 case class Task(
   val id: Option[ObjectId],
@@ -118,11 +119,19 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   def byId(id: ObjectId): Task = {
+    try {
+      getFromNewMongo(id)
+    } catch {
+      case _ => getFromOldMongo(id)
+    }
+  }
+
+  def getFromNewMongo(id: ObjectId): Task = {
     using(createConnection) { conn =>
-      
+
       val elemMatch = Coll.Tasks.toString() $elemMatch (MongoDBObject(Task.Fields.id.toString() -> id))
       val tasksExists = Coll.Tasks.toString() $exists true
-      
+
       // TODO this one returns all the boards (just the IDs)
       // find a way how to tell mongo to return only the one needed!
       val dbTasks = coll(conn, Coll.Boards).find(tasksExists, elemMatch).map(_.get(Coll.Tasks.toString()).asInstanceOf[BasicDBList])
@@ -130,6 +139,21 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
       asEntity(oneTask.get(0).asInstanceOf[DBObject])
     }
+  }
+
+  // nasty and slow workaround for older mongodbs where the $elemMatch is not present
+  def getFromOldMongo(id: ObjectId): Task = {
+    val res = for (board <- Board.all(true);
+      task <- board.tasks;
+      if (task.id.isDefined && task.id.get == id)
+    ) yield task
+
+    if (res.size != 0) {
+      res.head
+    } else {
+      throw new IllegalArgumentException("No such task with id: " + id)
+    }
+
   }
 
   def asDBObject(entity: Task): DBObject = {
