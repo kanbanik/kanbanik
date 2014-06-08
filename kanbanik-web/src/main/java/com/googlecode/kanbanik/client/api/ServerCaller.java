@@ -22,19 +22,20 @@ public class ServerCaller {
                 }
 
                 public void onResponseReceived(Request request, Response response) {
+                    String resonseText = response.getText();
                     if (response.getStatusCode() == APP_ERROR_STATUS) {
-                        Dtos.ErrorDto dto = DtoFactory.asDto(Dtos.ErrorDto.class, response.getText());
+                        Dtos.ErrorDto dto = DtoFactory.asDto(Dtos.ErrorDto.class, resonseText);
                         callback.onFailure(dto);
                     } else if (response.getStatusCode() == USER_NOT_LOGGED_IN_STATUS) {
-                        Dtos.ErrorDto dto = DtoFactory.asDto(Dtos.ErrorDto.class, response.getText());
+                        Dtos.ErrorDto dto = DtoFactory.asDto(Dtos.ErrorDto.class, resonseText);
                         callback.onUserNotLoggedIn(dto);
                     } else {
                         R responseDto = null;
                         try {
-                            responseDto = DtoFactory.asDto(responseClass, response.getText());
+                            responseDto = DtoFactory.asDto(responseClass, resonseText);
 
                         } catch (Throwable t) {
-                            callback.onFailure("Unable to deserialize JSON: '" + response.getText() + "'");
+                            callback.onFailure("Unable to deserialize JSON: '" + resonseText + "'");
                         }
 
                         if (responseDto != null) {
