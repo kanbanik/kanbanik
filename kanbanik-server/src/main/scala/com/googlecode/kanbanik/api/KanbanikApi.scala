@@ -6,12 +6,8 @@ import net.liftweb.json.Serialization.write
 import com.googlecode.kanbanik.commands._
 import com.googlecode.kanbanik.dto.CommandNames._
 import org.apache.shiro.subject.Subject
-import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
-import com.googlecode.kanbanik.dtos.ErrorDto
-import com.googlecode.kanbanik.dtos.ErrorDto
-import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.dtos.ErrorDto
 
 class KanbanikApi extends HttpServlet {
@@ -47,7 +43,15 @@ class KanbanikApi extends HttpServlet {
       return
     }
 
-    val json = parse(commandJson)
+    val json = try {
+      parse(commandJson)
+    }  catch {
+      case _ : Throwable => {
+        respondAppError(ErrorDto("Error parsing input data: " + commandJson), resp)
+        return
+      }
+    }
+
     val commandName = try {
       (json \ "commandName").extract[String]
     } catch {
@@ -95,7 +99,6 @@ class KanbanikApi extends HttpServlet {
       case e: Throwable => {
         respondAppError(ErrorDto("Error while executing command: " + commandName + ". Error: " + e.getMessage + ". For details please look at the server logs."), resp)
         e.printStackTrace()
-        // todo log
       }
     }
   }

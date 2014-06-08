@@ -67,4 +67,13 @@ class SerializationLearningTest extends FlatSpec {
     assert(res.toString === "Ignac")
   }
 
+  it should "be possible to serialize an ampersand" in {
+    val json = parse("""
+         { "name": "Ig&nac"}
+                     """)
+
+    val res = (json \ "name").extract[String]
+    assert(res.toString === "Ig&nac")
+  }
+
 }
