@@ -83,11 +83,20 @@ object Board extends HasMongoConnection {
   def apply() = new Board(Some(new ObjectId()), "", 1)
 
   def all(includeTasks: Boolean): List[Board] = {
+    // does not retrieve the description of the task even it retrieves tasks
+    all(includeTasks, false)
+  }
+
+  def all(includeTasks: Boolean, includeTaskDescription: Boolean): List[Board] = {
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
-          // does not retrieve the description of the task even it retrieves tasks
-          MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)
+            if (includeTaskDescription) {
+              // ok, no eclusions
+              MongoDBObject()
+            } else {
+              MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)
+            }
         } else {
           MongoDBObject(Board.Fields.tasks.toString() -> 0)
         }

@@ -143,7 +143,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   // nasty and slow workaround for older mongodbs where the $elemMatch is not present
   def getFromOldMongo(id: ObjectId): Task = {
-    val res = for (board <- Board.all(true);
+    val res = for (board <- Board.all(true, true);
       task <- board.tasks;
       if (task.id.isDefined && task.id.get == id)
     ) yield task
