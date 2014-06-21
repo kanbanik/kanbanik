@@ -149,6 +149,7 @@ class KanbanikApi extends HttpServlet {
     CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
     EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
     GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true)),
+    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(true)),
     DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true)),
 
     // board / workflowitem

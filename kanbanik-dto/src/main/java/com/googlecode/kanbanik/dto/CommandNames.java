@@ -31,6 +31,7 @@ public enum CommandNames {
     CREATE_TASK("createTask"),
     EDIT_TASK("editTask"),
     GET_TASK("getTask"),
+    GET_TASKS("getTasks"),
     DELETE_TASK("deleteTask"),
 
     // board / workflow

@@ -81,4 +81,6 @@ package object dtos {
 
   case class EmptyDto()
 
+  case class GetTasksDto(includeDescription: Boolean)
+
 }
