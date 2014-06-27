@@ -9,6 +9,7 @@ import org.apache.shiro.subject.Subject
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.ErrorDto
+import org.atmosphere.cpr.{BroadcasterFactory, Broadcaster}
 
 class KanbanikApi extends HttpServlet {
 
@@ -87,7 +88,10 @@ class KanbanikApi extends HttpServlet {
     try {
       command.execute(json)
       match {
-        case Left(x) => resp.getWriter().print(write(x))
+        case Left(x) => {
+          notifyClients()
+          resp.getWriter().print(write(x))
+        }
         case Right(x) => {
           respondAppError(x, resp)
         }
@@ -101,6 +105,12 @@ class KanbanikApi extends HttpServlet {
         e.printStackTrace()
       }
     }
+  }
+
+  private def notifyClients() {
+//    val factory = BroadcasterFactory.getDefault
+//    val b: Broadcaster = factory.lookup("/events")
+//    b.broadcast("some event ")
   }
 
   def extractSessionId(json: JValue): String = {

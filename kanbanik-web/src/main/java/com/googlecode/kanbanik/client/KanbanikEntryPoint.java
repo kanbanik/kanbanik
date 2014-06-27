@@ -6,7 +6,6 @@ public class KanbanikEntryPoint implements EntryPoint {
 
 	public void onModuleLoad() {
 		new KanbanikModuleManager().initialize();
-	
 	}
-	
+
 }

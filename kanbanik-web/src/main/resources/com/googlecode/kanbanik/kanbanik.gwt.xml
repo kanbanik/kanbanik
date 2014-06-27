@@ -17,6 +17,8 @@
 
     <inherits name="com.google.web.bindery.autobean.AutoBean"/>
 
+    <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
+
     <entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
 
 	<source path='client.components' />

@@ -1,10 +1,7 @@
 package com.googlecode.kanbanik.client;
 
 import com.google.gwt.user.client.ui.RootPanel;
-import com.googlecode.kanbanik.client.api.DtoFactory;
-import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.api.ServerCallCallback;
-import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.api.*;
 import com.googlecode.kanbanik.client.components.header.HeaderComponent;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -21,6 +18,8 @@ public class KanbanikModuleManager {
 	private LoginListener loginListener = new LoginListener();
 	
 	private LogoutListener logoutListener = new LogoutListener();
+
+    private ServerEventsListener serverEventsListener = new ServerEventsListener();
 	
 	public void initialize() {
 
@@ -87,6 +86,7 @@ public class KanbanikModuleManager {
 
 		public void messageArrived(Message<Dtos.UserDto> message) {
 			showBoardsModule();
+            serverEventsListener.activate();
 		}
 		
 	}
@@ -95,6 +95,7 @@ public class KanbanikModuleManager {
 
 		public void messageArrived(Message<Dtos.UserDto> message) {
 			showLoginModule();
+            serverEventsListener.deactivate();
 		}
 		
 	}	

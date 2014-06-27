@@ -50,6 +50,29 @@
         <url-pattern>/api</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>kanbanikEvents</servlet-name>
+        <servlet-class>com.googlecode.kanbanik.push.KanbanikEvents</servlet-class>
+    </servlet>
+
+    <servlet>
+        <description>AtmosphereServlet</description>
+        <servlet-name>AtmosphereServlet</servlet-name>
+        <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+        <!--<async-supported>true</async-supported>-->
+        <load-on-startup>0</load-on-startup>
+        <init-param>
+            <param-name>org.atmosphere.cpr.packages</param-name>
+            <param-value>com.googlecode.kanbanik.push</param-value>
+        </init-param>
+
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AtmosphereServlet</servlet-name>
+        <url-pattern>/events/*</url-pattern>
+    </servlet-mapping>
+
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>kanbanik.html</welcome-file>
