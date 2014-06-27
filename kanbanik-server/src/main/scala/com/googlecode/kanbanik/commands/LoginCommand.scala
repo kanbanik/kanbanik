@@ -16,6 +16,12 @@ class LoginCommand extends Command[LoginDto, UserDto] {
   def execute(params: LoginDto): Either[UserDto, ErrorDto] = {
     val currentUser = SecurityUtils.getSubject()
     try {
+      // just try to log the user out cleaning all the data (after session timed out) so the following login will pass
+      currentUser.logout()
+    } catch {
+      case e: Exception =>
+    }
+    try {
       currentUser.login(new UsernamePasswordToken(params.userName, params.password))
       SecurityUtils.getSubject().getSession().setTimeout(timeout)
     } catch {
