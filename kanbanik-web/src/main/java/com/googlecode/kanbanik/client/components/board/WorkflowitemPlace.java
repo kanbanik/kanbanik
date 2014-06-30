@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.TableRowElement;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -27,13 +29,21 @@ public class WorkflowitemPlace extends Composite implements
 		MessageListener<TaskDto>, ModulesLifecycleListener {
 
 	@UiField
-	Label stateName;
-
-	@UiField
-	Label wipLimit;
+	Label nameWithWipLimitField;
 
 	@UiField(provided = true)
 	Widget contentPanel;
+
+    @UiField
+    TableRowElement nameWithWipLimit;
+
+    protected interface Style extends CssResource {
+        String visibleHeader();
+        String hiddenHeader();
+    }
+
+    @UiField
+    protected Style style;
 
 	interface MyUiBinder extends UiBinder<Widget, WorkflowitemPlace> {
 	}
@@ -62,12 +72,13 @@ public class WorkflowitemPlace extends Composite implements
 		String name = workflowitemDto.getName();
 		if ("".equals(name)) {
 			// an anonymous state - it has only body
-			stateName.setVisible(false);
-			wipLimit.setVisible(false);
-		}
-		stateName.setText(workflowitemDto.getName());
+			nameWithWipLimitField.setVisible(false);
+            nameWithWipLimit.addClassName(style.hiddenHeader());
+		} else {
+            nameWithWipLimit.addClassName(style.visibleHeader());
+        }
 
-		setupWipLimit();
+		setupNameWithWipLimit();
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 
@@ -76,13 +87,15 @@ public class WorkflowitemPlace extends Composite implements
         MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
 	}
 
-	private void setupWipLimit() {
+	private void setupNameWithWipLimit() {
+        String nameWithWipLimitText = workflowitemDto.getName();
+
 		int wipLimitValue = workflowitemDto.getWipLimit();
-		if (wipLimitValue <= 0) {
-			wipLimit.setText("( - )");
-		} else {
-			wipLimit.setText("(" + Integer.toString(wipLimitValue) + ")");
+		if (wipLimitValue > 0) {
+            nameWithWipLimitText += " [" + Integer.toString(wipLimitValue) + "]";
 		}
+
+        nameWithWipLimitField.setText(nameWithWipLimitText);
 	}
 
 	public void messageArrived(Message<TaskDto> message) {

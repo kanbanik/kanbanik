@@ -1,7 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style>
+	<ui:style type="com.googlecode.kanbanik.client.components.board.WorkflowitemPlace.Style">
 		.mainPanel {
 			float: left;
 			height: 100%;
@@ -20,15 +20,24 @@
 			width: 100%;
 			height: 100%;
 		}
+
+        .visibleHeader {
+            width: 100%;
+        }
+
+        .hiddenHeader {
+            width: 100%;
+            height: 0px
+        }
+
 	</ui:style>
 
 	<g:HTMLPanel addStyleNames="{style.mainPanel}">
 	<!-- I know that it is an evil to format using tables but I just did not find an another reliable solution to style this-->
 		<table style="width: 100%; height: 100%">
-			<tr style="width: 100%; height: 35px"><td>
+			<tr ui:field="nameWithWipLimit"><td>
 				<g:FlowPanel addStyleNames="{style.headerPanel}">
-					<g:Label ui:field="stateName" />
-					<g:Label ui:field="wipLimit"/>
+					<g:Label ui:field="nameWithWipLimitField" />
 				</g:FlowPanel>
 			</td></tr>
 			<tr style="width: 100%; height: 100%"><td>
