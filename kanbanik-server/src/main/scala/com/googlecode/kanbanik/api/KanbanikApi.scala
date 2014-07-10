@@ -6,6 +6,7 @@ import net.liftweb.json.Serialization.write
 import com.googlecode.kanbanik.commands._
 import com.googlecode.kanbanik.dto.CommandNames._
 import org.apache.shiro.subject.Subject
+import org.apache.shiro.util.ThreadContext;
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.ErrorDto
@@ -83,6 +84,8 @@ class KanbanikApi extends HttpServlet {
         respond(ErrorDto("The user is not logged in!"), resp, USER_NOT_LOGGED_IN_STATUS)
         return
       }
+
+      ThreadContext.bind(subject)
     }
 
     try {
