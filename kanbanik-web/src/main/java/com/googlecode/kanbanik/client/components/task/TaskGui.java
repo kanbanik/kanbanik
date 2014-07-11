@@ -16,15 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PushButton;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
@@ -56,9 +48,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	@UiField
 	HTML dueDateLabel;
 	
-	@UiField(provided = true)
-	TextArea nameLabel;
-	
+	@UiField
+	Label nameLabel;
+
 	@UiField
 	PushButton editButton;
 	
@@ -70,7 +62,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	
 	@UiField
 	FocusPanel wholePanel;
-	
+
+    @UiField
+    HTMLPanel contentContainer;
+
 	HandlerRegistration imageHandle;
 	
 	private TaskDto taskDto;
@@ -107,7 +102,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto) {
 		
-		nameLabel = new ClickHandlingTextArea();
+//		nameLabel = new ClickHandlingTextArea();
         this.boardDto = boardDto;
 		
 		initWidget(uiBinder.createAndBindUi(this));
@@ -129,12 +124,13 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		setupAccordingDto(taskDto);
 		
 		wholePanel.addClickHandler(this);
-		nameLabel.addDomHandler(this, ClickEvent.getType());
+        contentContainer.addDomHandler(this, ClickEvent.getType());
 	}
 	
 	public void setupAccordingDto(TaskDto taskDto) {
 		header.setStyleName("task-class-of-service");
 		header.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
+        contentContainer.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());

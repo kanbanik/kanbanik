@@ -3,7 +3,6 @@
 
 	<ui:style type="com.googlecode.kanbanik.client.components.board.WorkflowitemPlace.Style">
 		.mainPanel {
-			float: left;
 			height: 100%;
 			width: 100%;
 		}

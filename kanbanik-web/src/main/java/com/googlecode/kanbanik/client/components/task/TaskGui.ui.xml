@@ -28,7 +28,7 @@
 		
 		.mainPanel {
 			border-style: solid; 
-			border-width: 1px; 
+			border-width: 2px;
 			align: right;
 			margin-bottom: 4px;
 			border-radius: 3px;
@@ -86,6 +86,7 @@
 		
 		.idWidget {
 			float: left;
+            font-weight: bold;
 		}
 		
 		.dueDateWidget {
@@ -116,12 +117,12 @@
 				</g:FlowPanel>
 			</g:FlowPanel>		
 			
-			<g:HTMLPanel addStyleNames="{style.mainSectionContent}">
+			<g:HTMLPanel addStyleNames="{style.mainSectionContent}" ui:field="contentContainer">
 				<!-- I know that it is an evil to format using tables but I just did not find an another reliable solution to style this-->
 				<table style="width: 100%;">
 					<tr style="width: 100%;">
 						<td style="width: 100%;">
-							<g:TextArea addStyleNames="{style.shortDescription}" ui:field="nameLabel" />	
+							<g:Label addStyleNames="{style.shortDescription2}" ui:field="nameLabel" />
 						</td>
 						<td style="">
 							<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />	
