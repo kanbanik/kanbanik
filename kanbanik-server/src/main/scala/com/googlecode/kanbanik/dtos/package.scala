@@ -83,4 +83,6 @@ package object dtos {
 
   case class GetTasksDto(includeDescription: Boolean)
 
+  case class EventDto(source: String, payload: String)
+
 }

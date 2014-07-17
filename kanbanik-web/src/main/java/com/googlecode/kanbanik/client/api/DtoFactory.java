@@ -60,6 +60,8 @@ public class DtoFactory {
 
         AutoBean<Dtos.EditWorkflowParams> editWorkflowParams();
 
+        AutoBean<Dtos.EventDto> eventDto();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);

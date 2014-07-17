@@ -122,7 +122,7 @@
 				<table style="width: 100%;">
 					<tr style="width: 100%;">
 						<td style="width: 100%;">
-							<g:Label addStyleNames="{style.shortDescription2}" ui:field="nameLabel" />
+							<g:Label ui:field="nameLabel" />
 						</td>
 						<td style="">
 							<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />	

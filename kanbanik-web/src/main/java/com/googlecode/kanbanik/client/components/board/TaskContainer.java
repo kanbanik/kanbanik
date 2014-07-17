@@ -87,7 +87,7 @@ public class TaskContainer extends Composite {
 		for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
 			Widget widget = contentPanel.getWidget(i);
 			if (widget instanceof TaskGui) {
-				if (((TaskGui) widget).getDto().equals(task)) {
+				if (((TaskGui) widget).getDto().getId().equals(task.getId())) {
 					return i;
 				}
 			}

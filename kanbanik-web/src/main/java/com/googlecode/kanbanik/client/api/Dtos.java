@@ -111,6 +111,14 @@ public class Dtos {
         void setErrorMessage(String errorMessage);
     }
 
+    public static interface EventDto {
+        String getSource();
+        void setSource(String source);
+
+        String getPayload();
+        void setPayload(String payload);
+    }
+
     public static interface UsersDto {
         List<UserDto> getValues();
         void setValues(List<UserDto> values);
