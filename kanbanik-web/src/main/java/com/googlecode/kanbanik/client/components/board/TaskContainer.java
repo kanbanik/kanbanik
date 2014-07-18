@@ -109,6 +109,20 @@ public class TaskContainer extends Composite {
 		return res;
 	}
 
+    public TaskDto getTaskById(String id) {
+        if (id == null) {
+            return null;
+        }
+
+        for (TaskDto task : getTasks()) {
+            if (id.equals(task.getId())) {
+                return task;
+            }
+        }
+
+        return null;
+    }
+
 	public void add(TaskGui task) {
 
 		BigDecimal taskOrder = asBigDecimal(task.getDto().getOrder());

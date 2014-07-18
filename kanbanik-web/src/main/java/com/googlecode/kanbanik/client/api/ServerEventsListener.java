@@ -2,18 +2,16 @@ package com.googlecode.kanbanik.client.api;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.SerializationException;
+import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.*;
 import com.googlecode.kanbanik.dto.CommandNames;
 import org.atmosphere.gwt20.client.*;
 
-import javax.sql.StatementEventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ServerEventsListener {
 
@@ -26,10 +24,12 @@ public class ServerEventsListener {
         eventToDto.put(CommandNames.EDIT_TASK.name, Dtos.TaskDto.class);
         eventToDto.put(CommandNames.CREATE_TASK.name, Dtos.TaskDto.class);
         eventToDto.put(CommandNames.DELETE_TASK.name, Dtos.TasksDto.class);
+        eventToDto.put(CommandNames.MOVE_TASK.name, Dtos.TaskDto.class);
 
         eventToAction.put(CommandNames.EDIT_TASK.name, new TaskEditedEventAction());
         eventToAction.put(CommandNames.CREATE_TASK.name, new TaskCreatedEventAction());
         eventToAction.put(CommandNames.DELETE_TASK.name, new TaskDeletedEventAction());
+        eventToAction.put(CommandNames.MOVE_TASK.name, new TaskMovedEventAction());
     }
 
     public ServerEventsListener() {
@@ -113,10 +113,43 @@ public class ServerEventsListener {
         }
     }
 
+    static class TaskMovedEventAction implements EventAction {
+
+        @Override
+        public void execute(Pair pair) {
+            Dtos.TaskDto newTask = (Dtos.TaskDto) pair.eventPayload;
+
+            GetTaskByIdResponseListener listener = new GetTaskByIdResponseListener(newTask);
+            MessageBus.registerListener(GetTaskByIdResponseMessage.class, listener);
+            MessageBus.sendMessage(new GetTaskByIdRequestMessage(newTask.getId(), this));
+            MessageBus.unregisterListener(GetTaskByIdResponseMessage.class, listener);
+        }
+
+        class GetTaskByIdResponseListener implements MessageListener<Dtos.TaskDto> {
+
+            private Dtos.TaskDto newTask = null;
+
+            GetTaskByIdResponseListener(Dtos.TaskDto newTask) {
+                this.newTask = newTask;
+            }
+
+            @Override
+            public void messageArrived(Message<Dtos.TaskDto> message) {
+                if (message.getPayload() == null) {
+                    return;
+                }
+                Dtos.TaskDto oldTask = message.getPayload();
+
+                MessageBus.sendMessage(new TaskDeletedMessage(oldTask, this));
+                MessageBus.sendMessage(new TaskAddedMessage(newTask, this));
+            }
+        }
+    }
+
     private void initializeAtmosphere() {
         AtmosphereRequestConfig jsonRequestConfig = AtmosphereRequestConfig.create(new Serializer());
 
-        jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/some");
+        jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/eventSource");
         jsonRequestConfig.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
         jsonRequestConfig.setTransport(AtmosphereRequestConfig.Transport.WEBSOCKET);
         jsonRequestConfig.setFallbackTransport(AtmosphereRequestConfig.Transport.LONG_POLLING);

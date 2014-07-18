@@ -17,10 +17,7 @@ import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskRequestMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.GetFirstTaskResponseMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.*;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
@@ -49,6 +46,8 @@ public class WorkflowitemPlace extends Composite implements
 	}
 	
 	private final GetFirstTaskRequestMessageListener getFirstTaskRequestMessageListener = new GetFirstTaskRequestMessageListener();
+
+    private final GetTaskByIdRequestMessageListener getTaskByIdRequestMessageListener = new GetTaskByIdRequestMessageListener();
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
@@ -85,6 +84,8 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.registerListener(TaskAddedMessage.class, this);
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
+        MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
+
 	}
 
 	private void setupNameWithWipLimit() {
@@ -151,12 +152,17 @@ public class WorkflowitemPlace extends Composite implements
 		if (!MessageBus.listens(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener)) {
 			MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
 		}
+
+		if (!MessageBus.listens(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener)) {
+			MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
+		}
 	}
 
 	public void deactivated() {
 		MessageBus.unregisterListener(TaskAddedMessage.class, this);
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
+        MessageBus.unregisterListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
 	}
 	
 	class GetFirstTaskRequestMessageListener implements MessageListener<Dtos.WorkflowitemDto> {
@@ -181,5 +187,17 @@ public class WorkflowitemPlace extends Composite implements
 		}
 		
 	}
+
+    class GetTaskByIdRequestMessageListener implements MessageListener<String> {
+
+        @Override
+        public void messageArrived(Message<String> message) {
+            TaskContainer container = (TaskContainer) contentPanel;
+            TaskDto task = container.getTaskById(message.getPayload());
+            if (task != null) {
+                MessageBus.sendMessage(new GetTaskByIdResponseMessage(task, this));
+            }
+        }
+    }
 }
 

@@ -93,7 +93,10 @@ class KanbanikApi extends HttpServlet {
       match {
         case Left(x) => {
           val response = write(x)
-          notifyClients(commandName, response)
+          if (config.notifyByEvent) {
+            notifyClients(commandName, response)
+          }
+
           resp.getWriter().print(response)
         }
         case Right(x) => {
@@ -134,51 +137,51 @@ class KanbanikApi extends HttpServlet {
   }
 
   val commands = Map[String, (WithExecute, CommandConfiguration)](
-    LOGIN.name ->(new LoginCommand(), CommandConfiguration(false)),
-    LOGOUT.name ->(new LogoutCommand(), CommandConfiguration(true)),
+    LOGIN.name ->(new LoginCommand(), CommandConfiguration(false, false)),
+    LOGOUT.name ->(new LogoutCommand(), CommandConfiguration(true, false)),
 
     // user
-    GET_CURRENT_USER.name ->(new GetCurrentUserCommand(), CommandConfiguration(true)),
-    CREATE_USER.name ->(new CreateUserCommand(), CommandConfiguration(true)),
-    EDIT_USER.name ->(new EditUserCommand(), CommandConfiguration(true)),
-    DELETE_USER.name ->(new DeleteUserCommand(), CommandConfiguration(true)),
-    GET_ALL_USERS_COMMAND.name ->(new GetAllUsersCommand(), CommandConfiguration(true)),
+    GET_CURRENT_USER.name ->(new GetCurrentUserCommand(), CommandConfiguration(true, false)),
+    CREATE_USER.name ->(new CreateUserCommand(), CommandConfiguration(true, false)),
+    EDIT_USER.name ->(new EditUserCommand(), CommandConfiguration(true, false)),
+    DELETE_USER.name ->(new DeleteUserCommand(), CommandConfiguration(true, false)),
+    GET_ALL_USERS_COMMAND.name ->(new GetAllUsersCommand(), CommandConfiguration(true, false)),
 
     // class of service
-    GET_ALL_CLASS_OF_SERVICE.name ->(new GetAllClassOfServices(), CommandConfiguration(true)),
-    EDIT_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true)),
-    CREATE_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true)),
-    DELETE_CLASS_OF_SERVICE.name ->(new DeleteClassOfServiceCommand(), CommandConfiguration(true)),
+    GET_ALL_CLASS_OF_SERVICE.name ->(new GetAllClassOfServices(), CommandConfiguration(true, false)),
+    EDIT_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true, true)),
+    CREATE_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true, true)),
+    DELETE_CLASS_OF_SERVICE.name ->(new DeleteClassOfServiceCommand(), CommandConfiguration(true, true)),
 
     // project
-    GET_ALL_PROJECTS.name ->(new GetAllProjectsCommand(), CommandConfiguration(true)),
-    EDIT_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true)),
-    CREATE_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true)),
-    DELETE_PROJECT.name ->(new DeleteProjectCommand(), CommandConfiguration(true)),
-    ADD_PROJECT_TO_BOARD.name ->(new AddProjectsToBoardCommand(), CommandConfiguration(true)),
-    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true)),
+    GET_ALL_PROJECTS.name ->(new GetAllProjectsCommand(), CommandConfiguration(true, false)),
+    EDIT_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true, true)),
+    CREATE_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true, true)),
+    DELETE_PROJECT.name ->(new DeleteProjectCommand(), CommandConfiguration(true, true)),
+    ADD_PROJECT_TO_BOARD.name ->(new AddProjectsToBoardCommand(), CommandConfiguration(true, true)),
+    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true, true)),
 
     // task
-    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(true)),
-    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
-    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true)),
-    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true)),
-    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(true)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true)),
+    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(true, true)),
+    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true, true)),
+    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true, true)),
+    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true, false)),
+    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(true, false)),
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true, true)),
 
     // board / workflowitem
-    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(true)),
-    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(true)),
-    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(true)),
+    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(true, true)),
+    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(true, true)),
+    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(true, false)),
 
-    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true)),
-    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true)),
-    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(true)),
-    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(true)),
-    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(true))
+    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true, true)),
+    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true, true)),
+    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(true, true)),
+    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(true, true)),
+    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(true, false))
 
   )
 
-  case class CommandConfiguration(onlyLoggedIn: Boolean)
+  case class CommandConfiguration(onlyLoggedIn: Boolean, notifyByEvent: Boolean)
 
 }
