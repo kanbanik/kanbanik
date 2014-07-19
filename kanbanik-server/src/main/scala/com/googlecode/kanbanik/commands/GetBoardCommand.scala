@@ -18,7 +18,7 @@ class GetBoardCommand extends Command[BoardDto, BoardDto] {
     } catch {
       case e: IllegalArgumentException =>
         // it has been deleted
-        return Left(new BoardDto(None, 1, "", 1, None, Some(false), None))
+        return Left(new BoardDto(None, 1, "", 1, None, Some(false), Some(false), None))
     }
     
     

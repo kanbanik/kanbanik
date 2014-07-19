@@ -98,6 +98,17 @@
 		.headerContentStyle {
 			display: inline-block;
 		}
+
+        .shortDescriptionStyle {
+            word-wrap: break-word;
+        }
+
+        .shortDescriptionTextArea {
+            display: none;
+            overflow: hidden;
+            resize: vertical;
+        }
+
 	</ui:style>
 
 	<g:FocusPanel ui:field="wholePanel" addStyleNames="{style.unselected}">
@@ -122,7 +133,8 @@
 				<table style="width: 100%;">
 					<tr style="width: 100%;">
 						<td style="width: 100%;">
-							<g:Label ui:field="nameLabel" />
+							<g:Label ui:field="nameLabel" addStyleNames="{style.shortDescriptionStyle}" />
+                            <g:TextArea addStyleNames="{style.shortDescriptionTextArea}" ui:field="nameLabelTextArea" />
 						</td>
 						<td style="">
 							<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />	

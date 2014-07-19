@@ -51,6 +51,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	@UiField
 	Label nameLabel;
 
+    @UiField
+    TextArea nameLabelTextArea;
+
 	@UiField
 	PushButton editButton;
 	
@@ -100,12 +103,12 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private Dtos.BoardDto boardDto;
 
-	public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto) {
-		
-//		nameLabel = new ClickHandlingTextArea();
+    public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto) {
+
+        nameLabelTextArea = new ClickHandlingTextArea();
         this.boardDto = boardDto;
-		
-		initWidget(uiBinder.createAndBindUi(this));
+
+        initWidget(uiBinder.createAndBindUi(this));
 		
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
@@ -124,7 +127,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		setupAccordingDto(taskDto);
 		
 		wholePanel.addClickHandler(this);
-        contentContainer.addDomHandler(this, ClickEvent.getType());
 	}
 	
 	public void setupAccordingDto(TaskDto taskDto) {
@@ -134,6 +136,14 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
+        nameLabelTextArea.setText(taskDto.getName());
+        nameLabelTextArea.setTitle(taskDto.getName());
+
+        if (boardDto.isFixedSizeShortDescription()) {
+            nameLabel.getElement().getStyle().setDisplay(Display.NONE);
+            nameLabelTextArea.getElement().getStyle().setDisplay(Display.BLOCK);
+        }
+
 
 		boolean showingPictureEnabled = boardDto.isShowUserPictureEnabled();
 		boolean hasAssignee = taskDto.getAssignee() != null;
@@ -153,11 +163,15 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
+            nameLabel.setWidth("84px");
+            nameLabelTextArea.setWidth("73px");
 			picture.addClickHandler(this);
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
+            nameLabel.setWidth("130px");
+            nameLabelTextArea.setWidth("120px");
 		}
-		
+
 		setupDueDate(taskDto.getDueDate());
 		
 	}
@@ -293,7 +307,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	
 	@Override
 	public void onClick(ClickEvent event) {
-		doClick(event.isControlKeyDown());
+		event.stopPropagation();
+        event.preventDefault();
+        doClick(event.isControlKeyDown());
 	}
 	
 	private void doClick(boolean ctrlDown) {

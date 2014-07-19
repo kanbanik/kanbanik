@@ -263,6 +263,9 @@ public class Dtos {
 
         boolean isShowUserPictureEnabled();
         void setShowUserPictureEnabled(boolean showUserPictureEnabled);
+
+        boolean isFixedSizeShortDescription();
+        void setFixedSizeShortDescription(boolean fixedSizeShortDescription);
     }
 
     public static interface BoardWithProjectsDto extends BaseDto {

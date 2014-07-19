@@ -36,13 +36,19 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 		return true;
 	}
 
-	@Override
+    @Override
+    protected boolean fixedSizeShortDescriptionEnabled() {
+        return false;
+    }
+
+    @Override
 	protected void onOkClicked(final Dtos.BoardDto dto) {
 		final Dtos.BoardDto toStore = DtoFactory.boardDto();
 		toStore.setId(null);
 		toStore.setName(dto.getName());
 		toStore.setWorkflowVerticalSizing(dto.getWorkflowVerticalSizing());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
+        toStore.setFixedSizeShortDescription(dto.isFixedSizeShortDescription());
 		toStore.setWorkflow(DtoFactory.workflowDto());
         toStore.setCommandName(CommandNames.CREATE_BOARD.name);
         toStore.setVersion(1);

@@ -14,20 +14,21 @@ case class Board(
   val workflow: Workflow,
   val tasks: List[Task],
   val userPictureShowingEnabled: Boolean,
+  val fixedSizeShortDescription: Boolean,
   val workfloVerticalSizing: WorkfloVerticalSizing.Value) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def this(
     id: Option[ObjectId],
     name: String,
     version: Int) = {
-    this(id, name, version, new Workflow(None, List(), None), List(), true, WorkfloVerticalSizing.BALANCED)
+    this(id, name, version, new Workflow(None, List(), None), List(), true, false, WorkfloVerticalSizing.BALANCED)
   }
 
   def move(item: Workflowitem, beforeItem: Option[Workflowitem], destWorkflow: Workflow): Board = {
     val removed = workflow.removeItem(item)
     val added = removed.addItem(item, beforeItem, destWorkflow)
 
-    new Board(id, name, version, added, tasks, userPictureShowingEnabled, workfloVerticalSizing)
+    new Board(id, name, version, added, tasks, userPictureShowingEnabled, fixedSizeShortDescription, workfloVerticalSizing)
   }
 
   def store: Board = {
@@ -47,6 +48,7 @@ case class Board(
         Board.Fields.name.toString() -> name,
         Board.Fields.workflow.toString() -> workflow.asDbObject,
         Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
+        Board.Fields.fixedSizeShortDescription.toString() -> fixedSizeShortDescription,
         Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.id)
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
@@ -62,6 +64,7 @@ case class Board(
       Board.Fields.version.toString() -> version,
       Board.Fields.workflow.toString() -> workflow.asDbObject,
       Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
+      Board.Fields.fixedSizeShortDescription.toString() -> fixedSizeShortDescription,
       Board.Fields.tasks.toString() -> tasks.map(Task.asDBObject(_)))
   }
 
@@ -77,6 +80,7 @@ object Board extends HasMongoConnection {
     val workflow = Value("workflow")
     val tasks = Value("tasks")
     val userPictureShowingEnabled = Value("showUserPictures")
+    val fixedSizeShortDescription = Value("fixedSizeShortDescription")
     val workfloVerticalSizing = Value("workfloVerticalSizing")
   }
 
@@ -129,6 +133,7 @@ object Board extends HasMongoConnection {
       Workflow.asEntity(dbObject.get(Fields.workflow.toString()).asInstanceOf[DBObject]),
       List(),
       dbObject.getWithDefault[Boolean](Fields.userPictureShowingEnabled, true),
+      dbObject.getWithDefault[Boolean](Fields.fixedSizeShortDescription, false),
       WorkfloVerticalSizing.fromId(dbObject.getWithDefault[Int](Fields.workfloVerticalSizing, -1))
     )
 

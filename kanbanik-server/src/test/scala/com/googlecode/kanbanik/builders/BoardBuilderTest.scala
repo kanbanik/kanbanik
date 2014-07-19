@@ -67,6 +67,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
       -1,
       None,
       Some(false),
+      Some(false),
       None
     )
 
@@ -95,6 +96,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
       "some name",
       -1,
       Some(firstLevelWorkflow),
+      Some(false),
       Some(false),
       None
     )
@@ -133,6 +135,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
       "some name",
       -1,
       Some(firstLevelWorkflow),
+      Some(false),
       Some(false),
       None
     )

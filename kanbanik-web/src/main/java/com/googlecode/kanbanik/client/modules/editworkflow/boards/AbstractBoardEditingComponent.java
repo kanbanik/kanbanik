@@ -38,6 +38,12 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	private CheckBox showUserPictureBox = new CheckBox();
 
 	private HorizontalPanel showUserPanel = new HorizontalPanel();
+
+    private Label fixedSizeShortDescriptionLabel = new Label("Make the short description size fixed on tasks");
+
+    private CheckBox fixedSizeShortDescriptionBox = new CheckBox();
+
+    private HorizontalPanel fixedSizeShortDescriptionPanel = new HorizontalPanel();
 	
 	
 	private PanelContainingDialog dialog;
@@ -62,10 +68,14 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 		
 		showUserPanel.add(showUserPictureLabel);
 		showUserPanel.add(showUserPictureBox);
+
+        fixedSizeShortDescriptionPanel.add(fixedSizeShortDescriptionLabel);
+        fixedSizeShortDescriptionPanel.add(fixedSizeShortDescriptionBox);
 		
 		mainPanel.add(namePanel);
 		mainPanel.add(balancedWorkflowPanel);
 		mainPanel.add(showUserPanel);
+        mainPanel.add(fixedSizeShortDescriptionPanel);
 		
 		mainPanel.setWidth("300px");
 		
@@ -81,6 +91,8 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 			workflowVerticalSizing.setValue(getVerticalSizing() == Dtos.WorkflowVerticalSizing.BALANCED);
 			
 			showUserPictureBox.setValue(isUserPictureDisplayingEnabled());
+            showUserPictureBox.setValue(fixedSizeShortDescriptionEnabled());
+
 			dialog.center();
 			boardNameText.setFocus(true);
 		}
@@ -93,6 +105,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 		dto.setWorkflowVerticalSizing(workflowVerticalSizing.getValue() ? Dtos.WorkflowVerticalSizing.BALANCED.getSizing() : Dtos.WorkflowVerticalSizing.MIN_POSSIBLE.getSizing());
 		
 		dto.setShowUserPictureEnabled(showUserPictureBox.getValue());
+        dto.setFixedSizeShortDescription(fixedSizeShortDescriptionBox.getValue());
 		onOkClicked(dto);
 	}
 	
@@ -111,6 +124,8 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 	}
 	
 	protected abstract boolean isUserPictureDisplayingEnabled();
+
+    protected abstract boolean fixedSizeShortDescriptionEnabled();
 	
 	protected abstract String getBoardName();
 	

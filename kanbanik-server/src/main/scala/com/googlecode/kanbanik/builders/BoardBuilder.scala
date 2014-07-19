@@ -31,6 +31,7 @@ class BoardBuilder extends BaseBuilder {
       board.workfloVerticalSizing.id,
       None,
       Some(board.userPictureShowingEnabled),
+      Some(board.fixedSizeShortDescription),
       None
     )
 
@@ -50,6 +51,7 @@ class BoardBuilder extends BaseBuilder {
     Workflow(),
     boardDto.tasks.getOrElse(List()).map(task => taskBuilder.buildEntity(task)),
     boardDto.showUserPictureEnabled.getOrElse(false),
+    boardDto.fixedSizeShortDescription.getOrElse(false),
     {
       if (boardDto.workflowVerticalSizing == null) {
         WorkfloVerticalSizing.BALANCED

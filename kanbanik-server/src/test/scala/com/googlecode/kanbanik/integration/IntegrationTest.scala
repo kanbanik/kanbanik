@@ -46,6 +46,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       1,
       None,
       Some(true),
+      Some(false),
       None
     )
 

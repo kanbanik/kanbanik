@@ -35,6 +35,7 @@ package object dtos {
                       workflowVerticalSizing: Int,
                       workflow: Option[WorkflowDto],
                       showUserPictureEnabled: Option[Boolean],
+                      fixedSizeShortDescription: Option[Boolean],
                       tasks: Option[List[TaskDto]])
 
   case class WorkflowDto(id: Option[String], workflowitems: Option[List[WorkflowitemDto]], board: BoardDto)

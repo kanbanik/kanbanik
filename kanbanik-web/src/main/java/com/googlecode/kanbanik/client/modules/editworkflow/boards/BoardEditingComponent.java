@@ -62,7 +62,16 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		return boardDto.isShowUserPictureEnabled();
 	}
 
-	@Override
+    @Override
+    protected boolean fixedSizeShortDescriptionEnabled() {
+        if (boardDto == null) {
+            return false;
+        }
+
+        return boardDto.isFixedSizeShortDescription();
+    }
+
+    @Override
 	protected void onOkClicked(Dtos.BoardDto dto) {
 		final Dtos.BoardDto toStore = DtoFactory.boardDto();
 		toStore.setId(boardDto.getId());
@@ -70,6 +79,7 @@ public class BoardEditingComponent extends AbstractBoardEditingComponent impleme
 		toStore.setWorkflowVerticalSizing(dto.getWorkflowVerticalSizing());
 		toStore.setVersion(boardDto.getVersion());
 		toStore.setShowUserPictureEnabled(dto.isShowUserPictureEnabled());
+        toStore.setFixedSizeShortDescription(dto.isFixedSizeShortDescription());
 		toStore.setWorkflow(boardDto.getWorkflow());
         toStore.setCommandName(CommandNames.EDIT_BOARD.name);
 
