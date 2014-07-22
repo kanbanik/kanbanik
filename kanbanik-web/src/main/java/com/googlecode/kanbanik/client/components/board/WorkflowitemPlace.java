@@ -192,6 +192,10 @@ public class WorkflowitemPlace extends Composite implements
 
         @Override
         public void messageArrived(Message<String> message) {
+            if (!(contentPanel instanceof TaskContainer)) {
+                return;
+            }
+
             TaskContainer container = (TaskContainer) contentPanel;
             TaskDto task = container.getTaskById(message.getPayload());
             if (task != null) {
