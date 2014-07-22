@@ -53,7 +53,7 @@
 			<g:Label addStyleNames="{style.labelStyle}" text="Password(*): "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="Password(again)(*): "/>
 		</g:FlowPanel>
-		
+
 		<g:FlowPanel addStyleNames="{style.values}">
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />

@@ -44,19 +44,19 @@
 		}
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="{style.mainPanel}">
-		<g:FlowPanel addStyleNames="{style.labels}">
-			<g:Label addStyleNames="{style.labelStyle}" text="Name: "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Colour:" />
-		</g:FlowPanel>
-	
-		<g:FlowPanel addStyleNames="{style.values}">
-			<g:TextBox addStyleNames="{style.valueStyle}" ui:field="nameBox" />
-			<g:PushButton addStyleNames="{style.colorButtonStyle}" ui:field="colorButton" />
-		</g:FlowPanel>
-		
-		<g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />
-		<c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="descriptionTextArea" />
-	</g:FlowPanel>
+        <g:FlowPanel addStyleNames="{style.mainPanel}">
+            <g:FlowPanel addStyleNames="{style.labels}">
+                <g:Label addStyleNames="{style.labelStyle}" text="Name: "/>
+                <g:Label addStyleNames="{style.labelStyle}" text="Colour:" />
+            </g:FlowPanel>
+
+            <g:FlowPanel addStyleNames="{style.values}">
+                <g:TextBox addStyleNames="{style.valueStyle}" ui:field="nameBox" />
+                <g:PushButton addStyleNames="{style.colorButtonStyle}" ui:field="colorButton" />
+            </g:FlowPanel>
+
+            <g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />
+            <c:KanbanikRichTextArea addStyleNames="{style.textAreaStyle}" ui:field="descriptionTextArea" />
+        </g:FlowPanel>
 
 </ui:UiBinder>

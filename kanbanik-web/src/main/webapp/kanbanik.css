@@ -62,7 +62,6 @@ body {
 
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
-	width: 800px;
 }
 
 .dialogVPanel {
@@ -80,10 +79,8 @@ body {
 
 /** RICH TEXT TOOLBAR */
 .RichTextToolbar {
-	background: #E2E2E2;
-	padding: 5px;
+	padding-bottom: 5px;
 	margin: 0px;
-	/*border: red 1px solid;*/
 }
 
 .RichTextToolbar .gwt-ToggleButton {

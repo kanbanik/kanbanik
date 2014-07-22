@@ -2,6 +2,7 @@
 	height: 100%;
 	width: 100%;
 	display: inline-table;
+	margin: -5px;
 }
 
 #boards table, #boards tr, #boards td {

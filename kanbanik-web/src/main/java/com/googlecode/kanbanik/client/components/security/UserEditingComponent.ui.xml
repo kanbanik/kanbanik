@@ -54,7 +54,7 @@
 			<g:Label addStyleNames="{style.labelStyle}" text="New Password: "/>
 			<g:Label addStyleNames="{style.labelStyle}" text="New Password(again): "/>
 		</g:FlowPanel>
-		
+
 		<g:FlowPanel addStyleNames="{style.values}">
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
 			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />
@@ -66,7 +66,7 @@
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword" />
 			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="newPassword2" />
 		</g:FlowPanel>
-		
+
 		<g:Label addStyleNames="{style.requiredFieldStyle}" text="(*): required field" />
 		<g:HTML addStyleNames="{style.warningMessage}" ui:field="messages" />
 	</g:FlowPanel>

@@ -1,29 +1,20 @@
 package com.googlecode.kanbanik.client.components.task;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.logical.shared.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DatePicker;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
@@ -52,9 +43,9 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 // TODO it start to look really ugly - needs to be cleaned up into ui.xml
 public abstract class AbstractTaskEditingComponent {
 
-    private Panel panel = new VerticalPanel();
+    private Panel panel = new FlowPanel();
 
-    private TextBox taskName = new TextBox();
+    private TextArea taskName = new TextArea();
 
     private Label ticketId = new Label("");
 
@@ -92,7 +83,7 @@ public abstract class AbstractTaskEditingComponent {
 
     protected void initialize() {
 
-        dialog = new PanelContainingDialog(name, panel, taskName);
+        dialog = new PanelContainingDialog(name, panel, taskName, true, 970, 500);
 
         classOfServiceEditor = new PanelContainingDialogSuggestBox(new MultiWordSuggestOracle(), dialog);
         initSuggestBox(classOfServiceEditor);
@@ -106,7 +97,9 @@ public abstract class AbstractTaskEditingComponent {
         header.setWidget(0, 0, new Label("ID"));
         header.setWidget(0, 1, ticketId);
 
-        taskName.setWidth("100%");
+        taskName.setWidth("190px");
+        taskName.setHeight("50px");
+        taskName.getElement().getStyle().setProperty("resize", "vertical");
         header.setWidget(1, 0, new Label("Short Description"));
         header.setWidget(1, 1, taskName);
 
@@ -120,12 +113,23 @@ public abstract class AbstractTaskEditingComponent {
 
         header.setWidget(4, 1, createDueDatePanel());
 
-        header.setWidth("640px");
+        header.setWidth("100%");
+        header.getElement().getStyle().setPaddingRight(10, Style.Unit.PX);
 
         warningMessages.getElement().getStyle().setColor("red");
 
-        panel.add(header);
-        panel.add(description);
+        FlowPanel controlPanel = new FlowPanel();
+        controlPanel.setWidth("100%");
+        controlPanel.setHeight("100%");
+        controlPanel.getElement().getStyle().setProperty("display", "flex");
+        controlPanel.getElement().getStyle().setProperty("flexDirection", "row");
+        FlowPanel aroundHeader = new FlowPanel();
+        aroundHeader.add(header);
+        aroundHeader.setWidth("460px");
+        controlPanel.add(aroundHeader);
+        controlPanel.add(description);
+
+        panel.add(controlPanel);
         panel.add(warningMessages);
         panel.setWidth("100%");
 
@@ -481,4 +485,5 @@ public abstract class AbstractTaskEditingComponent {
             dialog.deactivateEnterEscapeBinding();
         }
     }
+
 }

@@ -7,7 +7,6 @@
 		}
 		
 		.buttonPanel {
-			float: left;
 			width: 100%;
 			
 		}
@@ -23,7 +22,25 @@
 		.cancelButton {
 			float: right;
 		}
-		
+
+        .changeSize, .close {
+            position: absolute;
+            top: 5px;
+            width: 1px;
+            height: 1px;
+            background-color: transparent;
+            border: 0;
+        }
+
+        .changeSize {
+            display: none;
+            right: 45px;
+        }
+
+        .close {
+            right: 22px;
+        }
+
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.mainPanel}">
@@ -32,6 +49,9 @@
 			<g:Button ui:field="okButton" addStyleNames="{style.okButton}" />
 			<g:Button ui:field="cancelButton" addStyleNames="{style.cancelButton}" />
 		</g:FlowPanel>
+
+        <g:PushButton addStyleNames="{style.changeSize}" ui:field="changeSizeButton" title="Change Window Size" />
+        <g:PushButton addStyleNames="{style.close}" ui:field="closeButton" title="Close Window" />
 	</g:FlowPanel>
 
 </ui:UiBinder>

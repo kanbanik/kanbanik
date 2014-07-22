@@ -7,7 +7,13 @@ import com.google.gwt.resources.client.ImageResource;
 public interface KanbanikResources extends ClientBundle {
 	
 	public static final KanbanikResources INSTANCE =  GWT.create(KanbanikResources.class);
-	
+
+    @Source("images/maximize.png")
+    ImageResource maximize();
+
+    @Source("images/minimize.png")
+    ImageResource minimize();
+
 	@Source("images/edit.png")
 	ImageResource editButtonImage();
 	
@@ -99,8 +105,7 @@ public interface KanbanikResources extends ClientBundle {
 	
 	@Source("images/richTextEditor/texthtml.png")
 	ImageResource texthtml();
-	
-	
+
 	// CSS Resources
 	@Source("style/Board.css")
 	BoardStyle boardStyle();
