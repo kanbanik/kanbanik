@@ -1,9 +1,11 @@
 package com.googlecode.kanbanik.client.components.filter;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.kanbanik.client.api.Dtos;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TaskFilter {
@@ -18,6 +20,18 @@ public class TaskFilter {
 
     private String id = null;
 
+    private Date dateFrom;
+
+    private Date dateTo;
+
+    private int dateCondition;
+
+    private static final int DATE_CONDITION_UNSET = 0;
+    private static final int DATE_CONDITION_LESS = 1;
+    private static final int DATE_CONDITION_EQALS = 2;
+    private static final int DATE_CONDITION_MORE = 3;
+    private static final int DATE_CONDITION_BETWEEN = 4;
+
     public boolean matches(Dtos.TaskDto task) {
 
         if (!stringMatches(id, task.getTicketId())) {
@@ -25,6 +39,10 @@ public class TaskFilter {
         }
 
         if (!stringMatches(shortDescription, task.getName())) {
+            return false;
+        }
+
+        if (!checkDueDates(task)) {
             return false;
         }
 
@@ -40,6 +58,50 @@ public class TaskFilter {
         boolean userMatches = users.isEmpty() || (task.getAssignee() != null && findById(task.getAssignee()) != -1);
 
         return userMatches;
+    }
+
+    private boolean checkDueDates(Dtos.TaskDto task) {
+        if (dateCondition == DATE_CONDITION_UNSET) {
+            return true;
+        }
+
+        if (task.getDueDate() == null || "".equals(task.getDueDate())) {
+            return false;
+        }
+
+        if (dateFrom == null) {
+            return false;
+        }
+
+        if (dateCondition == DATE_CONDITION_BETWEEN && dateTo == null) {
+            return false;
+        }
+
+        Date taskDueDate = null;
+        try {
+            taskDueDate = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(task.getDueDate());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        if (dateCondition == DATE_CONDITION_LESS) {
+            return taskDueDate.before(dateFrom);
+        }
+
+        if (dateCondition == DATE_CONDITION_MORE) {
+            return taskDueDate.after(dateFrom);
+        }
+
+        if (dateCondition == DATE_CONDITION_EQALS) {
+            return taskDueDate.equals(dateFrom);
+        }
+
+        if (dateCondition == DATE_CONDITION_BETWEEN) {
+            return taskDueDate.after(dateFrom) && taskDueDate.before(dateTo);
+        }
+
+        return true;
+
     }
 
     private boolean stringMatches(String pattern, String real) {
@@ -123,5 +185,17 @@ public class TaskFilter {
 
     public void setLongDescription(String longDescription) {
         this.longDescription = longDescription;
+    }
+
+    public void setDateTo(Date dateTo) {
+        this.dateTo = dateTo;
+    }
+
+    public void setDateFrom(Date dateFrom) {
+        this.dateFrom = dateFrom;
+    }
+
+    public void setDateCondition(int dateCondition) {
+        this.dateCondition = dateCondition;
     }
 }

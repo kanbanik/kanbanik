@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+        >
 
     <ui:style>
 
@@ -67,6 +68,15 @@
                     <g:Label text="ID Contains" addStyleNames="{style.filterLabel}"/>
                     <g:FlowPanel addStyleNames="{style.filterPart}">
                         <g:TextArea ui:field="idArea" addStyleNames="{style.substringStyle}" />
+                    </g:FlowPanel>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="Due Date" addStyleNames="{style.filterLabel}"/>
+                    <g:FlowPanel addStyleNames="{style.filterPart}">
+                        <g:ListBox ui:field="dueDateCondition" />
+                        <g:TextBox ui:field="dueDateFromBox" />
+                        <g:TextBox ui:field="dueDateToBox" />
                     </g:FlowPanel>
                 </g:FlowPanel>
             </g:FlowPanel>

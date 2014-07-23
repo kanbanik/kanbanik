@@ -2,27 +2,24 @@ package com.googlecode.kanbanik.client.components.filter;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.datepicker.client.DatePicker;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.DatePickerDialog;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskFilterChangedMessage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class FilterComponent extends Composite {
 
@@ -47,6 +44,19 @@ public class FilterComponent extends Composite {
     @UiField
     TextArea idArea;
 
+    @UiField
+    ListBox dueDateCondition;
+
+    DatePickerDialog dueDateFromPicker;
+
+    DatePickerDialog dueDateToPicker;
+
+    @UiField
+    TextBox dueDateFromBox;
+
+    @UiField
+    TextBox dueDateToBox;
+
     private TaskFilter filterObject;
 
     public FilterComponent() {
@@ -57,6 +67,8 @@ public class FilterComponent extends Composite {
         initLongDescription();
 
         initId();
+
+        initDueDate();
 
         disclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
             @Override
@@ -73,6 +85,104 @@ public class FilterComponent extends Composite {
 
         });
 
+    }
+
+    private void initDueDate() {
+
+        dueDateCondition.addItem("-------");
+        dueDateCondition.addItem("less than");
+        dueDateCondition.addItem("equals");
+        dueDateCondition.addItem("more than");
+        dueDateCondition.addItem("between");
+
+        dueDateFromBox.setVisible(false);
+        dueDateToBox.setVisible(false);
+
+        dueDateFromPicker = new DatePickerDialog(dueDateFromBox) {
+            @Override
+            public void hide() {
+                super.hide();
+                setDueDateToFilterObjectAndFireEvent();
+            }
+        };
+        dueDateToPicker = new DatePickerDialog(dueDateToBox) {
+            @Override
+            public void hide() {
+                super.hide();
+                setDueDateToFilterObjectAndFireEvent();
+            }
+        };
+
+        dueDateToBox.setVisible(false);
+
+        dueDateFromBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dueDateFromPicker.show();
+            }
+        });
+
+        dueDateToBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dueDateToPicker.show();
+            }
+        });
+
+        dueDateCondition.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                if (dueDateCondition.getSelectedIndex() == 4) {
+                    dueDateToBox.setVisible(true);
+                } else {
+                    dueDateToBox.setVisible(false);
+                }
+
+                if (dueDateCondition.getSelectedIndex() == 0) {
+                    dueDateToBox.setVisible(false);
+                    dueDateFromBox.setVisible(false);
+                } else {
+                    dueDateFromBox.setVisible(true);
+                }
+
+                setDueDateToFilterObjectAndFireEvent();
+            }
+        });
+
+
+        dueDateFromBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                setDueDateToFilterObjectAndFireEvent();
+            }
+        });
+
+        dueDateToBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                setDueDateToFilterObjectAndFireEvent();
+            }
+        });
+
+    }
+
+    private void setDueDateToFilterObjectAndFireEvent() {
+        filterObject.setDateCondition(dueDateCondition.getSelectedIndex());
+        filterObject.setDateFrom(parseDate(dueDateFromBox.getText()));
+        filterObject.setDateTo(parseDate(dueDateToBox.getText()));
+
+        MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
+    }
+
+    private Date parseDate(String dateString) {
+        if (dateString == null || "".equals(dateString)) {
+            return null;
+        }
+        try {
+            return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(dateString);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private void initId() {

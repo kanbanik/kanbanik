@@ -19,6 +19,7 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.components.DatePickerDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
@@ -58,8 +59,6 @@ public abstract class AbstractTaskEditingComponent {
     private CheckBox dueDateCheckBox = new CheckBox();
 
     private TextBox dueDateTextBox = new TextBox();
-
-    private DatePicker dueDatePicker = new DatePicker();
 
     private PanelContainingDialog dialog;
 
@@ -158,48 +157,8 @@ public abstract class AbstractTaskEditingComponent {
         return res;
     }
 
-
-    class DatePickerDialog extends DialogBox {
-        public DatePickerDialog() {
-            setText("Due Date");
-            setWidget(dueDatePicker);
-            dueDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-                public void onValueChange(ValueChangeEvent<Date> event) {
-                    Date date = event.getValue();
-                    String dateString = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).format(date);
-                    dueDateTextBox.setText(dateString);
-                    hide();
-                }
-            });
-        }
-
-        @Override
-        public boolean onKeyDownPreview(char key, int modifiers) {
-            switch (key) {
-                case KeyCodes.KEY_ESCAPE:
-                    hide();
-                    break;
-            }
-
-            return true;
-        }
-
-        @Override
-        public void hide() {
-            super.hide();
-            dueDateTextBox.setFocus(true);
-        }
-
-        @Override
-        public void show() {
-            setPopupPosition(dueDateTextBox.getAbsoluteLeft(), dueDateTextBox.getAbsoluteTop() + 30);
-            super.show();
-        }
-    }
-
     private Panel createDueDatePanel() {
-
-        final DialogBox datePickerDialog = new DatePickerDialog();
+        final DialogBox datePickerDialog = new DatePickerDialog(dueDateTextBox);
 
         Panel dueDatePanel = new VerticalPanel();
         dueDatePanel.add(dueDateCheckBox);
