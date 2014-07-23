@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.components.task;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,18 +22,14 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.filter.TaskFilter;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.*;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage.ChangeTaskSelectionParams;
-import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRequestMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.GetSelectedTasksRsponseMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
@@ -72,7 +69,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	HandlerRegistration imageHandle;
 	
 	private TaskDto taskDto;
-	
+
+    private TaskFilter filter;
+
 	private boolean isSelected = false;
 	
 	@UiField 
@@ -87,6 +86,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	
 	private TaskSelectionChangeListener taskSelectionChangeListener = new TaskSelectionChangeListener();
+
+    private TaskFilterChangeListener taskFilterChangeListener = new TaskFilterChangeListener();
 	
 	public interface Style extends CssResource {
 		
@@ -115,6 +116,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		
 		this.taskDto = taskDto;
 		MessageBus.registerListener(TaskEditedMessage.class, this);
+        MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
 		MessageBus.registerListener(TaskChangedMessage.class, this);
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
 		MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
@@ -271,7 +273,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			if (message.getPayload().equals(getDto())) {
 				unregisterListeners();	
 			}
-		}
+        }
 	}
 
 	private void doTaskChanged(Message<TaskDto> message) {
@@ -279,6 +281,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		if (payload.getId().equals(taskDto.getId())) {
 			this.taskDto = payload;
 			setupAccordingDto(payload);
+            reevaluateFilter();
 		}		
 	}
 
@@ -339,7 +342,11 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		if (!MessageBus.listens(TaskEditedMessage.class, this)) {
 			MessageBus.registerListener(TaskEditedMessage.class, this);	
 		}
-		
+
+        if (!MessageBus.listens(TaskFilterChangedMessage.class, taskFilterChangeListener)) {
+			MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+		}
+
 		if (!MessageBus.listens(TaskChangedMessage.class, this)) {
 			MessageBus.registerListener(TaskChangedMessage.class, this);	
 		}
@@ -364,13 +371,40 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	private void unregisterListeners() {
 		MessageBus.unregisterListener(TaskEditedMessage.class, this);
+        MessageBus.unregisterListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
 		MessageBus.unregisterListener(TaskChangedMessage.class, this);
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
 		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
 	}
-	
-	class TaskSelectionChangeListener implements MessageListener<ChangeTaskSelectionParams> {
+
+    class TaskFilterChangeListener implements MessageListener<TaskFilter> {
+
+        @Override
+        public void messageArrived(Message<TaskFilter> message) {
+            if (message.getPayload() == null) {
+                return;
+            }
+
+            filter = message.getPayload();
+
+            reevaluateFilter();
+        }
+    }
+
+    public void reevaluateFilter() {
+        if (filter == null || filter.matches(taskDto)) {
+            this.getElement().getStyle().setDisplay(Display.BLOCK);
+        } else {
+            this.getElement().getStyle().setDisplay(Display.NONE);
+        }
+    }
+
+    public void setFilter(TaskFilter filter) {
+        this.filter = filter;
+    }
+
+    class TaskSelectionChangeListener implements MessageListener<ChangeTaskSelectionParams> {
 
 		@Override
 		public void messageArrived(Message<ChangeTaskSelectionParams> message) {

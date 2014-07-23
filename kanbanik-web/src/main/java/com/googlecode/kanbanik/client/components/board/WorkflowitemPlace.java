@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.filter.TaskFilter;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -34,6 +35,8 @@ public class WorkflowitemPlace extends Composite implements
     @UiField
     TableRowElement nameWithWipLimit;
 
+    private TaskFilter filter;
+
     protected interface Style extends CssResource {
         String visibleHeader();
         String hiddenHeader();
@@ -48,6 +51,8 @@ public class WorkflowitemPlace extends Composite implements
 	private final GetFirstTaskRequestMessageListener getFirstTaskRequestMessageListener = new GetFirstTaskRequestMessageListener();
 
     private final GetTaskByIdRequestMessageListener getTaskByIdRequestMessageListener = new GetTaskByIdRequestMessageListener();
+
+    private TaskFilterChangeListener taskFilterChangeListener = new TaskFilterChangeListener();
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
@@ -85,7 +90,7 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
         MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
-
+        MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
 	}
 
 	private void setupNameWithWipLimit() {
@@ -120,6 +125,8 @@ public class WorkflowitemPlace extends Composite implements
 			TaskGui task = new TaskGui(taskDto, board);
 			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer) contentPanel).add(task);
+            task.setFilter(filter);
+            task.reevaluateFilter();
 		}
 
 	}
@@ -156,6 +163,10 @@ public class WorkflowitemPlace extends Composite implements
 		if (!MessageBus.listens(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener)) {
 			MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
 		}
+
+        if (!MessageBus.listens(TaskFilterChangedMessage.class, taskFilterChangeListener)) {
+			MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+		}
 	}
 
 	public void deactivated() {
@@ -163,6 +174,7 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
         MessageBus.unregisterListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
+        MessageBus.unregisterListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
 	}
 	
 	class GetFirstTaskRequestMessageListener implements MessageListener<Dtos.WorkflowitemDto> {
@@ -201,6 +213,18 @@ public class WorkflowitemPlace extends Composite implements
             if (task != null) {
                 MessageBus.sendMessage(new GetTaskByIdResponseMessage(task, this));
             }
+        }
+    }
+
+    class TaskFilterChangeListener implements MessageListener<TaskFilter> {
+
+        @Override
+        public void messageArrived(Message<TaskFilter> message) {
+            if (message.getPayload() == null) {
+                return;
+            }
+
+            filter = message.getPayload();
         }
     }
 }

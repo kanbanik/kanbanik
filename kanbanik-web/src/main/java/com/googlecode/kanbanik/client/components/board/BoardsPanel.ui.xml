@@ -1,11 +1,16 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:f='urn:import:com.googlecode.kanbanik.client.components.filter'>
 
 	<ui:style>
 		.mainPanel {
 			width:100%; 
 		}
 	</ui:style>
-	<g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}" />
+    <g:FlowPanel>
+        <f:FilterComponent />
+
+        <g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}" />
+    </g:FlowPanel>
 
 </ui:UiBinder>

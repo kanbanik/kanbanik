@@ -1,0 +1,77 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:style>
+
+        .mainContainer {
+            width: 100%;
+        }
+
+        .filterBox {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .filterPartContainer {
+            border: 1px solid black;
+        }
+
+        .filterPart {
+            width: 200px;
+            height: 200px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .filterLabel {
+            font-weight: bold;
+        }
+
+        .substringStyle {
+            width: 190px;
+            height: 185px;
+        }
+
+    </ui:style>
+
+    <g:FlowPanel addStyleNames="{style.mainContainer}">
+        <g:DisclosurePanel ui:field="disclosurePanel">
+            <g:header>Filters</g:header>
+
+            <g:FlowPanel addStyleNames="{style.filterBox}">
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="User" addStyleNames="{style.filterLabel}" />
+                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="userFilter" />
+                 </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
+                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
+                 </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="Short Description Contains" addStyleNames="{style.filterLabel}"/>
+                    <g:FlowPanel addStyleNames="{style.filterPart}">
+                        <g:TextArea ui:field="shortDescriptionArea" addStyleNames="{style.substringStyle}" />
+                    </g:FlowPanel>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="Long Description Contains" addStyleNames="{style.filterLabel}"/>
+                    <g:FlowPanel addStyleNames="{style.filterPart}">
+                        <g:TextArea ui:field="longDescriptionArea" addStyleNames="{style.substringStyle}" />
+                    </g:FlowPanel>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="ID Contains" addStyleNames="{style.filterLabel}"/>
+                    <g:FlowPanel addStyleNames="{style.filterPart}">
+                        <g:TextArea ui:field="idArea" addStyleNames="{style.substringStyle}" />
+                    </g:FlowPanel>
+                </g:FlowPanel>
+            </g:FlowPanel>
+
+        </g:DisclosurePanel>
+    </g:FlowPanel>
+
+</ui:UiBinder>
