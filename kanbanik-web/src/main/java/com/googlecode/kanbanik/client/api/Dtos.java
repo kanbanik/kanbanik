@@ -282,6 +282,65 @@ public class Dtos {
         void setValues(List<BoardWithProjectsDto> values);
     }
 
+    public static interface FilterDataDto {
+        void setFullTextFilter(FullTextMatcherDataDto fullTextFilter);
+        FullTextMatcherDataDto getFullTextFilter();
+
+        void setUsers(List<Dtos.UserDto> users);
+        List<Dtos.UserDto> getUsers();
+
+        void setDueDate(DateMatcherDataDto dueDate);
+        DateMatcherDataDto getDueDate();
+
+        void setClassesOfServices(List<Dtos.ClassOfServiceDto> classesOfServices);
+        List<Dtos.ClassOfServiceDto> getClassesOfServices();
+    }
+
+    public static interface FullTextMatcherDataDto {
+        void setString(String string);
+        String getString();
+
+        void setCaseSensitive(Boolean caseSensitive);
+        Boolean isCaseSensitive();
+
+        void setRegex(Boolean regex);
+        Boolean isRegex();
+
+        void setInverse(Boolean inverse);
+        Boolean isInverse();
+
+        void setFilteredEntities(List<FilteredEntity> filteredEntities);
+        List<FilteredEntity> getFilteredEntities();
+    }
+
+    public static enum FilteredEntity {
+        SHORT_DESCRIPTION(1),
+        LONG_DESCRIPTION(2),
+        TICKET_ID(3);
+
+        private int id;
+
+        public int getId() {
+            return id;
+        }
+
+        private FilteredEntity(int id) {
+            this.id = id;
+        }
+
+    }
+
+    public static interface DateMatcherDataDto {
+        void setDateFrom(String dateFrom);
+        String getDateFrom();
+
+        void setDateTo(String dateTo);
+        String getDateTo();
+
+        void setCondition(Integer condition);
+        Integer getCondition();
+    }
+
     public static interface GetAllBoardsWithProjectsDto extends BaseDto {
         void setIncludeTasks(Boolean includeTasks);
         Boolean isIncludeTasks();

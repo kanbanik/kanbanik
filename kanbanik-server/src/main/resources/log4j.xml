@@ -8,7 +8,7 @@
 	</appender>
 
 	<root>
-		<priority value="ERROR"></priority>
+		<priority value="TRACE"></priority>
 		<appender-ref ref="stdout" />
 	</root>
 

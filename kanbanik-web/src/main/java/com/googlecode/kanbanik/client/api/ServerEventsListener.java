@@ -12,6 +12,7 @@ import org.atmosphere.gwt20.client.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 
 public class ServerEventsListener {
 
@@ -147,7 +148,7 @@ public class ServerEventsListener {
     }
 
     private void initializeAtmosphere() {
-        AtmosphereRequestConfig jsonRequestConfig = AtmosphereRequestConfig.create(new Serializer());
+        final AtmosphereRequestConfig jsonRequestConfig = AtmosphereRequestConfig.create(new Serializer());
 
         jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/eventSource");
         jsonRequestConfig.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
@@ -159,16 +160,25 @@ public class ServerEventsListener {
         jsonRequestConfig.setOpenHandler(new AtmosphereOpenHandler() {
             @Override
             public void onOpen(AtmosphereResponse response) {
-
+                new ErrorDialog("opened").center();
             }
         });
 
         jsonRequestConfig.setCloseHandler(new AtmosphereCloseHandler() {
             @Override
             public void onClose(AtmosphereResponse response) {
-
             }
         });
+
+        jsonRequestConfig.setErrorHandler(new AtmosphereErrorHandler() {
+            @Override
+            public void onError(AtmosphereResponse response) {
+                // error - reconnecting
+                final Atmosphere atmosphere = Atmosphere.create();
+                atmosphere.subscribe(jsonRequestConfig);
+            }
+        });
+
         jsonRequestConfig.setMessageHandler(new AtmosphereMessageHandler() {
             @Override
             public void onMessage(AtmosphereResponse response) {
@@ -186,8 +196,8 @@ public class ServerEventsListener {
         });
 
 
-        Atmosphere atmosphere = Atmosphere.create();
-        final AtmosphereRequest rpcRequest = atmosphere.subscribe(jsonRequestConfig);
+        final Atmosphere atmosphere = Atmosphere.create();
+        atmosphere.subscribe(jsonRequestConfig);
     }
 
 }

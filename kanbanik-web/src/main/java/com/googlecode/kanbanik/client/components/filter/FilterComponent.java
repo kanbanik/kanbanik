@@ -7,11 +7,10 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.datepicker.client.DatePicker;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
@@ -35,14 +34,8 @@ public class FilterComponent extends Composite {
     @UiField
     FlowPanel classOfServiceFilter;
 
-    @UiField
-    TextArea shortDescriptionArea;
-
-    @UiField
-    TextArea longDescriptionArea;
-
-    @UiField
-    TextArea idArea;
+    @UiField(provided = true)
+    FullTextMatcherFilterComponent fullTextFilter;
 
     @UiField
     ListBox dueDateCondition;
@@ -57,23 +50,21 @@ public class FilterComponent extends Composite {
     @UiField
     TextBox dueDateToBox;
 
-    private TaskFilter filterObject;
+    private BoardsFilter filterObject;
 
     public FilterComponent() {
+        fullTextFilter = new FullTextMatcherFilterComponent("Full Text");
+
         initWidget(uiBinder.createAndBindUi(this));
-
-        initShortDescription();
-
-        initLongDescription();
-
-        initId();
 
         initDueDate();
 
         disclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
             @Override
             public void onOpen(OpenEvent<DisclosurePanel> event) {
-                filterObject = new TaskFilter();
+                createFilterObject();
+
+                fullTextFilter.initialize(filterObject, filterObject.getFilterDataDto().getFullTextFilter());
 
                 userFilter.clear();
                 classOfServiceFilter.clear();
@@ -87,8 +78,19 @@ public class FilterComponent extends Composite {
 
     }
 
-    private void initDueDate() {
+    private void createFilterObject() {
+        filterObject = new BoardsFilter();
 
+        Dtos.FilterDataDto filterDataDto = DtoFactory.filterDataDto();
+
+        filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
+        filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
+        filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
+
+        filterObject.setFilterDataDto(filterDataDto);
+    }
+
+    private void initDueDate() {
         dueDateCondition.addItem("-------");
         dueDateCondition.addItem("less than");
         dueDateCondition.addItem("equals");
@@ -167,73 +169,16 @@ public class FilterComponent extends Composite {
     }
 
     private void setDueDateToFilterObjectAndFireEvent() {
-        filterObject.setDateCondition(dueDateCondition.getSelectedIndex());
-        filterObject.setDateFrom(parseDate(dueDateFromBox.getText()));
-        filterObject.setDateTo(parseDate(dueDateToBox.getText()));
+        Dtos.DateMatcherDataDto dueDateMatches = DtoFactory.dateMatcherDataDto();
+        dueDateMatches.setCondition(dueDateCondition.getSelectedIndex());
 
+        dueDateMatches.setDateFrom(dueDateFromBox.getText());
+        dueDateMatches.setDateTo(dueDateToBox.getText());
+        filterObject.getFilterDataDto().setDueDate(dueDateMatches);
         MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
     }
 
-    private Date parseDate(String dateString) {
-        if (dateString == null || "".equals(dateString)) {
-            return null;
-        }
-        try {
-            return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(dateString);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private void initId() {
-        idArea.addKeyUpHandler(new KeyUpHandler() {
-
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                String text = idArea.getText();
-                if ("".equals(text)) {
-                    text = null;
-                }
-
-                filterObject.setId(text);
-                MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
-            }
-        });
-    }
-
-    private void initLongDescription() {
-        longDescriptionArea.addKeyUpHandler(new KeyUpHandler() {
-
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                String text = longDescriptionArea.getText();
-                if ("".equals(text)) {
-                    text = null;
-                }
-
-                filterObject.setLongDescription(text);
-                MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
-            }
-        });
-    }
-
-    private void initShortDescription() {
-        shortDescriptionArea.addKeyUpHandler(new KeyUpHandler() {
-
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                String text = shortDescriptionArea.getText();
-                if ("".equals(text)) {
-                    text = null;
-                }
-
-                filterObject.setShortDescription(text);
-                MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
-            }
-        });
-    }
-
-    private void fillUsers(TaskFilter filterObject) {
+    private void fillUsers(BoardsFilter filterObject) {
         List<Dtos.UserDto> sorted = new ArrayList<Dtos.UserDto>(UsersManager.getInstance().getUsers());
 
         Collections.sort(sorted, new Comparator<Dtos.UserDto>() {
@@ -248,7 +193,7 @@ public class FilterComponent extends Composite {
         }
     }
 
-    private void fillClassOfServices(TaskFilter filterObject) {
+    private void fillClassOfServices(BoardsFilter filterObject) {
         List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAll());
 
         Collections.sort(sorted, new Comparator<Dtos.ClassOfServiceDto>() {
@@ -268,9 +213,9 @@ public class FilterComponent extends Composite {
 
         private T entity;
 
-        private TaskFilter filter;
+        private BoardsFilter filter;
 
-        public FilterCheckBox(T entity, TaskFilter filter) {
+        public FilterCheckBox(T entity, BoardsFilter filter) {
             this.entity = entity;
             this.filter = filter;
 
@@ -295,14 +240,15 @@ public class FilterComponent extends Composite {
             MessageBus.sendMessage(new TaskFilterChangedMessage(filter, this));
         }
 
-        protected abstract void doAdd(T entity, TaskFilter filter);
-        protected abstract void doRemove(T entity, TaskFilter filter);
+        protected abstract void doAdd(T entity, BoardsFilter filter);
+        protected abstract void doRemove(T entity, BoardsFilter filter);
     }
 
     class UserFilterCheckBox extends FilterCheckBox<Dtos.UserDto> {
 
-        public UserFilterCheckBox(Dtos.UserDto entity, TaskFilter filter) {
+        public UserFilterCheckBox(Dtos.UserDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(true);
         }
 
         @Override
@@ -315,20 +261,21 @@ public class FilterComponent extends Composite {
         }
 
         @Override
-        protected void doAdd(Dtos.UserDto entity, TaskFilter filter) {
+        protected void doAdd(Dtos.UserDto entity, BoardsFilter filter) {
             filter.add(entity);
         }
 
         @Override
-        protected void doRemove(Dtos.UserDto entity, TaskFilter filter) {
+        protected void doRemove(Dtos.UserDto entity, BoardsFilter filter) {
             filter.remove(entity);
         }
     }
 
     class ClassOfServiceFilterCheckBox extends FilterCheckBox<Dtos.ClassOfServiceDto> {
 
-        public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity, TaskFilter filter) {
+        public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(true);
         }
 
         @Override
@@ -337,12 +284,12 @@ public class FilterComponent extends Composite {
         }
 
         @Override
-        protected void doAdd(Dtos.ClassOfServiceDto entity, TaskFilter filter) {
+        protected void doAdd(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             filter.add(entity);
         }
 
         @Override
-        protected void doRemove(Dtos.ClassOfServiceDto entity, TaskFilter filter) {
+        protected void doRemove(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             filter.remove(entity);
         }
     }

@@ -3,7 +3,6 @@ package com.googlecode.kanbanik.client.components.task;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -22,7 +21,7 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.components.filter.TaskFilter;
+import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
@@ -70,7 +69,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	
 	private TaskDto taskDto;
 
-    private TaskFilter filter;
+    private BoardsFilter filter;
 
 	private boolean isSelected = false;
 	
@@ -378,10 +377,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
 	}
 
-    class TaskFilterChangeListener implements MessageListener<TaskFilter> {
+    class TaskFilterChangeListener implements MessageListener<BoardsFilter> {
 
         @Override
-        public void messageArrived(Message<TaskFilter> message) {
+        public void messageArrived(Message<BoardsFilter> message) {
             if (message.getPayload() == null) {
                 return;
             }
@@ -400,7 +399,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
         }
     }
 
-    public void setFilter(TaskFilter filter) {
+    public void setFilter(BoardsFilter filter) {
         this.filter = filter;
     }
 

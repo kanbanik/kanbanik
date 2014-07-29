@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:f='urn:import:com.googlecode.kanbanik.client.components.filter'
         >
 
     <ui:style>
@@ -10,7 +11,8 @@
 
         .filterBox {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            width: 100%;
         }
 
         .filterPartContainer {
@@ -48,27 +50,11 @@
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
                     <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
-                 </g:FlowPanel>
-
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Short Description Contains" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}">
-                        <g:TextArea ui:field="shortDescriptionArea" addStyleNames="{style.substringStyle}" />
-                    </g:FlowPanel>
                 </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Long Description Contains" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}">
-                        <g:TextArea ui:field="longDescriptionArea" addStyleNames="{style.substringStyle}" />
-                    </g:FlowPanel>
-                </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="ID Contains" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}">
-                        <g:TextArea ui:field="idArea" addStyleNames="{style.substringStyle}" />
-                    </g:FlowPanel>
+                    <f:FullTextMatcherFilterComponent ui:field="fullTextFilter"/>
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">

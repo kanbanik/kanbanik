@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.components.filter.TaskFilter;
+import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -35,7 +35,7 @@ public class WorkflowitemPlace extends Composite implements
     @UiField
     TableRowElement nameWithWipLimit;
 
-    private TaskFilter filter;
+    private BoardsFilter filter;
 
     protected interface Style extends CssResource {
         String visibleHeader();
@@ -216,10 +216,10 @@ public class WorkflowitemPlace extends Composite implements
         }
     }
 
-    class TaskFilterChangeListener implements MessageListener<TaskFilter> {
+    class TaskFilterChangeListener implements MessageListener<BoardsFilter> {
 
         @Override
-        public void messageArrived(Message<TaskFilter> message) {
+        public void messageArrived(Message<BoardsFilter> message) {
             if (message.getPayload() == null) {
                 return;
             }

@@ -58,11 +58,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>kanbanikEvents</servlet-name>
-        <servlet-class>com.googlecode.kanbanik.push.KanbanikEvents</servlet-class>
-    </servlet>
-
-    <servlet>
         <description>AtmosphereServlet</description>
         <servlet-name>AtmosphereServlet</servlet-name>
         <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
@@ -73,6 +68,10 @@
             <param-value>com.googlecode.kanbanik.push</param-value>
         </init-param>
 
+	    <init-param>
+            <param-name>org.atmosphere.cpr.AtmosphereInterceptor</param-name>
+            <param-value>org.atmosphere.interceptor.HeartbeatInterceptor</param-value>
+        </init-param>	
     </servlet>
 
     <servlet-mapping>

@@ -62,6 +62,12 @@ public class DtoFactory {
 
         AutoBean<Dtos.EventDto> eventDto();
 
+        AutoBean<Dtos.FilterDataDto> filterDataDto();
+
+        AutoBean<Dtos.FullTextMatcherDataDto> fullTextMatcherDataDto();
+
+        AutoBean<Dtos.DateMatcherDataDto> dateMatcherDataDto();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -192,6 +198,18 @@ public class DtoFactory {
 
     public static Dtos.EmptyDto emptyDto() {
         return factory.emptyDto().as();
+    }
+
+    public static Dtos.FilterDataDto filterDataDto() {
+        return factory.filterDataDto().as();
+    }
+
+    public static Dtos.FullTextMatcherDataDto fullTextMatcherDataDto() {
+        return factory.fullTextMatcherDataDto().as();
+    }
+
+    public static Dtos.DateMatcherDataDto dateMatcherDataDto() {
+        return factory.dateMatcherDataDto().as();
     }
 
     public static <T> T asDto(Class<T> clazz, String json) {
