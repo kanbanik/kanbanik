@@ -115,7 +115,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		
 		this.taskDto = taskDto;
 		MessageBus.registerListener(TaskEditedMessage.class, this);
-        MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        MessageBus.registerListener(FilterChangedMessage.class, taskFilterChangeListener);
 		MessageBus.registerListener(TaskChangedMessage.class, this);
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
 		MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
@@ -342,8 +342,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			MessageBus.registerListener(TaskEditedMessage.class, this);	
 		}
 
-        if (!MessageBus.listens(TaskFilterChangedMessage.class, taskFilterChangeListener)) {
-			MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        if (!MessageBus.listens(FilterChangedMessage.class, taskFilterChangeListener)) {
+			MessageBus.registerListener(FilterChangedMessage.class, taskFilterChangeListener);
 		}
 
 		if (!MessageBus.listens(TaskChangedMessage.class, this)) {
@@ -370,7 +370,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	private void unregisterListeners() {
 		MessageBus.unregisterListener(TaskEditedMessage.class, this);
-        MessageBus.unregisterListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        MessageBus.unregisterListener(FilterChangedMessage.class, taskFilterChangeListener);
 		MessageBus.unregisterListener(TaskChangedMessage.class, this);
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);

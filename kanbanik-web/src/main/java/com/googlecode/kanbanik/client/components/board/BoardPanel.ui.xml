@@ -20,7 +20,6 @@
 	<g:FlowPanel addStyleNames="{style.boardStyle}">
 		<g:FlowPanel addStyleNames="{style.boardLabelStyle}">
 			<g:Label ui:field="boardName"/>
-            <g:PushButton ui:field="someButton"/>
 		</g:FlowPanel>
 		<g:Panel ui:field="projects"/>
 	</g:FlowPanel>

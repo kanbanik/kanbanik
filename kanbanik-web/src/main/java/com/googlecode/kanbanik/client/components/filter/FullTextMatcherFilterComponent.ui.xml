@@ -5,51 +5,77 @@
     <ui:style>
 
         .filterBox {
-        display: flex;
-        flex-direction: row;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
         }
 
         .filterPartContainer {
-        border: 1px solid black;
+            margin-right: 3px;
         }
 
         .filterPart {
-        width: 200px;
-        height: 200px;
-        overflow-x: hidden;
-        overflow-y: auto;
+            width: 200px;
+            height: 200px;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .filterLabel {
-        font-weight: bold;
+            font-weight: bold;
+            float: left;
+        }
+
+        .regexIncorrectLabel {
+            font-weight: bold;
+            color: red;
         }
 
         .substringStyle {
-        width: 190px;
-        height: 185px;
+            width: 190px;
+            height: 185px;
+        }
+
+        .filterInclude {
+            display: flex;
+            flex-direction: column;
+            margin-right: 3px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: row;
         }
 
     </ui:style>
 
     <g:FlowPanel addStyleNames="{style.filterBox}">
-        <g:FlowPanel>
-            <g:Label text="Include" />
 
-            <g:CheckBox ui:field="ticketId"/>
-            <g:CheckBox ui:field="shortDescription"/>
-            <g:CheckBox ui:field="longDescription"/>
-
+        <g:FlowPanel addStyleNames="{style.header}">
+            <g:Label ui:field="mainLabel" addStyleNames="{style.filterLabel}"/>
+            <g:Label ui:field="regexIncorrectLabel" addStyleNames="{style.regexIncorrectLabel}"/>
         </g:FlowPanel>
 
-        <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-            <g:Label ui:field="mainLabel" addStyleNames="{style.filterLabel}"/>
+        <g:FlowPanel addStyleNames="{style.content}">
+            <g:FlowPanel addStyleNames="{style.filterInclude}">
+                <g:CheckBox ui:field="ticketId"/>
+                <g:CheckBox ui:field="shortDescription"/>
+                <g:CheckBox ui:field="longDescription"/>
 
-            <g:CheckBox ui:field="caseSensitive"/>
-            <g:CheckBox ui:field="inverse"/>
-            <g:CheckBox ui:field="regex"/>
+            </g:FlowPanel>
 
-            <g:FlowPanel addStyleNames="{style.filterPart}">
-                <g:TextArea ui:field="textArea" addStyleNames="{style.substringStyle}" />
+            <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                <g:CheckBox ui:field="caseSensitive"/>
+                <g:CheckBox ui:field="inverse"/>
+                <g:CheckBox ui:field="regex"/>
+
+                <g:FlowPanel addStyleNames="{style.filterPart}">
+                    <g:TextArea ui:field="textArea" addStyleNames="{style.substringStyle}" />
+                </g:FlowPanel>
             </g:FlowPanel>
         </g:FlowPanel>
 

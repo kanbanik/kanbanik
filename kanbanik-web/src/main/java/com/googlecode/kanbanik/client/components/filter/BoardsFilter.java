@@ -52,7 +52,7 @@ public class BoardsFilter {
             return false;
         }
 
-        boolean classOfServiceMatches = filterDataDto.getClassesOfServices().isEmpty() || (task.getClassOfService() != null && findById(task.getClassOfService()) != -1);
+        boolean classOfServiceMatches = (task.getClassOfService() != null && findById(task.getClassOfService()) != -1);
         if (!classOfServiceMatches) {
             return false;
         }
@@ -148,8 +148,8 @@ public class BoardsFilter {
                 RegExp regExp = RegExp.compile(expected);
                 matches = regExp.exec(actual) != null;
             } catch (Exception e) {
-                // incorrect regex - not matches
-                matches = false;
+                // incorrect regex - ignore it and show it
+                matches = true;
             }
         } else {
             if (!pattern.isCaseSensitive()) {
@@ -160,6 +160,20 @@ public class BoardsFilter {
         }
 
         return pattern.isInverse() ? !matches : matches;
+    }
+
+    public void add(Dtos.BoardDto boardDto) {
+        int id = findById(boardDto);
+        if (id == -1) {
+            filterDataDto.getBoards().add(boardDto);
+        }
+    }
+
+    public void remove(Dtos.BoardDto boardDto) {
+        int id = findById(boardDto);
+        if (id != -1) {
+            filterDataDto.getBoards().remove(id);
+        }
     }
 
     public void add(Dtos.ClassOfServiceDto classOfServiceDto) {
@@ -188,6 +202,20 @@ public class BoardsFilter {
         if (id != -1) {
             filterDataDto.getUsers().remove(id);
         }
+    }
+
+    private int findById(Dtos.BoardDto boardDto) {
+        int id = 0;
+
+        for (Dtos.BoardDto candidate : filterDataDto.getBoards()) {
+            if (candidate.getId().equals(boardDto.getId())) {
+                return id;
+            }
+
+            id ++;
+        }
+
+        return -1;
     }
 
     private int findById(Dtos.UserDto userDto) {

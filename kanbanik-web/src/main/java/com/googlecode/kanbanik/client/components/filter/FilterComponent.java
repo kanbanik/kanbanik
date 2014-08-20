@@ -15,8 +15,12 @@ import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
+import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskFilterChangedMessage;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 
 import java.util.*;
 
@@ -33,6 +37,9 @@ public class FilterComponent extends Composite {
 
     @UiField
     FlowPanel classOfServiceFilter;
+
+    @UiField
+    FlowPanel boardFilter;
 
     @UiField(provided = true)
     FullTextMatcherFilterComponent fullTextFilter;
@@ -53,7 +60,7 @@ public class FilterComponent extends Composite {
     private BoardsFilter filterObject;
 
     public FilterComponent() {
-        fullTextFilter = new FullTextMatcherFilterComponent("Full Text");
+        fullTextFilter = new FullTextMatcherFilterComponent("Textual");
 
         initWidget(uiBinder.createAndBindUi(this));
 
@@ -68,9 +75,11 @@ public class FilterComponent extends Composite {
 
                 userFilter.clear();
                 classOfServiceFilter.clear();
+                boardFilter.clear();
 
                 fillUsers(filterObject);
                 fillClassOfServices(filterObject);
+                fillBoards(filterObject);
 
             }
 
@@ -86,6 +95,7 @@ public class FilterComponent extends Composite {
         filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
         filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
         filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
+        filterDataDto.setBoards(new ArrayList<Dtos.BoardDto>());
 
         filterObject.setFilterDataDto(filterDataDto);
     }
@@ -175,7 +185,7 @@ public class FilterComponent extends Composite {
         dueDateMatches.setDateFrom(dueDateFromBox.getText());
         dueDateMatches.setDateTo(dueDateToBox.getText());
         filterObject.getFilterDataDto().setDueDate(dueDateMatches);
-        MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
+        MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
     }
 
     private void fillUsers(BoardsFilter filterObject) {
@@ -203,9 +213,52 @@ public class FilterComponent extends Composite {
             }
         });
 
+
+        sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
+
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
             classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
+        }
+    }
 
+    private BoardsCollector boardsCollector = new BoardsCollector();
+
+    private void fillBoards(BoardsFilter filterObject) {
+
+        MessageBus.unregisterListener(GetAllBoardsResponseMessage.class, boardsCollector);
+        MessageBus.registerListener(GetAllBoardsResponseMessage.class, boardsCollector);
+        boardsCollector.init();
+        MessageBus.sendMessage(new GetAllBoardsRequestMessage(null, this));
+
+        List<Dtos.BoardDto> boards = boardsCollector.getBoards();
+
+        Collections.sort(boards, new Comparator<Dtos.BoardDto>() {
+            @Override
+            public int compare(Dtos.BoardDto b1, Dtos.BoardDto b2) {
+                return b1.getName().compareTo(b2.getName());
+            }
+        });
+
+        for (Dtos.BoardDto board : boards) {
+            boardFilter.add(new BoardsFilterCheckBox(board, filterObject));
+        }
+    }
+
+    class BoardsCollector implements MessageListener<Dtos.BoardDto> {
+
+        private List<Dtos.BoardDto> boards;
+
+        @Override
+        public void messageArrived(Message<Dtos.BoardDto> message) {
+            boards.add(message.getPayload());
+        }
+
+        public void init() {
+            boards = new ArrayList<Dtos.BoardDto>();
+        }
+
+        public List<Dtos.BoardDto> getBoards() {
+            return boards;
         }
     }
 
@@ -216,6 +269,7 @@ public class FilterComponent extends Composite {
         private BoardsFilter filter;
 
         public FilterCheckBox(T entity, BoardsFilter filter) {
+            setValue(true);
             this.entity = entity;
             this.filter = filter;
 
@@ -225,6 +279,7 @@ public class FilterComponent extends Composite {
             addValueChangeHandler(this);
 
             setText(provideText(entity));
+            doAdd(entity, filter);
         }
 
         protected abstract String provideText(T entity);
@@ -237,7 +292,7 @@ public class FilterComponent extends Composite {
                 doRemove(entity, filter);
             }
 
-            MessageBus.sendMessage(new TaskFilterChangedMessage(filter, this));
+            MessageBus.sendMessage(new FilterChangedMessage(filter, this));
         }
 
         protected abstract void doAdd(T entity, BoardsFilter filter);
@@ -248,7 +303,6 @@ public class FilterComponent extends Composite {
 
         public UserFilterCheckBox(Dtos.UserDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(true);
         }
 
         @Override
@@ -271,11 +325,32 @@ public class FilterComponent extends Composite {
         }
     }
 
+    class BoardsFilterCheckBox extends FilterCheckBox<Dtos.BoardDto> {
+
+        public BoardsFilterCheckBox(Dtos.BoardDto entity, BoardsFilter filter) {
+            super(entity, filter);
+        }
+
+        @Override
+        protected String provideText(Dtos.BoardDto entity) {
+            return entity.getName();
+        }
+
+        @Override
+        protected void doAdd(Dtos.BoardDto entity, BoardsFilter filter) {
+            filter.add(entity);
+        }
+
+        @Override
+        protected void doRemove(Dtos.BoardDto entity, BoardsFilter filter) {
+            filter.remove(entity);
+        }
+    }
+
     class ClassOfServiceFilterCheckBox extends FilterCheckBox<Dtos.ClassOfServiceDto> {
 
         public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(true);
         }
 
         @Override

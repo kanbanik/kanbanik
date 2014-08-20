@@ -5,12 +5,13 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskFilterChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,9 @@ public class FullTextMatcherFilterComponent extends Composite {
 
     @UiField
     Label mainLabel;
+
+    @UiField
+    Label regexIncorrectLabel;
 
     @UiField
     CheckBox caseSensitive;
@@ -105,6 +109,25 @@ public class FullTextMatcherFilterComponent extends Composite {
                 string = null;
             }
 
+            if (regex.getValue()) {
+                caseSensitive.setValue(false);
+                caseSensitive.setEnabled(false);
+                caseSensitive.setTitle("Not possible to set when regex is enabled.");
+
+                try {
+                    RegExp.compile(string);
+                } catch (Exception e) {
+                    // incorrect regex - let the user know and do not confuse him why is it not working
+                    regexIncorrectLabel.setText(" The provided regex is not correct");
+                    return;
+                }
+            } else {
+                caseSensitive.setEnabled(true);
+                caseSensitive.setTitle("");
+            }
+
+            regexIncorrectLabel.setText("");
+
             fullTextMatcherDataDto.setString(string);
             fullTextMatcherDataDto.setCaseSensitive(caseSensitive.getValue());
             fullTextMatcherDataDto.setInverse(inverse.getValue());
@@ -126,7 +149,7 @@ public class FullTextMatcherFilterComponent extends Composite {
 
             fullTextMatcherDataDto.setFilteredEntities(filteredEntities);
 
-            MessageBus.sendMessage(new TaskFilterChangedMessage(filterObject, this));
+            MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
         }
     }
 

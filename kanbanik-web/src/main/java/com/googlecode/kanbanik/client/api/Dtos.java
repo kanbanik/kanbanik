@@ -294,6 +294,9 @@ public class Dtos {
 
         void setClassesOfServices(List<Dtos.ClassOfServiceDto> classesOfServices);
         List<Dtos.ClassOfServiceDto> getClassesOfServices();
+
+        void setBoards(List<BoardDto> boards);
+        List<BoardDto> getBoards();
     }
 
     public static interface FullTextMatcherDataDto {

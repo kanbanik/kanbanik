@@ -90,7 +90,7 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
         MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
-        MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        MessageBus.registerListener(FilterChangedMessage.class, taskFilterChangeListener);
 	}
 
 	private void setupNameWithWipLimit() {
@@ -164,8 +164,8 @@ public class WorkflowitemPlace extends Composite implements
 			MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
 		}
 
-        if (!MessageBus.listens(TaskFilterChangedMessage.class, taskFilterChangeListener)) {
-			MessageBus.registerListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        if (!MessageBus.listens(FilterChangedMessage.class, taskFilterChangeListener)) {
+			MessageBus.registerListener(FilterChangedMessage.class, taskFilterChangeListener);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class WorkflowitemPlace extends Composite implements
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
         MessageBus.unregisterListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
-        MessageBus.unregisterListener(TaskFilterChangedMessage.class, taskFilterChangeListener);
+        MessageBus.unregisterListener(FilterChangedMessage.class, taskFilterChangeListener);
 	}
 	
 	class GetFirstTaskRequestMessageListener implements MessageListener<Dtos.WorkflowitemDto> {

@@ -8,7 +8,8 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class BoardsPanel extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, BoardsPanel> {
+
+    interface MyUiBinder extends UiBinder<Widget, BoardsPanel> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -23,4 +24,6 @@ public class BoardsPanel extends Composite {
 	public void addBoard(Composite board) {
 		boardPanel.add(board);
 	}
+
+
 }

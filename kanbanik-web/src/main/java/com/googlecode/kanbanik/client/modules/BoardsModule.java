@@ -92,7 +92,8 @@ public class BoardsModule {
 			} else {
 				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
 			}
-			panel.addBoard(new BoardPanel(board.getName(), panelWithDraggabls));
+
+			panel.addBoard(new BoardPanel(panelWithDraggabls, board));
 
 		}
 	}
