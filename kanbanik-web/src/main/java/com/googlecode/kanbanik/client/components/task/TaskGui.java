@@ -392,7 +392,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
     }
 
     public void reevaluateFilter() {
-        if (filter == null || filter.matches(taskDto)) {
+        if (filter == null || filter.taskMatches(taskDto)) {
             this.getElement().getStyle().setDisplay(Display.BLOCK);
         } else {
             this.getElement().getStyle().setDisplay(Display.NONE);

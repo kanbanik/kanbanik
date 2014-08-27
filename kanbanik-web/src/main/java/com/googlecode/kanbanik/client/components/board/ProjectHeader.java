@@ -9,12 +9,26 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.components.task.TaskAddingComponent;
+import com.googlecode.kanbanik.client.messaging.Message;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
-public class ProjectHeader extends Composite {
+import java.util.ArrayList;
+import java.util.List;
 
-	interface MyUiBinder extends UiBinder<Widget, ProjectHeader> {
+public class ProjectHeader extends Composite implements ModulesLifecycleListener, MessageListener<Dtos.ProjectDto> {
+
+    interface MyUiBinder extends UiBinder<Widget, ProjectHeader> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -24,9 +38,17 @@ public class ProjectHeader extends Composite {
 	
 	@UiField
 	PushButton addButton;
-	
+
+    private Dtos.BoardDto board;
+
+    private Dtos.ProjectDto project;
+
+    private FilterChangedListener filterChangedListener = new FilterChangedListener();
+
 	public ProjectHeader(Dtos.BoardDto board, Dtos.ProjectDto project) {
-		initWidget(uiBinder.createAndBindUi(this));
+        this.board = board;
+        this.project = project;
+        initWidget(uiBinder.createAndBindUi(this));
 
 		projectName.setText(project.getName());
 		Dtos.WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
@@ -41,6 +63,11 @@ public class ProjectHeader extends Composite {
 		}
 		
 		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
+
+        MessageBus.registerListener(GetAllProjectsRequestMessage.class, this);
+        MessageBus.registerListener(FilterChangedMessage.class, filterChangedListener);
+
+        new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 
 	
@@ -56,5 +83,43 @@ public class ProjectHeader extends Composite {
 			return getInputQueue(root.getNestedWorkflow().getWorkflowitems().get(0));
 		}
 	}
+
+    @Override
+    public void activated() {
+        if (!MessageBus.listens(GetAllProjectsRequestMessage.class, this)) {
+            MessageBus.registerListener(GetAllProjectsRequestMessage.class, this);
+        }
+
+        if (!MessageBus.listens(FilterChangedMessage.class, filterChangedListener)) {
+            MessageBus.registerListener(FilterChangedMessage.class, filterChangedListener);
+        }
+
+    }
+
+    @Override
+    public void deactivated() {
+        MessageBus.unregisterListener(GetAllProjectsRequestMessage.class, this);
+        MessageBus.unregisterListener(FilterChangedMessage.class, filterChangedListener);
+    }
+
+    @Override
+    public void messageArrived(Message<Dtos.ProjectDto> message) {
+        Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
+        boardWithProjectsDto.setBoard(board);
+        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        projects.add(project);
+        boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
+
+        MessageBus.sendMessage(new GetAllProjectsResponseMessage(boardWithProjectsDto, this));
+    }
+
+    class FilterChangedListener implements MessageListener<BoardsFilter> {
+
+        @Override
+        public void messageArrived(Message<BoardsFilter> message) {
+            boolean visible = message.getPayload().projectOnBoardMatches(project, board);
+            setVisible(visible);
+        }
+    }
 	
 }

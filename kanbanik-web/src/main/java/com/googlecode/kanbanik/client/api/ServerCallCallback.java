@@ -21,7 +21,6 @@ public abstract class ServerCallCallback<T> {
 
     public void onUserNotLoggedIn(Dtos.ErrorDto errorDto) {
         KanbanikProgressBar.hide();
-        new ErrorDialog("You are no longer logged in").show();
         CurrentUser.getInstance().logoutFrontend();
     }
 

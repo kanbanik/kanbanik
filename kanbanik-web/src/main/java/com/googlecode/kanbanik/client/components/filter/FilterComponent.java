@@ -20,6 +20,8 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 
 import java.util.*;
@@ -40,6 +42,9 @@ public class FilterComponent extends Composite {
 
     @UiField
     FlowPanel boardFilter;
+
+    @UiField
+    FlowPanel projectOnBoardFilter;
 
     @UiField(provided = true)
     FullTextMatcherFilterComponent fullTextFilter;
@@ -76,10 +81,12 @@ public class FilterComponent extends Composite {
                 userFilter.clear();
                 classOfServiceFilter.clear();
                 boardFilter.clear();
+                projectOnBoardFilter.clear();
 
                 fillUsers(filterObject);
                 fillClassOfServices(filterObject);
                 fillBoards(filterObject);
+                fillProjectsOnBoards(filterObject);
 
             }
 
@@ -96,6 +103,7 @@ public class FilterComponent extends Composite {
         filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
         filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
         filterDataDto.setBoards(new ArrayList<Dtos.BoardDto>());
+        filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsDto>());
 
         filterObject.setFilterDataDto(filterDataDto);
     }
@@ -221,7 +229,7 @@ public class FilterComponent extends Composite {
         }
     }
 
-    private BoardsCollector boardsCollector = new BoardsCollector();
+    private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
 
     private void fillBoards(BoardsFilter filterObject) {
 
@@ -230,7 +238,7 @@ public class FilterComponent extends Composite {
         boardsCollector.init();
         MessageBus.sendMessage(new GetAllBoardsRequestMessage(null, this));
 
-        List<Dtos.BoardDto> boards = boardsCollector.getBoards();
+        List<Dtos.BoardDto> boards = boardsCollector.getData();
 
         Collections.sort(boards, new Comparator<Dtos.BoardDto>() {
             @Override
@@ -244,21 +252,43 @@ public class FilterComponent extends Composite {
         }
     }
 
-    class BoardsCollector implements MessageListener<Dtos.BoardDto> {
+    private DataCollector<Dtos.BoardWithProjectsDto> projectsOnBoardsCollector = new DataCollector<Dtos.BoardWithProjectsDto>();
 
-        private List<Dtos.BoardDto> boards;
+    private void fillProjectsOnBoards(BoardsFilter filterObject) {
+        MessageBus.unregisterListener(GetAllProjectsResponseMessage.class, projectsOnBoardsCollector);
+        MessageBus.registerListener(GetAllProjectsResponseMessage.class, projectsOnBoardsCollector);
+        projectsOnBoardsCollector.init();
+        MessageBus.sendMessage(new GetAllProjectsRequestMessage(null, this));
+
+        List<Dtos.BoardWithProjectsDto> boardsWithProjectsDtos = projectsOnBoardsCollector.getData();
+
+        Collections.sort(boardsWithProjectsDtos, new Comparator<Dtos.BoardWithProjectsDto>() {
+            @Override
+            public int compare(Dtos.BoardWithProjectsDto b1, Dtos.BoardWithProjectsDto b2) {
+                return b1.getProjectsOnBoard().getValues().get(0).getName().compareTo(b2.getProjectsOnBoard().getValues().get(0).getName());
+            }
+        });
+
+        for (Dtos.BoardWithProjectsDto boardWithProjectDtos : boardsWithProjectsDtos) {
+            projectOnBoardFilter.add(new ProjectOnBoardFilterCheckBox(boardWithProjectDtos, filterObject));
+        }
+     }
+
+    class DataCollector<T> implements MessageListener<T> {
+
+        private List<T> data;
 
         @Override
-        public void messageArrived(Message<Dtos.BoardDto> message) {
-            boards.add(message.getPayload());
+        public void messageArrived(Message<T> message) {
+            data.add(message.getPayload());
         }
 
         public void init() {
-            boards = new ArrayList<Dtos.BoardDto>();
+            data = new ArrayList<T>();
         }
 
-        public List<Dtos.BoardDto> getBoards() {
-            return boards;
+        public List<T> getData() {
+            return data;
         }
     }
 
@@ -343,6 +373,28 @@ public class FilterComponent extends Composite {
 
         @Override
         protected void doRemove(Dtos.BoardDto entity, BoardsFilter filter) {
+            filter.remove(entity);
+        }
+    }
+
+    class ProjectOnBoardFilterCheckBox extends FilterCheckBox<Dtos.BoardWithProjectsDto> {
+
+        public ProjectOnBoardFilterCheckBox(Dtos.BoardWithProjectsDto entity, BoardsFilter filter) {
+            super(entity, filter);
+        }
+
+        @Override
+        protected String provideText(Dtos.BoardWithProjectsDto entity) {
+            return entity.getProjectsOnBoard().getValues().get(0).getName() + "(" + entity.getBoard().getName() + ")";
+        }
+
+        @Override
+        protected void doAdd(Dtos.BoardWithProjectsDto entity, BoardsFilter filter) {
+            filter.add(entity);
+        }
+
+        @Override
+        protected void doRemove(Dtos.BoardWithProjectsDto entity, BoardsFilter filter) {
             filter.remove(entity);
         }
     }

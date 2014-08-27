@@ -3,8 +3,10 @@ package com.googlecode.kanbanik.client.components.filter;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class BoardsFilter {
 
     private Dtos.FilterDataDto filterDataDto;
 
-    public boolean matches(Dtos.TaskDto task) {
+    public boolean taskMatches(Dtos.TaskDto task) {
 
         List<Dtos.FilteredEntity> filteredEntities = filterDataDto.getFullTextFilter().getFilteredEntities();
 
@@ -204,6 +206,20 @@ public class BoardsFilter {
         }
     }
 
+    public void add(Dtos.BoardWithProjectsDto entity) {
+        int id = findById(entity);
+        if (id == -1) {
+            filterDataDto.getBoardWithProjectsDto().add(entity);
+        }
+    }
+
+    public void remove(Dtos.BoardWithProjectsDto entity) {
+        int id = findById(entity);
+        if (id != -1) {
+            filterDataDto.getBoardWithProjectsDto().remove(id);
+        }
+    }
+
     private int findById(Dtos.BoardDto boardDto) {
         int id = 0;
 
@@ -236,7 +252,13 @@ public class BoardsFilter {
         int id = 0;
 
         for (Dtos.ClassOfServiceDto candidate : filterDataDto.getClassesOfServices()) {
-            if (candidate.getId().equals(classOfServiceDto.getId())) {
+            if (candidate.getId() == null && classOfServiceDto.getId() == null) {
+                return id;
+            }
+
+            if (
+                    candidate.getId() != null && classOfServiceDto.getId() != null &&
+                    candidate.getId().equals(classOfServiceDto.getId())) {
                 return id;
             }
 
@@ -246,6 +268,34 @@ public class BoardsFilter {
         return -1;
     }
 
+    private int findById(Dtos.BoardWithProjectsDto boardWithProjectsDto) {
+        int id = 0;
+
+        String boardId = boardWithProjectsDto.getBoard().getId();
+        String projectId = boardWithProjectsDto.getProjectsOnBoard().getValues().get(0).getId();
+
+        for (Dtos.BoardWithProjectsDto candidate : filterDataDto.getBoardWithProjectsDto()) {
+            if (candidate.getBoard().getId().equals(boardId) &&
+                candidate.getProjectsOnBoard().getValues().get(0).getId().equals(projectId)
+            ) {
+                return id;
+            }
+
+            id ++;
+        }
+
+        return -1;
+    }
+
+    public boolean projectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
+        Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
+        boardWithProjectsDto.setBoard(boardDto);
+        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        projects.add(projectDto);
+        boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
+
+        return findById(boardWithProjectsDto) != -1;
+    }
 
     public Dtos.FilterDataDto getFilterDataDto() {
         return filterDataDto;
@@ -254,4 +304,5 @@ public class BoardsFilter {
     public void setFilterDataDto(Dtos.FilterDataDto filterDataDto) {
         this.filterDataDto = filterDataDto;
     }
+
 }

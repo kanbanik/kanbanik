@@ -114,7 +114,7 @@ public class BoardsModule {
 		int row = 0;
 		for (Dtos.ProjectDto project : projectsOnBoard) {
 			boardTable.setWidget(row, 0, new ProjectHeader(board, project));
-			FlexTable projectTable = new FlexTable();
+			FlexTable projectTable = new ProjectGui(board, project);
 			projectTable.setStyleName(style.board());
 			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
 			if (hasWorkflow) {

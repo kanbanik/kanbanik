@@ -297,6 +297,9 @@ public class Dtos {
 
         void setBoards(List<BoardDto> boards);
         List<BoardDto> getBoards();
+
+        void setBoardWithProjectsDto(List<BoardWithProjectsDto> boardWithProjectsDto);
+        List<BoardWithProjectsDto> getBoardWithProjectsDto();
     }
 
     public static interface FullTextMatcherDataDto {
