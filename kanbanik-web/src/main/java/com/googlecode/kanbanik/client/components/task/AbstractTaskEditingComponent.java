@@ -97,7 +97,7 @@ public abstract class AbstractTaskEditingComponent {
         header.setWidget(0, 1, ticketId);
 
         taskName.setWidth("190px");
-        taskName.setHeight("50px");
+        taskName.setHeight("120px");
         taskName.getElement().getStyle().setProperty("resize", "vertical");
         header.setWidget(1, 0, new Label("Short Description"));
         header.setWidget(1, 1, taskName);
