@@ -69,12 +69,10 @@ public class FilterComponent extends Composite {
 
         initWidget(uiBinder.createAndBindUi(this));
 
-        initDueDate();
-
         disclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
             @Override
             public void onOpen(OpenEvent<DisclosurePanel> event) {
-                createFilterObject();
+                boolean loaded = createFilterObject();
 
                 fullTextFilter.initialize(filterObject, filterObject.getFilterDataDto().getFullTextFilter());
 
@@ -83,10 +81,11 @@ public class FilterComponent extends Composite {
                 boardFilter.clear();
                 projectOnBoardFilter.clear();
 
-                fillUsers(filterObject);
-                fillClassOfServices(filterObject);
-                fillBoards(filterObject);
-                fillProjectsOnBoards(filterObject);
+                fillUsers(filterObject, loaded);
+                fillClassOfServices(filterObject, loaded);
+                fillBoards(filterObject, loaded);
+                fillProjectsOnBoards(filterObject, loaded);
+                initDueDate(filterObject);
 
             }
 
@@ -94,29 +93,58 @@ public class FilterComponent extends Composite {
 
     }
 
-    private void createFilterObject() {
+    private boolean createFilterObject() {
+        boolean loaded = true;
+
         filterObject = new BoardsFilter();
+        Dtos.FilterDataDto filterDataDto = filterObject.loadFilterData();
 
-        Dtos.FilterDataDto filterDataDto = DtoFactory.filterDataDto();
+        if (filterDataDto == null) {
+            filterDataDto = DtoFactory.filterDataDto();
 
-        filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
-        filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
-        filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
-        filterDataDto.setBoards(new ArrayList<Dtos.BoardDto>());
-        filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsDto>());
+            filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
+            List<Dtos.FilteredEntity> entities = new ArrayList<Dtos.FilteredEntity>();
+            entities.add(Dtos.FilteredEntity.LONG_DESCRIPTION);
+            entities.add(Dtos.FilteredEntity.SHORT_DESCRIPTION);
+            filterDataDto.getFullTextFilter().setCaseSensitive(false);
+            filterDataDto.getFullTextFilter().setInverse(false);
+            filterDataDto.getFullTextFilter().setRegex(false);
+            filterDataDto.getFullTextFilter().setString("");
+
+            filterDataDto.getFullTextFilter().setFilteredEntities(entities);
+
+            filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
+            filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
+            filterDataDto.setBoards(new ArrayList<Dtos.BoardDto>());
+            filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsDto>());
+
+            Dtos.DateMatcherDataDto dueDateFilter = DtoFactory.dateMatcherDataDto();
+            dueDateFilter.setCondition(0);
+            dueDateFilter.setDateFrom("");
+            dueDateFilter.setDateTo("");
+            filterDataDto.setDueDate(dueDateFilter);
+            loaded = false;
+        }
 
         filterObject.setFilterDataDto(filterDataDto);
+
+        return loaded;
     }
 
-    private void initDueDate() {
+    private void initDueDate(BoardsFilter filterObject) {
+        dueDateCondition.clear();
         dueDateCondition.addItem("-------");
         dueDateCondition.addItem("less than");
         dueDateCondition.addItem("equals");
         dueDateCondition.addItem("more than");
         dueDateCondition.addItem("between");
 
-        dueDateFromBox.setVisible(false);
-        dueDateToBox.setVisible(false);
+        Dtos.DateMatcherDataDto dueDateMatcher = filterObject.getFilterDataDto().getDueDate();
+
+        dueDateCondition.setSelectedIndex(dueDateMatcher.getCondition());
+        setDueDateTextBoxVisibility(dueDateMatcher.getCondition());
+        dueDateFromBox.setText(dueDateMatcher.getDateFrom());
+        dueDateToBox.setText(dueDateMatcher.getDateTo());
 
         dueDateFromPicker = new DatePickerDialog(dueDateFromBox) {
             @Override
@@ -132,8 +160,6 @@ public class FilterComponent extends Composite {
                 setDueDateToFilterObjectAndFireEvent();
             }
         };
-
-        dueDateToBox.setVisible(false);
 
         dueDateFromBox.addClickHandler(new ClickHandler() {
             @Override
@@ -152,18 +178,7 @@ public class FilterComponent extends Composite {
         dueDateCondition.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                if (dueDateCondition.getSelectedIndex() == 4) {
-                    dueDateToBox.setVisible(true);
-                } else {
-                    dueDateToBox.setVisible(false);
-                }
-
-                if (dueDateCondition.getSelectedIndex() == 0) {
-                    dueDateToBox.setVisible(false);
-                    dueDateFromBox.setVisible(false);
-                } else {
-                    dueDateFromBox.setVisible(true);
-                }
+                setDueDateTextBoxVisibility(dueDateCondition.getSelectedIndex());
 
                 setDueDateToFilterObjectAndFireEvent();
             }
@@ -186,6 +201,21 @@ public class FilterComponent extends Composite {
 
     }
 
+    private void setDueDateTextBoxVisibility(int condition) {
+        if (condition == 4) {
+            dueDateToBox.setVisible(true);
+        } else {
+            dueDateToBox.setVisible(false);
+        }
+
+        if (condition == 0) {
+            dueDateToBox.setVisible(false);
+            dueDateFromBox.setVisible(false);
+        } else {
+            dueDateFromBox.setVisible(true);
+        }
+    }
+
     private void setDueDateToFilterObjectAndFireEvent() {
         Dtos.DateMatcherDataDto dueDateMatches = DtoFactory.dateMatcherDataDto();
         dueDateMatches.setCondition(dueDateCondition.getSelectedIndex());
@@ -194,9 +224,10 @@ public class FilterComponent extends Composite {
         dueDateMatches.setDateTo(dueDateToBox.getText());
         filterObject.getFilterDataDto().setDueDate(dueDateMatches);
         MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+        filterObject.storeFilterData();
     }
 
-    private void fillUsers(BoardsFilter filterObject) {
+    private void fillUsers(BoardsFilter filterObject, boolean loaded) {
         List<Dtos.UserDto> sorted = new ArrayList<Dtos.UserDto>(UsersManager.getInstance().getUsers());
 
         Collections.sort(sorted, new Comparator<Dtos.UserDto>() {
@@ -206,12 +237,17 @@ public class FilterComponent extends Composite {
             }
         });
 
+        sorted.add(0, UsersManager.getInstance().getNoUser());
+
         for (Dtos.UserDto user : sorted) {
+            if (!loaded) {
+                filterObject.add(user);
+            }
             userFilter.add(new UserFilterCheckBox(user, filterObject));
         }
     }
 
-    private void fillClassOfServices(BoardsFilter filterObject) {
+    private void fillClassOfServices(BoardsFilter filterObject, boolean loaded) {
         List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAll());
 
         Collections.sort(sorted, new Comparator<Dtos.ClassOfServiceDto>() {
@@ -225,13 +261,16 @@ public class FilterComponent extends Composite {
         sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
 
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
+            if (!loaded) {
+                filterObject.add(classOfServiceDto);
+            }
             classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
         }
     }
 
     private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
 
-    private void fillBoards(BoardsFilter filterObject) {
+    private void fillBoards(BoardsFilter filterObject, boolean loaded) {
 
         MessageBus.unregisterListener(GetAllBoardsResponseMessage.class, boardsCollector);
         MessageBus.registerListener(GetAllBoardsResponseMessage.class, boardsCollector);
@@ -239,22 +278,37 @@ public class FilterComponent extends Composite {
         MessageBus.sendMessage(new GetAllBoardsRequestMessage(null, this));
 
         List<Dtos.BoardDto> boards = boardsCollector.getData();
+        List<Dtos.BoardDto> shallowBoards = new ArrayList<Dtos.BoardDto>();
+        for (Dtos.BoardDto board : boards) {
+            shallowBoards.add(asShallowBoard(board));
+        }
 
-        Collections.sort(boards, new Comparator<Dtos.BoardDto>() {
+        Collections.sort(shallowBoards, new Comparator<Dtos.BoardDto>() {
             @Override
             public int compare(Dtos.BoardDto b1, Dtos.BoardDto b2) {
                 return b1.getName().compareTo(b2.getName());
             }
         });
 
-        for (Dtos.BoardDto board : boards) {
+        for (Dtos.BoardDto board : shallowBoards) {
+            if (!loaded) {
+                filterObject.add(board);
+            }
             boardFilter.add(new BoardsFilterCheckBox(board, filterObject));
         }
     }
 
+    private Dtos.BoardDto asShallowBoard(Dtos.BoardDto board) {
+        Dtos.BoardDto shallowBoard = DtoFactory.boardDto();
+        shallowBoard.setId(board.getId());
+        shallowBoard.setName(board.getName());
+        return shallowBoard;
+    }
+
+
     private DataCollector<Dtos.BoardWithProjectsDto> projectsOnBoardsCollector = new DataCollector<Dtos.BoardWithProjectsDto>();
 
-    private void fillProjectsOnBoards(BoardsFilter filterObject) {
+    private void fillProjectsOnBoards(BoardsFilter filterObject, boolean loaded) {
         MessageBus.unregisterListener(GetAllProjectsResponseMessage.class, projectsOnBoardsCollector);
         MessageBus.registerListener(GetAllProjectsResponseMessage.class, projectsOnBoardsCollector);
         projectsOnBoardsCollector.init();
@@ -262,14 +316,25 @@ public class FilterComponent extends Composite {
 
         List<Dtos.BoardWithProjectsDto> boardsWithProjectsDtos = projectsOnBoardsCollector.getData();
 
-        Collections.sort(boardsWithProjectsDtos, new Comparator<Dtos.BoardWithProjectsDto>() {
+        List<Dtos.BoardWithProjectsDto> shallowBoardsWithProjectsDtos = new ArrayList<Dtos.BoardWithProjectsDto>();
+        for (Dtos.BoardWithProjectsDto boardWithProjectsDto : boardsWithProjectsDtos) {
+            Dtos.BoardWithProjectsDto shallowBoardWithProjectsDto = DtoFactory.boardWithProjectsDto();
+            shallowBoardWithProjectsDto.setBoard(asShallowBoard(boardWithProjectsDto.getBoard()));
+            shallowBoardWithProjectsDto.setProjectsOnBoard(boardWithProjectsDto.getProjectsOnBoard());
+            shallowBoardsWithProjectsDtos.add(shallowBoardWithProjectsDto);
+        }
+
+        Collections.sort(shallowBoardsWithProjectsDtos, new Comparator<Dtos.BoardWithProjectsDto>() {
             @Override
             public int compare(Dtos.BoardWithProjectsDto b1, Dtos.BoardWithProjectsDto b2) {
                 return b1.getProjectsOnBoard().getValues().get(0).getName().compareTo(b2.getProjectsOnBoard().getValues().get(0).getName());
             }
         });
 
-        for (Dtos.BoardWithProjectsDto boardWithProjectDtos : boardsWithProjectsDtos) {
+        for (Dtos.BoardWithProjectsDto boardWithProjectDtos : shallowBoardsWithProjectsDtos) {
+            if (!loaded) {
+                filterObject.add(boardWithProjectDtos);
+            }
             projectOnBoardFilter.add(new ProjectOnBoardFilterCheckBox(boardWithProjectDtos, filterObject));
         }
      }
@@ -299,7 +364,6 @@ public class FilterComponent extends Composite {
         private BoardsFilter filter;
 
         public FilterCheckBox(T entity, BoardsFilter filter) {
-            setValue(true);
             this.entity = entity;
             this.filter = filter;
 
@@ -309,7 +373,6 @@ public class FilterComponent extends Composite {
             addValueChangeHandler(this);
 
             setText(provideText(entity));
-            doAdd(entity, filter);
         }
 
         protected abstract String provideText(T entity);
@@ -323,6 +386,7 @@ public class FilterComponent extends Composite {
             }
 
             MessageBus.sendMessage(new FilterChangedMessage(filter, this));
+            filter.storeFilterData();
         }
 
         protected abstract void doAdd(T entity, BoardsFilter filter);
@@ -333,6 +397,7 @@ public class FilterComponent extends Composite {
 
         public UserFilterCheckBox(Dtos.UserDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(filter.findById(entity) != -1);
         }
 
         @Override
@@ -359,6 +424,7 @@ public class FilterComponent extends Composite {
 
         public BoardsFilterCheckBox(Dtos.BoardDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(filter.findById(entity) != -1);
         }
 
         @Override
@@ -381,6 +447,7 @@ public class FilterComponent extends Composite {
 
         public ProjectOnBoardFilterCheckBox(Dtos.BoardWithProjectsDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(filter.findById(entity) != -1);
         }
 
         @Override
@@ -403,6 +470,7 @@ public class FilterComponent extends Composite {
 
         public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             super(entity, filter);
+            setValue(filter.findById(entity) != -1);
         }
 
         @Override

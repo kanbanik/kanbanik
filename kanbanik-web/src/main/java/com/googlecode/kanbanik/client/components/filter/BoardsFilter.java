@@ -2,9 +2,11 @@ package com.googlecode.kanbanik.client.components.filter;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.managers.UsersManager;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,11 +14,15 @@ import java.util.List;
 
 public class BoardsFilter {
 
-    private static final int DATE_CONDITION_UNSET = 0;
-    private static final int DATE_CONDITION_LESS = 1;
-    private static final int DATE_CONDITION_EQALS = 2;
-    private static final int DATE_CONDITION_MORE = 3;
-    private static final int DATE_CONDITION_BETWEEN = 4;
+    private static final String KEY = "FILTER_DATA_KEY";
+
+    private static final Storage storage = Storage.getLocalStorageIfSupported();
+
+    public static final int DATE_CONDITION_UNSET = 0;
+    public static final int DATE_CONDITION_LESS = 1;
+    public static final int DATE_CONDITION_EQALS = 2;
+    public static final int DATE_CONDITION_MORE = 3;
+    public static final int DATE_CONDITION_BETWEEN = 4;
 
     private Dtos.FilterDataDto filterDataDto;
 
@@ -59,9 +65,19 @@ public class BoardsFilter {
             return false;
         }
 
-        boolean userMatches = filterDataDto.getUsers().isEmpty() || (task.getAssignee() != null && findById(task.getAssignee()) != -1);
+        boolean userMatches = (task.getAssignee() != null && findById(task.getAssignee()) != -1) || (task.getAssignee() == null && noUserSelected());
 
         return userMatches;
+    }
+
+    private boolean noUserSelected() {
+        for (Dtos.UserDto candidate : filterDataDto.getUsers()) {
+            if (candidate == UsersManager.getInstance().getNoUser()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Date parseDate(String date) {
@@ -220,7 +236,7 @@ public class BoardsFilter {
         }
     }
 
-    private int findById(Dtos.BoardDto boardDto) {
+    public int findById(Dtos.BoardDto boardDto) {
         int id = 0;
 
         for (Dtos.BoardDto candidate : filterDataDto.getBoards()) {
@@ -234,7 +250,7 @@ public class BoardsFilter {
         return -1;
     }
 
-    private int findById(Dtos.UserDto userDto) {
+    public int findById(Dtos.UserDto userDto) {
         int id = 0;
 
         for (Dtos.UserDto candidate : filterDataDto.getUsers()) {
@@ -248,7 +264,7 @@ public class BoardsFilter {
         return -1;
     }
 
-    private int findById(Dtos.ClassOfServiceDto classOfServiceDto) {
+    public int findById(Dtos.ClassOfServiceDto classOfServiceDto) {
         int id = 0;
 
         for (Dtos.ClassOfServiceDto candidate : filterDataDto.getClassesOfServices()) {
@@ -268,7 +284,7 @@ public class BoardsFilter {
         return -1;
     }
 
-    private int findById(Dtos.BoardWithProjectsDto boardWithProjectsDto) {
+    public int findById(Dtos.BoardWithProjectsDto boardWithProjectsDto) {
         int id = 0;
 
         String boardId = boardWithProjectsDto.getBoard().getId();
@@ -305,4 +321,29 @@ public class BoardsFilter {
         this.filterDataDto = filterDataDto;
     }
 
+    public void storeFilterData() {
+        if (storage == null) {
+            return;
+        }
+
+        String json = DtoFactory.asRawJson(filterDataDto);
+        storage.setItem(KEY, json);
+    }
+
+    public Dtos.FilterDataDto loadFilterData() {
+        if (storage == null) {
+            return null;
+        }
+
+        String loaded = storage.getItem(KEY);
+        if (loaded == null || "".equals(loaded)) {
+            return null;
+        }
+
+        try {
+            return DtoFactory.asDto(Dtos.FilterDataDto.class, loaded);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

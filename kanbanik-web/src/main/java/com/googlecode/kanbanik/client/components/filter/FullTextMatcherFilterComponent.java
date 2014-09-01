@@ -66,24 +66,40 @@ public class FullTextMatcherFilterComponent extends Composite {
 
     public void initialize(BoardsFilter filterObject, Dtos.FullTextMatcherDataDto stringMatcherDataDto) {
         this.filterObject = filterObject;
+
+        initValues(stringMatcherDataDto);
+
         ChangeHandler handler = new ChangeHandler(stringMatcherDataDto);
         regex.addValueChangeHandler(handler);
         inverse.addValueChangeHandler(handler);
         caseSensitive.addValueChangeHandler(handler);
 
-
-
         ticketId.addValueChangeHandler(handler);
         shortDescription.addValueChangeHandler(handler);
         longDescription.addValueChangeHandler(handler);
 
-        ticketId.setValue(false);
-        shortDescription.setValue(true);
-        longDescription.setValue(true);
-
         textArea.addKeyUpHandler(handler);
     }
 
+    private void initValues(Dtos.FullTextMatcherDataDto stringMatcherDataDto) {
+        textArea.setText(stringMatcherDataDto.getString());
+
+        ticketId.setValue(stringMatcherDataDto.getFilteredEntities().contains(Dtos.FilteredEntity.TICKET_ID));
+        shortDescription.setValue(stringMatcherDataDto.getFilteredEntities().contains(Dtos.FilteredEntity.SHORT_DESCRIPTION));
+        longDescription.setValue(stringMatcherDataDto.getFilteredEntities().contains(Dtos.FilteredEntity.LONG_DESCRIPTION));
+
+        caseSensitive.setValue(stringMatcherDataDto.isCaseSensitive());
+        inverse.setValue(stringMatcherDataDto.isInverse());
+        regex.setValue(stringMatcherDataDto.isRegex());
+        if (regex.getValue()) {
+            disableCaseSensitive();
+        }
+    }
+
+    private void disableCaseSensitive() {
+        caseSensitive.setEnabled(false);
+        caseSensitive.setTitle("Not possible to set when regex is enabled.");
+    }
 
     class ChangeHandler implements ValueChangeHandler<Boolean>, KeyUpHandler {
 
@@ -111,8 +127,7 @@ public class FullTextMatcherFilterComponent extends Composite {
 
             if (regex.getValue()) {
                 caseSensitive.setValue(false);
-                caseSensitive.setEnabled(false);
-                caseSensitive.setTitle("Not possible to set when regex is enabled.");
+                disableCaseSensitive();
 
                 try {
                     RegExp.compile(string);
@@ -150,6 +165,7 @@ public class FullTextMatcherFilterComponent extends Composite {
             fullTextMatcherDataDto.setFilteredEntities(filteredEntities);
 
             MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+            filterObject.storeFilterData();
         }
     }
 

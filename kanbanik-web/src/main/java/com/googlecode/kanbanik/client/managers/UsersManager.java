@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Image;
 import com.googlecode.kanbanik.client.KanbanikResources;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 
 import java.util.ArrayList;
@@ -16,8 +17,14 @@ public class UsersManager {
 
 	private List<Dtos.UserDto> users;
 
+    private static final Dtos.UserDto noUser = DtoFactory.userDto();
+
 	private static final Image defaultPicture = new Image(
 			KanbanikResources.INSTANCE.noUserPicture());
+
+    static {
+        noUser.setUserName("No User");
+    }
 
 	public static UsersManager getInstance() {
 		return INSTANCE;
@@ -33,6 +40,10 @@ public class UsersManager {
 		}
 		return users;
 	}
+
+    public Dtos.UserDto getNoUser() {
+        return noUser;
+    }
 
 	public Image getPictureFor(Dtos.UserDto user) {
 		if (user.getPictureUrl() == null) {

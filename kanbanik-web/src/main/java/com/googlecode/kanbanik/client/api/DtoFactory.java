@@ -218,8 +218,12 @@ public class DtoFactory {
     }
 
     public static <T> String asJson(T dto) {
+        return "command="+ URL.encodePathSegment(asRawJson(dto));
+    }
+
+    public static <T> String asRawJson(T dto) {
         AutoBean<T> bean = AutoBeanUtils.getAutoBean(dto);
-        return "command="+ URL.encodePathSegment(AutoBeanCodex.encode(bean).getPayload());
+        return AutoBeanCodex.encode(bean).getPayload();
     }
 
 }

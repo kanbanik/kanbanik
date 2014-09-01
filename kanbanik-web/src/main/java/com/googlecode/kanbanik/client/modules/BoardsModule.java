@@ -20,12 +20,14 @@ import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
+import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
 import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
@@ -194,12 +196,24 @@ public class BoardsModule {
                         Widget boards = buildBoard(response);
                         addTasks(response);
                         boardsModuleInitialized.initialized(boards);
+                        applyFilters();
                     }
                 }
         );
 	}
-	
-	class BoardBoardGuiBuilder extends BoardGuiBuilder {
+
+    private void applyFilters() {
+//        TODO - need to initialize the BoardsFilter
+//        BoardsFilter filterObject = new BoardsFilter();
+//        Dtos.FilterDataDto filterDataDto = filterObject.loadFilterData();
+//        if (filterDataDto == null) {
+//            return;
+//        }
+//
+//        MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+    }
+
+    class BoardBoardGuiBuilder extends BoardGuiBuilder {
 
 		@Override
 		protected Widget createWorkflowitemPlaceContentWidget(
