@@ -40,6 +40,11 @@
             height: 185px;
         }
 
+        .regexIncorrectLabel {
+            font-weight: bold;
+            color: red;
+        }
+
     </ui:style>
 
     <g:FlowPanel addStyleNames="{style.mainContainer}">
@@ -73,6 +78,7 @@
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Due Date" addStyleNames="{style.filterLabel}"/>
+                    <g:Label ui:field="dueDateWarningLabel" addStyleNames="{style.regexIncorrectLabel}"/>
                     <g:FlowPanel addStyleNames="{style.filterPart}">
                         <g:ListBox ui:field="dueDateCondition" />
                         <g:TextBox ui:field="dueDateFromBox" />

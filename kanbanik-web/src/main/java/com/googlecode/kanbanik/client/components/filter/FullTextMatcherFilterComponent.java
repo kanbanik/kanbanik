@@ -28,7 +28,7 @@ public class FullTextMatcherFilterComponent extends Composite {
     Label mainLabel;
 
     @UiField
-    Label regexIncorrectLabel;
+    Label warningLabel;
 
     @UiField
     CheckBox caseSensitive;
@@ -120,6 +120,10 @@ public class FullTextMatcherFilterComponent extends Composite {
         }
 
         private void doSynchronize() {
+            if (!validate()) {
+                return;
+            }
+
             String string = textArea.getText();
             if ("".equals(string)) {
                 string = null;
@@ -128,20 +132,10 @@ public class FullTextMatcherFilterComponent extends Composite {
             if (regex.getValue()) {
                 caseSensitive.setValue(false);
                 disableCaseSensitive();
-
-                try {
-                    RegExp.compile(string);
-                } catch (Exception e) {
-                    // incorrect regex - let the user know and do not confuse him why is it not working
-                    regexIncorrectLabel.setText(" The provided regex is not correct");
-                    return;
-                }
             } else {
                 caseSensitive.setEnabled(true);
                 caseSensitive.setTitle("");
             }
-
-            regexIncorrectLabel.setText("");
 
             fullTextMatcherDataDto.setString(string);
             fullTextMatcherDataDto.setCaseSensitive(caseSensitive.getValue());
@@ -167,6 +161,27 @@ public class FullTextMatcherFilterComponent extends Composite {
             MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
             filterObject.storeFilterData();
         }
+    }
+
+    public boolean validate() {
+        warningLabel.setText("");
+
+        if (regex.getValue()) {
+            try {
+                RegExp.compile(textArea.getText());
+            } catch (Exception e) {
+                // incorrect regex - let the user know and do not confuse him why is it not working
+                warningLabel.setText(" The provided regex is not correct");
+                return false;
+            }
+        }
+
+        if (!ticketId.getValue() && !shortDescription.getValue() && !longDescription.getValue()) {
+            warningLabel.setText(" At least one field has to be selected");
+            return false;
+        }
+
+        return true;
     }
 
 

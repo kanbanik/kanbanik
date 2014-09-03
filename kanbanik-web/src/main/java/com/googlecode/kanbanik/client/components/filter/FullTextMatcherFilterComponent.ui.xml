@@ -57,7 +57,7 @@
 
         <g:FlowPanel addStyleNames="{style.header}">
             <g:Label ui:field="mainLabel" addStyleNames="{style.filterLabel}"/>
-            <g:Label ui:field="regexIncorrectLabel" addStyleNames="{style.regexIncorrectLabel}"/>
+            <g:Label ui:field="warningLabel" addStyleNames="{style.regexIncorrectLabel}"/>
         </g:FlowPanel>
 
         <g:FlowPanel addStyleNames="{style.content}">

@@ -37,22 +37,22 @@ public class BoardsFilter {
                 if (stringMatches(filterDataDto.getFullTextFilter(), task.getName())) {
                     matches = true;
                 }
+            }
 
-                if (!matches && filteredEntities.contains(Dtos.FilteredEntity.LONG_DESCRIPTION)) {
-                    if (stringMatches(filterDataDto.getFullTextFilter(), new HTML(task.getDescription()).getText())) {
-                        matches = true;
-                    }
+            if (!matches && filteredEntities.contains(Dtos.FilteredEntity.LONG_DESCRIPTION)) {
+                if (stringMatches(filterDataDto.getFullTextFilter(), new HTML(task.getDescription()).getText())) {
+                    matches = true;
                 }
+            }
 
-                if (!matches && filteredEntities.contains(Dtos.FilteredEntity.TICKET_ID)) {
-                    if (stringMatches(filterDataDto.getFullTextFilter(), task.getTicketId())) {
-                        matches = true;
-                    }
+            if (!matches && filteredEntities.contains(Dtos.FilteredEntity.TICKET_ID)) {
+                if (stringMatches(filterDataDto.getFullTextFilter(), task.getTicketId())) {
+                    matches = true;
                 }
+            }
 
-                if (!matches) {
-                    return false;
-                }
+            if (!matches) {
+                return false;
             }
         }
 
@@ -65,22 +65,12 @@ public class BoardsFilter {
             return false;
         }
 
-        boolean userMatches = (task.getAssignee() != null && findById(task.getAssignee()) != -1) || (task.getAssignee() == null && noUserSelected());
+        boolean userMatches = findById(task.getAssignee()) != -1;
 
         return userMatches;
     }
 
-    private boolean noUserSelected() {
-        for (Dtos.UserDto candidate : filterDataDto.getUsers()) {
-            if (candidate == UsersManager.getInstance().getNoUser()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private Date parseDate(String date) {
+    public Date parseDate(String date) {
         if (date == null || "".equals(date)) {
             return null;
         }
@@ -103,24 +93,28 @@ public class BoardsFilter {
             return true;
         }
 
+        // task does not have a due date and I'm interested in some particular one
         if (task.getDueDate() == null || "".equals(task.getDueDate())) {
             return false;
         }
 
         Date dateFrom = parseDate(filterDataDto.getDueDate().getDateFrom());
         if (dateFrom == null) {
-            return false;
+            // incorrectly set - show everything
+            return true;
         }
 
         Date dateTo = parseDate(filterDataDto.getDueDate().getDateTo());
         if (dateCondition == DATE_CONDITION_BETWEEN && dateTo == null) {
-            return false;
+            // incorrectly set - show everything
+            return true;
         }
 
         Date taskDueDate = null;
         try {
             taskDueDate = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(task.getDueDate());
         } catch (IllegalArgumentException e) {
+            // wrongly set due date on task - ignore it
             return false;
         }
 
@@ -150,10 +144,6 @@ public class BoardsFilter {
 
         if (patternEmpty) {
             return true;
-        }
-
-        if (realEmpty) {
-            return false;
         }
 
         String actual = real;
@@ -253,8 +243,10 @@ public class BoardsFilter {
     public int findById(Dtos.UserDto userDto) {
         int id = 0;
 
+        Dtos.UserDto toLookFor = userDto != null ? userDto : UsersManager.getInstance().getNoUser();
+
         for (Dtos.UserDto candidate : filterDataDto.getUsers()) {
-            if (candidate.getUserName().equals(userDto.getUserName())) {
+            if (candidate.getUserName().equals(toLookFor.getUserName())) {
                 return id;
             }
 

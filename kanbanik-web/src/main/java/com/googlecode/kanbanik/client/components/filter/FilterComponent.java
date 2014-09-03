@@ -10,6 +10,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
@@ -23,10 +24,13 @@ import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRespo
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
+import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
 import java.util.*;
 
-public class FilterComponent extends Composite {
+public class FilterComponent extends Composite implements ModulesLifecycleListener {
 
     interface MyUiBinder extends UiBinder<Widget, FilterComponent> {}
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -62,6 +66,9 @@ public class FilterComponent extends Composite {
     @UiField
     TextBox dueDateToBox;
 
+    @UiField
+    Label dueDateWarningLabel;
+
     private BoardsFilter filterObject;
 
     public FilterComponent() {
@@ -69,28 +76,31 @@ public class FilterComponent extends Composite {
 
         initWidget(uiBinder.createAndBindUi(this));
 
-        disclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
-            @Override
-            public void onOpen(OpenEvent<DisclosurePanel> event) {
-                boolean loaded = createFilterObject();
+        new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+    }
 
-                fullTextFilter.initialize(filterObject, filterObject.getFilterDataDto().getFullTextFilter());
+    private void init() {
+        boolean loaded = createFilterObject();
 
-                userFilter.clear();
-                classOfServiceFilter.clear();
-                boardFilter.clear();
-                projectOnBoardFilter.clear();
+        fullTextFilter.initialize(filterObject, filterObject.getFilterDataDto().getFullTextFilter());
 
-                fillUsers(filterObject, loaded);
-                fillClassOfServices(filterObject, loaded);
-                fillBoards(filterObject, loaded);
-                fillProjectsOnBoards(filterObject, loaded);
-                initDueDate(filterObject);
+        userFilter.clear();
+        classOfServiceFilter.clear();
+        boardFilter.clear();
+        projectOnBoardFilter.clear();
 
-            }
+        fillUsers(filterObject, loaded);
+        fillClassOfServices(filterObject, loaded);
+        fillBoards(filterObject, loaded);
+        fillProjectsOnBoards(filterObject, loaded);
+        initDueDate(filterObject);
 
-        });
+        // using just '|' because I need all the validations to be executed
+        if (!fullTextFilter.validate() | !validateDueDate()) {
+            return;
+        }
 
+        MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
     }
 
     private boolean createFilterObject() {
@@ -217,6 +227,10 @@ public class FilterComponent extends Composite {
     }
 
     private void setDueDateToFilterObjectAndFireEvent() {
+        if (!validateDueDate()) {
+            return;
+        }
+
         Dtos.DateMatcherDataDto dueDateMatches = DtoFactory.dateMatcherDataDto();
         dueDateMatches.setCondition(dueDateCondition.getSelectedIndex());
 
@@ -225,6 +239,35 @@ public class FilterComponent extends Composite {
         filterObject.getFilterDataDto().setDueDate(dueDateMatches);
         MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
         filterObject.storeFilterData();
+    }
+
+    private boolean validateDueDate() {
+        dueDateWarningLabel.setText("");
+
+        int dateCondition = dueDateCondition.getSelectedIndex();
+
+        if (dateCondition == BoardsFilter.DATE_CONDITION_UNSET) {
+            return true;
+        }
+
+        boolean fromFilled = filterObject.parseDate(dueDateFromBox.getText()) != null;
+        boolean toFilled = filterObject.parseDate(dueDateToBox.getText()) != null;
+
+        if ((dateCondition == BoardsFilter.DATE_CONDITION_LESS ||
+                dateCondition == BoardsFilter.DATE_CONDITION_MORE ||
+                dateCondition == BoardsFilter.DATE_CONDITION_EQALS
+        ) && !fromFilled
+                ) {
+                dueDateWarningLabel.setText("Incorrectly filled conditions");
+                return false;
+        }
+
+        if (dateCondition == BoardsFilter.DATE_CONDITION_BETWEEN && (!fromFilled || !toFilled)) {
+            dueDateWarningLabel.setText("Incorrectly filled conditions");
+            return false;
+        }
+
+        return true;
     }
 
     private void fillUsers(BoardsFilter filterObject, boolean loaded) {
@@ -489,5 +532,14 @@ public class FilterComponent extends Composite {
         }
     }
 
+    @Override
+    public void activated() {
+        init();
+    }
+
+    @Override
+    public void deactivated() {
+
+    }
 
 }
