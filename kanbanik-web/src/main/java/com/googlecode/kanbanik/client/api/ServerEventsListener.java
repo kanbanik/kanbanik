@@ -152,7 +152,7 @@ public class ServerEventsListener {
 
         jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/eventSource");
         jsonRequestConfig.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
-        jsonRequestConfig.setTransport(AtmosphereRequestConfig.Transport.WEBSOCKET);
+        jsonRequestConfig.setTransport(AtmosphereRequestConfig.Transport.SSE);
         jsonRequestConfig.setFallbackTransport(AtmosphereRequestConfig.Transport.LONG_POLLING);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.enableProtocol);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.trackMessageLength);
@@ -160,7 +160,6 @@ public class ServerEventsListener {
         jsonRequestConfig.setOpenHandler(new AtmosphereOpenHandler() {
             @Override
             public void onOpen(AtmosphereResponse response) {
-                new ErrorDialog("opened").center();
             }
         });
 
@@ -173,9 +172,6 @@ public class ServerEventsListener {
         jsonRequestConfig.setErrorHandler(new AtmosphereErrorHandler() {
             @Override
             public void onError(AtmosphereResponse response) {
-                // error - reconnecting
-                final Atmosphere atmosphere = Atmosphere.create();
-                atmosphere.subscribe(jsonRequestConfig);
             }
         });
 
