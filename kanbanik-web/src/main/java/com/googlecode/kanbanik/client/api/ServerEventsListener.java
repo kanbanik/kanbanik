@@ -6,17 +6,19 @@ import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.*;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 import org.atmosphere.gwt20.client.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.googlecode.kanbanik.client.components.ErrorDialog;
 
 public class ServerEventsListener {
 
     private boolean isActive = false;
+
+    private Atmosphere atmosphere;
 
     private static final Map<String, Class<?>> eventToDto = new HashMap<String, Class<?>>();
     private static final Map<String, EventAction> eventToAction = new HashMap<String, EventAction>();
@@ -34,15 +36,17 @@ public class ServerEventsListener {
     }
 
     public ServerEventsListener() {
-        initializeAtmosphere();
+        openConnection();
     }
 
     public void activate() {
         isActive = true;
+        openConnection();
     }
 
     public void deactivate() {
         isActive = false;
+        closeConnection();
     }
 
     class Pair {
@@ -147,33 +151,15 @@ public class ServerEventsListener {
         }
     }
 
-    private void initializeAtmosphere() {
+    private void openConnection() {
         final AtmosphereRequestConfig jsonRequestConfig = AtmosphereRequestConfig.create(new Serializer());
 
-        jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/eventSource");
+        jsonRequestConfig.setUrl(GWT.getHostPageBaseURL() + "events/" + CurrentUser.getInstance().getSessionId());
         jsonRequestConfig.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
         jsonRequestConfig.setTransport(AtmosphereRequestConfig.Transport.SSE);
         jsonRequestConfig.setFallbackTransport(AtmosphereRequestConfig.Transport.LONG_POLLING);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.enableProtocol);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.trackMessageLength);
-
-        jsonRequestConfig.setOpenHandler(new AtmosphereOpenHandler() {
-            @Override
-            public void onOpen(AtmosphereResponse response) {
-            }
-        });
-
-        jsonRequestConfig.setCloseHandler(new AtmosphereCloseHandler() {
-            @Override
-            public void onClose(AtmosphereResponse response) {
-            }
-        });
-
-        jsonRequestConfig.setErrorHandler(new AtmosphereErrorHandler() {
-            @Override
-            public void onError(AtmosphereResponse response) {
-            }
-        });
 
         jsonRequestConfig.setMessageHandler(new AtmosphereMessageHandler() {
             @Override
@@ -192,8 +178,14 @@ public class ServerEventsListener {
         });
 
 
-        final Atmosphere atmosphere = Atmosphere.create();
+        atmosphere = Atmosphere.create();
         atmosphere.subscribe(jsonRequestConfig);
+    }
+
+    private void closeConnection() {
+        if (atmosphere != null) {
+            atmosphere.unsubscribe();
+        }
     }
 
 }

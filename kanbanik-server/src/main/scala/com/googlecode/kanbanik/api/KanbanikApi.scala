@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.api
 
+
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
@@ -10,7 +11,8 @@ import org.apache.shiro.util.ThreadContext;
 import com.googlecode.kanbanik.dto.ErrorCodes._
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.{ErrorDto, EventDto}
-import org.atmosphere.cpr.{BroadcasterFactory, Broadcaster}
+import org.atmosphere.cpr.{AtmosphereResource, BroadcasterFactory, Broadcaster, PerRequestBroadcastFilter}
+import org.atmosphere.cpr.BroadcastFilter.BroadcastAction
 
 class KanbanikApi extends HttpServlet {
 
@@ -18,6 +20,7 @@ class KanbanikApi extends HttpServlet {
 
   type WithExecute = {def execute(parsedJson: JValue): Either[AnyRef, ErrorDto]}
 
+  broadcaster.getBroadcasterConfig.addFilter(AuthorizationFilter)
 
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) = {
     process(req, resp)
@@ -115,9 +118,12 @@ class KanbanikApi extends HttpServlet {
   }
 
   def notifyClients(commandName: String, resp: String) {
+    broadcaster.broadcast(write(EventDto(commandName, resp)))
+  }
+
+  def broadcaster: Broadcaster = {
     val factory = BroadcasterFactory.getDefault
-    val b: Broadcaster = factory.lookup("/events")
-    b.broadcast(write(EventDto(commandName, resp)))
+    factory.lookup("/events")
   }
 
   def extractSessionId(json: JValue): String = {
@@ -134,6 +140,27 @@ class KanbanikApi extends HttpServlet {
     }
 
     return ""
+  }
+
+  object AuthorizationFilter extends PerRequestBroadcastFilter {
+
+    def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+      val url = r.getRequest.getRequestURL
+      if (url == null) {
+        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+      } else {
+        val sessionId = url.substring(url.lastIndexOf("/") + 1, url.length)
+        val subject = new Subject.Builder().sessionId(sessionId).buildSubject
+        if (subject.isAuthenticated) {
+          new BroadcastAction(message)
+        } else {
+          new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+        }
+      }
+
+    }
+
+    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
   }
 
   val commands = Map[String, (WithExecute, CommandConfiguration)](

@@ -19,17 +19,17 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
     
     val newTask = taskBuilder.buildEntity(params.task)
     
-    val somethingFaildResult = Right(ErrorDto("Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the currrent data."))
+    val somethingFailedResult = Right(ErrorDto("Some entity associated with this task does not exist any more - possibly has been deleted by a different user. Please refresh your browser to get the current data."))
     val realBoard = loadBoard(newTask.boardId, false).getOrElse(
-      return somethingFaildResult
+      return somethingFailedResult
     )
 
     realBoard.workflow.findItem(Workflowitem(newTask.workflowitemId)).getOrElse(
-      return somethingFaildResult
+      return somethingFailedResult
     )
 
     loadProject(new ObjectId(params.task.projectId)).getOrElse(
-    		return somethingFaildResult
+    		return somethingFailedResult
     )
 
     val newOrder = calculateNewOrder(params)

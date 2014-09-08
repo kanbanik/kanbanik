@@ -8,6 +8,9 @@ class KanbanikEvents {
 
     @Ready
     def onReady(r: AtmosphereResource) {
+
+
+      System.out.println("ready");
     }
 
     @Disconnect
