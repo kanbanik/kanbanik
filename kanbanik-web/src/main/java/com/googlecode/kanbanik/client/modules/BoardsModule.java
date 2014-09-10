@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.client.modules;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -32,6 +33,8 @@ import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuil
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class BoardsModule {
@@ -45,12 +48,44 @@ public class BoardsModule {
 		new DeleteTasksMessageListener().initialize();
 	}
 
+    /**
+     * Adds all the tasks which are taken as an argument in a batches of 10. This avoids freezing the browser if there are lots of tasks
+     */
+    class TaskAddingCommands implements Scheduler.RepeatingCommand {
+
+        private Iterator<Dtos.TaskDto> linearizedTasks;
+
+        public TaskAddingCommands(List<Dtos.TaskDto> linearizedTasks) {
+            this.linearizedTasks = linearizedTasks.iterator();
+        }
+
+        @Override
+        public boolean execute() {
+            int i = 0;
+            while (linearizedTasks.hasNext()) {
+                i ++;
+                MessageBus.sendMessage(new TaskAddedMessage(linearizedTasks.next(), this));
+                if (i >= 10) {
+                    // stop and continue later
+                    return true;
+                }
+            }
+
+            // stop execution
+            return false;
+        }
+    }
+
 	private void addTasks(final Dtos.BoardsWithProjectsDto result) {
+        List<Dtos.TaskDto> linearizedTasks = new ArrayList<Dtos.TaskDto>();
 		for (Dtos.BoardWithProjectsDto boardWithProjects : result.getValues()) {
 			for (Dtos.TaskDto task : boardWithProjects.getBoard().getTasks()) {
-				MessageBus.sendMessage(new TaskAddedMessage(task, this));
+				linearizedTasks.add(task);
 			}
 		}
+
+        Scheduler.get().scheduleIncremental(new TaskAddingCommands(linearizedTasks));
+
 	}
 
 	private Widget buildBoard(Dtos.BoardsWithProjectsDto result) {

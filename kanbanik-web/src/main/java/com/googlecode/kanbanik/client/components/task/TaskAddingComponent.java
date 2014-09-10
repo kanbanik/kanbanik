@@ -61,7 +61,6 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 			MessageBus.registerListener(GetFirstTaskResponseMessage.class, getFirstTaskResponseMessageListener);
 		}
 		
-		
 		MessageBus.sendMessage(new GetFirstTaskRequestMessage(inputQueue, this));
 		
 		// this is safe - the messaging is synchronous even it does not look that way

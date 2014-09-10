@@ -145,8 +145,8 @@ public class ServerEventsListener {
                 }
                 Dtos.TaskDto oldTask = message.getPayload();
 
-                MessageBus.sendMessage(new TaskDeletedMessage(oldTask, this));
-                MessageBus.sendMessage(new TaskAddedMessage(newTask, this));
+                MessageBus.sendMessage(new TaskDeletedMessage(oldTask, this, true));
+                MessageBus.sendMessage(new TaskAddedMessage(newTask, this, true));
             }
         }
     }
@@ -160,6 +160,7 @@ public class ServerEventsListener {
         jsonRequestConfig.setFallbackTransport(AtmosphereRequestConfig.Transport.LONG_POLLING);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.enableProtocol);
         jsonRequestConfig.setFlags(AtmosphereRequestConfig.Flags.trackMessageLength);
+        jsonRequestConfig.setMaxReconnectOnClose(Integer.MAX_VALUE);
 
         jsonRequestConfig.setMessageHandler(new AtmosphereMessageHandler() {
             @Override

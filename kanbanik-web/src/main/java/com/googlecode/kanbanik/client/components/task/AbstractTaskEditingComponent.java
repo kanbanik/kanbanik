@@ -59,6 +59,8 @@ public abstract class AbstractTaskEditingComponent {
 
     private HTML warningMessages = new HTML();
 
+    private Panel taskDirtyWarningPanel;
+
     private String name;
 
     private final HasClickHandlers clickHandler;
@@ -76,7 +78,7 @@ public abstract class AbstractTaskEditingComponent {
     }
 
     protected void initialize() {
-
+        taskDirtyWarningPanel = initTaskDirtyWarningPanel();
         dialog = new PanelContainingDialog(name, panel, taskName, true, 970, 500);
 
         classOfServiceEditor = new PanelContainingDialogSuggestBox(new MultiWordSuggestOracle(), dialog);
@@ -118,6 +120,7 @@ public abstract class AbstractTaskEditingComponent {
         controlPanel.getElement().getStyle().setProperty("display", "flex");
         controlPanel.getElement().getStyle().setProperty("flexDirection", "row");
         FlowPanel aroundHeader = new FlowPanel();
+        aroundHeader.add(taskDirtyWarningPanel);
         aroundHeader.add(header);
         aroundHeader.setWidth("460px");
         controlPanel.add(aroundHeader);
@@ -132,6 +135,10 @@ public abstract class AbstractTaskEditingComponent {
 
         dialog.addListener(new AddTaskButtonHandler());
         clickHandler.addClickHandler(new ShowDialogHandler());
+    }
+
+    protected Panel initTaskDirtyWarningPanel() {
+        return new FlowPanel();
     }
 
     private Map<String, ClassOfServiceDto> initClassOfServiceToName(List<ClassOfServiceDto> classesOfService) {
@@ -196,7 +203,7 @@ public abstract class AbstractTaskEditingComponent {
         });
     }
 
-    private void setupValues() {
+    protected void setupValues() {
         ticketId.setText(getTicketId());
         taskName.setValue(getTaskName());
         description.setHtml(getDescription());
@@ -369,8 +376,7 @@ public abstract class AbstractTaskEditingComponent {
 
                         @Override
                         public void success(TaskDto response) {
-                            MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
-                            DeleteKeyListener.INSTANCE.initialize();
+                            onHideDialog();
                             if (isNew) {
                                 MessageBus.sendMessage(new TaskAddedMessage(response, AbstractTaskEditingComponent.this));
                             } else {
@@ -382,10 +388,14 @@ public abstract class AbstractTaskEditingComponent {
         }
 
         public void cancelClicked(PanelContainingDialog dialog) {
-            MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
-            DeleteKeyListener.INSTANCE.initialize();
+            onHideDialog();
         }
 
+    }
+
+    protected void onHideDialog() {
+        MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+        DeleteKeyListener.INSTANCE.initialize();
     }
 
     class SimpleSuggestion implements Suggestion {
