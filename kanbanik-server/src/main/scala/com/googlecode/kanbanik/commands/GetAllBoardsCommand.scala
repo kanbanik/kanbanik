@@ -20,7 +20,7 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
 
   def execute(params: GetAllBoardsWithProjectsDto): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
 
-    val loadedBoards = Board.all(params.includeTasks.getOrElse(false))
+    val loadedBoards = Board.all(params.includeTasks.getOrElse(false), params.includeTaskDescription.getOrElse(false))
     val loadedProjects = Project.all()
 
     val res = ListDto(

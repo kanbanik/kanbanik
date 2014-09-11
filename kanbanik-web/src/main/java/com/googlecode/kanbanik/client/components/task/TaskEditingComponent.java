@@ -117,6 +117,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
                 taskDeletedWarningPanel.setVisible(false);
             }
         });
+
     }
 
     @Override

@@ -244,7 +244,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
   }
   
   def loadAllBoards() = {
-	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true))) match {
+	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true), Some(false))) match {
       case Left(x) => x.values
       case Right(_) => fail()
     }

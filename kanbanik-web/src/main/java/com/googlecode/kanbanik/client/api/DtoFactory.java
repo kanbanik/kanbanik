@@ -170,10 +170,11 @@ public class DtoFactory {
         return dto;
     }
 
-    public static Dtos.GetAllBoardsWithProjectsDto getAllBoardsWithProjectsDto(boolean includeTasks) {
+    public static Dtos.GetAllBoardsWithProjectsDto getAllBoardsWithProjectsDto(boolean includeTasks, boolean includeTaskDescription) {
         Dtos.GetAllBoardsWithProjectsDto dto = factory.getAllBoardsWithProjectsDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         dto.setIncludeTasks(includeTasks);
+        dto.setIncludeTaskDescription(includeTaskDescription);
         dto.setCommandName(CommandNames.GET_ALL_BOARDS_WITH_PROJECTS.name);
         return dto;
     }

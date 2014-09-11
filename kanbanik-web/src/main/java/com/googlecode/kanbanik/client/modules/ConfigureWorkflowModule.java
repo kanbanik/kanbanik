@@ -32,7 +32,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 		add(boardsBox);
 
         ServerCaller.<Dtos.GetAllBoardsWithProjectsDto, Dtos.BoardsWithProjectsDto>sendRequest(
-                DtoFactory.getAllBoardsWithProjectsDto(false),
+                DtoFactory.getAllBoardsWithProjectsDto(false, false),
                 Dtos.BoardsWithProjectsDto.class,
                 new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
 

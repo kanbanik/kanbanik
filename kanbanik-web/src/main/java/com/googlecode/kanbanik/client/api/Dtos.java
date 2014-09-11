@@ -350,6 +350,9 @@ public class Dtos {
     public static interface GetAllBoardsWithProjectsDto extends BaseDto {
         void setIncludeTasks(Boolean includeTasks);
         Boolean isIncludeTasks();
+
+        void setIncludeTaskDescription(Boolean includeTaskDescription);
+        Boolean isIncludeTaskDescription();
     }
 
     public static interface EditWorkflowParams extends BaseDto {

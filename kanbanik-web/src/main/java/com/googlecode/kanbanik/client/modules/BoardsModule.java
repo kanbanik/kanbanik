@@ -220,7 +220,7 @@ public class BoardsModule {
 	
 	private void loadBoards(final ModuleInitializeCallback boardsModuleInitialized) {
         ServerCaller.<Dtos.GetAllBoardsWithProjectsDto, Dtos.BoardsWithProjectsDto>sendRequest(
-                DtoFactory.getAllBoardsWithProjectsDto(true),
+                DtoFactory.getAllBoardsWithProjectsDto(true, true),
                 Dtos.BoardsWithProjectsDto.class,
                 new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
 

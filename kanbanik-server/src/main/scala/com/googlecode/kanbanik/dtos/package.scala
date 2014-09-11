@@ -40,7 +40,7 @@ package object dtos {
 
   case class WorkflowDto(id: Option[String], workflowitems: Option[List[WorkflowitemDto]], board: BoardDto)
 
-  case class GetAllBoardsWithProjectsDto(includeTasks: Option[Boolean])
+  case class GetAllBoardsWithProjectsDto(includeTasks: Option[Boolean], includeTaskDescription: Option[Boolean])
 
   case class BoardWithProjectsDto(board: BoardDto, projectsOnBoard: Option[ProjectsDto])
 
