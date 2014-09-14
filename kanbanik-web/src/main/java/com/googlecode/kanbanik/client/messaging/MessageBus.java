@@ -50,6 +50,12 @@ public class MessageBus {
 		return listenersForType;
 	}
 
+    public static void registerOnce(Class<?> messageType, MessageListener<?> listener) {
+        if (!listens(messageType, listener)) {
+            registerListener(messageType, listener);
+        }
+    }
+
 	public static void registerListener(Class<?> messageType, MessageListener<?> listener) {
 		if (listeners == null) {
 			listeners = new HashMap<Class<?>, List<MessageListener<?>>>();

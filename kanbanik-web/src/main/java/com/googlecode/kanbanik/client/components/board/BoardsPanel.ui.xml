@@ -6,9 +6,24 @@
 		.mainPanel {
 			width:100%; 
 		}
+
+        .boardsDirtyPanel {
+            width: 100%;
+            background-color: orange;
+        }
+
+        .dirtyLabel {
+            font-weight: bold;
+        }
+
 	</ui:style>
+
     <g:FlowPanel>
         <f:FilterComponent />
+
+        <g:FlowPanel ui:field="dirtyPanel" addStyleNames="{style.boardsDirtyPanel}">
+            <g:Label text="One or more boards has been edited. Please refresh your browser to get the current data." addStyleNames="{style.dirtyLabel}" />
+        </g:FlowPanel>
 
         <g:FlowPanel ui:field="boardPanel" addStyleNames="{style.mainPanel}" />
     </g:FlowPanel>

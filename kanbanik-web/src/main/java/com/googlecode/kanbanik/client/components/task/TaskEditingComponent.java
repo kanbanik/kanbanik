@@ -13,6 +13,7 @@ import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.MarkBoardsAsDirtyMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
@@ -29,7 +30,11 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
 
     private Panel taskDeletedWarningPanel = new FlowPanel();
 
+    private Panel boardDirtydWarningPanel = new FlowPanel();
+
     private Panel taskDirtyWarningPanel = new FlowPanel();
+
+    private BoardDirtyListener boardDirtyListener = new BoardDirtyListener();
 
     private TaskDto dto;
 
@@ -46,6 +51,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
         MessageBus.registerListener(TaskEditedMessage.class, this);
         MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(TaskAddedMessage.class, this);
+        MessageBus.registerListener(MarkBoardsAsDirtyMessage.class, boardDirtyListener);
 
         DeleteKeyListener.INSTANCE.stop();
         MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
@@ -60,6 +66,8 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
         MessageBus.unregisterListener(TaskEditedMessage.class, this);
         MessageBus.unregisterListener(TaskDeletedMessage.class, this);
         MessageBus.unregisterListener(TaskAddedMessage.class, this);
+        MessageBus.unregisterListener(BoardDirtyListener.class, boardDirtyListener);
+
     }
 
     @Override
@@ -77,8 +85,12 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
         taskDeletedWarningPanel.add(createNew);
         taskDeletedWarningPanel.setVisible(false);
 
+        boardDirtydWarningPanel.add(red(new Label("The board became dirty - the saving of this task may not pass")));
+        boardDirtydWarningPanel.setVisible(false);
+
         taskDirtyWarningPanel.add(taskChangedWarningPanel);
         taskDirtyWarningPanel.add(taskDeletedWarningPanel);
+        taskDirtyWarningPanel.add(boardDirtydWarningPanel);
 
         initButtonListeners(replaceThisDialog, replaceTask, createNew);
 
@@ -207,6 +219,14 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
                 dto.setBoardId(message.getPayload().getBoardId());
                 dto.setOrder(message.getPayload().getOrder());
             }
+        }
+    }
+
+    class BoardDirtyListener implements MessageListener<Dtos.BoardDto> {
+
+        @Override
+        public void messageArrived(Message<Dtos.BoardDto> message) {
+            boardDirtydWarningPanel.setVisible(true);
         }
     }
 }

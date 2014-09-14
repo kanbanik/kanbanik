@@ -29,9 +29,7 @@ public class ProjectGui extends FlexTable implements ModulesLifecycleListener {
 
     @Override
     public void activated() {
-        if (!MessageBus.listens(FilterChangedMessage.class, filterChangedListener)) {
-            MessageBus.registerListener(FilterChangedMessage.class, filterChangedListener);
-        }
+        MessageBus.registerOnce(FilterChangedMessage.class, filterChangedListener);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.SerializationException;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.MarkBoardsAsDirtyMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.*;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
@@ -23,6 +24,8 @@ public class ServerEventsListener {
     private static final Map<String, Class<?>> eventToDto = new HashMap<String, Class<?>>();
     private static final Map<String, EventAction> eventToAction = new HashMap<String, EventAction>();
 
+    public static final String DEFAULT_ACTION_NAME = "DEFAULT";
+
     static {
         eventToDto.put(CommandNames.EDIT_TASK.name, Dtos.TaskDto.class);
         eventToDto.put(CommandNames.CREATE_TASK.name, Dtos.TaskDto.class);
@@ -33,6 +36,7 @@ public class ServerEventsListener {
         eventToAction.put(CommandNames.CREATE_TASK.name, new TaskCreatedEventAction());
         eventToAction.put(CommandNames.DELETE_TASK.name, new TaskDeletedEventAction());
         eventToAction.put(CommandNames.MOVE_TASK.name, new TaskMovedEventAction());
+        eventToAction.put(DEFAULT_ACTION_NAME, new DefaultEventAction());
     }
 
     public ServerEventsListener() {
@@ -59,6 +63,8 @@ public class ServerEventsListener {
         }
     }
 
+
+
     class Serializer implements ClientSerializer {
         public Object deserialize(String message) throws SerializationException {
             if (!isActive) {
@@ -69,8 +75,7 @@ public class ServerEventsListener {
                 Dtos.EventDto eventDto = DtoFactory.asDto(Dtos.EventDto.class, message);
                 String eventSource = eventDto.getSource();
                 if (!eventToDto.containsKey(eventSource)) {
-                    // ignore if can not process
-                    return null;
+                    return new Pair(DEFAULT_ACTION_NAME, DefaultDto.getInstance());
                 }
 
                 Class<?> dtoClass = eventToDto.get(eventSource);
@@ -115,6 +120,14 @@ public class ServerEventsListener {
                 MessageBus.sendMessage(new TaskDeletedMessage(taskDto, this));
             }
 
+        }
+    }
+
+    static class DefaultEventAction implements EventAction {
+
+        @Override
+        public void execute(Pair pair) {
+            MessageBus.sendMessage(new MarkBoardsAsDirtyMessage(null, this));
         }
     }
 
@@ -191,4 +204,12 @@ public class ServerEventsListener {
 
 }
 
+class DefaultDto {
+    private static final DefaultDto INSTANCE = new DefaultDto();
 
+    private DefaultDto(){}
+
+    public static DefaultDto getInstance() {
+        return INSTANCE;
+    }
+}
