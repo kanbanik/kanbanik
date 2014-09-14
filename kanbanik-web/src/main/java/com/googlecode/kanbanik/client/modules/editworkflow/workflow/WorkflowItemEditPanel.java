@@ -63,7 +63,7 @@ public class WorkflowItemEditPanel extends FlowPanel {
 	
 	public void setVerticalSizing(boolean enabled, int size) {
 		verticalSizingSizeBox = new TextBox();
-		Panel panel = createNameWaluePair("Fixed Verical Size (in tasks): ", Integer.toString(size), verticalSizingSizeBox);
+		Panel panel = createNameWaluePair("Fixed Verical Size (in pixels): ", Integer.toString(size), verticalSizingSizeBox);
 		
 		verticalSizingEnabled = new CheckBox();
 		verticalSizingEnabled.setValue(enabled);

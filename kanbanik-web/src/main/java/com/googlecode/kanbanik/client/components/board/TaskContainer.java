@@ -34,9 +34,6 @@ public class TaskContainer extends Composite {
 		String fixedContantPanelStyle();
 	}
 	
-	// task height + border + margin
-	public static final int SIZE_OF_TASK = 78;
-	
 	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
 	}
 
@@ -64,7 +61,7 @@ public class TaskContainer extends Composite {
 		if (fixedSizeOnWorkflowitem) {
 			int numOfTasks = currentItem.getVerticalSize();
 			addStyleName(style.fixedContantPanelStyle());
-			String height = (numOfTasks * SIZE_OF_TASK) + "px";
+			String height = (numOfTasks) + "px";
 			setHeight(height);
 		} else {
 			addStyleName(style.defaultContantPanelStyle());
