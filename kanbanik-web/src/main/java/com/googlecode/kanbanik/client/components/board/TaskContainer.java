@@ -12,22 +12,25 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
+
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskContainer extends Composite {
 
-	@UiField
+	@UiField(provided = true)
 	FlowPanel contentPanel;
 	
 	@UiField 
 	Style style;
 
-    private Dtos.BoardDto board;
+    private WipLimitGuard wipLimitGuard;
 
     private Dtos.WorkflowitemDto currentItem;
 
@@ -48,16 +51,37 @@ public class TaskContainer extends Composite {
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	public TaskContainer(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
-        this.board = board;
+	public TaskContainer(Dtos.BoardDto board, final Dtos.WorkflowitemDto currentItem) {
         this.currentItem = currentItem;
+
+        contentPanel = new FlowPanel() {
+            @Override
+            protected void insert(Widget child, com.google.gwt.user.client.Element container, int beforeIndex, boolean domInsert) {
+                super.insert(child, container, beforeIndex, domInsert);
+                if (child instanceof TaskGui) {
+                    wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
+                }
+            }
+
+            @Override
+            public boolean remove(Widget child) {
+                boolean res = super.remove(child);
+
+                if (res && child instanceof TaskGui) {
+                    wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
+                }
+
+                return res;
+            }
+
+        };
+
         initWidget(uiBinder.createAndBindUi(this));
 		setupSizing(board, currentItem);
 		registerListeners();
 	}
 
 	private void registerListeners() {
-		
 		contentPanel.addDomHandler(new ClickHandler() {
 			
 			@Override
@@ -78,13 +102,6 @@ public class TaskContainer extends Composite {
 			addStyleName(style.defaultContantPanelStyle());
 		}
 		
-	}
-
-	public void removeTask(TaskDto task) {
-		int widgetIndex = getTaskIndex(task);
-		if (widgetIndex != -1) {
-			contentPanel.remove(widgetIndex);
-		}
 	}
 
 	public boolean containsTask(TaskDto task) {
@@ -132,9 +149,8 @@ public class TaskContainer extends Composite {
     }
 
 	public void add(TaskGui task) {
-
 		BigDecimal taskOrder = asBigDecimal(task.getDto().getOrder());
-		
+
 		for (TaskDto currenTask : getTasks()) {
 			BigDecimal currentOrder = asBigDecimal(currenTask.getOrder());
 			if (taskOrder.compareTo(currentOrder) <= 0) {
@@ -142,9 +158,16 @@ public class TaskContainer extends Composite {
 				return;
 			}
 		}
-		
-		contentPanel.add(task);
+
+        contentPanel.insert(task, 0);
 	}
+
+    public void removeTask(TaskDto task) {
+        int widgetIndex = getTaskIndex(task);
+        if (widgetIndex != -1) {
+            contentPanel.remove(widgetIndex);
+        }
+    }
 
 	private BigDecimal asBigDecimal(String string) {
 		if (string == null || "".equals(string)) {
@@ -158,7 +181,7 @@ public class TaskContainer extends Composite {
 		return contentPanel;
 	}
 
-//    private Dtos.WorkflowitemDto findInRealBoard() {
-//
-//    }
+    public void setWipLimitGuard(WipLimitGuard wipLimitGuard) {
+        this.wipLimitGuard = wipLimitGuard;
+    }
 }

@@ -30,6 +30,8 @@ import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectio
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.BoardGuiBuilder;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.ExtendedWorkflowitem;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
@@ -153,8 +155,15 @@ public class BoardsModule {
 			projectTable.setStyleName(style.board());
 			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
 			if (hasWorkflow) {
-				boardBuilder.buildBoard(board, board.getWorkflow(), project,
-						projectTable, dragController, 0, 0);
+				boardBuilder.buildBoard(
+                        new WipLimitGuard(),
+                        new ArrayList<ExtendedWorkflowitem>(),
+                        null,
+                        board.getWorkflow(),
+                        project,
+						projectTable,
+                        dragController,
+                        0, 0);
 				boardTable.setWidget(row, 1, projectTable);
 			} else {
 				boardTable.setWidth("100%");
