@@ -153,7 +153,7 @@ public class BoardsModule {
 			projectTable.setStyleName(style.board());
 			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
 			if (hasWorkflow) {
-				boardBuilder.buildBoard(board.getWorkflow(), project,
+				boardBuilder.buildBoard(board, board.getWorkflow(), project,
 						projectTable, dragController, 0, 0);
 				boardTable.setWidget(row, 1, projectTable);
 			} else {

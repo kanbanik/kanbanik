@@ -27,20 +27,31 @@ public class TaskContainer extends Composite {
 	@UiField 
 	Style style;
 
-	public interface Style extends CssResource {
+    private Dtos.BoardDto board;
+
+    private Dtos.WorkflowitemDto currentItem;
+
+    public void setWipCorrect(boolean wipCorrect) {
+        // todo use styles insted
+        contentPanel.getElement().getStyle().setBackgroundColor(wipCorrect ? "green" : "red");
+    }
+
+    public interface Style extends CssResource {
 		
 		String defaultContantPanelStyle();
 		
 		String fixedContantPanelStyle();
 	}
-	
+
 	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	public TaskContainer(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
-		initWidget(uiBinder.createAndBindUi(this));
+        this.board = board;
+        this.currentItem = currentItem;
+        initWidget(uiBinder.createAndBindUi(this));
 		setupSizing(board, currentItem);
 		registerListeners();
 	}
@@ -146,4 +157,8 @@ public class TaskContainer extends Composite {
 	public FlowPanel asFlowPanel() {
 		return contentPanel;
 	}
+
+//    private Dtos.WorkflowitemDto findInRealBoard() {
+//
+//    }
 }
