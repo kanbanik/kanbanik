@@ -107,6 +107,7 @@
             display: none;
             overflow: hidden;
             resize: vertical;
+            background-color: transparent;
         }
 
 	</ui:style>

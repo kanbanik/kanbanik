@@ -1,7 +1,6 @@
 package com.googlecode.kanbanik.client.modules;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,6 +8,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
+import com.googlecode.kanbanik.client.KanbanikProgressBar;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
@@ -18,9 +18,6 @@ import com.googlecode.kanbanik.client.components.board.BoardPanel;
 import com.googlecode.kanbanik.client.components.board.BoardsPanel;
 import com.googlecode.kanbanik.client.components.board.NoContentWarningPanel;
 import com.googlecode.kanbanik.client.components.board.ProjectHeader;
-import com.googlecode.kanbanik.client.components.board.TaskContainer;
-import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
-import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
 import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
 import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
@@ -73,6 +70,7 @@ public class BoardsModule {
                 }
             }
 
+            KanbanikProgressBar.hide();
             // stop execution
             return false;
         }
@@ -86,8 +84,11 @@ public class BoardsModule {
 			}
 		}
 
-        Scheduler.get().scheduleIncremental(new TaskAddingCommands(linearizedTasks));
-
+        if (linearizedTasks.size() > 0) {
+            Scheduler.get().scheduleIncremental(new TaskAddingCommands(linearizedTasks));
+        } else {
+            KanbanikProgressBar.hide();
+        }
 	}
 
 	private Widget buildBoard(Dtos.BoardsWithProjectsDto result) {
@@ -107,7 +108,7 @@ public class BoardsModule {
 
 	private void createBoardsPanel(BoardsPanel panel,
 			List<Dtos.BoardWithProjectsDto> boardsWithProjects) {
-		BoardBoardGuiBuilder boardBuilder = new BoardBoardGuiBuilder();
+		BoardGuiBuilder boardBuilder = new BoardGuiBuilder();
 		for (Dtos.BoardWithProjectsDto boardWithProjects : boardsWithProjects) {
 			Dtos.BoardDto board = boardWithProjects.getBoard();
 
@@ -146,7 +147,7 @@ public class BoardsModule {
 	}
 
 	private void addProjcets(PickupDragController dragController,
-			Dtos.BoardDto board, BoardBoardGuiBuilder boardBuilder,
+			Dtos.BoardDto board, BoardGuiBuilder boardBuilder,
 			FlexTable boardTable, List<Dtos.ProjectDto> projectsOnBoard) {
 		int row = 0;
 		for (Dtos.ProjectDto project : projectsOnBoard) {
@@ -234,7 +235,8 @@ public class BoardsModule {
                 new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
 
                     @Override
-                    public void success(Dtos.BoardsWithProjectsDto response) {
+                    public void onSuccess(Dtos.BoardsWithProjectsDto response) {
+                        // overriding onSuccess to avoid hiding the progress bar - it will have to be done after the tasks are added
                         Widget boards = buildBoard(response);
                         addTasks(response);
                         boardsModuleInitialized.initialized(boards);
@@ -243,27 +245,5 @@ public class BoardsModule {
         );
 	}
 
-    class BoardBoardGuiBuilder extends BoardGuiBuilder {
 
-		@Override
-		protected Widget createWorkflowitemPlaceContentWidget(
-				PickupDragController dragController,
-				Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
-			TaskContainer taskContainer = new TaskContainer(board, currentItem);
-			DropController dropController = new TaskMovingDropController(
-					taskContainer, currentItem, project);
-			dragController.registerDropController(dropController);
-			return taskContainer;
-		}
-
-		@Override
-		protected Widget createWorkflowitemPlace(
-                PickupDragController dragController,
-                Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project,
-                Widget childTable, Dtos.BoardDto board) {
-			return new WorkflowitemPlace(currentItem, project, childTable,
-					dragController, board);
-		}
-
-	}
 }

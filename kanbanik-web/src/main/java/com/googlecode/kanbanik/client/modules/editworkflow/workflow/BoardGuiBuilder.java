@@ -1,20 +1,20 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
+import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
+import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 
-public abstract class BoardGuiBuilder {
+public class BoardGuiBuilder {
 	
 	private static final BoardStyle style = KanbanikResources.INSTANCE.boardStyle();
 
@@ -91,9 +91,23 @@ public abstract class BoardGuiBuilder {
 		table.getElement().getStyle().setBackgroundColor("#FBFBFB");
 		table.setWidth("100%");
 	}
-	
-	protected abstract Widget createWorkflowitemPlaceContentWidget(PickupDragController dragController, Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board);
-	
-	protected abstract Widget createWorkflowitemPlace(PickupDragController dragController, Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Widget childTable, Dtos.BoardDto board);
+
+    protected Widget createWorkflowitemPlaceContentWidget(
+            PickupDragController dragController,
+            Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
+        TaskContainer taskContainer = new TaskContainer(board, currentItem);
+        DropController dropController = new TaskMovingDropController(
+                taskContainer, currentItem, project);
+        dragController.registerDropController(dropController);
+        return taskContainer;
+    }
+
+    protected Widget createWorkflowitemPlace(
+            PickupDragController dragController,
+            Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project,
+            Widget childTable, Dtos.BoardDto board) {
+        return new WorkflowitemPlace(currentItem, project, childTable,
+                dragController, board);
+    }
 }
 
