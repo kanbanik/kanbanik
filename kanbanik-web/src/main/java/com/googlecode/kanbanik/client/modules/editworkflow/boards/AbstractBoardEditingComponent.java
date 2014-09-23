@@ -91,7 +91,7 @@ public abstract class AbstractBoardEditingComponent implements PanelContainingDi
 			workflowVerticalSizing.setValue(getVerticalSizing() == Dtos.WorkflowVerticalSizing.BALANCED);
 			
 			showUserPictureBox.setValue(isUserPictureDisplayingEnabled());
-            showUserPictureBox.setValue(fixedSizeShortDescriptionEnabled());
+            fixedSizeShortDescriptionBox.setValue(fixedSizeShortDescriptionEnabled());
 
 			dialog.center();
 			boardNameText.setFocus(true);
