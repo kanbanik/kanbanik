@@ -29,6 +29,13 @@
             height: 0px
         }
 
+        .stateStyle {
+        }
+
+        .stackStyle {
+            font-style: italic;
+        }
+
 	</ui:style>
 
 	<g:HTMLPanel addStyleNames="{style.mainPanel}">

@@ -34,16 +34,15 @@ public class TaskContainer extends Composite {
 
     private Dtos.WorkflowitemDto currentItem;
 
-    public void setWipCorrect(boolean wipCorrect) {
-        // todo use styles insted
-        contentPanel.getElement().getStyle().setBackgroundColor(wipCorrect ? "green" : "red");
-    }
-
     public interface Style extends CssResource {
 		
 		String defaultContantPanelStyle();
 		
 		String fixedContantPanelStyle();
+
+        String inWip();
+
+        String wipOverrun();
 	}
 
 	interface MyUiBinder extends UiBinder<FlowPanel, TaskContainer> {
@@ -80,6 +79,14 @@ public class TaskContainer extends Composite {
 		setupSizing(board, currentItem);
 		registerListeners();
 	}
+
+    public void setWipCorrect(boolean wipCorrect) {
+        if (wipCorrect) {
+            contentPanel.getElement().replaceClassName(style.wipOverrun(), style.inWip());
+        } else {
+            contentPanel.getElement().replaceClassName(style.inWip(), style.wipOverrun());
+        }
+    }
 
 	private void registerListeners() {
 		contentPanel.addDomHandler(new ClickHandler() {

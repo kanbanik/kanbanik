@@ -39,7 +39,12 @@ public class WorkflowitemPlace extends Composite implements
 
     protected interface Style extends CssResource {
         String visibleHeader();
+
         String hiddenHeader();
+
+        String stateStyle();
+
+        String stackStyle();
     }
 
     @UiField
@@ -98,8 +103,11 @@ public class WorkflowitemPlace extends Composite implements
 
 		int wipLimitValue = workflowitemDto.getWipLimit();
 		if (wipLimitValue > 0) {
+            nameWithWipLimitField.setStyleName(style.stateStyle());
             nameWithWipLimitText += " [" + Integer.toString(wipLimitValue) + "]";
-		}
+		} else {
+            nameWithWipLimitField.setStyleName(style.stackStyle());
+        }
 
         nameWithWipLimitField.setText(nameWithWipLimitText);
 	}

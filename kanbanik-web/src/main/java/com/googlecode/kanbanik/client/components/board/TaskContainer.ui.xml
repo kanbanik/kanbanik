@@ -5,8 +5,15 @@
 		.defaultContantPanelStyle, .fixedContantPanelStyle {
 			width: 140px;
 			min-height: 45px;
-			background-color: #d5ffde;
 		}
+
+        .inWip {
+            background-color: #d5ffde;
+        }
+
+        .wipOverrun {
+            background-color: #ef8686;
+        }
 
 		.defaultContantPanelStyle {
 			height: 100%;
@@ -18,6 +25,6 @@
 		}
 	</ui:style>
 
-	<g:FlowPanel ui:field="contentPanel" />
+	<g:FlowPanel ui:field="contentPanel" addStyleNames="{style.inWip}"/>
 
 </ui:UiBinder>
