@@ -8,7 +8,7 @@
 		}
 
         .inWip {
-            background-color: #d5ffde;
+            background-color: #f5faff;
         }
 
         .wipOverrun {

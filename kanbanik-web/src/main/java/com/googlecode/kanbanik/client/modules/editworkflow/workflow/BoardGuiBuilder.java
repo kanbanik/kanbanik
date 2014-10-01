@@ -88,7 +88,7 @@ public class BoardGuiBuilder {
 			table.addStyleName("not-balanced-table");
 		}
 		
-		table.getElement().getStyle().setBackgroundColor("#FBFBFB");
+		table.getElement().getStyle().setBackgroundColor("#92c1f0");
 		table.setWidth("100%");
 	}
 
