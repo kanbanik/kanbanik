@@ -156,18 +156,22 @@ public class TaskContainer extends Composite {
     }
 
 	public void add(TaskGui task) {
-
 		BigDecimal taskOrder = asBigDecimal(task.getDto().getOrder());
 
-		for (TaskDto currenTask : getTasks()) {
-			BigDecimal currentOrder = asBigDecimal(currenTask.getOrder());
+        List<TaskDto> allTasks = getTasks();
+
+		for (TaskDto currentTask : allTasks) {
+			BigDecimal currentOrder = asBigDecimal(currentTask.getOrder());
+
+//                 taskOrder <= currentOrder
 			if (taskOrder.compareTo(currentOrder) <= 0) {
-				contentPanel.insert(task, getTaskIndex(currenTask));
+				contentPanel.insert(task, getTaskIndex(currentTask));
 				return;
 			}
 		}
 
-        contentPanel.insert(task, 0);
+        // add to last position
+        contentPanel.add(task);
 	}
 
     public void removeTask(TaskDto task) {
