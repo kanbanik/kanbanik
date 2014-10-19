@@ -74,9 +74,9 @@ class KanbanikApi extends HttpServlet {
 
     val (command, config) = commandWithConfig.get
 
-    if (config.onlyLoggedIn) {
-      val sessionId: String = extractSessionId(json)
+    val sessionId: String = extractSessionId(json)
 
+    if (config.onlyLoggedIn) {
       if (sessionId == null || sessionId == "") {
         respondAppError(ErrorDto("The sessionId has to be set for command: " + commandJson), resp)
         return
@@ -92,12 +92,11 @@ class KanbanikApi extends HttpServlet {
     }
 
     try {
-      command.execute(json)
-      match {
+      command.execute(json) match {
         case Left(x) => {
           val response = write(x)
           if (config.notifyByEvent) {
-            notifyClients(commandName, response)
+            notifyClients(commandName, sessionId, response)
           }
 
           resp.getWriter().print(response)
@@ -117,8 +116,12 @@ class KanbanikApi extends HttpServlet {
     }
   }
 
-  def notifyClients(commandName: String, resp: String) {
-    broadcaster.broadcast(write(EventDto(commandName, resp)))
+  def notifyClients(commandName: String, sessionId: String, resp: String) {
+    val dontNotifyYourself = DontNotifyYourselfFilter(sessionId)
+    val b = broadcaster
+    b.getBroadcasterConfig.addFilter(dontNotifyYourself)
+    b.broadcast(write(EventDto(commandName, resp)))
+    b.getBroadcasterConfig.removeFilter(dontNotifyYourself)
   }
 
   def broadcaster: Broadcaster = {
@@ -142,14 +145,31 @@ class KanbanikApi extends HttpServlet {
     return ""
   }
 
+  case class DontNotifyYourselfFilter(val currentSessionId: String) extends PerRequestBroadcastFilter {
+
+    def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+      val sessionId = extractSessionId(r)
+      if (sessionId == null) {
+        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+      } else {
+        if (sessionId.equals(currentSessionId)) {
+          new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+        } else {
+          new BroadcastAction(message)
+        }
+      }
+    }
+
+    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
+  }
+
   object AuthorizationFilter extends PerRequestBroadcastFilter {
 
     def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      val url = r.getRequest.getRequestURL
-      if (url == null) {
+      val sessionId = extractSessionId(r)
+      if (sessionId == null) {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
-        val sessionId = url.substring(url.lastIndexOf("/") + 1, url.length)
         val subject = new Subject.Builder().sessionId(sessionId).buildSubject
         if (subject.isAuthenticated) {
           new BroadcastAction(message)
@@ -161,6 +181,15 @@ class KanbanikApi extends HttpServlet {
     }
 
     def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
+  }
+
+  def extractSessionId(r: AtmosphereResource) = {
+    val url = r.getRequest.getRequestURL
+    if (url == null) {
+      null
+    } else {
+      url.substring(url.lastIndexOf("/") + 1, url.length)
+    }
   }
 
   val commands = Map[String, (WithExecute, CommandConfiguration)](

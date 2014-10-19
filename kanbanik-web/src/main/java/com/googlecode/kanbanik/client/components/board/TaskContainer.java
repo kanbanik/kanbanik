@@ -24,7 +24,7 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskContainer extends Composite {
 
-	@UiField(provided = true)
+	@UiField
 	FlowPanel contentPanel;
 	
 	@UiField 
@@ -53,27 +53,27 @@ public class TaskContainer extends Composite {
 	public TaskContainer(Dtos.BoardDto board, final Dtos.WorkflowitemDto currentItem) {
         this.currentItem = currentItem;
 
-        contentPanel = new FlowPanel() {
-            @Override
-            protected void insert(Widget child, com.google.gwt.user.client.Element container, int beforeIndex, boolean domInsert) {
-                super.insert(child, container, beforeIndex, domInsert);
-                if (child instanceof TaskGui) {
-                    wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
-                }
-            }
-
-            @Override
-            public boolean remove(Widget child) {
-                boolean res = super.remove(child);
-
-                if (res && child instanceof TaskGui) {
-                    wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
-                }
-
-                return res;
-            }
-
-        };
+//        contentPanel = new FlowPanel() {
+//            @Override
+//            protected void insert(Widget child, com.google.gwt.user.client.Element container, int beforeIndex, boolean domInsert) {
+//                super.insert(child, container, beforeIndex, domInsert);
+//                if (child instanceof TaskGui) {
+//
+//                }
+//            }
+//
+//            @Override
+//            public boolean remove(Widget child) {
+//                boolean res = super.remove(child);
+//
+//                if (res && child instanceof TaskGui) {
+//
+//                }
+//
+//                return res;
+//            }
+//
+//        };
 
         initWidget(uiBinder.createAndBindUi(this));
 		setupSizing(board, currentItem);
@@ -163,7 +163,6 @@ public class TaskContainer extends Composite {
 		for (TaskDto currentTask : allTasks) {
 			BigDecimal currentOrder = asBigDecimal(currentTask.getOrder());
 
-//                 taskOrder <= currentOrder
 			if (taskOrder.compareTo(currentOrder) <= 0) {
 				contentPanel.insert(task, getTaskIndex(currentTask));
 				return;
@@ -172,6 +171,8 @@ public class TaskContainer extends Composite {
 
         // add to last position
         contentPanel.add(task);
+
+        wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
 	}
 
     public void removeTask(TaskDto task) {
@@ -179,6 +180,8 @@ public class TaskContainer extends Composite {
         if (widgetIndex != -1) {
             contentPanel.remove(widgetIndex);
         }
+
+        wipLimitGuard.taskCountChanged(currentItem.getId(), getTasks().size());
     }
 
 	private BigDecimal asBigDecimal(String string) {

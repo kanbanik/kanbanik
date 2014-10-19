@@ -14,13 +14,7 @@ public class WipLimitGuard {
             return;
         }
 
-        Stack<ExtendedWorkflowitem> path;
-
-        if (currentNumOfTasks < size) {
-            path = doIncDec(id, true);
-        } else {
-            path = doIncDec(id, false);
-        }
+        Stack<ExtendedWorkflowitem> path = doIncDec(id, size - currentNumOfTasks);
 
         for (ExtendedWorkflowitem current : path) {
             // something has been changed
@@ -47,15 +41,11 @@ public class WipLimitGuard {
         }
     }
 
-    private Stack<ExtendedWorkflowitem> doIncDec(String id, boolean inc) {
+    private Stack<ExtendedWorkflowitem> doIncDec(String id, int diff) {
         Stack<ExtendedWorkflowitem> path = new Stack<ExtendedWorkflowitem>();
         ExtendedWorkflowitem current = idToWorkflowitem.get(id);
         do {
-            if (inc) {
-                current.inc();
-            } else {
-                current.dec();
-            }
+            current.add(diff);
 
             path.push(current);
             current = current.getParent();

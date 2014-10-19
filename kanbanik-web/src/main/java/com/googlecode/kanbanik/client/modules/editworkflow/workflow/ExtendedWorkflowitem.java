@@ -24,8 +24,9 @@ public class ExtendedWorkflowitem {
         this.parent = parent;
     }
 
-    public void inc() {
-        numOfTasks++;
+    // if added a negative number, than it is decrementation
+    public void add(int diff) {
+        numOfTasks += diff;
     }
 
     public boolean isUnderWip() {
@@ -42,10 +43,6 @@ public class ExtendedWorkflowitem {
         }
 
         currentlyShowAsUnderWipLimit = wipCorrect;
-    }
-
-    public void dec() {
-        numOfTasks--;
     }
 
     public ExtendedWorkflowitem getParent() {
