@@ -156,6 +156,7 @@ public class TaskContainer extends Composite {
     }
 
 	public void add(TaskGui task) {
+
 		BigDecimal taskOrder = asBigDecimal(task.getDto().getOrder());
 
 		for (TaskDto currenTask : getTasks()) {
