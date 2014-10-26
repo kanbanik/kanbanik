@@ -4,6 +4,7 @@
 	<ui:style>
 		.mainPanel {
 			float: left;
+            margin-right: 5px;
 		}
 		
 		.projectNameLabel {
