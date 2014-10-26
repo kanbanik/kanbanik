@@ -21,6 +21,7 @@ class KanbanikApi extends HttpServlet {
   type WithExecute = {def execute(parsedJson: JValue): Either[AnyRef, ErrorDto]}
 
   broadcaster.getBroadcasterConfig.addFilter(AuthorizationFilter)
+  broadcaster.getBroadcasterConfig.addFilter(DontNotifyYourselfFilter)
 
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) = {
     process(req, resp)
@@ -117,11 +118,8 @@ class KanbanikApi extends HttpServlet {
   }
 
   def notifyClients(commandName: String, sessionId: String, resp: String) {
-    val dontNotifyYourself = DontNotifyYourselfFilter(sessionId)
-    val b = broadcaster
-    b.getBroadcasterConfig.addFilter(dontNotifyYourself)
-    b.broadcast(write(EventDto(commandName, resp)))
-    b.getBroadcasterConfig.removeFilter(dontNotifyYourself)
+    // adds the session ID explicitely behind the response JSON so the filter will be able to ignore the resource which originated it
+    broadcaster.broadcast(write(EventDto(commandName, resp)) + "###" + sessionId)
   }
 
   def broadcaster: Broadcaster = {
@@ -145,22 +143,41 @@ class KanbanikApi extends HttpServlet {
     return ""
   }
 
-  case class DontNotifyYourselfFilter(val currentSessionId: String) extends PerRequestBroadcastFilter {
+  object DontNotifyYourselfFilter extends PerRequestBroadcastFilter {
 
     def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      val sessionId = extractSessionId(r)
-      if (sessionId == null) {
+
+      if (originalMessage == null) {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
-        if (sessionId.equals(currentSessionId)) {
-          new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
-        } else {
-          new BroadcastAction(message)
+        originalMessage match {
+          case(m : String) => {
+            val sessionIdStarts = m.lastIndexOf("###")
+            if (sessionIdStarts == -1) {
+              return new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+            }
+            val originalSessionId = m.substring(sessionIdStarts + 3)
+
+            val toSendSessionId = extractSessionId(r)
+
+            if (toSendSessionId == null || toSendSessionId == originalSessionId) {
+              new BroadcastAction(BroadcastAction.ACTION.ABORT, m.substring(0, sessionIdStarts))
+            } else {
+              new BroadcastAction(m.substring(0, sessionIdStarts))
+            }
+          }
+
+          // other than String
+          case(_) => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
         }
+
+
       }
     }
 
-    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
+    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+      new BroadcastAction(message)
+    }
   }
 
   object AuthorizationFilter extends PerRequestBroadcastFilter {
