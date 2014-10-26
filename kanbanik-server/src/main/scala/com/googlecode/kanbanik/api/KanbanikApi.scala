@@ -20,6 +20,9 @@ class KanbanikApi extends HttpServlet {
 
   type WithExecute = {def execute(parsedJson: JValue): Either[AnyRef, ErrorDto]}
 
+  val factory = BroadcasterFactory.getDefault
+  val broadcaster: Broadcaster = factory.lookup("/events")
+
   broadcaster.getBroadcasterConfig.addFilter(AuthorizationFilter)
   broadcaster.getBroadcasterConfig.addFilter(DontNotifyYourselfFilter)
 
@@ -122,13 +125,8 @@ class KanbanikApi extends HttpServlet {
     broadcaster.broadcast(write(EventDto(commandName, resp)) + "###" + sessionId)
   }
 
-  def broadcaster: Broadcaster = {
-    val factory = BroadcasterFactory.getDefault
-    factory.lookup("/events")
-  }
-
   def extractSessionId(json: JValue): String = {
-    val sessionId: String = try {
+    try {
       return (json \ "sessionId").extract[String]
     } catch {
       case _: Throwable => return ""

@@ -137,29 +137,32 @@ public class ServerEventsListener {
         public void execute(Pair pair) {
             Dtos.TaskDto newTask = (Dtos.TaskDto) pair.eventPayload;
 
-            GetTaskByIdResponseListener listener = new GetTaskByIdResponseListener(newTask);
+            GetTaskByIdResponseListener listener = new GetTaskByIdResponseListener();
             MessageBus.registerListener(GetTaskByIdResponseMessage.class, listener);
             MessageBus.sendMessage(new GetTaskByIdRequestMessage(newTask.getId(), this));
             MessageBus.unregisterListener(GetTaskByIdResponseMessage.class, listener);
+
+            if (listener.getOldTask() != null) {
+                MessageBus.sendMessage(new TaskDeletedMessage(listener.getOldTask(), this, true));
+                MessageBus.sendMessage(new TaskAddedMessage(newTask, this, true));
+            }
         }
 
         class GetTaskByIdResponseListener implements MessageListener<Dtos.TaskDto> {
 
-            private Dtos.TaskDto newTask = null;
-
-            GetTaskByIdResponseListener(Dtos.TaskDto newTask) {
-                this.newTask = newTask;
-            }
+            private Dtos.TaskDto oldTask;
 
             @Override
             public void messageArrived(Message<Dtos.TaskDto> message) {
                 if (message.getPayload() == null) {
                     return;
                 }
-                Dtos.TaskDto oldTask = message.getPayload();
 
-                MessageBus.sendMessage(new TaskDeletedMessage(oldTask, this, true));
-                MessageBus.sendMessage(new TaskAddedMessage(newTask, this, true));
+                oldTask = message.getPayload();
+            }
+
+            public Dtos.TaskDto getOldTask() {
+                return oldTask;
             }
         }
     }
