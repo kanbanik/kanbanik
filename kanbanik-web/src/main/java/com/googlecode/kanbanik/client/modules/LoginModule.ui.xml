@@ -50,7 +50,7 @@
 		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
 		<g:Label text="Password" addStyleNames="{style.labelsStyle}"/>
 		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" />
-		<g:Label text="Only supported browser is Google Chrome" addStyleNames="{style.warning}"/>
+		<g:Label text="Kanbanik is developed and tested mostly on Google Chrome - you may experience unexpected behavior in other browsers." addStyleNames="{style.warning}"/>
 		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" />
 	</g:FlowPanel>
 
