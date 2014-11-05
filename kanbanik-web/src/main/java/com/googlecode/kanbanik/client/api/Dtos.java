@@ -286,20 +286,28 @@ public class Dtos {
         void setFullTextFilter(FullTextMatcherDataDto fullTextFilter);
         FullTextMatcherDataDto getFullTextFilter();
 
-        void setUsers(List<Dtos.UserDto> users);
-        List<Dtos.UserDto> getUsers();
+        void setUsers(List<Dtos.Filtered<Dtos.UserDto>> users);
+        List<Dtos.Filtered<Dtos.UserDto>> getUsers();
 
         void setDueDate(DateMatcherDataDto dueDate);
         DateMatcherDataDto getDueDate();
 
-        void setClassesOfServices(List<Dtos.ClassOfServiceDto> classesOfServices);
-        List<Dtos.ClassOfServiceDto> getClassesOfServices();
+        void setClassesOfServices(List<Filtered<Dtos.ClassOfServiceDto>> classesOfServices);
+        List<Filtered<Dtos.ClassOfServiceDto>> getClassesOfServices();
 
-        void setBoards(List<BoardDto> boards);
-        List<BoardDto> getBoards();
+        void setBoards(List<Filtered<BoardDto>> boards);
+        List<Filtered<BoardDto>> getBoards();
 
-        void setBoardWithProjectsDto(List<BoardWithProjectsDto> boardWithProjectsDto);
-        List<BoardWithProjectsDto> getBoardWithProjectsDto();
+        void setBoardWithProjectsDto(List<Filtered<BoardWithProjectsDto>> boardWithProjectsDto);
+        List<Filtered<BoardWithProjectsDto>> getBoardWithProjectsDto();
+    }
+
+    public static interface Filtered<T> {
+        void setData(T data);
+        T getData();
+
+        void setSelected(Boolean selected);
+        Boolean isSelected();
     }
 
     public static interface FullTextMatcherDataDto {

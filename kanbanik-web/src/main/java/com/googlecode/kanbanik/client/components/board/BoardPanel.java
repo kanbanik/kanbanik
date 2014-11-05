@@ -74,7 +74,7 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 
         @Override
         public void messageArrived(Message<BoardsFilter> message) {
-            List<Dtos.BoardDto> visibleBoards = message.getPayload().getFilterDataDto().getBoards();
+            List<Dtos.Filtered<Dtos.BoardDto>> visibleBoards = message.getPayload().getFilterDataDto().getBoards();
 
             setVisible(false);
 
@@ -82,8 +82,8 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
                 return;
             }
 
-            for (Dtos.BoardDto visibleBoard : visibleBoards) {
-                if (visibleBoard.getId().equals(boardDto.getId())) {
+            for (Dtos.Filtered<Dtos.BoardDto> visibleBoard : visibleBoards) {
+                if (visibleBoard.getData().getId().equals(boardDto.getId())) {
                     setVisible(true);
                     break;
                 }

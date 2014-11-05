@@ -123,10 +123,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
             filterDataDto.getFullTextFilter().setFilteredEntities(entities);
 
-            filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceDto>());
-            filterDataDto.setUsers(new ArrayList<Dtos.UserDto>());
-            filterDataDto.setBoards(new ArrayList<Dtos.BoardDto>());
-            filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsDto>());
+            filterDataDto.setClassesOfServices(new ArrayList<Dtos.Filtered<Dtos.ClassOfServiceDto>>());
+            filterDataDto.setUsers(new ArrayList<Dtos.Filtered<Dtos.UserDto>>());
+            filterDataDto.setBoards(new ArrayList<Dtos.Filtered<Dtos.BoardDto>>());
+            filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.Filtered<Dtos.BoardWithProjectsDto>>());
 
             Dtos.DateMatcherDataDto dueDateFilter = DtoFactory.dateMatcherDataDto();
             dueDateFilter.setCondition(0);
@@ -467,7 +467,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         public BoardsFilterCheckBox(Dtos.BoardDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(filter.findById(entity) != -1);
+            setValue(filter.isSelected(entity));
         }
 
         @Override
@@ -490,7 +490,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         public ProjectOnBoardFilterCheckBox(Dtos.BoardWithProjectsDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(filter.findById(entity) != -1);
+            setValue(filter.isSelected(entity));
         }
 
         @Override
@@ -513,7 +513,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(filter.findById(entity) != -1);
+            setValue(filter.isSelected(entity));
         }
 
         @Override

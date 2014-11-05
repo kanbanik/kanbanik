@@ -68,6 +68,8 @@ public class DtoFactory {
 
         AutoBean<Dtos.DateMatcherDataDto> dateMatcherDataDto();
 
+        <T> AutoBean<Dtos.Filtered<T>> filtered();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -211,6 +213,14 @@ public class DtoFactory {
 
     public static Dtos.DateMatcherDataDto dateMatcherDataDto() {
         return factory.dateMatcherDataDto().as();
+    }
+
+    public static <T> Dtos.Filtered<T> filtered(T data, Boolean selected) {
+        Dtos.Filtered<T> filtered = factory.<T>filtered().as();
+        filtered.setData(data);
+        filtered.setSelected(selected);
+
+        return filtered;
     }
 
     public static <T> T asDto(Class<T> clazz, String json) {
