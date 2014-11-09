@@ -3,8 +3,6 @@ package com.googlecode.kanbanik.client.components.filter;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.logical.shared.OpenEvent;
-import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -24,7 +22,6 @@ import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRespo
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
@@ -123,10 +120,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
             filterDataDto.getFullTextFilter().setFilteredEntities(entities);
 
-            filterDataDto.setClassesOfServices(new ArrayList<Dtos.Filtered<Dtos.ClassOfServiceDto>>());
-            filterDataDto.setUsers(new ArrayList<Dtos.Filtered<Dtos.UserDto>>());
-            filterDataDto.setBoards(new ArrayList<Dtos.Filtered<Dtos.BoardDto>>());
-            filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.Filtered<Dtos.BoardWithProjectsDto>>());
+            filterDataDto.setClassesOfServices(new ArrayList<Dtos.ClassOfServiceWithSelectedDto>());
+            filterDataDto.setUsers(new ArrayList<Dtos.UserWithSelectedDto>());
+            filterDataDto.setBoards(new ArrayList<Dtos.BoardWithSelectedDto>());
+            filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsWithSelectedDto>());
 
             Dtos.DateMatcherDataDto dueDateFilter = DtoFactory.dateMatcherDataDto();
             dueDateFilter.setCondition(0);
@@ -440,7 +437,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         public UserFilterCheckBox(Dtos.UserDto entity, BoardsFilter filter) {
             super(entity, filter);
-            setValue(filter.findById(entity) != -1);
+            setValue(filter.isSelected(entity));
         }
 
         @Override

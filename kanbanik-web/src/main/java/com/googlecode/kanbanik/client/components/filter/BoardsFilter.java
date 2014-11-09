@@ -60,12 +60,16 @@ public class BoardsFilter {
             return false;
         }
 
-        boolean classOfServiceMatches = (task.getClassOfService() != null && findById(task.getClassOfService()) != -1);
+        int classOfServicePosition = task.getClassOfService() == null ? -1 : findById(task.getClassOfService());
+
+        boolean classOfServiceMatches = task.getClassOfService() != null && classOfServicePosition != -1 && filterDataDto.getClassesOfServices().get(classOfServicePosition).isSelected();
         if (!classOfServiceMatches) {
             return false;
         }
 
-        boolean userMatches = findById(task.getAssignee()) != -1;
+        int assigneePosition = findById(task.getAssignee());
+
+        boolean userMatches = assigneePosition != -1 && filterDataDto.getUsers().get(assigneePosition).isSelected();
 
         return userMatches;
     }
@@ -156,7 +160,7 @@ public class BoardsFilter {
                 RegExp regExp = RegExp.compile(expected);
                 matches = regExp.exec(actual) != null;
             } catch (Exception e) {
-                // incorrect regex - ignore it and show it
+                // incorrect regex - ignore it and show everything
                 matches = true;
             }
         } else {
@@ -173,7 +177,9 @@ public class BoardsFilter {
     public void add(Dtos.BoardDto boardDto) {
         int id = findById(boardDto);
         if (id == -1) {
-            filterDataDto.getBoards().add(DtoFactory.filtered(boardDto, true));
+            filterDataDto.getBoards().add(DtoFactory.withSelected(boardDto, true));
+        } else {
+            filterDataDto.getBoards().get(id).setSelected(true);
         }
     }
 
@@ -181,13 +187,17 @@ public class BoardsFilter {
         int id = findById(boardDto);
         if (id != -1) {
             filterDataDto.getBoards().get(id).setSelected(false);
+        } else {
+            filterDataDto.getBoards().add(DtoFactory.withSelected(boardDto, false));
         }
     }
 
     public void add(Dtos.ClassOfServiceDto classOfServiceDto) {
         int id = findById(classOfServiceDto);
         if (id == -1) {
-            filterDataDto.getClassesOfServices().add(DtoFactory.filtered(classOfServiceDto, true));
+            filterDataDto.getClassesOfServices().add(DtoFactory.withSelected(classOfServiceDto, true));
+        } else {
+            filterDataDto.getClassesOfServices().get(id).setSelected(true);
         }
     }
 
@@ -195,13 +205,17 @@ public class BoardsFilter {
         int id = findById(classOfServiceDto);
         if (id != -1) {
             filterDataDto.getClassesOfServices().get(id).setSelected(false);
+        } else {
+            filterDataDto.getClassesOfServices().add(DtoFactory.withSelected(classOfServiceDto, false));
         }
     }
 
     public void add(Dtos.UserDto userDto) {
         int id = findById(userDto);
         if (id == -1) {
-            filterDataDto.getUsers().add(DtoFactory.filtered(userDto, true));
+            filterDataDto.getUsers().add(DtoFactory.withSelected(userDto, true));
+        } else {
+            filterDataDto.getUsers().get(id).setSelected(true);
         }
     }
 
@@ -209,13 +223,17 @@ public class BoardsFilter {
         int id = findById(userDto);
         if (id != -1) {
             filterDataDto.getUsers().get(id).setSelected(false);
+        } else {
+            filterDataDto.getUsers().add(DtoFactory.withSelected(userDto, false));
         }
     }
 
     public void add(Dtos.BoardWithProjectsDto entity) {
         int id = findById(entity);
         if (id == -1) {
-            filterDataDto.getBoardWithProjectsDto().add(DtoFactory.filtered(entity, true));
+            filterDataDto.getBoardWithProjectsDto().add(DtoFactory.withSelected(entity, true));
+        } else {
+            filterDataDto.getBoardWithProjectsDto().get(id).setSelected(true);
         }
     }
 
@@ -223,6 +241,8 @@ public class BoardsFilter {
         int id = findById(entity);
         if (id != -1) {
             filterDataDto.getBoardWithProjectsDto().get(id).setSelected(false);
+        } else {
+            filterDataDto.getBoardWithProjectsDto().add(DtoFactory.withSelected(entity, false));
         }
     }
 
@@ -234,8 +254,8 @@ public class BoardsFilter {
     public int findById(Dtos.BoardDto boardDto) {
         int id = 0;
 
-        for (Dtos.Filtered<Dtos.BoardDto> candidate : filterDataDto.getBoards()) {
-            if (candidate.getData().getId().equals(boardDto.getId())) {
+        for (Dtos.BoardWithSelectedDto candidate : filterDataDto.getBoards()) {
+            if (candidate.getBoard().getId().equals(boardDto.getId())) {
                 return id;
             }
 
@@ -255,8 +275,8 @@ public class BoardsFilter {
 
         Dtos.UserDto toLookFor = userDto != null ? userDto : UsersManager.getInstance().getNoUser();
 
-        for (Dtos.Filtered<Dtos.UserDto> candidate : filterDataDto.getUsers()) {
-            if (candidate.getData().getUserName().equals(toLookFor.getUserName())) {
+        for (Dtos.UserWithSelectedDto candidate : filterDataDto.getUsers()) {
+            if (candidate.getUser().getUserName().equals(toLookFor.getUserName())) {
                 return id;
             }
 
@@ -274,14 +294,14 @@ public class BoardsFilter {
     public int findById(Dtos.ClassOfServiceDto classOfServiceDto) {
         int id = 0;
 
-        for (Dtos.Filtered<Dtos.ClassOfServiceDto> candidate : filterDataDto.getClassesOfServices()) {
-            if (candidate.getData().getId() == null && classOfServiceDto.getId() == null) {
+        for (Dtos.ClassOfServiceWithSelectedDto candidate : filterDataDto.getClassesOfServices()) {
+            if (candidate.getClassOfService().getId() == null && classOfServiceDto.getId() == null) {
                 return id;
             }
 
             if (
-                    candidate.getData().getId() != null && classOfServiceDto.getId() != null &&
-                    candidate.getData().getId().equals(classOfServiceDto.getId())) {
+                    candidate.getClassOfService().getId() != null && classOfServiceDto.getId() != null &&
+                    candidate.getClassOfService().getId().equals(classOfServiceDto.getId())) {
                 return id;
             }
 
@@ -302,9 +322,9 @@ public class BoardsFilter {
         String boardId = boardWithProjectsDto.getBoard().getId();
         String projectId = boardWithProjectsDto.getProjectsOnBoard().getValues().get(0).getId();
 
-        for (Dtos.Filtered<Dtos.BoardWithProjectsDto> candidate : filterDataDto.getBoardWithProjectsDto()) {
-            if (candidate.getData().getBoard().getId().equals(boardId) &&
-                candidate.getData().getProjectsOnBoard().getValues().get(0).getId().equals(projectId)
+        for (Dtos.BoardWithProjectsWithSelectedDto candidate : filterDataDto.getBoardWithProjectsDto()) {
+            if (candidate.getBoardWithProjects().getBoard().getId().equals(boardId) &&
+                candidate.getBoardWithProjects().getProjectsOnBoard().getValues().get(0).getId().equals(projectId)
             ) {
                 return id;
             }
@@ -322,7 +342,9 @@ public class BoardsFilter {
         projects.add(projectDto);
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 
-        return findById(boardWithProjectsDto) != -1;
+        int projectOnBoardPosition = findById(boardWithProjectsDto);
+
+        return projectOnBoardPosition != -1 && filterDataDto.getBoardWithProjectsDto().get(projectOnBoardPosition).isSelected();
     }
 
     public Dtos.FilterDataDto getFilterDataDto() {

@@ -68,7 +68,13 @@ public class DtoFactory {
 
         AutoBean<Dtos.DateMatcherDataDto> dateMatcherDataDto();
 
-        <T> AutoBean<Dtos.Filtered<T>> filtered();
+        AutoBean<Dtos.UserWithSelectedDto> userWithSelectedDto();
+
+        AutoBean<Dtos.ClassOfServiceWithSelectedDto> classOfServiceWithSelectedDto();
+
+        AutoBean<Dtos.BoardWithSelectedDto> boardWithSelectedDto();
+
+        AutoBean<Dtos.BoardWithProjectsWithSelectedDto> boardWithProjectsWithSelectedDto();
 
     }
 
@@ -215,12 +221,36 @@ public class DtoFactory {
         return factory.dateMatcherDataDto().as();
     }
 
-    public static <T> Dtos.Filtered<T> filtered(T data, Boolean selected) {
-        Dtos.Filtered<T> filtered = factory.<T>filtered().as();
-        filtered.setData(data);
-        filtered.setSelected(selected);
+    public static Dtos.UserWithSelectedDto withSelected(Dtos.UserDto data, Boolean selected) {
+        Dtos.UserWithSelectedDto filterWithSelected = factory.userWithSelectedDto().as();
+        filterWithSelected.setUser(data);
+        filterWithSelected.setSelected(selected);
 
-        return filtered;
+        return filterWithSelected;
+    }
+
+    public static Dtos.ClassOfServiceWithSelectedDto withSelected(Dtos.ClassOfServiceDto data, Boolean selected) {
+        Dtos.ClassOfServiceWithSelectedDto filterWithSelected = factory.classOfServiceWithSelectedDto().as();
+        filterWithSelected.setClassOfService(data);
+        filterWithSelected.setSelected(selected);
+
+        return filterWithSelected;
+    }
+
+    public static Dtos.BoardWithSelectedDto withSelected(Dtos.BoardDto data, Boolean selected) {
+        Dtos.BoardWithSelectedDto filterWithSelected = factory.boardWithSelectedDto().as();
+        filterWithSelected.setBoard(data);
+        filterWithSelected.setSelected(selected);
+
+        return filterWithSelected;
+    }
+
+    public static Dtos.BoardWithProjectsWithSelectedDto withSelected(Dtos.BoardWithProjectsDto data, Boolean selected) {
+        Dtos.BoardWithProjectsWithSelectedDto filterWithSelected = factory.boardWithProjectsWithSelectedDto().as();
+        filterWithSelected.setBoardWithProjects(data);
+        filterWithSelected.setSelected(selected);
+
+        return filterWithSelected;
     }
 
     public static <T> T asDto(Class<T> clazz, String json) {

@@ -286,28 +286,45 @@ public class Dtos {
         void setFullTextFilter(FullTextMatcherDataDto fullTextFilter);
         FullTextMatcherDataDto getFullTextFilter();
 
-        void setUsers(List<Dtos.Filtered<Dtos.UserDto>> users);
-        List<Dtos.Filtered<Dtos.UserDto>> getUsers();
+        void setUsers(List<UserWithSelectedDto> users);
+        List<UserWithSelectedDto> getUsers();
 
         void setDueDate(DateMatcherDataDto dueDate);
         DateMatcherDataDto getDueDate();
 
-        void setClassesOfServices(List<Filtered<Dtos.ClassOfServiceDto>> classesOfServices);
-        List<Filtered<Dtos.ClassOfServiceDto>> getClassesOfServices();
+        void setClassesOfServices(List<ClassOfServiceWithSelectedDto> classesOfServices);
+        List<ClassOfServiceWithSelectedDto> getClassesOfServices();
 
-        void setBoards(List<Filtered<BoardDto>> boards);
-        List<Filtered<BoardDto>> getBoards();
+        void setBoards(List<BoardWithSelectedDto> boards);
+        List<BoardWithSelectedDto> getBoards();
 
-        void setBoardWithProjectsDto(List<Filtered<BoardWithProjectsDto>> boardWithProjectsDto);
-        List<Filtered<BoardWithProjectsDto>> getBoardWithProjectsDto();
+        void setBoardWithProjectsDto(List<BoardWithProjectsWithSelectedDto> boardWithProjectsDto);
+        List<BoardWithProjectsWithSelectedDto> getBoardWithProjectsDto();
     }
 
-    public static interface Filtered<T> {
-        void setData(T data);
-        T getData();
-
+    public static interface FilterWithSelected {
         void setSelected(Boolean selected);
         Boolean isSelected();
+    }
+
+    public static interface UserWithSelectedDto extends FilterWithSelected {
+        UserDto getUser();
+        void setUser(UserDto user);
+    }
+
+    public static interface ClassOfServiceWithSelectedDto extends FilterWithSelected {
+        ClassOfServiceDto getClassOfService();
+        void setClassOfService(ClassOfServiceDto classOfService);
+    }
+
+    public static interface BoardWithSelectedDto extends FilterWithSelected {
+        BoardDto getBoard();
+        void setBoard(BoardDto board);
+    }
+
+    public static interface BoardWithProjectsWithSelectedDto extends FilterWithSelected {
+        BoardWithProjectsDto getBoardWithProjects();
+        void setBoardWithProjects(BoardWithProjectsDto boardWithProjects);
     }
 
     public static interface FullTextMatcherDataDto {
