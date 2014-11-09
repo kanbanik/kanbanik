@@ -297,8 +297,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             }
         });
 
-
-        sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
+        // add default class of service if not present
+        if (sorted.get(0).getId() != null) {
+            sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
+        }
 
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
             if (!loaded) {

@@ -64,6 +64,12 @@ public class BoardsFilter {
 
         boolean classOfServiceMatches = task.getClassOfService() != null && classOfServicePosition != -1 && filterDataDto.getClassesOfServices().get(classOfServicePosition).isSelected();
         if (!classOfServiceMatches) {
+            // still can be the default
+            if (task.getClassOfService() == null && defaultClassOfServiceSelected()) {
+                return true;
+            }
+
+            // naaa, not this time
             return false;
         }
 
@@ -72,6 +78,16 @@ public class BoardsFilter {
         boolean userMatches = assigneePosition != -1 && filterDataDto.getUsers().get(assigneePosition).isSelected();
 
         return userMatches;
+    }
+
+    private boolean defaultClassOfServiceSelected() {
+        for (Dtos.ClassOfServiceWithSelectedDto classOfServiceWithSelectedDto : filterDataDto.getClassesOfServices()) {
+            if (classOfServiceWithSelectedDto.getClassOfService().getId() == null) {
+                return classOfServiceWithSelectedDto.isSelected();
+            }
+        }
+
+        return false;
     }
 
     public Date parseDate(String date) {
