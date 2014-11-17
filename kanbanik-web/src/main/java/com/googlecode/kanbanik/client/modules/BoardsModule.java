@@ -92,7 +92,7 @@ public class BoardsModule {
 	}
 
 	private Widget buildBoard(Dtos.BoardsWithProjectsDto result) {
-		BoardsPanel panel = new BoardsPanel();
+	    BoardsPanel panel = new BoardsPanel();
 		panel.getElement().setId("boards");
 
 		List<Dtos.BoardWithProjectsDto> boardsWithProjects = result.getValues();

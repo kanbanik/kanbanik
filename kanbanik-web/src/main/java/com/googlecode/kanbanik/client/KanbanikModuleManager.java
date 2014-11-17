@@ -6,6 +6,7 @@ import com.googlecode.kanbanik.client.components.header.HeaderComponent;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.LoginEvent;
 import com.googlecode.kanbanik.client.messaging.messages.user.LogoutEvent;
 import com.googlecode.kanbanik.client.modules.ControlPanelModule;
@@ -96,6 +97,10 @@ public class KanbanikModuleManager {
 		public void messageArrived(Message<Dtos.UserDto> message) {
 			showLoginModule();
             serverEventsListener.deactivate();
+            for (Modules module : Modules.values()) {
+                MessageBus.sendMessage(new ModuleDeactivatedMessage(module.toClass(), this));
+            }
+
 		}
 		
 	}	
