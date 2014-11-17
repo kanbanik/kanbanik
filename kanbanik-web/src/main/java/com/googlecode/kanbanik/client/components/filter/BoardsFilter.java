@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.managers.UsersManager;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -377,7 +378,7 @@ public class BoardsFilter {
         }
 
         String json = DtoFactory.asRawJson(filterDataDto);
-        storage.setItem(KEY, json);
+        storage.setItem(getFilterKey(), json);
     }
 
     public Dtos.FilterDataDto loadFilterData() {
@@ -385,7 +386,7 @@ public class BoardsFilter {
             return null;
         }
 
-        String loaded = storage.getItem(KEY);
+        String loaded = storage.getItem(getFilterKey());
         if (loaded == null || "".equals(loaded)) {
             return null;
         }
@@ -395,5 +396,9 @@ public class BoardsFilter {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String getFilterKey() {
+        return KEY + CurrentUser.getInstance().getUser().getUserName();
     }
 }
