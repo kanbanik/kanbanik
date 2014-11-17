@@ -130,9 +130,6 @@ public abstract class AbstractTaskEditingComponent {
         panel.add(warningMessages);
         panel.setWidth("100%");
 
-        setupValues();
-
-
         dialog.addListener(new AddTaskButtonHandler());
         clickHandler.addClickHandler(new ShowDialogHandler());
     }
@@ -363,7 +360,6 @@ public abstract class AbstractTaskEditingComponent {
 
             final TaskDto taskDto = createTaskDTO();
             taskDto.setSessionId(CurrentUser.getInstance().getSessionId());
-
 
             final boolean isNew = taskDto.getId() == null;
             final CommandNames commandName = isNew ? CommandNames.CREATE_TASK : CommandNames.EDIT_TASK;

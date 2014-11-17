@@ -26,6 +26,7 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskEditingComponent extends AbstractTaskEditingComponent implements MessageListener<TaskDto> {
 
+    private final TaskGui taskGui;
     private Panel taskChangedWarningPanel = new FlowPanel();
 
     private Panel taskDeletedWarningPanel = new FlowPanel();
@@ -42,12 +43,13 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
 
     public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler, Dtos.BoardDto boardDto) {
         super(clickHandler, boardDto);
-        dto = taskGui.getDto();
+        this.taskGui = taskGui;
         initialize();
     }
 
     @Override
     protected void onClicked() {
+        dto = taskGui.getDto();
         MessageBus.registerListener(TaskEditedMessage.class, this);
         MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(TaskAddedMessage.class, this);
