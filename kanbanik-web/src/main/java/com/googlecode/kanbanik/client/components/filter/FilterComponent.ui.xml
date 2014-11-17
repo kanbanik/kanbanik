@@ -54,22 +54,22 @@
             <g:FlowPanel addStyleNames="{style.filterBox}">
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="User" addStyleNames="{style.filterLabel}" />
-                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="userFilter" />
+                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="userFilter" />
                  </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
+                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Board" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="boardFilter" />
+                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Project on Board" addStyleNames="{style.filterLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
+                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
@@ -88,6 +88,9 @@
             </g:FlowPanel>
 
         </g:DisclosurePanel>
+        <g:FlowPanel>
+            <g:CheckBox ui:field="activateFilter"/>
+        </g:FlowPanel>
     </g:FlowPanel>
 
 </ui:UiBinder>

@@ -1,0 +1,14 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+        >
+
+    <g:FlowPanel>
+        <g:FlowPanel>
+            <g:Button ui:field="allButton" />
+            <g:Button ui:field="noneButton" />
+        </g:FlowPanel>
+        <g:FlowPanel ui:field="contentPanel"/>
+
+    </g:FlowPanel>
+
+</ui:UiBinder>

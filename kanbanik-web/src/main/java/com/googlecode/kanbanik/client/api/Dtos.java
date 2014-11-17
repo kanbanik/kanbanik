@@ -300,6 +300,9 @@ public class Dtos {
 
         void setBoardWithProjectsDto(List<BoardWithProjectsWithSelectedDto> boardWithProjectsDto);
         List<BoardWithProjectsWithSelectedDto> getBoardWithProjectsDto();
+
+        void setActive(Boolean active);
+        Boolean isActive();
     }
 
     public static interface FilterWithSelected {

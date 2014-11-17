@@ -36,16 +36,16 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     DisclosurePanel disclosurePanel;
 
     @UiField
-    FlowPanel userFilter;
+    PanelWithCheckboxes userFilter;
 
     @UiField
-    FlowPanel classOfServiceFilter;
+    PanelWithCheckboxes classOfServiceFilter;
 
     @UiField
-    FlowPanel boardFilter;
+    PanelWithCheckboxes boardFilter;
 
     @UiField
-    FlowPanel projectOnBoardFilter;
+    PanelWithCheckboxes projectOnBoardFilter;
 
     @UiField(provided = true)
     FullTextMatcherFilterComponent fullTextFilter;
@@ -66,12 +66,17 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     @UiField
     Label dueDateWarningLabel;
 
+    @UiField
+    CheckBox activateFilter;
+
     private BoardsFilter filterObject;
 
     public FilterComponent() {
         fullTextFilter = new FullTextMatcherFilterComponent("Textual");
 
         initWidget(uiBinder.createAndBindUi(this));
+
+        activateFilter.setText("Filter Active");
 
         new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
     }
@@ -91,6 +96,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         fillBoards(filterObject, loaded);
         fillProjectsOnBoards(filterObject, loaded);
         initDueDate(filterObject);
+        initActivateFilter(filterObject);
 
         // using just '|' because I need all the validations to be executed
         if (!fullTextFilter.validate() | !validateDueDate()) {
@@ -98,6 +104,18 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
 
         MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+    }
+
+    private void initActivateFilter(final BoardsFilter filterObject) {
+        activateFilter.setValue(filterObject.isActive());
+
+        activateFilter.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                filterObject.setActive(event.getValue());
+                MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+            }
+        });
     }
 
     private boolean createFilterObject() {
@@ -130,6 +148,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             dueDateFilter.setDateFrom("");
             dueDateFilter.setDateTo("");
             filterDataDto.setDueDate(dueDateFilter);
+
+            boolean active = filterDataDto.isActive() != null ? filterDataDto.isActive() : true;
+            filterDataDto.setActive(active);
+
             loaded = false;
         }
 
@@ -399,41 +421,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
     }
 
-    abstract class FilterCheckBox<T> extends CheckBox implements ValueChangeHandler<Boolean> {
 
-        private T entity;
-
-        private BoardsFilter filter;
-
-        public FilterCheckBox(T entity, BoardsFilter filter) {
-            this.entity = entity;
-            this.filter = filter;
-
-            setWidth("100%");
-            getElement().getStyle().setFloat(Style.Float.LEFT);
-
-            addValueChangeHandler(this);
-
-            setText(provideText(entity));
-        }
-
-        protected abstract String provideText(T entity);
-
-        @Override
-        public void onValueChange(ValueChangeEvent<Boolean> event) {
-            if (event.getValue()) {
-                doAdd(entity, filter);
-            } else {
-                doRemove(entity, filter);
-            }
-
-            MessageBus.sendMessage(new FilterChangedMessage(filter, this));
-            filter.storeFilterData();
-        }
-
-        protected abstract void doAdd(T entity, BoardsFilter filter);
-        protected abstract void doRemove(T entity, BoardsFilter filter);
-    }
 
     class UserFilterCheckBox extends FilterCheckBox<Dtos.UserDto> {
 
@@ -540,5 +528,4 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     public void deactivated() {
 
     }
-
 }

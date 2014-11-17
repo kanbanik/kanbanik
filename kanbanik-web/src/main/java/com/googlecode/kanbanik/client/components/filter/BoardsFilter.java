@@ -28,6 +28,9 @@ public class BoardsFilter {
     private Dtos.FilterDataDto filterDataDto;
 
     public boolean taskMatches(Dtos.TaskDto task) {
+        if (!filterDataDto.isActive()) {
+            return true;
+        }
 
         List<Dtos.FilteredEntity> filteredEntities = filterDataDto.getFullTextFilter().getFilteredEntities();
 
@@ -160,6 +163,10 @@ public class BoardsFilter {
     }
 
     private boolean stringMatches(Dtos.FullTextMatcherDataDto pattern, String real) {
+        if (!filterDataDto.isActive()) {
+            return true;
+        }
+
         boolean patternEmpty = pattern == null || pattern.getString() == null;
         boolean realEmpty = real == null || "".equals(real);
 
@@ -353,6 +360,9 @@ public class BoardsFilter {
     }
 
     public boolean projectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
+        if (!filterDataDto.isActive()) {
+            return true;
+        }
         Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
         boardWithProjectsDto.setBoard(boardDto);
         List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
@@ -362,6 +372,28 @@ public class BoardsFilter {
         int projectOnBoardPosition = findById(boardWithProjectsDto);
 
         return projectOnBoardPosition != -1 && filterDataDto.getBoardWithProjectsDto().get(projectOnBoardPosition).isSelected();
+    }
+
+    public boolean boardMatches(Dtos.BoardDto boardDto) {
+        if (!filterDataDto.isActive()) {
+            return true;
+        }
+
+        List<Dtos.BoardWithSelectedDto> visibleBoards = filterDataDto.getBoards();
+
+        if (visibleBoards == null || visibleBoards.size() == 0) {
+            return true;
+        }
+
+        for (Dtos.BoardWithSelectedDto visibleBoard : visibleBoards) {
+            if (!visibleBoard.isSelected()) {
+                continue;
+            }
+            if (visibleBoard.getBoard().getId().equals(boardDto.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Dtos.FilterDataDto getFilterDataDto() {
@@ -400,5 +432,13 @@ public class BoardsFilter {
 
     private String getFilterKey() {
         return KEY + CurrentUser.getInstance().getUser().getUserName();
+    }
+
+    public void setActive(boolean active) {
+        filterDataDto.setActive(active);
+    }
+
+    public boolean isActive() {
+        return filterDataDto.isActive();
     }
 }
