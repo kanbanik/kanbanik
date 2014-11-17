@@ -280,7 +280,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         sorted.add(0, UsersManager.getInstance().getNoUser());
 
         for (Dtos.UserDto user : sorted) {
-            if (!loaded) {
+            if (!loaded || filterObject.findById(user) != -1) {
                 filterObject.add(user);
             }
             userFilter.add(new UserFilterCheckBox(user, filterObject));
@@ -303,7 +303,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
 
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
-            if (!loaded) {
+            if (!loaded || filterObject.findById(classOfServiceDto) == -1) {
                 filterObject.add(classOfServiceDto);
             }
             classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
@@ -333,7 +333,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         });
 
         for (Dtos.BoardDto board : shallowBoards) {
-            if (!loaded) {
+            if (!loaded || filterObject.findById(board) == -1) {
                 filterObject.add(board);
             }
             boardFilter.add(new BoardsFilterCheckBox(board, filterObject));
@@ -374,7 +374,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         });
 
         for (Dtos.BoardWithProjectsDto boardWithProjectDtos : shallowBoardsWithProjectsDtos) {
-            if (!loaded) {
+            if (!loaded || filterObject.findById(boardWithProjectDtos) == -1) {
                 filterObject.add(boardWithProjectDtos);
             }
             projectOnBoardFilter.add(new ProjectOnBoardFilterCheckBox(boardWithProjectDtos, filterObject));
