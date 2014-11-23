@@ -7,6 +7,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.managers.UsersManager;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 
 import java.util.ArrayList;
@@ -14,6 +16,10 @@ import java.util.Date;
 import java.util.List;
 
 public class BoardsFilter {
+
+    private int numOfHiddenFields = 0;
+
+    private NumOfHiddenFieldsChangedListener numOfHiddenFieldsChangedListener;
 
     private static final String KEY = "FILTER_DATA_KEY";
 
@@ -28,7 +34,21 @@ public class BoardsFilter {
 
     private Dtos.FilterDataDto filterDataDto;
 
+    public BoardsFilter(NumOfHiddenFieldsChangedListener numOfHiddenFieldsChangedListener) {
+        this.numOfHiddenFieldsChangedListener = numOfHiddenFieldsChangedListener;
+    }
+
     public boolean taskMatches(Dtos.TaskDto task) {
+        boolean taskMatches = doCheckIfTaskMatches(task);
+        if (!taskMatches) {
+            numOfHiddenFields ++;
+            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+        }
+
+        return taskMatches;
+    }
+
+    private boolean doCheckIfTaskMatches(Dtos.TaskDto task) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -166,7 +186,6 @@ public class BoardsFilter {
         }
 
         return true;
-
     }
 
     private boolean stringMatches(Dtos.FullTextMatcherDataDto pattern, String real) {
@@ -369,6 +388,16 @@ public class BoardsFilter {
     }
 
     public boolean projectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
+        boolean projectOnBoardMatches = doCheckIfProjectOnBoardMatches(projectDto, boardDto);
+        if (!projectOnBoardMatches) {
+            numOfHiddenFields ++;
+            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+        }
+
+        return projectOnBoardMatches;
+    }
+
+    private boolean doCheckIfProjectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -384,6 +413,16 @@ public class BoardsFilter {
     }
 
     public boolean boardMatches(Dtos.BoardDto boardDto) {
+        boolean boardMatches = doCheckIfBoardMatches(boardDto);
+        if (!boardMatches) {
+            numOfHiddenFields ++;
+            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+        }
+
+        return boardMatches;
+    }
+
+    private boolean doCheckIfBoardMatches(Dtos.BoardDto boardDto) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -449,5 +488,16 @@ public class BoardsFilter {
 
     public boolean isActive() {
         return filterDataDto.isActive();
+    }
+
+    public void fireFilterChangedEvent() {
+        numOfHiddenFields = 0;
+        MessageBus.sendMessage(new FilterChangedMessage(this, this));
+        numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+        storeFilterData();
+    }
+
+    public static interface NumOfHiddenFieldsChangedListener {
+        void onNumOfHiddenFieldsChanged(int newNum);
     }
 }

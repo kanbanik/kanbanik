@@ -160,8 +160,7 @@ public class FullTextMatcherFilterComponent extends Composite {
 
             fullTextMatcherDataDto.setFilteredEntities(filteredEntities);
 
-            MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
-            filterObject.storeFilterData();
+            filterObject.fireFilterChangedEvent();
         }
     }
 

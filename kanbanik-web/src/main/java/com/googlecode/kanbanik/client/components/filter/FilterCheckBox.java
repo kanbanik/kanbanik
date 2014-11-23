@@ -39,8 +39,7 @@ public abstract class FilterCheckBox<T> extends CheckBox implements ValueChangeH
             doRemove(entity, filter);
         }
 
-        MessageBus.sendMessage(new FilterChangedMessage(filter, this));
-        filter.storeFilterData();
+        filter.fireFilterChangedEvent();
     }
 
     protected abstract void doAdd(T entity, BoardsFilter filter);

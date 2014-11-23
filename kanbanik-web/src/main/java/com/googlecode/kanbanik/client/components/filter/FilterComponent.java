@@ -27,10 +27,12 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycl
 
 import java.util.*;
 
-public class FilterComponent extends Composite implements ModulesLifecycleListener {
+public class FilterComponent extends Composite implements ModulesLifecycleListener, BoardsFilter.NumOfHiddenFieldsChangedListener {
 
     interface MyUiBinder extends UiBinder<Widget, FilterComponent> {}
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+
+    public static final String FILTERS_ACTIVE = "Filters Active";
 
     @UiField
     DisclosurePanel disclosurePanel;
@@ -76,7 +78,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         initWidget(uiBinder.createAndBindUi(this));
 
-        activateFilter.setText("Filters Active");
+        activateFilter.setText(FILTERS_ACTIVE);
 
         new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
     }
@@ -103,7 +105,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             return;
         }
 
-        MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+        filterObject.fireFilterChangedEvent();
     }
 
     private void initActivateFilter(final BoardsFilter filterObject) {
@@ -116,8 +118,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
                 boolean active = event.getValue();
                 filterObject.setActive(active);
                 disclosurePanel.setVisible(active);
-                MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
-                filterObject.storeFilterData();
+                filterObject.fireFilterChangedEvent();
             }
         });
     }
@@ -125,7 +126,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     private boolean createFilterObject() {
         boolean loaded = true;
 
-        filterObject = new BoardsFilter();
+        filterObject = new BoardsFilter(this);
         Dtos.FilterDataDto filterDataDto = filterObject.loadFilterData();
 
         if (filterDataDto == null) {
@@ -260,8 +261,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         dueDateMatches.setDateFrom(dueDateFromBox.getText());
         dueDateMatches.setDateTo(dueDateToBox.getText());
         filterObject.getFilterDataDto().setDueDate(dueDateMatches);
-        MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
-        filterObject.storeFilterData();
+        filterObject.fireFilterChangedEvent();
     }
 
     private boolean validateDueDate() {
@@ -425,8 +425,6 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
     }
 
-
-
     class UserFilterCheckBox extends FilterCheckBox<Dtos.UserDto> {
 
         public UserFilterCheckBox(Dtos.UserDto entity, BoardsFilter filter) {
@@ -531,5 +529,14 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     @Override
     public void deactivated() {
 
+    }
+
+    @Override
+    public void onNumOfHiddenFieldsChanged(int newNum) {
+        if (!activateFilter.getValue()) {
+            activateFilter.setText(FILTERS_ACTIVE);
+        } else {
+            activateFilter.setText(FILTERS_ACTIVE + "(" + newNum + " hidden entities)");
+        }
     }
 }
