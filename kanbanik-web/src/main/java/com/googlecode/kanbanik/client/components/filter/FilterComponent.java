@@ -108,6 +108,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
     private void initActivateFilter(final BoardsFilter filterObject) {
         activateFilter.setValue(filterObject.isActive());
+        disclosurePanel.setVisible(filterObject.isActive());
 
         activateFilter.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
