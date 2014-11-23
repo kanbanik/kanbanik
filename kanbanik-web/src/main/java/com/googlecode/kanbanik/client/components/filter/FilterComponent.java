@@ -76,7 +76,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         initWidget(uiBinder.createAndBindUi(this));
 
-        activateFilter.setText("Filter Active");
+        activateFilter.setText("Filters Active");
 
         new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
     }

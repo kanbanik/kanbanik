@@ -61,11 +61,6 @@
                  </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
-                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
-                </g:FlowPanel>
-
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Board" addStyleNames="{style.filterLabel}"/>
                     <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
                 </g:FlowPanel>
@@ -73,6 +68,11 @@
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                     <g:Label text="Project on Board" addStyleNames="{style.filterLabel}"/>
                     <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                    <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
+                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filterPartContainer}">
