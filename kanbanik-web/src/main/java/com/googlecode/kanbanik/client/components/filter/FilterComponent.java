@@ -72,7 +72,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     private BoardsFilter filterObject;
 
     public FilterComponent() {
-        fullTextFilter = new FullTextMatcherFilterComponent("Textual");
+        fullTextFilter = new FullTextMatcherFilterComponent("Contains Text");
 
         initWidget(uiBinder.createAndBindUi(this));
 
@@ -165,7 +165,9 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
     private void initDueDate(BoardsFilter filterObject) {
         dueDateCondition.clear();
+
         dueDateCondition.addItem("-------");
+        dueDateCondition.addItem("due date not set");
         dueDateCondition.addItem("less than");
         dueDateCondition.addItem("equals");
         dueDateCondition.addItem("more than");
@@ -234,13 +236,13 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     }
 
     private void setDueDateTextBoxVisibility(int condition) {
-        if (condition == 4) {
+        if (condition == BoardsFilter.DATE_CONDITION_BETWEEN) {
             dueDateToBox.setVisible(true);
         } else {
             dueDateToBox.setVisible(false);
         }
 
-        if (condition == 0) {
+        if (condition == BoardsFilter.DATE_CONDITION_UNSET || condition == BoardsFilter.DATE_CONDITION_ONLY_WITHOUT) {
             dueDateToBox.setVisible(false);
             dueDateFromBox.setVisible(false);
         } else {
@@ -280,12 +282,12 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
                 dateCondition == BoardsFilter.DATE_CONDITION_EQALS
         ) && !fromFilled
                 ) {
-                dueDateWarningLabel.setText("Incorrectly filled conditions");
+                dueDateWarningLabel.setText("Please fill the date");
                 return false;
         }
 
         if (dateCondition == BoardsFilter.DATE_CONDITION_BETWEEN && (!fromFilled || !toFilled)) {
-            dueDateWarningLabel.setText("Incorrectly filled conditions");
+            dueDateWarningLabel.setText("Please fill the date");
             return false;
         }
 

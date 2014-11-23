@@ -20,10 +20,11 @@ public class BoardsFilter {
     private static final Storage storage = Storage.getLocalStorageIfSupported();
 
     public static final int DATE_CONDITION_UNSET = 0;
-    public static final int DATE_CONDITION_LESS = 1;
-    public static final int DATE_CONDITION_EQALS = 2;
-    public static final int DATE_CONDITION_MORE = 3;
-    public static final int DATE_CONDITION_BETWEEN = 4;
+    public static final int DATE_CONDITION_ONLY_WITHOUT = 1;
+    public static final int DATE_CONDITION_LESS = 2;
+    public static final int DATE_CONDITION_EQALS = 3;
+    public static final int DATE_CONDITION_MORE = 4;
+    public static final int DATE_CONDITION_BETWEEN = 5;
 
     private Dtos.FilterDataDto filterDataDto;
 
@@ -117,8 +118,14 @@ public class BoardsFilter {
             return true;
         }
 
+        boolean dueDateSetForTask = task.getDueDate() != null && !"".equals(task.getDueDate());
+
+        if (dateCondition == DATE_CONDITION_ONLY_WITHOUT) {
+            return !dueDateSetForTask;
+        }
+
         // task does not have a due date and I'm interested in some particular one
-        if (task.getDueDate() == null || "".equals(task.getDueDate())) {
+        if (!dueDateSetForTask) {
             return false;
         }
 

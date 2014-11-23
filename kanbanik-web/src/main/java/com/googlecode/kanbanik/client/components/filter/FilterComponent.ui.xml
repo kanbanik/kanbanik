@@ -13,10 +13,19 @@
             width: 100%;
         }
 
-        .filterBox {
+
+        .filtersRow, .filterBox {
             display: flex;
-            flex-direction: row;
             width: 100%;
+        }
+
+        .filterBox {
+            flex-direction: column;
+        }
+
+        .filtersRow {
+            flex-direction: row;
+            margin-top: 5px;
         }
 
         .filterPartContainer {
@@ -45,6 +54,7 @@
             color: red;
         }
 
+
     </ui:style>
 
     <g:FlowPanel addStyleNames="{style.mainContainer}">
@@ -55,37 +65,41 @@
             <g:header>Filters</g:header>
 
             <g:FlowPanel addStyleNames="{style.filterBox}">
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="User" addStyleNames="{style.filterLabel}" />
-                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="userFilter" />
-                 </g:FlowPanel>
+                <g:FlowPanel addStyleNames="{style.filtersRow}">
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="User" addStyleNames="{style.filterLabel}" />
+                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="userFilter" />
+                     </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Board" addStyleNames="{style.filterLabel}"/>
-                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="Board" addStyleNames="{style.filterLabel}"/>
+                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
+                    </g:FlowPanel>
+
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="Project on Board" addStyleNames="{style.filterLabel}"/>
+                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
+                    </g:FlowPanel>
+
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
+                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
+                    </g:FlowPanel>
                 </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Project on Board" addStyleNames="{style.filterLabel}"/>
-                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
-                </g:FlowPanel>
+                <g:FlowPanel addStyleNames="{style.filtersRow}">
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <f:FullTextMatcherFilterComponent ui:field="fullTextFilter"/>
+                    </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
-                    <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
-                </g:FlowPanel>
-
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <f:FullTextMatcherFilterComponent ui:field="fullTextFilter"/>
-                </g:FlowPanel>
-
-                <g:FlowPanel addStyleNames="{style.filterPartContainer}">
-                    <g:Label text="Due Date" addStyleNames="{style.filterLabel}"/>
-                    <g:Label ui:field="dueDateWarningLabel" addStyleNames="{style.regexIncorrectLabel}"/>
-                    <g:FlowPanel addStyleNames="{style.filterPart}">
-                        <g:ListBox ui:field="dueDateCondition" />
-                        <g:TextBox ui:field="dueDateFromBox" />
-                        <g:TextBox ui:field="dueDateToBox" />
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="Due Date" addStyleNames="{style.filterLabel}"/>
+                        <g:Label ui:field="dueDateWarningLabel" addStyleNames="{style.regexIncorrectLabel}"/>
+                        <g:FlowPanel addStyleNames="{style.filterPart}">
+                            <g:ListBox ui:field="dueDateCondition" />
+                            <g:TextBox ui:field="dueDateFromBox" />
+                            <g:TextBox ui:field="dueDateToBox" />
+                        </g:FlowPanel>
                     </g:FlowPanel>
                 </g:FlowPanel>
             </g:FlowPanel>
