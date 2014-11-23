@@ -3,7 +3,8 @@
 
 	<ui:style type="com.googlecode.kanbanik.client.components.board.TaskContainer.Style">
 		.defaultContantPanelStyle, .fixedContantPanelStyle {
-			width: 140px;
+			min-width: 140px;
+            width: 100%;
 			min-height: 45px;
 		}
 

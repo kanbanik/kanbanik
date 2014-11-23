@@ -132,8 +132,6 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
             filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
             List<Dtos.FilteredEntity> entities = new ArrayList<Dtos.FilteredEntity>();
-            entities.add(Dtos.FilteredEntity.LONG_DESCRIPTION);
-            entities.add(Dtos.FilteredEntity.SHORT_DESCRIPTION);
             filterDataDto.getFullTextFilter().setCaseSensitive(false);
             filterDataDto.getFullTextFilter().setInverse(false);
             filterDataDto.getFullTextFilter().setRegex(false);

@@ -177,12 +177,14 @@ public class BoardsFilter {
         boolean patternEmpty = pattern == null || pattern.getString() == null;
         boolean realEmpty = real == null || "".equals(real);
 
-        if (patternEmpty) {
+        if (patternEmpty && realEmpty) {
             return true;
+        } else if (patternEmpty || realEmpty) {
+            return false;
         }
 
-        String actual = real;
-        String expected = pattern.getString();
+        String actual = !realEmpty ? real : "";
+        String expected = !patternEmpty ? pattern.getString() : "";
 
         boolean matches = false;
 

@@ -124,6 +124,8 @@ public class FullTextMatcherFilterComponent extends Composite {
                 return;
             }
 
+            boolean allDisabled = allFilterEntitiesDisabled();
+
             String string = textArea.getText();
             if ("".equals(string)) {
                 string = null;
@@ -133,7 +135,7 @@ public class FullTextMatcherFilterComponent extends Composite {
                 caseSensitive.setValue(false);
                 disableCaseSensitive();
             } else {
-                caseSensitive.setEnabled(true);
+                caseSensitive.setEnabled(!allDisabled);
                 caseSensitive.setTitle("");
             }
 
@@ -166,6 +168,14 @@ public class FullTextMatcherFilterComponent extends Composite {
     public boolean validate() {
         warningLabel.setText("");
 
+        if (allFilterEntitiesDisabled()) {
+            textArea.getElement().getStyle().setBackgroundColor("#dddddd");
+            setFieldsEnabled(false);
+        } else {
+            textArea.getElement().getStyle().setBackgroundColor("white");
+            setFieldsEnabled(true);
+        }
+
         if (regex.getValue()) {
             try {
                 RegExp.compile(textArea.getText());
@@ -176,12 +186,18 @@ public class FullTextMatcherFilterComponent extends Composite {
             }
         }
 
-        if (!ticketId.getValue() && !shortDescription.getValue() && !longDescription.getValue()) {
-            warningLabel.setText(" At least one field has to be selected");
-            return false;
-        }
-
         return true;
+    }
+
+    private boolean allFilterEntitiesDisabled() {
+        return !ticketId.getValue() && !shortDescription.getValue() && !longDescription.getValue();
+    }
+
+    private void setFieldsEnabled(boolean enabled) {
+        textArea.setEnabled(enabled);
+        regex.setEnabled(enabled);
+        caseSensitive.setEnabled(enabled);
+        inverse.setEnabled(enabled);
     }
 
 

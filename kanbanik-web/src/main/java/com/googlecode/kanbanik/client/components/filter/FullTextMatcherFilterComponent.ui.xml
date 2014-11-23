@@ -19,7 +19,7 @@
         }
 
         .filterPart {
-            width: 488px;
+            width: 458px;
             height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
@@ -44,6 +44,7 @@
             display: flex;
             flex-direction: column;
             margin-right: 3px;
+            width: 150px;
         }
 
         .content {
