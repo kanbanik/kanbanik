@@ -48,6 +48,9 @@
     </ui:style>
 
     <g:FlowPanel addStyleNames="{style.mainContainer}">
+        <g:FlowPanel>
+            <g:CheckBox ui:field="activateFilter"/>
+        </g:FlowPanel>
         <g:DisclosurePanel ui:field="disclosurePanel" addStyleNames="{style.disclosurePanel}">
             <g:header>Filters</g:header>
 
@@ -88,9 +91,6 @@
             </g:FlowPanel>
 
         </g:DisclosurePanel>
-        <g:FlowPanel>
-            <g:CheckBox ui:field="activateFilter"/>
-        </g:FlowPanel>
     </g:FlowPanel>
 
 </ui:UiBinder>

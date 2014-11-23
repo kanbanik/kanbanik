@@ -112,8 +112,11 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         activateFilter.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
-                filterObject.setActive(event.getValue());
+                boolean active = event.getValue();
+                filterObject.setActive(active);
+                disclosurePanel.setVisible(active);
                 MessageBus.sendMessage(new FilterChangedMessage(filterObject, this));
+                filterObject.storeFilterData();
             }
         });
     }
@@ -302,7 +305,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         sorted.add(0, UsersManager.getInstance().getNoUser());
 
         for (Dtos.UserDto user : sorted) {
-            if (!loaded || filterObject.findById(user) != -1) {
+            if (!loaded || filterObject.findById(user) == -1) {
                 filterObject.add(user);
             }
             userFilter.add(new UserFilterCheckBox(user, filterObject));
