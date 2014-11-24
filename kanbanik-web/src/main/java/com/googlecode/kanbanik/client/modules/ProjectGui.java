@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.client.modules;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.board.ProjectHeader;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -15,12 +16,14 @@ public class ProjectGui extends FlexTable implements ModulesLifecycleListener {
 
     private Dtos.BoardDto board;
     private Dtos.ProjectDto project;
+    private ProjectHeader projectHeader;
 
     private FilterChangedListener filterChangedListener = new FilterChangedListener();
 
-    public ProjectGui(Dtos.BoardDto board, Dtos.ProjectDto project) {
+    public ProjectGui(Dtos.BoardDto board, Dtos.ProjectDto project, ProjectHeader projectHeader) {
         this.board = board;
         this.project = project;
+        this.projectHeader = projectHeader;
 
         MessageBus.registerListener(FilterChangedMessage.class, filterChangedListener);
 
@@ -43,6 +46,7 @@ public class ProjectGui extends FlexTable implements ModulesLifecycleListener {
         public void messageArrived(Message<BoardsFilter> message) {
             boolean visible = message.getPayload().projectOnBoardMatches(project, board);
             setVisible(visible);
+            projectHeader.setVisible(visible);
         }
     }
 }

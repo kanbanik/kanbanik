@@ -536,7 +536,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         if (!activateFilter.getValue()) {
             activateFilter.setText(FILTERS_ACTIVE);
         } else {
-            activateFilter.setText(FILTERS_ACTIVE + "(" + newNum + " hidden entities)");
+            activateFilter.setText(FILTERS_ACTIVE + " (" + newNum + " entities match criteria to be hidden)");
         }
     }
 }
