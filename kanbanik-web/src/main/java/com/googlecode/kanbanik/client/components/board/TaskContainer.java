@@ -152,14 +152,18 @@ public class TaskContainer extends Composite {
 		return res;
 	}
 
-    public TaskDto getTaskById(String id) {
+    public TaskGui getTaskGuiById(String id) {
         if (id == null) {
             return null;
         }
 
-        for (TaskDto task : getTasks()) {
-            if (id.equals(task.getId())) {
-                return task;
+        for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
+            Widget widget = contentPanel.getWidget(i);
+            if (widget instanceof TaskGui) {
+                TaskGui task = ((TaskGui) widget);
+                if (id.equals(task.getDto().getId())) {
+                    return task;
+                }
             }
         }
 
@@ -184,9 +188,14 @@ public class TaskContainer extends Composite {
         contentPanel.add(task);
 	}
 
-    public void removeTask(TaskDto task) {
+    public void removeTask(TaskDto task, boolean partOfMove) {
         int widgetIndex = getTaskIndex(task);
         if (widgetIndex != -1) {
+            Widget widget = contentPanel.getWidget(widgetIndex);
+            if (widget instanceof TaskGui) {
+                ((TaskGui) widget).beforeRemove(partOfMove);
+            }
+
             contentPanel.remove(widgetIndex);
         }
     }

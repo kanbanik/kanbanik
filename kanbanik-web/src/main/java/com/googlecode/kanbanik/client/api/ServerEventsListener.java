@@ -144,13 +144,15 @@ public class ServerEventsListener {
 
             if (listener.getOldTask() != null) {
                 MessageBus.sendMessage(new TaskDeletedMessage(listener.getOldTask(), this, true));
-                MessageBus.sendMessage(new TaskAddedMessage(newTask, this, true));
+                MessageBus.sendMessage(new TaskAddedMessage(newTask, this, true, listener.wasVisible()));
             }
         }
 
         class GetTaskByIdResponseListener implements MessageListener<Dtos.TaskDto> {
 
             private Dtos.TaskDto oldTask;
+
+            private boolean visible;
 
             @Override
             public void messageArrived(Message<Dtos.TaskDto> message) {
@@ -159,11 +161,17 @@ public class ServerEventsListener {
                 }
 
                 oldTask = message.getPayload();
+                visible = ((GetTaskByIdResponseMessage) message).isVisible();
             }
 
             public Dtos.TaskDto getOldTask() {
                 return oldTask;
             }
+
+            public boolean wasVisible() {
+                return visible;
+            }
+
         }
     }
 

@@ -125,12 +125,16 @@ public class WorkflowitemPlace extends Composite implements
 		}
 
 		if (message instanceof TaskDeletedMessage) {
-			((TaskContainer) contentPanel).removeTask(taskDto);
+			((TaskContainer) contentPanel).removeTask(taskDto, ((TaskDeletedMessage) message).isPartOfMove());
 		} else if (message instanceof TaskAddedMessage) {
 			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
 				return;
 			}
 			TaskGui task = new TaskGui(taskDto, board);
+            if (((TaskAddedMessage) message).isPartOfMove()) {
+                task.setVisible(((TaskAddedMessage) message).wasVisible());
+            }
+
 			dragController.makeDraggable(task, task.getHeader());
 			((TaskContainer) contentPanel).add(task);
             task.setFilter(filter);
@@ -217,9 +221,9 @@ public class WorkflowitemPlace extends Composite implements
             }
 
             TaskContainer container = (TaskContainer) contentPanel;
-            TaskDto task = container.getTaskById(message.getPayload());
+            TaskGui task = container.getTaskGuiById(message.getPayload());
             if (task != null) {
-                MessageBus.sendMessage(new GetTaskByIdResponseMessage(task, this));
+                MessageBus.sendMessage(new GetTaskByIdResponseMessage(task.getDto(), task.isVisible(), this));
             }
         }
     }

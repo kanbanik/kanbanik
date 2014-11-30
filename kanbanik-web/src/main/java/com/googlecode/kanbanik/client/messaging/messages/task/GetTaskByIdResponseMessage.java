@@ -5,8 +5,14 @@ import com.googlecode.kanbanik.client.messaging.BaseMessage;
 
 public class GetTaskByIdResponseMessage extends BaseMessage<Dtos.TaskDto> {
 
-	public GetTaskByIdResponseMessage(Dtos.TaskDto task, Object source) {
+    private boolean isVisible;
+
+	public GetTaskByIdResponseMessage(Dtos.TaskDto task, boolean isVisible, Object source) {
 		super(task, source);
+        this.isVisible = isVisible;
 	}
 
+    public boolean isVisible() {
+        return isVisible;
+    }
 }

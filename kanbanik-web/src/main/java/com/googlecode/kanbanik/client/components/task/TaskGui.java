@@ -72,13 +72,15 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
     private BoardsFilter filter;
 
 	private boolean isSelected = false;
-	
-	@UiField 
+
+    private boolean isShown = true;
+
+	@UiField
 	Style style;
 	
 	private static final TaskGuiTemplates TEMPLATE = GWT.create(TaskGuiTemplates.class);
-	
-	public interface TaskGuiTemplates extends SafeHtmlTemplates {
+
+    public interface TaskGuiTemplates extends SafeHtmlTemplates {
 	     @Template("<div class=\"{0}\">{1}</div>")
 	     SafeHtml messageWithLink(String style, String msg);
 	   }
@@ -391,12 +393,22 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
         }
     }
 
-    public void reevaluateFilter() {
-        if (filter == null || filter.taskMatches(taskDto)) {
-            this.getElement().getStyle().setDisplay(Display.BLOCK);
-        } else {
-            this.getElement().getStyle().setDisplay(Display.NONE);
+    public void beforeRemove(boolean partOfMove) {
+        if (partOfMove) {
+            // no need, the task is still present and will be re-evaluated
+            return;
         }
+        if (!isVisible() && filter != null) {
+            // currently the only reason, but to be on the safe side adding the explicit check
+            if (!filter.checkOnlyIfTaskMatches(taskDto)) {
+                filter.onHiddenFieldRemoved();
+            }
+        }
+    }
+
+    public void reevaluateFilter() {
+        boolean visible = filter == null || filter.taskMatches(taskDto, isVisible());
+        setVisible(visible);
     }
 
     public void setFilter(BoardsFilter filter) {

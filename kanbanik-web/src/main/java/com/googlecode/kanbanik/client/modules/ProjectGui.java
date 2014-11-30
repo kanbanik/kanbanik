@@ -44,7 +44,7 @@ public class ProjectGui extends FlexTable implements ModulesLifecycleListener {
 
         @Override
         public void messageArrived(Message<BoardsFilter> message) {
-            boolean visible = message.getPayload().projectOnBoardMatches(project, board);
+            boolean visible = message.getPayload().projectOnBoardMatches(project, board, isVisible());
             setVisible(visible);
             projectHeader.setVisible(visible);
         }

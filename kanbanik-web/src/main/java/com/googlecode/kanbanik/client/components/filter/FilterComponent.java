@@ -533,7 +533,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
     @Override
     public void onNumOfHiddenFieldsChanged(int newNum) {
-        if (!activateFilter.getValue()) {
+        if (!activateFilter.getValue() || newNum == 0) {
             activateFilter.setText(FILTERS_ACTIVE);
         } else {
             activateFilter.setText(FILTERS_ACTIVE + " (" + newNum + " entities match criteria to be hidden)");

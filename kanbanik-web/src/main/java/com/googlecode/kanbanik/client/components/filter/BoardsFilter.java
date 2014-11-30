@@ -38,17 +38,31 @@ public class BoardsFilter {
         this.numOfHiddenFieldsChangedListener = numOfHiddenFieldsChangedListener;
     }
 
-    public boolean taskMatches(Dtos.TaskDto task) {
-        boolean taskMatches = doCheckIfTaskMatches(task);
-        if (!taskMatches) {
+    public boolean taskMatches(Dtos.TaskDto task, boolean prevShown) {
+        return maybeIncrementHiddenFields(prevShown, checkOnlyIfTaskMatches(task));
+    }
+
+    public boolean projectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto, boolean prevShown) {
+        return maybeIncrementHiddenFields(prevShown, checkOnlyIfProjectOnBoardMatches(projectDto, boardDto));
+    }
+
+    public boolean boardMatches(Dtos.BoardDto boardDto, boolean prevShown) {
+        return maybeIncrementHiddenFields(prevShown, checkOnlyIfBoardMatches(boardDto));
+    }
+
+    private boolean maybeIncrementHiddenFields(boolean prevShown, boolean nowShown) {
+        if (!nowShown && prevShown) {
             numOfHiddenFields ++;
+            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+        } else if (nowShown && !prevShown) {
+            numOfHiddenFields --;
             numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
         }
 
-        return taskMatches;
+        return nowShown;
     }
 
-    private boolean doCheckIfTaskMatches(Dtos.TaskDto task) {
+    public boolean checkOnlyIfTaskMatches(Dtos.TaskDto task) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -387,17 +401,7 @@ public class BoardsFilter {
         return -1;
     }
 
-    public boolean projectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
-        boolean projectOnBoardMatches = doCheckIfProjectOnBoardMatches(projectDto, boardDto);
-        if (!projectOnBoardMatches) {
-            numOfHiddenFields ++;
-            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
-        }
-
-        return projectOnBoardMatches;
-    }
-
-    private boolean doCheckIfProjectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
+    private boolean checkOnlyIfProjectOnBoardMatches(Dtos.ProjectDto projectDto, Dtos.BoardDto boardDto) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -412,17 +416,7 @@ public class BoardsFilter {
         return projectOnBoardPosition != -1 && filterDataDto.getBoardWithProjectsDto().get(projectOnBoardPosition).isSelected();
     }
 
-    public boolean boardMatches(Dtos.BoardDto boardDto) {
-        boolean boardMatches = doCheckIfBoardMatches(boardDto);
-        if (!boardMatches) {
-            numOfHiddenFields ++;
-            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
-        }
-
-        return boardMatches;
-    }
-
-    private boolean doCheckIfBoardMatches(Dtos.BoardDto boardDto) {
+    private boolean checkOnlyIfBoardMatches(Dtos.BoardDto boardDto) {
         if (!filterDataDto.isActive()) {
             return true;
         }
@@ -493,8 +487,12 @@ public class BoardsFilter {
     public void fireFilterChangedEvent() {
         numOfHiddenFields = 0;
         MessageBus.sendMessage(new FilterChangedMessage(this, this));
-        numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
         storeFilterData();
+    }
+
+    public void onHiddenFieldRemoved() {
+        numOfHiddenFields --;
+        numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
     }
 
     public static interface NumOfHiddenFieldsChangedListener {

@@ -74,7 +74,7 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 
         @Override
         public void messageArrived(Message<BoardsFilter> message) {
-            boolean matches = message.getPayload().boardMatches(boardDto);
+            boolean matches = message.getPayload().boardMatches(boardDto, isVisible());
             setVisible(matches);
         }
 
