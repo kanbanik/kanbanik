@@ -18,15 +18,15 @@ class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] w
     )
 
     // pretty heavy operation... Will need to be fixed when start to be slow
-    val tasksOnClassOfService = for (board <- Board.all(true);
+    val tasksOnClassOfService = for (board <- Board.all(includeTasks = true);
          task <- board.tasks;
-         if (task.classOfService != null && task.classOfService.isDefined && task.classOfService.get.id.get == entity.id.get)
+         if task.classOfService != null && task.classOfService.isDefined && task.classOfService.get.id.get == entity.id.get
     ) yield task
 
-    if (!tasksOnClassOfService.isEmpty) {
+    if (tasksOnClassOfService.nonEmpty) {
       Right(ErrorDto("The following tasks are assigned to this class of service: " + tasksOnClassOfService.map(_.ticketId).mkString(", ") + ". Please delete them first."))
     } else {
-      entity.delete
+      entity.delete()
 
       Left(EmptyDto())
     }

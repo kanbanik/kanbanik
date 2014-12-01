@@ -16,7 +16,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
     }
 
     try {
-      val board = getBoard(taskDto, false)
+      val board = getBoard(taskDto, includeTasks = false)
       val workdlowitemId = new ObjectId(taskDto.workflowitemId)
       board.workflow.findItem(Workflowitem().copy(id = Some(workdlowitemId))).getOrElse(throw new IllegalArgumentException())
     } catch {
@@ -26,8 +26,8 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
     val task = taskBuilder.buildEntity(taskDto)
 
-    val stored = setOrderIfNeeded(taskDto, task).store
-    return Left(taskBuilder.buildDto(stored))
+    val stored = setOrderIfNeeded(taskDto, task).store()
+    Left(taskBuilder.buildDto(stored))
   }
   
   def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {
@@ -42,7 +42,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
   }
 
   def findOrder(task: TaskDto) = {
-    val board = getBoard(task, true)
+    val board = getBoard(task, includeTasks = true)
     val tasksOnWorkflowitem = board.tasks.filter(_.workflowitemId == task.workflowitemId)
     if (tasksOnWorkflowitem.size == 0) {
       "0"

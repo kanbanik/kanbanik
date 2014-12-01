@@ -17,11 +17,11 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
     val user = if (sessionId != null && sessionId != "") {
       new Subject.Builder().sessionId(sessionId).buildSubject
     } else {
-      SecurityUtils.getSubject()
+      SecurityUtils.getSubject
     }
 
-    if (user.isAuthenticated()) {
-      val userPrincipal = user.getPrincipal().asInstanceOf[User]
+    if (user.isAuthenticated) {
+      val userPrincipal = user.getPrincipal.asInstanceOf[User]
     	Left(userBuilder.buildDto(userPrincipal, sessionId))
     } else {
     	Right(ErrorDto("No user logged in."))

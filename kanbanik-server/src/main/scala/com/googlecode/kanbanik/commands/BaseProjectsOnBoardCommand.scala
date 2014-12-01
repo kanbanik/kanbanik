@@ -11,7 +11,7 @@ abstract class BaseProjectsOnBoardCommand
 
   def execute(params: ProjectWithBoardDto): Either[ProjectWithBoardDto, ErrorDto] = {
 
-    val board = loadBoard(new ObjectId(params.boardId), false)
+    val board = loadBoard(new ObjectId(params.boardId), includeTasks = false)
 
     if (!board.isDefined) {
       return Right(ErrorDto(ServerMessages.entityDeletedMessage("board " + params.boardId)))
@@ -24,10 +24,10 @@ abstract class BaseProjectsOnBoardCommand
 
   def executeOne(project: ProjectDto, board: Board): Either[ProjectWithBoardDto, ErrorDto] = {
     try {
-      return executeSpecific(board, Project.byId(new ObjectId(project.id.getOrElse(null))).copy(version = project.version))
+      executeSpecific(board, Project.byId(new ObjectId(project.id.orNull)).copy(version = project.version))
     } catch {
       case e: IllegalArgumentException =>
-        return Right(ErrorDto(ServerMessages.entityDeletedMessage("project")))
+        Right(ErrorDto(ServerMessages.entityDeletedMessage("project")))
     }
   }
 }

@@ -17,7 +17,7 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
       return Right(ErrorDto("The user needs to have the name set!"))
     }
 
-    if (User(name).exists) {
+    if (User(name).exists()) {
       return Right(ErrorDto("The user with this name already exists!"))
     }
 

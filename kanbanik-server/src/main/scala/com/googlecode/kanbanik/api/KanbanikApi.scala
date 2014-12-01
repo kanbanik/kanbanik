@@ -36,12 +36,12 @@ class KanbanikApi extends HttpServlet {
 
   def respondAppError(data: ErrorDto, resp: HttpServletResponse) {
     resp.setStatus(APP_ERROR_STATUS)
-    resp.getWriter().print(write(data))
+    resp.getWriter.print(write(data))
   }
 
   def respond(data: AnyRef, resp: HttpServletResponse, status: Int) {
     resp.setStatus(status)
-    resp.getWriter().print(write(data))
+    resp.getWriter.print(write(data))
   }
 
   private def process(req: HttpServletRequest, resp: HttpServletResponse) {
@@ -55,19 +55,17 @@ class KanbanikApi extends HttpServlet {
     val json = try {
       parse(commandJson)
     }  catch {
-      case _ : Throwable => {
+      case _ : Throwable =>
         respondAppError(ErrorDto("Error parsing input data: " + commandJson), resp)
         return
-      }
     }
 
     val commandName = try {
       (json \ "commandName").extract[String]
     } catch {
-      case _: Throwable => {
+      case _: Throwable =>
         respondAppError(ErrorDto("The command name has to be defined! Received data: " + commandJson), resp)
         return
-      }
     }
 
     val commandWithConfig = commands.get(commandName)
@@ -97,26 +95,22 @@ class KanbanikApi extends HttpServlet {
 
     try {
       command.execute(json) match {
-        case Left(x) => {
+        case Left(x) =>
           val response = write(x)
           if (config.notifyByEvent) {
             notifyClients(commandName, sessionId, response)
           }
 
-          resp.getWriter().print(response)
-        }
-        case Right(x) => {
+          resp.getWriter.print(response)
+        case Right(x) =>
           respondAppError(x, resp)
-        }
       }
     } catch {
-      case e: MidAirCollisionException => {
+      case e: MidAirCollisionException =>
         respondAppError(ErrorDto("This item has been modified by a different user. Please refresh your browser to get the current data."), resp)
-      }
-      case e: Throwable => {
+      case e: Throwable =>
         respondAppError(ErrorDto("Error while executing command: " + commandName + ". Error: " + e.getMessage + ". For details please look at the server logs."), resp)
         e.printStackTrace()
-      }
     }
   }
 
@@ -138,7 +132,7 @@ class KanbanikApi extends HttpServlet {
       case _: Throwable => return ""
     }
 
-    return ""
+    ""
   }
 
   object DontNotifyYourselfFilter extends PerRequestBroadcastFilter {
@@ -149,7 +143,7 @@ class KanbanikApi extends HttpServlet {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
         originalMessage match {
-          case(m : String) => {
+          case(m : String) =>
             val sessionIdStarts = m.lastIndexOf("###")
             if (sessionIdStarts == -1) {
               return new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
@@ -163,13 +157,10 @@ class KanbanikApi extends HttpServlet {
             } else {
               new BroadcastAction(m.substring(0, sessionIdStarts))
             }
-          }
 
           // other than String
           case(_) => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
         }
-
-
       }
     }
 
@@ -208,48 +199,48 @@ class KanbanikApi extends HttpServlet {
   }
 
   val commands = Map[String, (WithExecute, CommandConfiguration)](
-    LOGIN.name ->(new LoginCommand(), CommandConfiguration(false, false)),
-    LOGOUT.name ->(new LogoutCommand(), CommandConfiguration(true, false)),
+    LOGIN.name -> (new LoginCommand(), CommandConfiguration(onlyLoggedIn = false, notifyByEvent = false)),
+    LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
 
     // user
-    GET_CURRENT_USER.name ->(new GetCurrentUserCommand(), CommandConfiguration(true, false)),
-    CREATE_USER.name ->(new CreateUserCommand(), CommandConfiguration(true, false)),
-    EDIT_USER.name ->(new EditUserCommand(), CommandConfiguration(true, false)),
-    DELETE_USER.name ->(new DeleteUserCommand(), CommandConfiguration(true, false)),
-    GET_ALL_USERS_COMMAND.name ->(new GetAllUsersCommand(), CommandConfiguration(true, false)),
+    GET_CURRENT_USER.name -> (new GetCurrentUserCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    CREATE_USER.name -> (new CreateUserCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    EDIT_USER.name -> (new EditUserCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
 
     // class of service
-    GET_ALL_CLASS_OF_SERVICE.name ->(new GetAllClassOfServices(), CommandConfiguration(true, false)),
-    EDIT_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true, true)),
-    CREATE_CLASS_OF_SERVICE.name ->(new SaveClassOfServiceCommand(), CommandConfiguration(true, true)),
-    DELETE_CLASS_OF_SERVICE.name ->(new DeleteClassOfServiceCommand(), CommandConfiguration(true, true)),
+    GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
 
     // project
-    GET_ALL_PROJECTS.name ->(new GetAllProjectsCommand(), CommandConfiguration(true, false)),
-    EDIT_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true, true)),
-    CREATE_PROJECT.name ->(new SaveProjectCommand(), CommandConfiguration(true, true)),
-    DELETE_PROJECT.name ->(new DeleteProjectCommand(), CommandConfiguration(true, true)),
-    ADD_PROJECT_TO_BOARD.name ->(new AddProjectsToBoardCommand(), CommandConfiguration(true, true)),
-    REMOVE_PROJECT_FROM_BOARD.name ->(new RemoveProjectFromBoardCommand(), CommandConfiguration(true, true)),
+    GET_ALL_PROJECTS.name -> (new GetAllProjectsCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
 
     // task
-    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(true, true)),
-    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true, true)),
-    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(true, true)),
-    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(true, false)),
-    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(true, false)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(true, true)),
+    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
 
     // board / workflowitem
-    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(true, true)),
-    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(true, true)),
-    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(true, false)),
+    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false)),
 
-    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true, true)),
-    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(true, true)),
-    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(true, true)),
-    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(true, true)),
-    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(true, false))
+    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = true)),
+    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(onlyLoggedIn = true, notifyByEvent = false))
 
   )
 

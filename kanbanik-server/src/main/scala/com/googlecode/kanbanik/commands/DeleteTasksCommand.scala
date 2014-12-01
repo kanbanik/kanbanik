@@ -14,15 +14,15 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
 
   def execute(taskDto: TasksDto): Either[TasksDto, ErrorDto] = {
 
-	  val results = taskDto.values.par.map(doExecute(_))
+	  val results = taskDto.values.par.map(doExecute)
 	  val errorResults = results.filter(_.isRight)
 	  if (errorResults.isEmpty) {
-	    Left(TasksDto(results.map(_ match {case Left(x) => x}).toList))
+	    Left(TasksDto(results.map { case Left(x) => x}.toList))
 	  } else {
-	    val messages = errorResults.map(r => r match {
+	    val messages = errorResults.map {
         case Left(x) => ""
         case Right(x) => x
-      })
+      }
 
 	    Right(ErrorDto(messages.mkString(", ")))
 	  }
@@ -32,10 +32,10 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
     val boardId = new ObjectId(taskDto.boardId)
     val workflowitemId = new ObjectId(taskDto.workflowitemId)
     
-    val board = Board.byId(boardId, false)
+    val board = Board.byId(boardId, includeTasks = false)
 
     if (!board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))) {
-      return Right(ErrorDto("The worflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data."))
+      return Right(ErrorDto("The workflowitem on which this task is defined does not exist. Possibly it has been deleted by a different user. Please refresh your browser to get the current data."))
     }
     
     val task = taskBuilder.buildEntity(taskDto)

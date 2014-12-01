@@ -8,14 +8,14 @@ import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
 
 case class Board(
-  val id: Option[ObjectId],
-  val name: String,
-  val version: Int,
-  val workflow: Workflow,
-  val tasks: List[Task],
-  val userPictureShowingEnabled: Boolean,
-  val fixedSizeShortDescription: Boolean,
-  val workfloVerticalSizing: WorkfloVerticalSizing.Value) extends HasMongoConnection with HasMidAirCollisionDetection {
+  id: Option[ObjectId],
+  name: String,
+  version: Int,
+  workflow: Workflow,
+  tasks: List[Task],
+  userPictureShowingEnabled: Boolean,
+  fixedSizeShortDescription: Boolean,
+  workfloVerticalSizing: WorkfloVerticalSizing.Value) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def this(
     id: Option[ObjectId],
@@ -33,7 +33,7 @@ case class Board(
 
   def store: Board = {
     val idToUpdate = id.getOrElse({
-      val obj = asDbObject
+      val obj = asDbObject()
       using(createConnection) {
         connection => coll(connection, Coll.Boards) += obj
       }
@@ -44,12 +44,12 @@ case class Board(
     using(createConnection) { conn =>
 
       val update = $set(
-        Board.Fields.version.toString() -> { version + 1 },
-        Board.Fields.name.toString() -> name,
-        Board.Fields.workflow.toString() -> workflow.asDbObject,
-        Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
-        Board.Fields.fixedSizeShortDescription.toString() -> fixedSizeShortDescription,
-        Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.id)
+        Board.Fields.version.toString -> { version + 1 },
+        Board.Fields.name.toString -> name,
+        Board.Fields.workflow.toString -> workflow.asDbObject,
+        Board.Fields.userPictureShowingEnabled.toString -> userPictureShowingEnabled,
+        Board.Fields.fixedSizeShortDescription.toString -> fixedSizeShortDescription,
+        Board.Fields.workfloVerticalSizing.toString -> workfloVerticalSizing.id)
 
       Board.asEntity(versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version), update))
     }
@@ -58,17 +58,17 @@ case class Board(
 
   private def asDbObject(): DBObject = {
     MongoDBObject(
-      Board.Fields.id.toString() -> new ObjectId,
-      Board.Fields.name.toString() -> name,
-      Board.Fields.workfloVerticalSizing.toString() -> workfloVerticalSizing.id,
-      Board.Fields.version.toString() -> version,
-      Board.Fields.workflow.toString() -> workflow.asDbObject,
-      Board.Fields.userPictureShowingEnabled.toString() -> userPictureShowingEnabled,
-      Board.Fields.fixedSizeShortDescription.toString() -> fixedSizeShortDescription,
-      Board.Fields.tasks.toString() -> tasks.map(Task.asDBObject(_)))
+      Board.Fields.id.toString -> new ObjectId,
+      Board.Fields.name.toString -> name,
+      Board.Fields.workfloVerticalSizing.toString -> workfloVerticalSizing.id,
+      Board.Fields.version.toString -> version,
+      Board.Fields.workflow.toString -> workflow.asDbObject,
+      Board.Fields.userPictureShowingEnabled.toString -> userPictureShowingEnabled,
+      Board.Fields.fixedSizeShortDescription.toString -> fixedSizeShortDescription,
+      Board.Fields.tasks.toString -> tasks.map(Task.asDBObject))
   }
 
-  def delete {
+  def delete() {
     versionedDelete(Coll.Boards, versionedQuery(id.get, version))
   }
 
@@ -88,7 +88,7 @@ object Board extends HasMongoConnection {
 
   def all(includeTasks: Boolean): List[Board] = {
     // does not retrieve the description of the task even it retrieves tasks
-    all(includeTasks, false)
+    all(includeTasks, includeTaskDescription = false)
   }
 
   def all(includeTasks: Boolean, includeTaskDescription: Boolean): List[Board] = {
@@ -96,17 +96,17 @@ object Board extends HasMongoConnection {
       val taskExclusionObject = {
         if (includeTasks) {
             if (includeTaskDescription) {
-              // ok, no eclusions
+              // ok, no exclusions
               MongoDBObject()
             } else {
-              MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString() -> 0)
+              MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString -> 0)
             }
         } else {
-          MongoDBObject(Board.Fields.tasks.toString() -> 0)
+          MongoDBObject(Board.Fields.tasks.toString -> 0)
         }
       }
       
-      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString() -> 1)).map(asEntity(_)).toList
+      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 
@@ -114,23 +114,23 @@ object Board extends HasMongoConnection {
     using(createConnection) { conn =>
       def taskExclusionObject = {
         if (!includeTasks) {
-          MongoDBObject(Board.Fields.tasks.toString() -> 0)
+          MongoDBObject(Board.Fields.tasks.toString -> 0)
         } else {
           MongoDBObject()
         }
       }
       
-      val dbBoards = coll(conn, Coll.Boards).findOne(MongoDBObject(Board.Fields.id.toString() -> id), taskExclusionObject).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
+      val dbBoards = coll(conn, Coll.Boards).findOne(MongoDBObject(Board.Fields.id.toString -> id), taskExclusionObject).getOrElse(throw new IllegalArgumentException("No such board with id: " + id))
       asEntity(dbBoards)
     }
   }
 
   def asEntity(dbObject: DBObject) = {
     val resBoard = new Board(
-      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
-      dbObject.get(Fields.name.toString()).asInstanceOf[String],
+      Some(dbObject.get(Fields.id.toString).asInstanceOf[ObjectId]),
+      dbObject.get(Fields.name.toString).asInstanceOf[String],
       dbObject.getWithDefault[Int](Fields.version, 1),
-      Workflow.asEntity(dbObject.get(Fields.workflow.toString()).asInstanceOf[DBObject]),
+      Workflow.asEntity(dbObject.get(Fields.workflow.toString).asInstanceOf[DBObject]),
       List(),
       dbObject.getWithDefault[Boolean](Fields.userPictureShowingEnabled, true),
       dbObject.getWithDefault[Boolean](Fields.fixedSizeShortDescription, false),
@@ -140,9 +140,9 @@ object Board extends HasMongoConnection {
     
     resBoard.copy(workflow = resBoard.workflow.copy(_board = Some(resBoard)))
 
-    val tasks = dbObject.get(Fields.tasks.toString())
+    val tasks = dbObject.get(Fields.tasks.toString)
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
-      val list = dbObject.get(Fields.tasks.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
+      val list = dbObject.get(Fields.tasks.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
       val allUsers = User.all()
       val allClassOfServices = ClassOfService.all()
       val taskEnitities = list.map(Task.asEntity(_, allClassOfServices, allUsers))

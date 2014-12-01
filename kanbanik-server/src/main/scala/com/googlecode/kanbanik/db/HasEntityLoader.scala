@@ -17,19 +17,19 @@ trait HasEntityLoader {
   }
 
   def loadTask(id: ObjectId) = {
-    loadEntity[Task](id, Task.byId(_))
+    loadEntity[Task](id, Task.byId)
   }
   
   def loadProject(id: ObjectId) = {
-    loadEntity[Project](id, Project.byId(_))
+    loadEntity[Project](id, Project.byId)
   }
 
   def loadClassOfService(id: ObjectId) = {
-    loadEntity[ClassOfService](id, ClassOfService.byId(_))
+    loadEntity[ClassOfService](id, ClassOfService.byId)
   }
   
   def loadUser(name: String) = {
-    loadEntity[User, String](name, User.byId(_))
+    loadEntity[User, String](name, User.byId)
   }
 
   private def loadEntity[T](id: ObjectId, f: ObjectId => T): Option[T] = {

@@ -14,7 +14,7 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
     if (params.boardIds.isDefined) {
       for (board <- params.boardIds.get) {
         try {
-          Board.byId(new ObjectId(board), false)
+          Board.byId(new ObjectId(board), includeTasks = false)
         } catch {
           case e: IllegalArgumentException =>
             Right(ErrorDto("The board '" + board + "' to which this project is assigned does not exists. Possibly it has been deleted by a different user. Please refresh your browser to get the current data."))

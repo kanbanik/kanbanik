@@ -9,14 +9,14 @@ import com.googlecode.kanbanik.dtos.WorkflowitemType
 import com.googlecode.kanbanik.commons._
 
 case class Workflowitem(
-  val id: Option[ObjectId],
-  val name: String,
-  val wipLimit: Int,
-  val verticalSize: Int,
-  val itemType: String,
-  val version: Int,
-  val nestedWorkflow: Workflow,
-  val _parentWorkflow: Option[Workflow])
+  id: Option[ObjectId],
+  name: String,
+  wipLimit: Int,
+  verticalSize: Int,
+  itemType: String,
+  version: Int,
+  nestedWorkflow: Workflow,
+  _parentWorkflow: Option[Workflow])
   extends HasMongoConnection
   with HasMidAirCollisionDetection with Equals {
 
@@ -28,22 +28,22 @@ case class Workflowitem(
     version: Int,
     nestedWorkflow: Workflow) = this(id, name, wipLimit, verticalSize, itemType, version, nestedWorkflow, None)
 
-  def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow)
+  def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow())
 
   private def loadWorkflow(): Workflow = {
-    val parentBoard = Board.all(false).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
+    val parentBoard = Board.all(includeTasks = false).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
     parentBoard.workflow.findItem(this).get.parentWorkflow
   }
 
   def asDbObject(): DBObject = {
     MongoDBObject(
-      Workflowitem.Fields.id.toString() -> id.getOrElse(new ObjectId),
-      Workflowitem.Fields.name.toString() -> name,
-      Workflowitem.Fields.wipLimit.toString() -> wipLimit,
-      Workflowitem.Fields.verticalSize.toString() -> verticalSize,
-      Workflowitem.Fields.itemType.toString() -> itemType,
-      Workflowitem.Fields.version.toString() -> version,
-      Workflowitem.Fields.nestedWorkflow.toString() -> nestedWorkflow.asDbObject)
+      Workflowitem.Fields.id.toString -> id.getOrElse(new ObjectId),
+      Workflowitem.Fields.name.toString -> name,
+      Workflowitem.Fields.wipLimit.toString -> wipLimit,
+      Workflowitem.Fields.verticalSize.toString -> verticalSize,
+      Workflowitem.Fields.itemType.toString -> itemType,
+      Workflowitem.Fields.version.toString -> version,
+      Workflowitem.Fields.nestedWorkflow.toString -> nestedWorkflow.asDbObject)
   }
 
   def canEqual(other: Any) = {
@@ -96,14 +96,14 @@ object Workflowitem extends HasMongoConnection {
 
   def asEntity(dbObject: DBObject, workflow: Option[Workflow]): Workflowitem = {
     new Workflowitem(
-      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
-      dbObject.get(Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Fields.wipLimit.toString()).asInstanceOf[Int],
+      Some(dbObject.get(Fields.id.toString).asInstanceOf[ObjectId]),
+      dbObject.get(Fields.name.toString).asInstanceOf[String],
+      dbObject.get(Fields.wipLimit.toString).asInstanceOf[Int],
       dbObject.getWithDefault[Int](Fields.verticalSize, -1),
-      dbObject.get(Fields.itemType.toString()).asInstanceOf[String],
-      dbObject.get(Fields.version.toString()).asInstanceOf[Int],
+      dbObject.get(Fields.itemType.toString).asInstanceOf[String],
+      dbObject.get(Fields.version.toString).asInstanceOf[Int],
       {
-        val nestedWorkflow = dbObject.get(Fields.nestedWorkflow.toString()).asInstanceOf[DBObject]
+        val nestedWorkflow = dbObject.get(Fields.nestedWorkflow.toString).asInstanceOf[DBObject]
         Workflow.asEntity(nestedWorkflow)
       },
       workflow)

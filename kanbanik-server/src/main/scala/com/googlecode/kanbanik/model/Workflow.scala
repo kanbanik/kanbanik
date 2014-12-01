@@ -8,17 +8,17 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 
 case class Workflow(
-  val id: Option[ObjectId],
-  val workflowitems: List[Workflowitem],
-  val _board: Option[Board]) extends HasMongoConnection {
+  id: Option[ObjectId],
+  workflowitems: List[Workflowitem],
+  _board: Option[Board]) extends HasMongoConnection {
 
   def addItem(item: Workflowitem, nextItem: Option[Workflowitem], destWorkflow: Workflow): Workflow = {
 
-    def addInThisWorkflow = {
+    def addInThisWorkflow() = {
       if (!nextItem.isDefined) {
         new Workflow(id, workflowitems ++ List(item), _board)
       } else {
-        val indexOfNext = workflowitems indexOf (nextItem.get)
+        val indexOfNext = workflowitems indexOf nextItem.get
         val added = workflowitems.take(indexOfNext) ++ List(item) ++ workflowitems.drop(indexOfNext)
         new Workflow(id, added, _board)
       }
@@ -34,7 +34,7 @@ case class Workflow(
     }
 
     if (destWorkflow == this) {
-      addInThisWorkflow
+      addInThisWorkflow()
     } else {
       new Workflow(id, addInInnerWorkflow(workflowitems), _board)
     }
@@ -76,7 +76,7 @@ case class Workflow(
   }
   
   def findNotFoundAction(foundPredicate: Workflowitem => Boolean)(item: Workflowitem, nested: List[Option[Workflowitem]]) = {
-    nested.find(candidate => foundPredicate(candidate.getOrElse(null))).getOrElse(None)
+    nested.find(candidate => foundPredicate(candidate.orNull)).getOrElse(None)
   }
   
   def findFoundAction(item: Workflowitem, rest: List[Workflowitem]) = {
@@ -138,7 +138,7 @@ case class Workflow(
     }
     
     // quite a heavy operation
-    val board = Board.all(false).find(board => containsThisWorkflow(board.workflow))
+    val board = Board.all(includeTasks = false).find(board => containsThisWorkflow(board.workflow))
     
 	board.getOrElse(throw new IllegalStateException("The workflow with id: '" + id + "' does not exist!"))
     
@@ -150,8 +150,8 @@ case class Workflow(
 
   def asDbObject(): DBObject = {
     MongoDBObject(
-      Workflow.Fields.id.toString() -> id.getOrElse(new ObjectId),
-      Workflow.Fields.workflowitems.toString() -> workflowitems.map(_.asDbObject))
+      Workflow.Fields.id.toString -> id.getOrElse(new ObjectId),
+      Workflow.Fields.workflowitems.toString -> workflowitems.map(_.asDbObject()))
   }
 
   def canEqual(other: Any) = {
@@ -190,12 +190,12 @@ object Workflow extends HasMongoConnection {
   def asEntity(dbObject: DBObject, board: Option[Board]): Workflow = {
 
     val workflow = new Workflow(
-      Some(dbObject.get(Fields.id.toString()).asInstanceOf[ObjectId]),
+      Some(dbObject.get(Fields.id.toString).asInstanceOf[ObjectId]),
       {
-        val loadedWorkflowitems = dbObject.get(Fields.workflowitems.toString())
+        val loadedWorkflowitems = dbObject.get(Fields.workflowitems.toString)
         if (loadedWorkflowitems.isInstanceOf[BasicDBList]) {
-          val list = dbObject.get(Fields.workflowitems.toString()).asInstanceOf[BasicDBList].toArray().toList.asInstanceOf[List[DBObject]]
-          list.map(Workflowitem.asEntity(_))
+          val list = dbObject.get(Fields.workflowitems.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
+          list.map(Workflowitem.asEntity)
         } else {
           List()
         }

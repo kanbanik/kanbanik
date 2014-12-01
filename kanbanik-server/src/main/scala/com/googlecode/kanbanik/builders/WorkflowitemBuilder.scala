@@ -42,7 +42,7 @@ class WorkflowitemBuilder extends BaseBuilder {
   def buildShallowDto(workflowitem: Workflowitem, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     WorkflowitemDto(
       workflowitem.name,
-      Some(workflowitem.id.get.toString()),
+      Some(workflowitem.id.get.toString),
       Some(workflowitem.wipLimit),
       workflowitem.itemType,
       Some(workflowitem.version),

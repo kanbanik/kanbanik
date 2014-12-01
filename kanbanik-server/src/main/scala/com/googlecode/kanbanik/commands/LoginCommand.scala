@@ -13,22 +13,21 @@ class LoginCommand extends Command[LoginDto, UserDto] {
   lazy val userBuilder = new UserBuilder
   
   // 8h - one working day
-  lazy val timeout = 28800000;
+  lazy val timeout = 28800000
   
   def execute(params: LoginDto): Either[UserDto, ErrorDto] = {
     val currentUser = new Subject.Builder().buildSubject()
     try {
       currentUser.login(new UsernamePasswordToken(params.userName, params.password))
       ThreadContext.bind(currentUser)
-      SecurityUtils.getSubject().getSession().setTimeout(timeout)
+      SecurityUtils.getSubject.getSession.setTimeout(timeout)
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         e.printStackTrace()
-        return Right(ErrorDto("Login not successful!"))
-      }
+        Right(ErrorDto("Login not successful!"))
     }
     
-    val principal = currentUser.getPrincipal().asInstanceOf[User]
+    val principal = currentUser.getPrincipal.asInstanceOf[User]
 
     Left(userBuilder.buildDto(principal, SecurityUtils.getSubject.getSession.getId.toString))
   }

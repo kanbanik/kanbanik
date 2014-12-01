@@ -7,7 +7,7 @@ import com.mongodb.casbah.MongoCollection
 trait HasMongoConnection extends ResourceManipulation {
 
   def createConnection = {
-    HasMongoConnection.initConnection
+    HasMongoConnection.initConnection()
     HasMongoConnection.connection
   }
 
@@ -25,7 +25,7 @@ trait HasMongoConnection extends ResourceManipulation {
   }
 
   def coll(connection: MongoConnection, collName: Coll.Value): MongoCollection = {
-    connection(HasMongoConnection.dbName)(collName.toString())
+    connection(HasMongoConnection.dbName)(collName.toString)
   }
   
   def coll(connection: MongoConnection, collName: String): MongoCollection = {
@@ -37,7 +37,7 @@ trait HasMongoConnection extends ResourceManipulation {
 object HasMongoConnection {
 
   var connection: MongoConnection = null
-  def initConnection {
+  def initConnection() {
     if (connection == null) {
       connection = MongoConnection(server, port)
       if (authenticationRequired) {
@@ -95,7 +95,7 @@ object HasMongoConnection {
     
   }
 
-  def destroyConnection = {
+  def destroyConnection() = {
     if (connection != null) {
       connection.close()
     }

@@ -11,7 +11,7 @@ trait ProjectValidation {
       return (true, "")
     }
 
-    return composeResult(tasksOnProject)
+    composeResult(tasksOnProject)
   }
 
   def canBeRemoved(project: Project, board: Board): (Boolean, String) = {
@@ -26,7 +26,7 @@ trait ProjectValidation {
       return (true, "")
     }
 
-    return composeResult(tasks)
+    composeResult(tasks)
   }
 
   private def composeResult(tasks: List[Task]): (Boolean, String) = {
@@ -41,6 +41,6 @@ trait ProjectValidation {
 
   // REALLY heavy operation! It is based on assumption that there will be only few boards 
   // in the system - mostly one. As soon as this will not be true anymore, needs to be optimized!
-  private def findTasksOnProject(project: Project) = for (board <- Board.all(true); task <- board.tasks; if (task.projectId == project.id.get)) yield task
+  private def findTasksOnProject(project: Project) = for (board <- Board.all(includeTasks = true); task <- board.tasks; if task.projectId == project.id.get) yield task
 
 }

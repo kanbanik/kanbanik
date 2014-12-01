@@ -28,7 +28,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
     // hack just to test if the board still exists
     val board = loadBoard(new ObjectId(params.board.id.getOrElse(
         return Right(ErrorDto("The board has to have the ID set"))
-      )), false).getOrElse(
+      )), includeTasks = false).getOrElse(
         return Right(ErrorDto(ServerMessages.entityDeletedMessage("board " + params.board.name)))
       )
 
@@ -65,7 +65,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
   }
 
   private def hasTasks(destContextDto: WorkflowDto): Boolean = {
-    val board = Board.byId(new ObjectId(destContextDto.board.id.get), true)
+    val board = Board.byId(new ObjectId(destContextDto.board.id.get), includeTasks = true)
     if (!destContextDto.id.isDefined) {
       return false
     }

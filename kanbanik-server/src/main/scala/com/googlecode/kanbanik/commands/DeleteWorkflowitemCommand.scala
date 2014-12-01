@@ -23,7 +23,7 @@ class DeleteWorkflowitemCommand extends Command[WorkflowitemDto, EmptyDto] with 
 
     val board = loadBoard(new ObjectId(params.parentWorkflow.get.board.id.getOrElse(
       return Right(ErrorDto("The ID of the Board has to be set"))
-    )), true).getOrElse(
+    )), includeTasks = true).getOrElse(
       return Right(ErrorDto(ServerMessages.entityDeletedMessage("board " + params.parentWorkflow.get.board.name)))
     )
 

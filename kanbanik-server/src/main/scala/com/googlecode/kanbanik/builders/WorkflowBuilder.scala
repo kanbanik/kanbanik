@@ -25,7 +25,7 @@ class WorkflowBuilder extends BaseBuilder {
 
   def buildShallowDto(workflow: Workflow, board: Option[BoardDto]) = {
     WorkflowDto(
-      Some(workflow.id.get.toString()),
+      Some(workflow.id.get.toString),
       None,
       board.getOrElse(boardBuilder.buildShallowDto(workflow.board))
     )
