@@ -79,6 +79,8 @@ public class FullTextMatcherFilterComponent extends Composite {
         longDescription.addValueChangeHandler(handler);
 
         textArea.addKeyUpHandler(handler);
+
+        textArea.getElement().setPropertyString("placeholder", "No Text");
     }
 
     private void initValues(Dtos.FullTextMatcherDataDto stringMatcherDataDto) {
