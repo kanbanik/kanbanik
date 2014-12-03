@@ -14,7 +14,7 @@ class LogoutCommand extends Command[SessionDto, StatusDto] {
     val subject = new Subject.Builder().sessionId(sessionId).buildSubject
 
     subject.logout()
-    Left(StatusDto(true, None))
+    Left(StatusDto(success = true, None))
   }
   
 }

@@ -18,7 +18,7 @@ class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnec
     ))
 
     try {
-    	Board.byId(boardId, false)
+      Board.byId(boardId, includeTasks = false)
     } catch {
       case e: IllegalArgumentException =>
         return Right(ErrorDto(ServerMessages.entityDeletedMessage("board")))
@@ -33,14 +33,14 @@ class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnec
       return Right(ErrorDto("There are workflowitems on this board. Please delete them first and than delete this board."))
     }
 
-    board.delete
+    board.delete()
 
     Left(EmptyDto())
   }
   
   def isOnProject(boardId: ObjectId): Boolean = {
     using(createConnection) { conn =>
-      return coll(conn, Coll.Projects).findOne(MongoDBObject(Project.Fields.boards.toString() -> boardId)).isDefined
+      return coll(conn, Coll.Projects).findOne(MongoDBObject(Project.Fields.boards.toString -> boardId)).isDefined
     }
   }
 }

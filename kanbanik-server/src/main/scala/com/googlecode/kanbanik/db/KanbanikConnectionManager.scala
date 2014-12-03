@@ -4,7 +4,7 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 
 // just a bridge between java and scala world
 class KanbanikConnectionManager {
-	def destroyConnectionPool = HasMongoConnection.destroyConnection
+	def destroyConnectionPool() = HasMongoConnection.destroyConnection()
 	
 	def initConnectionPool(
 	  server: String, 

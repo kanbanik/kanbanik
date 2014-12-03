@@ -25,7 +25,7 @@ class BoardBuilder extends BaseBuilder {
 
   def buildShallowDto(board: Board): BoardDto = {
     BoardDto(
-      Some(board.id.get.toString()),
+      Some(board.id.get.toString),
       board.version,
       board.name,
       board.workfloVerticalSizing.id,

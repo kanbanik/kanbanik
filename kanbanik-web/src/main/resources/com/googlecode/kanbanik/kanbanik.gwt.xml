@@ -13,13 +13,13 @@
 	
 	<inherits name="com.googlecode.kanbanik.kanbanik-dto" />
 
-    <inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.http.HTTP" />
 
-    <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+	<inherits name="com.google.web.bindery.autobean.AutoBean"/>
 
-    <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
+  <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
 
-    <entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
+  <entry-point class='com.googlecode.kanbanik.client.KanbanikEntryPoint' />
 
 	<source path='client.components' />
 	<source path='client.editworkflow' />

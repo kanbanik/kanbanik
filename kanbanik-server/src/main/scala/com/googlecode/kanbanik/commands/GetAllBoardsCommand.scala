@@ -27,11 +27,10 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
       loadedBoards.map(
         board => BoardWithProjectsDto(
         boardBuilder.buildDto(board).copy(
-          tasks = Some(board.tasks.map(taskBuilder.buildDto(_)))
+          tasks = Some(board.tasks.map(taskBuilder.buildDto))
         ), {
           val projectDtos = loadedProjects.filter(
-            project => project.boards.getOrElse(List[Board]()).filter(
-              projectsBoard => projectsBoard.id == board.id).size > 0
+            project => project.boards.getOrElse(List[Board]()).exists(projectsBoard => projectsBoard.id == board.id)
           ).map(projectOnBoard => projectBuilder.buildDto(projectOnBoard))
 
           if (projectDtos.size > 0) {

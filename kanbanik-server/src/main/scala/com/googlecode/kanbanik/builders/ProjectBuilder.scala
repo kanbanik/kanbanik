@@ -12,7 +12,7 @@ class ProjectBuilder {
     NewProjectDto(
       Some(project.id.get.toString),
       Some(project.name),
-      if (!project.boards.isEmpty) {
+      if (project.boards.isDefined) {
         Some(project.boards.get.map(_.id.get.toString))
       } else {
         None

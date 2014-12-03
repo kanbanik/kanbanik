@@ -47,7 +47,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
   "delete() " should "delete the user if exists" in {
     mkDefaultUser.store
 
-    User.byId("name").delete
+    User.byId("name").delete()
 
     intercept[IllegalArgumentException] {
       // does not exist anymore
@@ -57,7 +57,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
 
   it should "fail if does not exist" in {
     intercept[IllegalArgumentException] {
-      User.byId("name").delete
+      User.byId("name").delete()
     }
   }
   
@@ -70,7 +70,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
     user1.copy(realName = "other").store
     
     intercept[MidAirCollisionException] {
-      user2.delete
+      user2.delete()
     }
   }
 
@@ -84,6 +84,6 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
 
   after {
     // cleanup database
-    DbCleaner.clearDb
+    DbCleaner.clearDb()
   }
 }

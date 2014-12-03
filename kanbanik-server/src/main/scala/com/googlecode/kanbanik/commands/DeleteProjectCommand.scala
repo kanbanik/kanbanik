@@ -25,7 +25,7 @@ class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectVal
     	return Right(ErrorDto(msg))
     }
 
-    project.delete
+    project.delete()
 
     Left(EmptyDto())
   }

@@ -51,7 +51,4 @@ public enum CommandNames {
     private CommandNames(String name) {
         this.name = name;
     }
-
-
-
 }

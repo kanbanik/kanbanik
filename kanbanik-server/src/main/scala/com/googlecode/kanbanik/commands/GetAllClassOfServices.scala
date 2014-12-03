@@ -9,7 +9,7 @@ class GetAllClassOfServices extends Command[EmptyDto, ListDto[ClassOfServiceDto]
   lazy val builder = new ClassOfServiceBuilder
 
   def execute(params: EmptyDto): Either[ListDto[ClassOfServiceDto], ErrorDto] = {
-    val dtos = ClassOfService.all.map(builder.buildDto(_))
+    val dtos = ClassOfService.all().map(builder.buildDto)
     
     Left(ListDto(dtos))
   }

@@ -21,16 +21,16 @@ class KanbanikRealm extends AuthenticatingRealm {
   setCredentialsMatcher(credentialsMatcher)
   
   override protected def supports(token: AuthenticationToken): Boolean = {
-    return token.isInstanceOf[UsernamePasswordToken]
+    token.isInstanceOf[UsernamePasswordToken]
   }
   
   def doGetAuthenticationInfo(token: AuthenticationToken): AuthenticationInfo = {
     val usernamePasswordToken = token.asInstanceOf[UsernamePasswordToken]
-    val user = User.byId(usernamePasswordToken.getUsername())
+    val user = User.byId(usernamePasswordToken.getUsername)
 
-    val salt = ByteSource.Util.bytes(user.salt.toCharArray())
+    val salt = ByteSource.Util.bytes(user.salt.toCharArray)
 
-    new SimpleAuthenticationInfo(user, user.password, salt, getName())
+    new SimpleAuthenticationInfo(user, user.password, salt, getName)
   }
 
 }

@@ -11,15 +11,15 @@ object DataLoader extends HasMongoConnection {
   val tasks = createConnection("kanbanik")("tasks")
   val projects = createConnection("kanbanik")("projects")
 
-  def fillDB {
-    fillWorkflowitems
-    fillComplexWorkflowitems
-    fillBoards
-    fillTasks
-    fillProject
+  def fillDB() {
+    fillWorkflowitems()
+    fillComplexWorkflowitems()
+    fillBoards()
+    fillTasks()
+    fillProject()
   }
 
-  def fillProject {
+  def fillProject() {
 
     tasks += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0a9"),
@@ -70,7 +70,7 @@ object DataLoader extends HasMongoConnection {
         new ObjectId("5f48e10644ae3742baa2d0a9")))
   }
 
-  def fillTasks {
+  def fillTasks() {
     tasks += MongoDBObject(
       "_id" -> new ObjectId("1a48e10644ae3742baa2d0d9"),
       "name" -> "task name",
@@ -86,7 +86,7 @@ object DataLoader extends HasMongoConnection {
         new ObjectId("1a48e10644ae3742baa2d0d9")))
   }
 
-  def clearDB {
+  def clearDB() {
     workflowitems.find().foreach {
       workflowitems.remove(_)
     }
@@ -104,7 +104,7 @@ object DataLoader extends HasMongoConnection {
     }
   }
 
-  private def fillComplexWorkflowitems {
+  private def fillComplexWorkflowitems() {
 
     boards += MongoDBObject(
       "_id" -> new ObjectId("8a48e10644ae3742baa2d0d9"),
@@ -121,7 +121,7 @@ object DataLoader extends HasMongoConnection {
       "boardId" -> new ObjectId("8a48e10644ae3742baa2d0d9"))
   }
 
-  private def fillBoards {
+  private def fillBoards() {
 
     boards += MongoDBObject(
       "_id" -> new ObjectId("2f48e10644ae3742baa2d0b9"),
@@ -184,7 +184,7 @@ object DataLoader extends HasMongoConnection {
       "boardId" -> new ObjectId("4f48e10644ae3742baa2d0d0"))
   }
 
-  private def fillWorkflowitems {
+  private def fillWorkflowitems() {
     // for basic read write of workflowitems
     workflowitems += MongoDBObject(
       "_id" -> new ObjectId("4f48e10644ae3742baa2d0d9"),

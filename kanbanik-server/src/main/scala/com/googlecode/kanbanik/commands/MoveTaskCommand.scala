@@ -34,7 +34,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
 
     val newOrder = calculateNewOrder(params)
     val toStore = oldTask.copy(order = newOrder, projectId = newTask.projectId, workflowitemId = newTask.workflowitemId)
-    val resTask = toStore.store
+    val resTask = toStore.store()
     Left(taskBuilder.buildDto(resTask))
 
   }
@@ -77,7 +77,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
   }
 
   private def orderOrNull(order: Option[String]) = {
-    val orderWithEmpty = order.getOrElse(null)
+    val orderWithEmpty = order.orNull
     if (orderWithEmpty == "") {
       null
     } else {

@@ -77,7 +77,7 @@ class TaskBuilder extends TaskManipulation {
     },
     determineTicketId(taskDto),
     taskDto.version,
-    taskDto.order.getOrElse(null),
+    taskDto.order.orNull,
     {
       if (!taskDto.assignee.isDefined) {
         None

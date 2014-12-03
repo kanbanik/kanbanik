@@ -12,7 +12,7 @@ trait WorkflowitemTestManipulation {
   def itemDtoWithName(name: String, parentWorkflow: Option[WorkflowDto]): WorkflowitemDto = {
     new WorkflowitemDto(
       name,
-      Some(new ObjectId().toString()),
+      Some(new ObjectId().toString),
       None,
       WorkflowitemType.HORIZONTAL.toString,
       Some(1),

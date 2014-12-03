@@ -17,7 +17,7 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
     val parentWorkflow = params.parentWorkflow.getOrElse(return Right(ErrorDto("The parent workflow is not set")))
     val board = params.parentWorkflow.get.board
 
-    val builtBoard = Board.byId(new ObjectId(board.id.get), false).copy(version = board.version)
+    val builtBoard = Board.byId(new ObjectId(board.id.get), includeTasks = false).copy(version = board.version)
 
     val workflowitem = workflowitemBuilder.buildEntity(params, None, Some(builtBoard))
 
