@@ -32,7 +32,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     interface MyUiBinder extends UiBinder<Widget, FilterComponent> {}
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-    public static final String FILTERS_ACTIVE = "Filters Active";
+    public static final String FILTERS_ACTIVE = "Filtering";
 
     @UiField
     DisclosurePanel disclosurePanel;
@@ -533,10 +533,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
     @Override
     public void onNumOfHiddenFieldsChanged(int newNum) {
-        if (!activateFilter.getValue() || newNum == 0) {
-            activateFilter.setText(FILTERS_ACTIVE);
-        } else {
-            activateFilter.setText(FILTERS_ACTIVE + " (" + newNum + " entities match criteria to be hidden)");
-        }
+//        if (!activateFilter.getValue() || newNum == 0) {
+//            activateFilter.setText(FILTERS_ACTIVE);
+//        } else {
+//            activateFilter.setText(FILTERS_ACTIVE + " (" + newNum + " entities match criteria to be hidden)");
+//        }
     }
 }

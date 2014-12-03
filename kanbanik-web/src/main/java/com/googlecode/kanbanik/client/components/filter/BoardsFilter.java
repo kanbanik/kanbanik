@@ -51,13 +51,15 @@ public class BoardsFilter {
     }
 
     private boolean maybeIncrementHiddenFields(boolean prevShown, boolean nowShown) {
-        if (!nowShown && prevShown) {
-            numOfHiddenFields ++;
-            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
-        } else if (nowShown && !prevShown) {
-            numOfHiddenFields --;
-            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
-        }
+        //      not working properly, not delaying release anymore, will fix in new release and now just commenting
+
+//        if (!nowShown && prevShown) {
+//            numOfHiddenFields ++;
+//            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+//        } else if (nowShown && !prevShown) {
+//            numOfHiddenFields --;
+//            numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+//        }
 
         return nowShown;
     }
@@ -491,8 +493,8 @@ public class BoardsFilter {
     }
 
     public void onHiddenFieldRemoved() {
-        numOfHiddenFields --;
-        numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
+//        numOfHiddenFields --;
+//        numOfHiddenFieldsChangedListener.onNumOfHiddenFieldsChanged(numOfHiddenFields);
     }
 
     public static interface NumOfHiddenFieldsChangedListener {
