@@ -9,6 +9,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<atmosphere.version>2.2.0</atmosphere.version>
 	</properties>
 

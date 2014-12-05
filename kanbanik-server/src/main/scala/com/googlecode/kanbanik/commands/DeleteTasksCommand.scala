@@ -17,7 +17,7 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
 	  val results = taskDto.values.par.map(doExecute)
 	  val errorResults = results.filter(_.isRight)
 	  if (errorResults.isEmpty) {
-	    Left(TasksDto(results.map { case Left(x) => x}.toList))
+	    Left(TasksDto(results.map(_.left.get).toList))
 	  } else {
 	    val messages = errorResults.map {
         case Left(x) => ""

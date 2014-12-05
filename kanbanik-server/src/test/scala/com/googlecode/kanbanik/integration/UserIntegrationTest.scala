@@ -86,6 +86,7 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
   def assertNumOfUsersIs(expected: Int) {
     new GetAllUsersCommand().execute(SessionDto("")) match {
       case Left(allUsers) => assert(allUsers.values.size === expected)
+      case Right(_) => ???
     }
   }
 
