@@ -11,7 +11,6 @@ import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
-import scala.Some
 
 
 class MigrateDb extends HasMongoConnection {
@@ -196,18 +195,17 @@ class From2To3 extends MigrationPart {
     }
   }
 
-  case class NewTask(
-                      val id: Option[ObjectId],
-                      val name: String,
-                      val description: String,
-                      val classOfService: Option[ClassOfService],
-                      val ticketId: String,
-                      val version: Int,
-                      val order: String,
-                      val assignee: Option[User],
-                      val dueData: String,
-                      val workflowitem: Workflowitem,
-                      val project: Project) {
+  case class NewTask(id: Option[ObjectId],
+                     name: String,
+                     description: String,
+                     classOfService: Option[ClassOfService],
+                     ticketId: String,
+                     version: Int,
+                     order: String,
+                     assignee: Option[User],
+                     dueData: String,
+                     workflowitem: Workflowitem,
+                     project: Project) {
 
     object Fields extends DocumentField {
       val description = Value("description")
@@ -285,7 +283,7 @@ class From2To3 extends MigrationPart {
     def findWorkflowitem(): Workflowitem = {
       val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
       val workflowitem = board.workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
-      workflowitem.getOrElse(null)
+      workflowitem.orNull
     }
 
     def findProject(): Project = {
@@ -306,15 +304,14 @@ class From2To3 extends MigrationPart {
       if (tasks == null || tasks == None) {
         false
       } else {
-        if (tasks.isInstanceOf[List[ObjectId]]) {
-          tasks.asInstanceOf[List[ObjectId]].contains(id.get)
+        if (tasks.isInstanceOf[List[_]]) {
+          tasks.asInstanceOf[List[_]].contains(id.get)
         } else {
           tasks.asInstanceOf[BasicDBList].toScalaList.contains(id.get)
         }
       }
     }
   }
-
 }
 
 // from 0.2.5 -> 0.2.6
