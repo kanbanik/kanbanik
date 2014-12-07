@@ -1,5 +1,6 @@
 Kanbanik - Free and open source kanban board
 ======
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jelkosz/kanbanik?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/jelkosz/kanbanik.svg?branch=master)](https://travis-ci.org/jelkosz/kanbanik)
 
