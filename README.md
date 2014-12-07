@@ -1,7 +1,7 @@
 Kanbanik - Free and open source kanban board
 ======
 
-[![Build Status](https://travis-ci.org/matobet/kanbanik.svg?branch=travis-ci)](https://travis-ci.org/matobet/kanbanik)
+[![Build Status](https://travis-ci.org/jelkosz/kanbanik.svg?branch=travis-ci)](https://travis-ci.org/jelkosz/kanbanik)
 
 Kanbanik is a free and open source kanban board which can be used for personal kanban as well as for managing of small teams.
 
