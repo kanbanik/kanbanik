@@ -125,10 +125,10 @@ object Project extends HasMongoConnection {
 
       val processList: List[ObjectId] = {
         dbObject match {
-          case ids: List[ObjectId] =>
-            ids
-          case _ =>
-            dbObject.asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[ObjectId]]
+          case ids: List[_] =>
+            ids.asInstanceOf[List[ObjectId]]
+          case ids: BasicDBList =>
+            ids.toArray.toList.asInstanceOf[List[ObjectId]]
         }
       }
 

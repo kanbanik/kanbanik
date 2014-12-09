@@ -52,13 +52,7 @@ class BoardBuilder extends BaseBuilder {
     boardDto.tasks.getOrElse(List()).map(task => taskBuilder.buildEntity(task)),
     boardDto.showUserPictureEnabled.getOrElse(false),
     boardDto.fixedSizeShortDescription.getOrElse(false),
-    {
-      if (boardDto.workflowVerticalSizing == null) {
-        WorkfloVerticalSizing.BALANCED
-      } else {
-        WorkfloVerticalSizing.fromId(boardDto.workflowVerticalSizing)
-      }
-    })
+    WorkfloVerticalSizing.fromId(boardDto.workflowVerticalSizing))
 
     if (boardDto.workflow.isDefined) {
       board.copy(workflow = workflowBuilder.buildEntity(boardDto.workflow.get, Some(board)))
