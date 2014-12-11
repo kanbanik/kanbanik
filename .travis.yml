@@ -3,3 +3,6 @@ scala:
   - 2.10.4
 services:
   - mongodb
+cache:
+  directories:
+  - $HOME/.m2
