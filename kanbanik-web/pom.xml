@@ -14,10 +14,11 @@
 	<name>kanbanik - web</name>
 
 	<properties>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-		<gwt.version>2.6.1</gwt.version>
+		<gwt.version>2.7.0</gwt.version>
+		<atmosphere-gwt.version>2.2.2-GWT27</atmosphere-gwt.version>
 	</properties>
 
 	<dependencies>
@@ -50,14 +51,14 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.allen-sauer.gwt.dnd</groupId>
 			<artifactId>gwt-dnd</artifactId>
-			<version>3.3.2</version>
+			<version>3.3.3</version>
 		</dependency>
 
 		<dependency>
@@ -70,7 +71,7 @@
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-all</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.3</version>
 		</dependency>
 
 		<dependency>
@@ -91,13 +92,13 @@
 		<dependency>
 			<groupId>org.atmosphere.extensions</groupId>
 			<artifactId>atmosphere-gwt20-server</artifactId>
-			<version>${atmosphere.version}</version>
+			<version>${atmosphere-gwt.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.atmosphere.client</groupId>
 			<artifactId>javascript</artifactId>
-			<version>2.2.3</version>
+			<version>${atmosphere.version}</version>
 			<type>war</type>
 			<scope>compile</scope>
 		</dependency>
@@ -106,7 +107,7 @@
 			<groupId>org.atmosphere.extensions</groupId>
 			<artifactId>atmosphere-gwt20-client</artifactId>
 			<scope>provided</scope>
-			<version>${atmosphere.version}</version>
+			<version>${atmosphere-gwt.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -121,7 +122,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>2.5.1</version>
+				<version>${gwt.version}</version>
 				<dependencies>
 					<dependency>
 						<groupId>com.google.gwt</groupId>

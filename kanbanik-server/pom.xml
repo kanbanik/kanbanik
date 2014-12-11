@@ -20,6 +20,16 @@
 		</repository>
 	</repositories>
 
+	<properties>
+		<scala.base-version>2.11</scala.base-version>
+		<scala.version>${scala.base-version}.4</scala.version>
+		<scalatest.version>2.2.1</scalatest.version>
+		<casbah.version>2.7.4</casbah.version>
+		<shapeless.version>2.0.0</shapeless.version>
+		<shiro.version>1.2.3</shiro.version>
+		<lift-json.version>3.0-M2</lift-json.version>
+	</properties>
+
 	<dependencies>
 
 		<dependency>
@@ -31,45 +41,45 @@
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>2.10.3</version>
+			<version>${scala.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_2.10.0</artifactId>
-			<version>1.8</version>
+			<artifactId>scalatest_${scala.base-version}</artifactId>
+			<version>${scalatest.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mongodb</groupId>
-			<artifactId>casbah_2.10</artifactId>
-			<version>2.6.3</version>
+			<artifactId>casbah_${scala.base-version}</artifactId>
+			<version>${casbah.version}</version>
 			<type>pom</type>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-all</artifactId>
-			<version>1.2.2</version>
+			<version>${shiro.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>net.liftweb</groupId>
-			<artifactId>lift-json_2.10</artifactId>
-			<version>2.5.1</version>
+			<artifactId>lift-json_${scala.base-version}</artifactId>
+			<version>${lift-json.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
+			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<type>jar</type>
 		</dependency>
 
@@ -83,7 +93,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
-			<version>1.9.5</version>
+			<version>1.10.8</version>
 		</dependency>
 
 		<dependency>
@@ -95,7 +105,7 @@
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-annotations</artifactId>
-			<version>${atmosphere.version}</version>
+			<version>2.2.3</version>
 		</dependency>
 
 		<dependency>
@@ -113,7 +123,7 @@
 				<artifactId>maven-scala-plugin</artifactId>
 				<version>2.15.2</version>
 				<configuration>
-					<scalaVersion>2.10.3</scalaVersion>
+					<scalaVersion>${scala.version}</scalaVersion>
 				</configuration>
 
 				<executions>
