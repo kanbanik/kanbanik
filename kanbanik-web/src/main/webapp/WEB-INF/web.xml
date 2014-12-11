@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4"-->
-	<!--xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
-	<!--xsi:schemaLocation="http:/java.sun.com/dtd/web-app_2_3.dtd">-->
-
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
@@ -11,7 +6,7 @@
          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          id="WebApp_ID" version="3.0">
 
-    <!-- 	MongoDB connection configuration -->
+	<!-- 	MongoDB connection configuration -->
 	<context-param>
 		<param-name>mongoServer</param-name>
 		<param-value>127.0.0.1</param-value>
@@ -41,43 +36,64 @@
 		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener
 		</listener-class>
 	</listener>
-	
+
 	<listener>
 		<listener-class>com.googlecode.kanbanik.server.MigrateDbListener
 		</listener-class>
 	</listener>
 
-    <servlet>
-        <servlet-name>kanbanikApi</servlet-name>
-        <servlet-class>com.googlecode.kanbanik.api.KanbanikApi</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>kanbanikApi</servlet-name>
+		<servlet-class>com.googlecode.kanbanik.api.KanbanikApi</servlet-class>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>kanbanikApi</servlet-name>
-        <url-pattern>/api</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>kanbanikApi</servlet-name>
+		<url-pattern>/api</url-pattern>
+	</servlet-mapping>
 
-    <servlet>
-        <description>AtmosphereServlet</description>
-        <servlet-name>AtmosphereServlet</servlet-name>
-        <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
-        <async-supported>true</async-supported>
-        <load-on-startup>0</load-on-startup>
-        <init-param>
-            <param-name>org.atmosphere.cpr.packages</param-name>
-            <param-value>com.googlecode.kanbanik.push</param-value>
-        </init-param>
+	<servlet>
+		<description>AtmosphereServlet</description>
+		<servlet-name>AtmosphereServlet</servlet-name>
+		<servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+		<async-supported>true</async-supported>
+		<load-on-startup>0</load-on-startup>
+		<init-param>
+			<param-name>org.atmosphere.cpr.packages</param-name>
+			<param-value>com.googlecode.kanbanik.push</param-value>
+		</init-param>
 
-	    <init-param>
-            <param-name>org.atmosphere.cpr.AtmosphereInterceptor</param-name>
-            <param-value>org.atmosphere.interceptor.HeartbeatInterceptor</param-value>
-        </init-param>	
-    </servlet>
+		<init-param>
+			<param-name>org.atmosphere.cpr.AtmosphereInterceptor</param-name>
+			<param-value>org.atmosphere.interceptor.HeartbeatInterceptor</param-value>
+		</init-param>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>AtmosphereServlet</servlet-name>
-        <url-pattern>/events/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AtmosphereServlet</servlet-name>
+		<url-pattern>/events/*</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<filter-name>GzipFilter</filter-name>
+		<filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
+		<async-supported>true</async-supported>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>GzipFilter</filter-name>
+		<url-pattern>/api</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>GzipFilter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>GzipFilter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
 
 	<!-- Default page to serve -->
 	<welcome-file-list>
