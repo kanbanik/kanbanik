@@ -122,7 +122,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
     try {
       getFromNewMongo(id)
     } catch {
-      case _ => getFromOldMongo(id)
+      case _: Throwable => getFromOldMongo(id)
     }
   }
 
