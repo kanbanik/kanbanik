@@ -376,7 +376,8 @@ class From3To4 extends MigrationPart {
       dbObject.getWithDefault[String](Fields.dueDate, ""),
       dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
       boardId,
-      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId]
+      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId],
+      None
     )
 
   }

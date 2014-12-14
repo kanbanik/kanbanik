@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import java.util.Date;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
@@ -64,6 +65,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     @UiField
     HTMLPanel contentContainer;
+
+	@UiField
+	FlowPanel tagsPanel;
 
 	HandlerRegistration imageHandle;
 	
@@ -176,7 +180,21 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		}
 
 		setupDueDate(taskDto.getDueDate());
-		
+
+		setupTags(taskDto.getTaskTags());
+	}
+
+	private void setupTags(List<Dtos.TaskTag> tags) {
+		if (tags == null) {
+			return;
+		}
+
+		for (Dtos.TaskTag tag : tags) {
+			Image tagImage = new Image();
+			tagImage.setUrl(tag.getPictureUrl());
+			tagImage.setAltText(tagImage.getTitle());
+			tagsPanel.add(tagImage);
+		}
 	}
 
 	private void setupDueDate(String dueDate) {

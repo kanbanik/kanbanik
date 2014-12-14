@@ -66,7 +66,8 @@ package object dtos {
                      assignee: Option[UserDto],
                      order: Option[String],
                      dueDate: Option[String],
-                     boardId: String)
+                     boardId: String,
+                     taskTags: Option[List[TaskTag]])
 
   case class MoveTaskDto(task: TaskDto, prevOrder: Option[String], nextOrder: Option[String])
 
@@ -86,4 +87,16 @@ package object dtos {
 
   case class EventDto(source: String, payload: String)
 
+  object TargetType extends Enumeration {
+    val NOTHING = Value(0)
+    val NEW_BROWSER_WINDOW = Value(1)
+    val NEW_KANBANIK_WINDOW = Value(2)
+  }
+
+  case class TaskTag(id: Option[String],
+                     title: String,
+                     description: String,
+                     pictureUrl: String,
+                     onClickUrl: String,
+                     onClickTarget: Int)
 }

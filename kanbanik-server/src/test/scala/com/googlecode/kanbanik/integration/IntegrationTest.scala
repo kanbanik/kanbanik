@@ -88,6 +88,10 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
 
     assert(asWorkflowList(loadWorkflow).map(_.name) === List("item1", "item2", "item3"))
 
+    val taskTag1 = TaskTag(None, "t1", "d1", "p1", "ou1", 1)
+
+    val taskTag2 = TaskTag(None, "t2", "d2", "p2", "ou2", 2)
+
     val taskDto = TaskDto(
       None,
       "taskName1",
@@ -100,7 +104,8 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       None,
       None,
       None,
-      loadWorkflow.board.id.get
+      loadWorkflow.board.id.get,
+      Some(List(taskTag1, taskTag2))
     )
     
     val storedTask = new SaveTaskCommand().execute(taskDto) match {
@@ -111,7 +116,9 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     assert(storedTask.name === "taskName1")
     assert(!storedTask.classOfService.isDefined)
     assert(!storedTask.assignee.isDefined)
-    
+    assert(taskDto.taskTags.get.head.description === "d1")
+    assert(taskDto.taskTags.get.tail.head.description === "d2")
+
     // edit phase
 
     // edit workflow
@@ -146,10 +153,13 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       case Right(_) => fail()
     }
 
+    val taskTag2Edited = taskTag2.copy(description = "d2_edited")
+
     val editedTaskToEdit = taskToEdit.copy(
       assignee = Some(assigneeToTask),
       classOfService = Some(storedClassOfService),
-      dueDate = Some("yesterday"))
+      dueDate = Some("yesterday"),
+      taskTags = Some(List(taskTag1, taskTag2Edited)))
 
     val editedTask = new SaveTaskCommand().execute(editedTaskToEdit) match {
       case Left(x) => x
@@ -160,6 +170,8 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     assert(loadedEditedTask.dueDate.get === "yesterday")
     assert(loadedEditedTask.classOfService.get.name === "eXpedite")
     assert(loadedEditedTask.assignee.get.userName === "user1")
+    assert(loadedEditedTask.taskTags.get.head.description === "d1")
+    assert(loadedEditedTask.taskTags.get.tail.head.description === "d2_edited")
     
     // edit board
     val boardToEdit = loadBoard().copy(

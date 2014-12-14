@@ -145,6 +145,8 @@
 					</tr>
 				</table>
 			</g:HTMLPanel>
+
+			<g:FlowPanel ui:field="tagsPanel"/>
 		</g:FlowPanel>
 </g:FocusPanel>
 

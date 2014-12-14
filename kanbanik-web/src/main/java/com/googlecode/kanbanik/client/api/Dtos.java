@@ -79,6 +79,23 @@ public class Dtos {
         void setValues(List<ClassOfServiceDto> values);
     }
 
+    public static interface TaskTag {
+        String getId();
+        void setId(String id);
+
+        String getDescription();
+        void setDescription(String description);
+
+        String getPictureUrl();
+        void setPictureUrl(String pictureUrl);
+
+        String getOnClickUrl();
+        void setOnClickUrl(String onClickUrl);
+
+        String getOnClickTarget();
+        void setOnClickTarget(String onClickTarget);
+    }
+
     public static interface ProjectDto extends BaseDto {
         String getId();
         void setId(String id);
@@ -160,6 +177,9 @@ public class Dtos {
 
         String getBoardId();
         void setBoardId(String boardId);
+
+        List<TaskTag> getTaskTags();
+        void setTaskTags(List<TaskTag> taskTags);
     }
 
     public static interface TasksDto extends BaseDto {

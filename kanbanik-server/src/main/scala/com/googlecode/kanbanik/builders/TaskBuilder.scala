@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.builders
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.TaskManipulation
-import com.googlecode.kanbanik.dtos.{TaskDto => NewTaskDto}
+import com.googlecode.kanbanik.dtos.TaskDto
 import scala.Some
 
 class TaskBuilder extends TaskManipulation {
@@ -11,8 +11,8 @@ class TaskBuilder extends TaskManipulation {
   
   lazy val userBuilder = new UserBuilder
 
-  def buildDto(task: Task): NewTaskDto = {
-    NewTaskDto(
+  def buildDto(task: Task): TaskDto = {
+    TaskDto(
       Some(task.id.get.toString),
       task.name,
       {
@@ -52,12 +52,12 @@ class TaskBuilder extends TaskManipulation {
       } else {
         task.boardId.toString
       }
-    }
-
+    },
+    task.taskTags
     )
   }
 
-  def buildEntity(taskDto: NewTaskDto): Task = {
+  def buildEntity(taskDto: TaskDto): Task = {
     new Task(
     {
       if (!taskDto.id.isDefined) {
@@ -88,11 +88,12 @@ class TaskBuilder extends TaskManipulation {
     taskDto.dueDate.getOrElse(""),
     new ObjectId(taskDto.workflowitemId),
     new ObjectId(taskDto.boardId),
-    new ObjectId(taskDto.projectId)
+    new ObjectId(taskDto.projectId),
+    taskDto.taskTags
     )
   }
 
-  private def determineTicketId(taskDto: NewTaskDto): String = {
+  private def determineTicketId(taskDto: TaskDto): String = {
     if (!taskDto.id.isDefined) {
       return generateUniqueTicketId()
     }

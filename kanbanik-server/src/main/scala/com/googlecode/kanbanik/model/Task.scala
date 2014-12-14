@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.model
 
+import com.googlecode.kanbanik.dtos.TaskTag
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
@@ -29,7 +30,8 @@ case class Task(
   dueData: String,
   workflowitemId: ObjectId,
   boardId: ObjectId,
-  projectId: ObjectId) extends HasMongoConnection with HasMidAirCollisionDetection {
+  projectId: ObjectId,
+  taskTags: Option[List[TaskTag]]) extends HasMongoConnection with HasMidAirCollisionDetection {
 
   def store(): Task = {
     val idToUpdate = id.getOrElse({
@@ -54,7 +56,8 @@ case class Task(
         Coll.Tasks.toString + ".$." + Task.Fields.order.toString -> order,
         Coll.Tasks.toString + ".$." + Task.Fields.projectId.toString -> projectId,
         Coll.Tasks.toString + ".$." + Task.Fields.workflowitem.toString -> workflowitemId,
-        Coll.Tasks.toString + ".$." + Task.Fields.boardId.toString -> boardId
+        Coll.Tasks.toString + ".$." + Task.Fields.boardId.toString -> boardId,
+        Coll.Tasks.toString + ".$." + Task.Fields.taskTags.toString -> Task.taskTagsAsEntityList(taskTags)
       )
 
       val idField = Coll.Tasks.toString + "." + SimpleField.id.toString
@@ -116,6 +119,16 @@ object Task extends HasMongoConnection with HasEntityLoader {
     val assignee = Value("assignee")
     val dueDate = Value("dueDate")
     val boardId = Value("boardId")
+    val taskTags = Value("taskTags")
+  }
+
+  object TaskTagFields extends Enumeration {
+    val id = Value("id")
+    val title = Value("title")
+    val description = Value("description")
+    val pictureUrl = Value("pictureUrl")
+    val onClickUrl = Value("onClickUrl")
+    val onClickTarget = Value("onClickTarget")
   }
 
   def byId(id: ObjectId): Task = {
@@ -170,7 +183,8 @@ object Task extends HasMongoConnection with HasEntityLoader {
       Fields.assignee.toString -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
       Fields.dueDate.toString -> entity.dueData,
       Fields.workflowitem.toString -> entity.workflowitemId,
-      Fields.boardId.toString -> entity.boardId
+      Fields.boardId.toString -> entity.boardId,
+      Fields.taskTags.toString -> taskTagsAsEntityList(entity.taskTags)
     )
   }
 
@@ -199,7 +213,51 @@ object Task extends HasMongoConnection with HasEntityLoader {
       dbObject.getWithDefault[String](Fields.dueDate, ""),
       dbObject.get(Fields.workflowitem.toString).asInstanceOf[ObjectId],
       dbObject.get(Fields.boardId.toString).asInstanceOf[ObjectId],
-      dbObject.get(Fields.projectId.toString).asInstanceOf[ObjectId]
+      dbObject.get(Fields.projectId.toString).asInstanceOf[ObjectId],
+      asTaskTags(dbObject.get(Fields.taskTags.toString))
+    )
+  }
+
+  def asTaskTags(obj: Any): Option[List[TaskTag]] = {
+    if (obj == null) {
+      None
+    } else {
+      obj match {
+        case dbo: BasicDBList =>
+          val taskTags = obj.asInstanceOf[BasicDBList].map(asTaskTag)
+          Some(taskTags.filter(_.isDefined).map(_.get).toArray.toList)
+        case _ => None
+      }
+    }
+  }
+
+  def asTaskTag(obj: Any): Option[TaskTag] = {
+    obj match {
+      case dbObject: DBObject => Some(new TaskTag(
+        Some(dbObject.get(TaskTagFields.id.toString).asInstanceOf[ObjectId].toString),
+        dbObject.get(TaskTagFields.title.toString).asInstanceOf[String],
+        dbObject.get(TaskTagFields.description.toString).asInstanceOf[String],
+        dbObject.get(TaskTagFields.pictureUrl.toString).asInstanceOf[String],
+        dbObject.get(TaskTagFields.onClickUrl.toString).asInstanceOf[String],
+        dbObject.get(TaskTagFields.onClickTarget.toString).asInstanceOf[Int]
+      ))
+
+      case _ => None
+    }
+  }
+
+  def taskTagsAsEntityList(taskTags: Option[List[TaskTag]]): List[DBObject] = {
+    taskTags.getOrElse(List[TaskTag]()).map(taskTagAsEntity)
+  }
+
+  def taskTagAsEntity(entity: TaskTag): DBObject = {
+    MongoDBObject(
+      TaskTagFields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else new ObjectId(entity.id.get) },
+      TaskTagFields.title.toString -> entity.title,
+      TaskTagFields.description.toString -> entity.description,
+      TaskTagFields.pictureUrl.toString -> entity.pictureUrl,
+      TaskTagFields.onClickUrl.toString -> entity.onClickUrl,
+      TaskTagFields.onClickTarget.toString -> entity.onClickTarget
     )
   }
 
