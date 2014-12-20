@@ -10,7 +10,12 @@
 		.unselected {
 			
 		}
-		
+
+		.tagStyle {
+			border: 1px solid black;
+			border-radius: 3px;
+		}
+
 		.selected {
 			border: 2px solid #92C1F0;
     		margin: 2px;

@@ -101,6 +101,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		String unselected();
 		
 		String missedStyle();
+
+		String tagStyle();
 	}
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
@@ -190,10 +192,24 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		}
 
 		for (Dtos.TaskTag tag : tags) {
+			tagsPanel.add(renderTag(tag));
+		}
+	}
+
+	private Widget renderTag(Dtos.TaskTag tag) {
+		String pictureUrl = tag.getPictureUrl();
+		if (pictureUrl == null || "".equals(pictureUrl)) {
+			FlowPanel tagPanel = new FlowPanel();
+			tagPanel.addStyleName(style.tagStyle());
+			tagPanel.add(new Label(tag.getDescription()));
+			// todo read this from the tag
+			tagPanel.getElement().getStyle().setBackgroundColor("red");
+			return tagPanel;
+		} else {
 			Image tagImage = new Image();
-			tagImage.setUrl(tag.getPictureUrl());
+			tagImage.setUrl(pictureUrl);
 			tagImage.setAltText(tagImage.getTitle());
-			tagsPanel.add(tagImage);
+			return tagImage;
 		}
 	}
 
