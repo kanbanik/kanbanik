@@ -39,11 +39,11 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 // TODO it start to look really ugly - needs to be cleaned up into ui.xml
 public abstract class AbstractTaskEditingComponent {
 
-    private Panel panel = new FlowPanel();
+    private Panel panel;
 
-    private TextArea taskName = new TextArea();
+    private TextArea taskName;
 
-    private Label ticketId = new Label("");
+    private Label ticketId;
 
     private KanbanikRichTextArea description;
 
@@ -51,19 +51,17 @@ public abstract class AbstractTaskEditingComponent {
 
     private SuggestBox classOfServiceEditor;
 
-    private CheckBox dueDateCheckBox = new CheckBox();
+    private CheckBox dueDateCheckBox;
 
-    private TextBox dueDateTextBox = new TextBox();
+    private TextBox dueDateTextBox;
 
     private PanelContainingDialog dialog;
 
-    private HTML warningMessages = new HTML();
+    private HTML warningMessages;
 
     private Panel taskDirtyWarningPanel;
 
     private String name;
-
-    private final HasClickHandlers clickHandler;
 
     private Map<String, ClassOfServiceDto> classOfServiceToName;
 
@@ -71,13 +69,23 @@ public abstract class AbstractTaskEditingComponent {
 
     private Dtos.BoardDto board;
 
+    private boolean inited = false;
+
     public AbstractTaskEditingComponent(HasClickHandlers clickHandler, Dtos.BoardDto board) {
-        this.clickHandler = clickHandler;
         this.name = "Task Details";
         this.board = board;
+
+        clickHandler.addClickHandler(new ShowDialogHandler());
     }
 
-    protected void initialize() {
+    private void initialize() {
+        panel = new FlowPanel();
+        taskName = new TextArea();
+        ticketId = new Label("");
+        dueDateCheckBox = new CheckBox();
+        dueDateTextBox = new TextBox();
+        warningMessages = new HTML();
+
         taskDirtyWarningPanel = initTaskDirtyWarningPanel();
         dialog = new PanelContainingDialog(name, panel, taskName, true, 970, 500);
 
@@ -131,7 +139,6 @@ public abstract class AbstractTaskEditingComponent {
         panel.setWidth("100%");
 
         dialog.addListener(new AddTaskButtonHandler());
-        clickHandler.addClickHandler(new ShowDialogHandler());
     }
 
     protected Panel initTaskDirtyWarningPanel() {
@@ -333,6 +340,11 @@ public abstract class AbstractTaskEditingComponent {
         public void onClick(ClickEvent event) {
             event.stopPropagation();
             event.preventDefault();
+
+            if (!inited) {
+                initialize();
+                inited = true;
+            }
 
             onClicked();
         }

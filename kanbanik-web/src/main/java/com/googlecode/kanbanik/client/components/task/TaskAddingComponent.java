@@ -28,7 +28,6 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 		super(clickHandler, boardDto);
 		this.project = project;
 		this.inputQueue = inputQueue;
-		initialize();
 	}
 
 	@Override

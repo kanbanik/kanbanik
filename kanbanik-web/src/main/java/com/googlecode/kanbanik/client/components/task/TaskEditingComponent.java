@@ -44,7 +44,6 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
     public TaskEditingComponent(TaskGui taskGui, HasClickHandlers clickHandler, Dtos.BoardDto boardDto) {
         super(clickHandler, boardDto);
         this.taskGui = taskGui;
-        initialize();
     }
 
     @Override
