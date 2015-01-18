@@ -83,6 +83,9 @@ public class Dtos {
         String getId();
         void setId(String id);
 
+        void setName(String name);
+        String getName();
+
         String getDescription();
         void setDescription(String description);
 
@@ -92,8 +95,31 @@ public class Dtos {
         String getOnClickUrl();
         void setOnClickUrl(String onClickUrl);
 
-        String getOnClickTarget();
-        void setOnClickTarget(String onClickTarget);
+        Integer getOnClickTarget();
+        void setOnClickTarget(String Integer);
+
+        void setColour(String colour);
+        String getColour();
+    }
+
+    public static enum TagClickTarget {
+        NEW_WINDOW(1),
+        NONE(-1);
+        private int id;
+
+        private TagClickTarget(int id) {
+            this.id = id;
+        }
+
+        public static TagClickTarget from(Integer id) {
+            if (id == null) {
+                return NONE;
+            } else if (id == 1) {
+                return NEW_WINDOW;
+            }
+
+            return NONE;
+        }
     }
 
     public static interface ProjectDto extends BaseDto {

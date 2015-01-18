@@ -124,11 +124,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   object TaskTagFields extends Enumeration {
     val id = Value("id")
-    val title = Value("title")
+    val name = Value("name")
     val description = Value("description")
     val pictureUrl = Value("pictureUrl")
     val onClickUrl = Value("onClickUrl")
     val onClickTarget = Value("onClickTarget")
+    val colour = Value("backgroundColour")
   }
 
   def byId(id: ObjectId): Task = {
@@ -226,23 +227,38 @@ object Task extends HasMongoConnection with HasEntityLoader {
         case dbo: BasicDBList =>
           val taskTags = obj.asInstanceOf[BasicDBList].map(asTaskTag)
           Some(taskTags.filter(_.isDefined).map(_.get).toArray.toList)
-        case _ => None
+        case dbl: List[DBObject] =>
+          val taskTags = obj.asInstanceOf[List[DBObject]].map(asTaskTag)
+          Some(taskTags.filter(_.isDefined).map(_.get))
+        case _ =>
+          None
       }
     }
   }
 
   def asTaskTag(obj: Any): Option[TaskTag] = {
     obj match {
-      case dbObject: DBObject => Some(new TaskTag(
+      case dbObject: DBObject =>
+        Some(TaskTag(
         Some(dbObject.get(TaskTagFields.id.toString).asInstanceOf[ObjectId].toString),
-        dbObject.get(TaskTagFields.title.toString).asInstanceOf[String],
-        dbObject.get(TaskTagFields.description.toString).asInstanceOf[String],
-        dbObject.get(TaskTagFields.pictureUrl.toString).asInstanceOf[String],
-        dbObject.get(TaskTagFields.onClickUrl.toString).asInstanceOf[String],
-        dbObject.get(TaskTagFields.onClickTarget.toString).asInstanceOf[Int]
+        dbObject.get(TaskTagFields.name.toString).asInstanceOf[String],
+        orNone(dbObject.get(TaskTagFields.description.toString)),
+        orNone(dbObject.get(TaskTagFields.pictureUrl.toString)),
+        orNone(dbObject.get(TaskTagFields.onClickUrl.toString)),
+        orNone(dbObject.get(TaskTagFields.onClickTarget.toString)),
+        orNone(dbObject.get(TaskTagFields.colour.toString))
       ))
 
-      case _ => None
+      case _ =>
+        None
+    }
+  }
+
+  def orNone[T](v: Any): Option[T] = {
+    if (v == null) {
+      None
+    } else {
+      Some(v.asInstanceOf[T])
     }
   }
 
@@ -253,11 +269,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
   def taskTagAsEntity(entity: TaskTag): DBObject = {
     MongoDBObject(
       TaskTagFields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else new ObjectId(entity.id.get) },
-      TaskTagFields.title.toString -> entity.title,
+      TaskTagFields.name.toString -> entity.name,
       TaskTagFields.description.toString -> entity.description,
       TaskTagFields.pictureUrl.toString -> entity.pictureUrl,
       TaskTagFields.onClickUrl.toString -> entity.onClickUrl,
-      TaskTagFields.onClickTarget.toString -> entity.onClickTarget
+      TaskTagFields.onClickTarget.toString -> entity.onClickTarget,
+      TaskTagFields.colour.toString -> entity.colour
     )
   }
 

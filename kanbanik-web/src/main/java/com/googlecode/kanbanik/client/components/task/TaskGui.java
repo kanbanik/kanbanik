@@ -17,6 +17,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
@@ -187,6 +188,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	}
 
 	private void setupTags(List<Dtos.TaskTag> tags) {
+		tagsPanel.clear();
+
 		if (tags == null) {
 			return;
 		}
@@ -196,21 +199,39 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		}
 	}
 
-	private Widget renderTag(Dtos.TaskTag tag) {
+	private Widget renderTag(final Dtos.TaskTag tag) {
+		Widget res;
 		String pictureUrl = tag.getPictureUrl();
 		if (pictureUrl == null || "".equals(pictureUrl)) {
 			FlowPanel tagPanel = new FlowPanel();
 			tagPanel.addStyleName(style.tagStyle());
 			tagPanel.add(new Label(tag.getDescription()));
-			// todo read this from the tag
-			tagPanel.getElement().getStyle().setBackgroundColor("red");
-			return tagPanel;
+			res = tagPanel;
 		} else {
 			Image tagImage = new Image();
 			tagImage.setUrl(pictureUrl);
 			tagImage.setAltText(tagImage.getTitle());
-			return tagImage;
+			res = tagImage;
 		}
+
+		res.getElement().getStyle().setBackgroundColor(tag.getColour());
+		Dtos.TagClickTarget target = Dtos.TagClickTarget.from(tag.getOnClickTarget());
+		boolean onClickDefined = tag.getOnClickUrl() != null && !"".equals(tag.getOnClickUrl());
+		boolean targetDefined = target != Dtos.TagClickTarget.NONE;
+
+		if (onClickDefined && targetDefined) {
+			res.addDomHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					Dtos.TagClickTarget target = Dtos.TagClickTarget.from(tag.getOnClickTarget());
+					if (target == Dtos.TagClickTarget.NEW_WINDOW) {
+						Window.open(tag.getOnClickUrl(), "_blank", "");
+					}
+				}
+			}, ClickEvent.getType());
+		}
+
+		return res;
 	}
 
 	private void setupDueDate(String dueDate) {

@@ -88,9 +88,9 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
 
     assert(asWorkflowList(loadWorkflow).map(_.name) === List("item1", "item2", "item3"))
 
-    val taskTag1 = TaskTag(None, "t1", "d1", "p1", "ou1", 1)
+    val taskTag1 = TaskTag(None, "t1", Some("d1"), Some("p1"), Some("ou1"), Some(1), Some("red"))
 
-    val taskTag2 = TaskTag(None, "t2", "d2", "p2", "ou2", 2)
+    val taskTag2 = TaskTag(None, "t2", Some("d2"), Some("p2"), Some("ou2"), Some(2), None)
 
     val taskDto = TaskDto(
       None,
@@ -107,7 +107,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       loadWorkflow.board.id.get,
       Some(List(taskTag1, taskTag2))
     )
-    
+
     val storedTask = new SaveTaskCommand().execute(taskDto) match {
       case Left(x) => x
       case Right(x) => fail()
@@ -116,8 +116,13 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     assert(storedTask.name === "taskName1")
     assert(!storedTask.classOfService.isDefined)
     assert(!storedTask.assignee.isDefined)
-    assert(taskDto.taskTags.get.head.description === "d1")
-    assert(taskDto.taskTags.get.tail.head.description === "d2")
+
+
+    assert(storedTask.taskTags.get.head.description.get === "d1")
+    assert(storedTask.taskTags.get.head.colour.get === "red")
+
+    assert(storedTask.taskTags.get.tail.head.description.get === "d2")
+    assert(!storedTask.taskTags.get.tail.head.colour.isDefined)
 
     // edit phase
 
@@ -153,7 +158,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       case Right(_) => fail()
     }
 
-    val taskTag2Edited = taskTag2.copy(description = "d2_edited")
+    val taskTag2Edited = taskTag2.copy(description = Some("d2_edited"))
 
     val editedTaskToEdit = taskToEdit.copy(
       assignee = Some(assigneeToTask),
@@ -170,9 +175,9 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     assert(loadedEditedTask.dueDate.get === "yesterday")
     assert(loadedEditedTask.classOfService.get.name === "eXpedite")
     assert(loadedEditedTask.assignee.get.userName === "user1")
-    assert(loadedEditedTask.taskTags.get.head.description === "d1")
-    assert(loadedEditedTask.taskTags.get.tail.head.description === "d2_edited")
-    
+    assert(loadedEditedTask.taskTags.get.head.description.get === "d1")
+    assert(loadedEditedTask.taskTags.get.tail.head.description.get === "d2_edited")
+
     // edit board
     val boardToEdit = loadBoard().copy(
       name = "board1_renamed",

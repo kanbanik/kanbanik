@@ -94,9 +94,10 @@ package object dtos {
   }
 
   case class TaskTag(id: Option[String],
-                     title: String,
-                     description: String,
-                     pictureUrl: String,
-                     onClickUrl: String,
-                     onClickTarget: Int)
+                     name: String,
+                     description: Option[String],
+                     pictureUrl: Option[String],
+                     onClickUrl: Option[String],
+                     onClickTarget: Option[Int],
+                     colour: Option[String])
 }
