@@ -6,6 +6,7 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.managers.TaskTagsManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
@@ -118,7 +119,34 @@ public class BoardsFilter {
 
         boolean userMatches = assigneePosition != -1 && filterDataDto.getUsers().get(assigneePosition).isSelected();
 
-        return userMatches;
+        if (!userMatches) {
+            return false;
+        }
+
+        return checkTaskTagsMatches(task);
+    }
+
+    private boolean checkTaskTagsMatches(Dtos.TaskDto task) {
+        if (task.getTaskTags() == null || task.getTaskTags().size() == 0) {
+            int noTagId = findById(TaskTagsManager.getInstance().noTag());
+            if (noTagId == -1) {
+                return false;
+            }
+
+            return filterDataDto.getTaskTags().get(noTagId).isSelected();
+        }
+
+        for (Dtos.TaskTag tag : task.getTaskTags()) {
+            int id = findById(tag);
+            if (id != -1) {
+                boolean selected = filterDataDto.getTaskTags().get(id).isSelected();
+                if (selected) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private boolean defaultClassOfServiceSelected() {
@@ -242,12 +270,30 @@ public class BoardsFilter {
         return pattern.isInverse() ? !matches : matches;
     }
 
+    public void add(Dtos.TaskTag taskTag) {
+        int id = findById(taskTag);
+        if (id == -1) {
+            filterDataDto.getTaskTags().add(DtoFactory.withSelected(taskTag, true));
+        } else {
+            filterDataDto.getTaskTags().get(id).setSelected(true);
+        }
+    }
+
     public void add(Dtos.BoardDto boardDto) {
         int id = findById(boardDto);
         if (id == -1) {
             filterDataDto.getBoards().add(DtoFactory.withSelected(boardDto, true));
         } else {
             filterDataDto.getBoards().get(id).setSelected(true);
+        }
+    }
+
+    public void remove(Dtos.TaskTag taskTag) {
+        int id = findById(taskTag);
+        if (id != -1) {
+            filterDataDto.getTaskTags().get(id).setSelected(false);
+        } else {
+            filterDataDto.getTaskTags().add(DtoFactory.withSelected(taskTag, false));
         }
     }
 
@@ -317,6 +363,25 @@ public class BoardsFilter {
     public boolean isSelected(Dtos.BoardDto boardDto) {
         int id = findById(boardDto);
         return id == -1 || filterDataDto.getBoards().get(id).isSelected();
+    }
+
+    public boolean isSelected(Dtos.TaskTag taskTag) {
+        int id = findById(taskTag);
+        return id == -1 || filterDataDto.getTaskTags().get(id).isSelected();
+    }
+
+    public int findById(Dtos.TaskTag taskTag) {
+        int id = 0;
+
+        for (Dtos.TaskTagWithSelected candidate : filterDataDto.getTaskTags()) {
+            if (candidate.getTaskTag().getId().equals(taskTag.getId())) {
+                return id;
+            }
+
+            id ++;
+        }
+
+        return -1;
     }
 
     public int findById(Dtos.BoardDto boardDto) {

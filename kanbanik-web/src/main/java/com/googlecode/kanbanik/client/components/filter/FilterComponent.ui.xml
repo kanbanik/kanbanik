@@ -85,6 +85,11 @@
                         <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
                         <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
                     </g:FlowPanel>
+
+                    <g:FlowPanel addStyleNames="{style.filterPartContainer}">
+                        <g:Label text="Tags" addStyleNames="{style.filterLabel}"/>
+                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="tagsFilter" />
+                    </g:FlowPanel>
                 </g:FlowPanel>
 
                 <g:FlowPanel addStyleNames="{style.filtersRow}">

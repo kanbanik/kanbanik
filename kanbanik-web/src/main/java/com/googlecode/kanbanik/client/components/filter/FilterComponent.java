@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.filter;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -13,6 +14,7 @@ import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
+import com.googlecode.kanbanik.client.managers.TaskTagsManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -21,7 +23,6 @@ import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsReque
 import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
@@ -45,6 +46,9 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
     @UiField
     PanelWithCheckboxes boardFilter;
+
+    @UiField
+    PanelWithCheckboxes tagsFilter;
 
     @UiField
     PanelWithCheckboxes projectOnBoardFilter;
@@ -91,8 +95,10 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         userFilter.clear();
         classOfServiceFilter.clear();
         boardFilter.clear();
+        tagsFilter.clear();
         projectOnBoardFilter.clear();
 
+        fillTaskTags(filterObject, loaded);
         fillUsers(filterObject, loaded);
         fillClassOfServices(filterObject, loaded);
         fillBoards(filterObject, loaded);
@@ -145,6 +151,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             filterDataDto.setUsers(new ArrayList<Dtos.UserWithSelectedDto>());
             filterDataDto.setBoards(new ArrayList<Dtos.BoardWithSelectedDto>());
             filterDataDto.setBoardWithProjectsDto(new ArrayList<Dtos.BoardWithProjectsWithSelectedDto>());
+            filterDataDto.setTaskTags(new ArrayList<Dtos.TaskTagWithSelected>());
 
             Dtos.DateMatcherDataDto dueDateFilter = DtoFactory.dateMatcherDataDto();
             dueDateFilter.setCondition(0);
@@ -313,6 +320,8 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
     }
 
+
+
     private void fillClassOfServices(BoardsFilter filterObject, boolean loaded) {
         List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAll());
 
@@ -364,6 +373,44 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             }
             boardFilter.add(new BoardsFilterCheckBox(board, filterObject));
         }
+    }
+
+    private void fillTaskTags(final BoardsFilter filterObject, final boolean loaded) {
+        List<Dtos.TaskTag> tags = TaskTagsManager.getInstance().getTags();
+
+        Collections.sort(tags, new Comparator<Dtos.TaskTag>() {
+            @Override
+            public int compare(Dtos.TaskTag t1, Dtos.TaskTag t2) {
+                return t1.getName().compareTo(t2.getName());
+            }
+        });
+
+        tags.add(0, TaskTagsManager.getInstance().noTag());
+
+        if (filterObject.getFilterDataDto().getTaskTags() == null) {
+            filterObject.getFilterDataDto().setTaskTags(new ArrayList<Dtos.TaskTagWithSelected>());
+        }
+
+        for (Dtos.TaskTag tag : tags) {
+            addTag(tag, loaded, filterObject);
+        }
+
+        TaskTagsManager.getInstance().setListener(new TaskTagsManager.TagsChangedListener() {
+            @Override
+            public void added(Dtos.TaskTag tag) {
+                addTag(tag, loaded, filterObject);
+
+                filterObject.fireFilterChangedEvent();
+            }
+        });
+    }
+
+    private void addTag(Dtos.TaskTag tag, boolean loaded, BoardsFilter filterObject) {
+        if (!loaded || filterObject.findById(tag) == -1) {
+            filterObject.add(tag);
+        }
+
+        tagsFilter.add(new TaskTagFilterCheckBox(tag, filterObject));
     }
 
     private Dtos.BoardDto asShallowBoard(Dtos.BoardDto board) {
@@ -517,6 +564,31 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         @Override
         protected void doRemove(Dtos.ClassOfServiceDto entity, BoardsFilter filter) {
+            filter.remove(entity);
+        }
+    }
+
+    class TaskTagFilterCheckBox extends FilterCheckBox<Dtos.TaskTag> {
+
+        public TaskTagFilterCheckBox(Dtos.TaskTag entity, BoardsFilter filter) {
+            super(entity, filter);
+            setValue(filter.isSelected(entity));
+            getElement().getStyle().setBackgroundColor(entity.getColour());
+            // todo support images
+        }
+
+        @Override
+        protected String provideText(Dtos.TaskTag entity) {
+            return entity.getName();
+        }
+
+        @Override
+        protected void doAdd(Dtos.TaskTag entity, BoardsFilter filter) {
+            filter.add(entity);
+        }
+
+        @Override
+        protected void doRemove(Dtos.TaskTag entity, BoardsFilter filter) {
             filter.remove(entity);
         }
     }

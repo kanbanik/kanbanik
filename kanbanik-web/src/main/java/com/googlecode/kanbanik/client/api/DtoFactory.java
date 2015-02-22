@@ -70,6 +70,10 @@ public class DtoFactory {
 
         AutoBean<Dtos.UserWithSelectedDto> userWithSelectedDto();
 
+        AutoBean<Dtos.TaskTagWithSelected> taskTagWithSelectedDto();
+
+        AutoBean<Dtos.TaskTag> taskTagDto();
+
         AutoBean<Dtos.ClassOfServiceWithSelectedDto> classOfServiceWithSelectedDto();
 
         AutoBean<Dtos.BoardWithSelectedDto> boardWithSelectedDto();
@@ -160,6 +164,11 @@ public class DtoFactory {
         return dto;
     }
 
+    public static Dtos.TaskTag taskTag() {
+        Dtos.TaskTag dto = factory.taskTagDto().as();
+        return dto;
+    }
+
     public static Dtos.WorkflowitemDto workflowitemDto() {
         Dtos.WorkflowitemDto dto = factory.workflowitemDto().as();
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
@@ -224,6 +233,14 @@ public class DtoFactory {
     public static Dtos.UserWithSelectedDto withSelected(Dtos.UserDto data, Boolean selected) {
         Dtos.UserWithSelectedDto filterWithSelected = factory.userWithSelectedDto().as();
         filterWithSelected.setUser(data);
+        filterWithSelected.setSelected(selected);
+
+        return filterWithSelected;
+    }
+
+    public static Dtos.TaskTagWithSelected withSelected(Dtos.TaskTag data, Boolean selected) {
+        Dtos.TaskTagWithSelected filterWithSelected = factory.taskTagWithSelectedDto().as();
+        filterWithSelected.setTaskTag(data);
         filterWithSelected.setSelected(selected);
 
         return filterWithSelected;

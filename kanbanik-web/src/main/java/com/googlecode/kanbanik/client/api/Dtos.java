@@ -347,6 +347,9 @@ public class Dtos {
         void setBoardWithProjectsDto(List<BoardWithProjectsWithSelectedDto> boardWithProjectsDto);
         List<BoardWithProjectsWithSelectedDto> getBoardWithProjectsDto();
 
+        void setTaskTags(List<TaskTagWithSelected> taskTags);
+        List<TaskTagWithSelected> getTaskTags();
+
         void setActive(Boolean active);
         Boolean isActive();
     }
@@ -354,6 +357,11 @@ public class Dtos {
     public static interface FilterWithSelected {
         void setSelected(Boolean selected);
         Boolean isSelected();
+    }
+
+    public static interface TaskTagWithSelected extends FilterWithSelected {
+        void setTaskTag(TaskTag taskTag);
+        TaskTag getTaskTag();
     }
 
     public static interface UserWithSelectedDto extends FilterWithSelected {
