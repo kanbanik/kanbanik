@@ -128,7 +128,7 @@ public class BoardsFilter {
 
     private boolean checkTaskTagsMatches(Dtos.TaskDto task) {
         if (task.getTaskTags() == null || task.getTaskTags().size() == 0) {
-            int noTagId = findById(TaskTagsManager.getInstance().noTag());
+            int noTagId = findByName(TaskTagsManager.getInstance().noTag());
             if (noTagId == -1) {
                 return false;
             }
@@ -137,7 +137,7 @@ public class BoardsFilter {
         }
 
         for (Dtos.TaskTag tag : task.getTaskTags()) {
-            int id = findById(tag);
+            int id = findByName(tag);
             if (id != -1) {
                 boolean selected = filterDataDto.getTaskTags().get(id).isSelected();
                 if (selected) {
@@ -271,7 +271,7 @@ public class BoardsFilter {
     }
 
     public void add(Dtos.TaskTag taskTag) {
-        int id = findById(taskTag);
+        int id = findByName(taskTag);
         if (id == -1) {
             filterDataDto.getTaskTags().add(DtoFactory.withSelected(taskTag, true));
         } else {
@@ -289,7 +289,7 @@ public class BoardsFilter {
     }
 
     public void remove(Dtos.TaskTag taskTag) {
-        int id = findById(taskTag);
+        int id = findByName(taskTag);
         if (id != -1) {
             filterDataDto.getTaskTags().get(id).setSelected(false);
         } else {
@@ -366,15 +366,18 @@ public class BoardsFilter {
     }
 
     public boolean isSelected(Dtos.TaskTag taskTag) {
-        int id = findById(taskTag);
+        int id = findByName(taskTag);
         return id == -1 || filterDataDto.getTaskTags().get(id).isSelected();
     }
 
-    public int findById(Dtos.TaskTag taskTag) {
+    public int findByName(Dtos.TaskTag taskTag) {
         int id = 0;
 
         for (Dtos.TaskTagWithSelected candidate : filterDataDto.getTaskTags()) {
-            if (candidate.getTaskTag().getId().equals(taskTag.getId())) {
+            String candidateName = candidate.getTaskTag().getName();
+            String name = taskTag.getName();
+
+            if (objEq(candidateName, name)) {
                 return id;
             }
 
@@ -382,6 +385,18 @@ public class BoardsFilter {
         }
 
         return -1;
+    }
+
+    private boolean objEq(Object o1, Object o2) {
+        if (o1 == null) {
+            return o2 == null;
+        }
+
+        if (o2 == null) {
+            return false;
+        }
+
+        return o1.equals(o2);
     }
 
     public int findById(Dtos.BoardDto boardDto) {

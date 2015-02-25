@@ -1,8 +1,6 @@
 package com.googlecode.kanbanik.client.components.filter;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -406,7 +404,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     }
 
     private void addTag(Dtos.TaskTag tag, boolean loaded, BoardsFilter filterObject) {
-        if (!loaded || filterObject.findById(tag) == -1) {
+        if (!loaded || filterObject.findByName(tag) == -1) {
             filterObject.add(tag);
         }
 
