@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.api.DtoFactory;
@@ -25,12 +26,14 @@ public class TaskMovingDropController extends FlowPanelDropController {
 	private Dtos.WorkflowitemDto workflowitem;
 	private final Dtos.ProjectDto project;
 	private final TaskContainer taskContainer;
-	
-	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project) {
+    private PickupDragController dragController;
+
+	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project, PickupDragController dragController) {
 		super(dropTarget.asFlowPanel());
 		taskContainer = dropTarget;
 		this.workflowitem = workflowitem;
 		this.project = project;
+        this.dragController = dragController;
 	}
 
 	@Override
@@ -81,6 +84,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
                     @Override
                     public void success(TaskDto response) {
                         MessageBus.sendMessage(new TaskChangedMessage(response, TaskMovingDropController.this));
+                        dragController.toggleSelection(task);
                     }
 
                     @Override

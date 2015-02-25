@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
+import com.allen_sauer.gwt.dnd.client.DragController;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -97,7 +98,7 @@ public class BoardGuiBuilder {
             Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
         TaskContainer taskContainer = new TaskContainer(board, currentItem);
         DropController dropController = new TaskMovingDropController(
-                taskContainer, currentItem, project);
+                taskContainer, currentItem, project, dragController);
         dragController.registerDropController(dropController);
         return taskContainer;
     }

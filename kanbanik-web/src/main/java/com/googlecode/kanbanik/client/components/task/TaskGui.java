@@ -366,8 +366,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	
 	@Override
 	public void onClick(ClickEvent event) {
-		event.stopPropagation();
-        event.preventDefault();
+//		event.stopPropagation();
+//        event.preventDefault();
         doClick(event.isControlKeyDown());
 	}
 	
@@ -487,5 +487,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		
 	}
 
-
+    public FocusPanel getWholePanel() {
+        return wholePanel;
+    }
 }
