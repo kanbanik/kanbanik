@@ -44,4 +44,8 @@ public abstract class FilterCheckBox<T> extends CheckBox implements ValueChangeH
 
     protected abstract void doAdd(T entity, BoardsFilter filter);
     protected abstract void doRemove(T entity, BoardsFilter filter);
+
+    public String provideText() {
+        return provideText(entity);
+    }
 }
