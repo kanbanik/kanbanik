@@ -130,12 +130,14 @@ public class WorkflowitemPlace extends Composite implements
 			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
 				return;
 			}
-			TaskGui task = new TaskGui(taskDto, board);
+			TaskGui task = new TaskGui(taskDto, board, dragController);
             if (((TaskAddedMessage) message).isPartOfMove()) {
                 task.setVisible(((TaskAddedMessage) message).wasVisible());
             }
 
 			dragController.makeDraggable(task, task.getHeader());
+            dragController.makeDraggable(task, task.getNamePanel());
+            dragController.makeDraggable(task, task.getAssigneePicturePlace());
 			((TaskContainer) contentPanel).add(task);
             task.setFilter(filter);
             task.reevaluateFilter();

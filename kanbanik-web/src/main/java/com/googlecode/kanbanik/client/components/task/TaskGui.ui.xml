@@ -141,11 +141,15 @@
 				<table style="width: 100%;">
 					<tr style="width: 100%;">
 						<td style="width: 100%;">
-							<g:Label ui:field="nameLabel" addStyleNames="{style.shortDescriptionStyle}" />
-                            <g:TextArea addStyleNames="{style.shortDescriptionTextArea}" ui:field="nameLabelTextArea" />
+                            <g:FocusPanel ui:field="namePanel">
+                                <g:FlowPanel>
+                                    <g:Label ui:field="nameLabel" addStyleNames="{style.shortDescriptionStyle}" />
+                                    <g:TextArea addStyleNames="{style.shortDescriptionTextArea}" ui:field="nameLabelTextArea" />
+                                </g:FlowPanel>
+                            </g:FocusPanel>
 						</td>
 						<td style="">
-							<g:FlowPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />	
+							<g:FocusPanel addStyleNames="{style.assigneePicturePlaceStyle}" ui:field="assigneePicturePlace" />
 						</td>
 					</tr>
 				</table>

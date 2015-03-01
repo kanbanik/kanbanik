@@ -3,6 +3,8 @@ package com.googlecode.kanbanik.client.components.task;
 import java.util.Date;
 import java.util.List;
 
+import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.util.DragClientBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -36,9 +38,12 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycl
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
-	
-	@UiField
+
+    @UiField
 	FocusPanel header;
+
+    @UiField
+    FocusPanel namePanel;
 
 	@UiField
 	Label ticketIdLabel;
@@ -59,7 +64,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	PushButton deleteButton;
 	
 	@UiField
-	FlowPanel assigneePicturePlace;
+	FocusPanel assigneePicturePlace;
 	
 	@UiField
 	FocusPanel wholePanel;
@@ -76,14 +81,20 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private BoardsFilter filter;
 
-	private boolean isSelected = false;
-
-    private boolean isShown = true;
+    private DragController dragController;
 
 	@UiField
 	Style style;
 	
 	private static final TaskGuiTemplates TEMPLATE = GWT.create(TaskGuiTemplates.class);
+
+    public static final String SELECTED_STYLE = DragClientBundle.INSTANCE.css().selected();
+
+    @Override
+    public void onClick(ClickEvent event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
 
     public interface TaskGuiTemplates extends SafeHtmlTemplates {
 	     @Template("<div class=\"{0}\">{1}</div>")
@@ -112,9 +123,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private Dtos.BoardDto boardDto;
 
-    public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto) {
+    public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto, DragController dragController) {
+        this.dragController = dragController;
 
-        nameLabelTextArea = new ClickHandlingTextArea();
+        nameLabelTextArea = new TextArea();
         this.boardDto = boardDto;
 
         initWidget(uiBinder.createAndBindUi(this));
@@ -133,10 +145,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		
 		new TaskEditingComponent(this, editButton, boardDto);
 		new TaskDeletingComponent(this, deleteButton);
-		
+
+        wholePanel.addClickHandler(this);
+
 		setupAccordingDto(taskDto);
-		
-		wholePanel.addClickHandler(this);
 	}
 	
 	public void setupAccordingDto(TaskDto taskDto) {
@@ -168,14 +180,14 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
             newUser.setPictureUrl(taskDto.getAssignee().getPictureUrl());
 
 			Image picture = UsersManager.getInstance().getPictureFor(newUser);
-			imageHandle = picture.addClickHandler(this);
+
 			assigneePicturePlace.clear();
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
             nameLabel.setWidth("84px");
             nameLabelTextArea.setWidth("73px");
-			picture.addClickHandler(this);
+            picture.addClickHandler(this);
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
             nameLabel.setWidth("130px");
@@ -320,7 +332,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 	public void messageArrived(Message<TaskDto> message) {
 		if (message instanceof GetSelectedTasksRequestMessage) {
-			if (isSelected) {
+            if (isSelected()) {
 				MessageBus.sendMessage(new GetSelectedTasksRsponseMessage(getDto(), this));
 			}
 		} else if ((message instanceof TaskEditedMessage) || message instanceof TaskChangedMessage) {
@@ -332,65 +344,13 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
         }
 	}
 
-	private void doTaskChanged(Message<TaskDto> message) {
+    private void doTaskChanged(Message<TaskDto> message) {
 		TaskDto payload = message.getPayload();
 		if (payload.getId().equals(taskDto.getId())) {
 			this.taskDto = payload;
 			setupAccordingDto(payload);
             reevaluateFilter();
 		}		
-	}
-
-	class ClickHandlingTextArea extends TextArea { 
-		public ClickHandlingTextArea() {
-			super();
-			
-			sinkEvents(Event.ONCLICK);
-			setEnabled(true);
-		}
-		
-		@Override
-		public void onBrowserEvent(Event event) {
-			if (DOM.eventGetType(event) == Event.ONCLICK) {
-				doClick(event.getCtrlKey());
-				event.stopPropagation();
-				event.preventDefault();
-				setFocus(false);
-				return;
-			} else {
-				super.onBrowserEvent(event);	
-			}
-		}
-		
-	}
-	
-	@Override
-	public void onClick(ClickEvent event) {
-//		event.stopPropagation();
-//        event.preventDefault();
-        doClick(event.isControlKeyDown());
-	}
-	
-	private void doClick(boolean ctrlDown) {
-		if (ctrlDown) {
-			setSelected(!isSelected);
-		} else {
-			ChangeTaskSelectionParams params = new ChangeTaskSelectionParams(false, true, false, getDto());
-			MessageBus.sendMessage(new ChangeTaskSelectionMessage(params, this));
-			setSelected(true);
-		}
-	}
-	
-	private void setSelected(boolean selected) {
-		if (selected) {
-			wholePanel.addStyleName(style.selected());
-			wholePanel.removeStyleName(style.unselected());
-		} else {
-			wholePanel.removeStyleName(style.selected());
-			wholePanel.addStyleName(style.unselected());
-		}
-		
-		isSelected = selected;
 	}
 
 	@Override
@@ -480,14 +440,22 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			boolean ignoreMe = !params.isApplyToYourself() && message.getSource() == TaskGui.this;
 			
 			if ((forAll || toMe) && !ignoreMe) {
-				setSelected(params.isSelect());	
+                if (isSelected() != params.isSelect()) {
+                    dragController.toggleSelection(TaskGui.this);
+                }
 			}
-			
 		}
-		
 	}
 
-    public FocusPanel getWholePanel() {
-        return wholePanel;
+    public FocusPanel getNamePanel() {
+        return namePanel;
+    }
+
+    public FocusPanel getAssigneePicturePlace() {
+        return assigneePicturePlace;
+    }
+
+    private boolean isSelected() {
+        return getStyleName().contains(SELECTED_STYLE);
     }
 }
