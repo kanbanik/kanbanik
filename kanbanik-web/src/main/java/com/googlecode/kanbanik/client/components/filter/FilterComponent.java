@@ -331,7 +331,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         });
 
         // add default class of service if not present
-        if (sorted.get(0).getId() != null) {
+        if (sorted.size() == 0 || sorted.get(0).getId() != null) {
             sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
         }
 
@@ -383,7 +383,9 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             }
         });
 
-        tags.add(0, TaskTagsManager.getInstance().noTag());
+        if (tags.size() == 0 || tags.get(0).getId() != null) {
+            tags.add(0, TaskTagsManager.getInstance().noTag());
+        }
 
         if (filterObject.getFilterDataDto().getTaskTags() == null) {
             filterObject.getFilterDataDto().setTaskTags(new ArrayList<Dtos.TaskTagWithSelected>());

@@ -36,6 +36,8 @@ public class PanelWithCheckboxes extends Composite {
 
         initWidget(uiBinder.createAndBindUi(this));
 
+        filterBox.getElement().setPropertyString("placeholder", "Filter");
+
         filterBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
