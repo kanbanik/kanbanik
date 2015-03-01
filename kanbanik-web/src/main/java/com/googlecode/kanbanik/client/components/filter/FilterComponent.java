@@ -90,11 +90,11 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         fullTextFilter.initialize(filterObject, filterObject.getFilterDataDto().getFullTextFilter());
 
-        userFilter.clear();
-        classOfServiceFilter.clear();
-        boardFilter.clear();
-        tagsFilter.clear();
-        projectOnBoardFilter.clear();
+        userFilter.initialize(filterObject);
+        classOfServiceFilter.initialize(filterObject);
+        boardFilter.initialize(filterObject);
+        tagsFilter.initialize(filterObject);
+        projectOnBoardFilter.initialize(filterObject);
 
         fillTaskTags(filterObject, loaded);
         fillUsers(filterObject, loaded);

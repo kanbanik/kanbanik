@@ -18,14 +18,14 @@ public class PanelWithCheckboxes extends Composite {
     interface MyUiBinder extends UiBinder<Widget, PanelWithCheckboxes> {}
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
+    private BoardsFilter boardsFilter;
+
     @UiField
     FlowPanel contentPanel;
 
-    // todo optimize this
     @UiField
     Button allButton;
 
-    // todo optimize this
     @UiField
     Button noneButton;
 
@@ -77,6 +77,10 @@ public class PanelWithCheckboxes extends Composite {
     }
 
     private void setAllSelected(boolean selected) {
+
+        // don't fire the filter change event for all - do one bulk at the end
+        boardsFilter.setIgnoreFilterChanges(true);
+
         for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
             Widget w = contentPanel.getWidget(i);
             if (w instanceof FilterCheckBox) {
@@ -84,15 +88,17 @@ public class PanelWithCheckboxes extends Composite {
                 ((FilterCheckBox) w).doValueChanged(selected);
             }
         }
+
+        boardsFilter.setIgnoreFilterChanges(false);
+        boardsFilter.fireFilterChangedEvent();
     }
-
-
 
     public void add(Widget w) {
         contentPanel.add(w);
     }
 
-    public void clear() {
+    public void initialize(BoardsFilter boardsFilter) {
         contentPanel.clear();
+        this.boardsFilter = boardsFilter;
     }
 }

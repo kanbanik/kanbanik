@@ -18,6 +18,8 @@ import java.util.List;
 
 public class BoardsFilter {
 
+    private boolean ignoreFilterChanges = false;
+
     private int numOfHiddenFields = 0;
 
     private NumOfHiddenFieldsChangedListener numOfHiddenFieldsChangedListener;
@@ -567,6 +569,10 @@ public class BoardsFilter {
     }
 
     public void fireFilterChangedEvent() {
+        if (ignoreFilterChanges) {
+            return;
+        }
+
         numOfHiddenFields = 0;
         MessageBus.sendMessage(new FilterChangedMessage(this, this));
         storeFilterData();
@@ -579,5 +585,13 @@ public class BoardsFilter {
 
     public static interface NumOfHiddenFieldsChangedListener {
         void onNumOfHiddenFieldsChanged(int newNum);
+    }
+
+    public boolean isIgnoreFilterChanges() {
+        return ignoreFilterChanges;
+    }
+
+    public void setIgnoreFilterChanges(boolean ignoreFilterChanges) {
+        this.ignoreFilterChanges = ignoreFilterChanges;
     }
 }
