@@ -7,7 +7,7 @@
             <g:Button ui:field="allButton" />
             <g:Button ui:field="noneButton" />
         </g:FlowPanel>
-        <g:SuggestBox ui:field="filterBox"/>
+        <g:TextBox ui:field="filterBox"/>
         <g:FlowPanel ui:field="contentPanel"/>
 
     </g:FlowPanel>
