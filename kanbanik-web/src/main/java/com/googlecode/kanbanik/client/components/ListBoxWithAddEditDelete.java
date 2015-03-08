@@ -56,9 +56,13 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 
 	private final LabelProvider<T> labelProvider;
 
-	public ListBoxWithAddEditDelete(String label, IdProvider<T> idProvider,
-			LabelProvider<T> labelProvider, Component<T> creatingComponent,
-			Component<T> editingComponent, Component<T> deletingComponent,
+	public ListBoxWithAddEditDelete(
+            String label,
+            IdProvider<T> idProvider,
+			LabelProvider<T> labelProvider,
+            Component<T> creatingComponent,
+			Component<T> editingComponent,
+            Component<T> deletingComponent,
 			Refresher<T> refresher) {
 
 		this.idProvider = idProvider;

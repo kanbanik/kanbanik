@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.HasClickHandlers;
@@ -55,7 +56,12 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 		return taskDto;
 	}
 
-	private String findOrder() {
+    @Override
+    protected List<Dtos.TaskTag> getTags() {
+        return new ArrayList<Dtos.TaskTag>();
+    }
+
+    private String findOrder() {
 		if (!MessageBus.listens(GetFirstTaskResponseMessage.class, getFirstTaskResponseMessageListener)) {
 			MessageBus.registerListener(GetFirstTaskResponseMessage.class, getFirstTaskResponseMessageListener);
 		}

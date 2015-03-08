@@ -16,9 +16,13 @@ import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
+import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
+import com.googlecode.kanbanik.client.components.task.tag.TagCreatingComponent;
+import com.googlecode.kanbanik.client.components.task.tag.TagDeletingComponent;
+import com.googlecode.kanbanik.client.components.task.tag.TagEditingComponent;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -55,6 +59,8 @@ public abstract class AbstractTaskEditingComponent {
 
     private TextBox dueDateTextBox;
 
+    private ListBoxWithAddEditDelete<Dtos.TaskTag> tagsEditor;
+
     private PanelContainingDialog dialog;
 
     private HTML warningMessages;
@@ -78,12 +84,16 @@ public abstract class AbstractTaskEditingComponent {
         clickHandler.addClickHandler(new ShowDialogHandler());
     }
 
+
     private void initialize() {
         panel = new FlowPanel();
         taskName = new TextArea();
         ticketId = new Label("");
         dueDateCheckBox = new CheckBox();
         dueDateTextBox = new TextBox();
+
+        tagsEditor = createTagBox();
+
         warningMessages = new HTML();
 
         taskDirtyWarningPanel = initTaskDirtyWarningPanel();
@@ -104,6 +114,7 @@ public abstract class AbstractTaskEditingComponent {
         taskName.setWidth("190px");
         taskName.setHeight("120px");
         taskName.getElement().getStyle().setProperty("resize", "vertical");
+
         header.setWidget(1, 0, new Label("Short Description"));
         header.setWidget(1, 1, taskName);
 
@@ -130,6 +141,7 @@ public abstract class AbstractTaskEditingComponent {
         FlowPanel aroundHeader = new FlowPanel();
         aroundHeader.add(taskDirtyWarningPanel);
         aroundHeader.add(header);
+        aroundHeader.add(tagsEditor);
         aroundHeader.setWidth("460px");
         controlPanel.add(aroundHeader);
         controlPanel.add(description);
@@ -236,6 +248,8 @@ public abstract class AbstractTaskEditingComponent {
         dueDateTextBox.setText(getDueDate());
 
         warningMessages.setText("");
+
+        tagsEditor.setContent(getTags());
     }
 
     private boolean validate() {
@@ -303,6 +317,8 @@ public abstract class AbstractTaskEditingComponent {
     protected abstract int getVersion();
 
     protected abstract TaskDto createBasicDTO();
+
+    protected abstract List<Dtos.TaskTag> getTags();
 
     private TaskDto createTaskDTO() {
         TaskDto taskDto = createBasicDTO();
@@ -456,6 +472,47 @@ public abstract class AbstractTaskEditingComponent {
             super.showSuggestionList();
             dialog.deactivateEnterEscapeBinding();
         }
+    }
+
+    private ListBoxWithAddEditDelete<Dtos.TaskTag> createTagBox() {
+        TagCreatingComponent tagCreatingComponent = new TagCreatingComponent();
+        TagEditingComponent tagEditingComponent = new TagEditingComponent();
+        TagDeletingComponent tagDeletingComponent = new TagDeletingComponent();
+
+        ListBoxWithAddEditDelete<Dtos.TaskTag> listBox = new ListBoxWithAddEditDelete<Dtos.TaskTag>(
+                "Tags",
+
+                new ListBoxWithAddEditDelete.IdProvider<Dtos.TaskTag>() {
+                    @Override
+                    public String getId(Dtos.TaskTag taskTag) {
+                        // not nice but nothing more unique around...
+                        return taskTag.toString();
+                    }
+                },
+
+                new ListBoxWithAddEditDelete.LabelProvider<Dtos.TaskTag>() {
+                    @Override
+                    public String getLabel(Dtos.TaskTag taskTag) {
+                        return taskTag.getName();
+                    }
+                },
+
+                tagCreatingComponent,
+                tagEditingComponent,
+                tagDeletingComponent,
+                new ListBoxWithAddEditDelete.Refresher<Dtos.TaskTag>() {
+                    @Override
+                    public void refrehs(List<Dtos.TaskTag> items, Dtos.TaskTag newItem, int index) {
+                        items.set(index, newItem);
+                    }
+                }
+        );
+
+        tagCreatingComponent.setParent(listBox);
+        tagEditingComponent.setParent(listBox);
+        tagDeletingComponent.setParent(listBox);
+
+        return listBox;
     }
 
 }

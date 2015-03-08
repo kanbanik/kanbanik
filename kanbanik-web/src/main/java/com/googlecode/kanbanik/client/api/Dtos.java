@@ -96,7 +96,7 @@ public class Dtos {
         void setOnClickUrl(String onClickUrl);
 
         Integer getOnClickTarget();
-        void setOnClickTarget(String Integer);
+        void setOnClickTarget(Integer onClickTarget);
 
         void setColour(String colour);
         String getColour();
@@ -119,6 +119,10 @@ public class Dtos {
             }
 
             return NONE;
+        }
+
+        public int getId() {
+            return id;
         }
     }
 

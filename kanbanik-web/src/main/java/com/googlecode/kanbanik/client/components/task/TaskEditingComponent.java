@@ -175,6 +175,11 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
     }
 
     @Override
+    protected List<Dtos.TaskTag> getTags() {
+        return dto.getTaskTags();
+    }
+
+    @Override
     protected int getVersion() {
         return dto.getVersion();
     }

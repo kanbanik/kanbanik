@@ -1,0 +1,63 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:style>
+
+    </ui:style>
+
+
+
+
+    <g:FlowPanel>
+
+
+        <g:Grid>
+            <g:row>
+                <g:customCell>
+                    <g:Label text="Name: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="name" />
+                </g:customCell>
+               </g:row>
+            <g:row>
+                <g:customCell>
+                    <g:Label text="Description: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="description" />
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label text="Picture URL: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="pictureUrl" />
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label text="On Click URL: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="onClickUrl" />
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label text="Color: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="color" />
+                </g:customCell>
+            </g:row>
+
+        </g:Grid>
+
+    </g:FlowPanel>
+
+</ui:UiBinder>
