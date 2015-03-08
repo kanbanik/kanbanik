@@ -125,6 +125,8 @@ public class BoardsModule {
 					panelWithDraggabls, false);
 
             dragController.setBehaviorMultipleSelection(true);
+            dragController.setBehaviorDragStartSensitivity(3);
+            dragController.setBehaviorCancelDocumentSelections(true);
 
 			panelWithDraggabls.add(boardTable);
 			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard() != null ? boardWithProjects.getProjectsOnBoard().getValues() : null;
