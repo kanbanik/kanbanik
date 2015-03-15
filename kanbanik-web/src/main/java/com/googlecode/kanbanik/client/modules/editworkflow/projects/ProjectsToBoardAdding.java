@@ -71,6 +71,9 @@ public class ProjectsToBoardAdding extends Composite implements ModulesLifecycle
         initWidget(uiBinder.createAndBindUi(this));
 
         dragController = new PickupDragController(panelWithDraggablePanels, false);
+        dragController.setBehaviorDragStartSensitivity(3);
+        dragController.setBehaviorCancelDocumentSelections(true);
+
         init();
 
         MessageBus.registerListener(ProjectAddedMessage.class, projectChangedListener);

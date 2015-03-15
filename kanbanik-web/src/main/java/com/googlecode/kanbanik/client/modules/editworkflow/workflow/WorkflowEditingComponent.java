@@ -139,8 +139,9 @@ public class WorkflowEditingComponent extends Composite implements
 		tableDesignPanel.add(table);
 		
 		panelWithDraggabls = new AbsolutePanel();
-		PickupDragController dragController = new PickupDragController(
-				panelWithDraggabls, false);
+		PickupDragController dragController = new PickupDragController(panelWithDraggabls, false);
+        dragController.setBehaviorDragStartSensitivity(3);
+        dragController.setBehaviorCancelDocumentSelections(true);
 		
 		mainContentPanel.add(tableDesignPanel);
 		panelWithDraggabls.add(mainContentPanel);
