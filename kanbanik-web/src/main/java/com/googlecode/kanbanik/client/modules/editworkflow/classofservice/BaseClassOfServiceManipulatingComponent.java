@@ -5,25 +5,21 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.api.*;
 import com.googlecode.kanbanik.client.components.Closable;
+import com.googlecode.kanbanik.client.components.common.ColorPickerComponent;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.KanbanikRichTextArea;
-import net.auroris.ColorPicker.client.ColorPicker;
 
 public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		implements PanelContainingDialolgListener, Closable,
 		Component<Dtos.ClassOfServiceDto>, ClickHandler {
 	private PanelContainingDialog dialog;
-
-	private PanelContainingDialog colorPickerDialog;
 
 	@UiField
 	TextBox nameBox;
@@ -32,9 +28,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	KanbanikRichTextArea descriptionTextArea;
 
 	@UiField
-	PushButton colorButton;
-
-	final ColorPicker colorPicker = new ColorPicker();
+    ColorPickerComponent colorPickerComponent;
 
 	private Dtos.BoardDto currentBoard;
 	
@@ -44,17 +38,11 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	public interface ButtonTemplate extends SafeHtmlTemplates {
-		@Template("<div style=\"width: 20px; height: 15px; background-color:#{0}\"/>")
-		SafeHtml buttonColour(String colour);
-	}
+
 
 	public interface Style extends CssResource {
 		String colourPickerStyle();
 	}
-
-	private static final ButtonTemplate template = GWT
-			.create(ButtonTemplate.class);
 
 	private Dtos.ClassOfServiceDto classOfServiceDto;
 
@@ -63,12 +51,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 	}
 
 	protected void setColour(String colour) {
-		colorButton.getUpFace().setHTML(template.buttonColour(colour));
-		try {
-			colorPicker.setHex(colour);
-		} catch (Exception e) {
-			// well, so than leave the default color
-		}
+        colorPickerComponent.setColor(colour);
 	}
 
 	@Override
@@ -77,38 +60,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
 		dialog.addListener(this);
 		clickHandler.addClickHandler(this);
 
-		initColorPicker();
-	}
-
-	private void initColorPicker() {
-		Panel colorPickerPanel = new FlowPanel();
-		colorPickerPanel.add(colorPicker);
-		colorPickerDialog = new PanelContainingDialog("Select Colour",
-				colorPickerPanel);
-
-		colorButton.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				colorPickerDialog.center();
-
-			}
-		});
-
-		colorPickerDialog.addListener(new PanelContainingDialolgListener() {
-
-			@Override
-			public void okClicked(PanelContainingDialog dialog) {
-				setColour(colorPicker.getHexColor());
-				colorPickerDialog.close();
-			}
-
-			@Override
-			public void cancelClicked(PanelContainingDialog dialog) {
-				// do nothing
-			}
-		});
-
+		colorPickerComponent.init();
 	}
 
 	@Override
@@ -169,7 +121,7 @@ public abstract class BaseClassOfServiceManipulatingComponent extends Composite
         res.setId(classOfServiceDto == null ? null : classOfServiceDto.getId());
         res.setName(nameBox.getText());
         res.setDescription(descriptionTextArea.getHtml());
-        res.setColour(colorPicker.getHexColor());
+        res.setColour(colorPickerComponent.getColor());
         res.setVersion(classOfServiceDto == null ? 1 : classOfServiceDto.getVersion());
         return res;
 	}

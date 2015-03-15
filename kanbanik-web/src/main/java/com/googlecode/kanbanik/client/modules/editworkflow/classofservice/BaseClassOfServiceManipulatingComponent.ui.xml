@@ -52,7 +52,7 @@
 
             <g:FlowPanel addStyleNames="{style.values}">
                 <g:TextBox addStyleNames="{style.valueStyle}" ui:field="nameBox" />
-                <g:PushButton addStyleNames="{style.colorButtonStyle}" ui:field="colorButton" />
+                <c:ColorPickerComponent addStyleNames="{style.colorButtonStyle}" ui:field="colorPickerComponent" />
             </g:FlowPanel>
 
             <g:Label addStyleNames="{style.policyLabelStyle}" text="Class of Service Policies: " />

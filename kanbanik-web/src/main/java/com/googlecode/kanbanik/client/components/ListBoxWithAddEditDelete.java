@@ -102,6 +102,10 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		listBox.setContent(content);
 	}
 
+    public List<T> getContent() {
+        return listBox.getContent();
+    }
+
 	public T getSelectedDto() {
 		return listBox.getSelectedDto();
 	}
@@ -161,6 +165,10 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			lastSelectedIndex = tmpSelectedBoard;
 			resetButtonAvailability();
 		}
+
+        public List<T> getContent() {
+            return items;
+        }
 
 		private void setupSelectedDto() {
 			if (items == null) {

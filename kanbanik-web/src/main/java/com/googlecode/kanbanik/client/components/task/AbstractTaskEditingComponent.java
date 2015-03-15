@@ -346,6 +346,8 @@ public abstract class AbstractTaskEditingComponent {
         taskDto.setVersion(getVersion());
         taskDto.setBoardId(board.getId());
 
+        taskDto.setTaskTags(tagsEditor.getContent());
+
         return taskDto;
     }
 

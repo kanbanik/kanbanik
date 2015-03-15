@@ -1,16 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:c='urn:import:com.googlecode.kanbanik.client.components.common'>
 
-    <ui:style>
-
-    </ui:style>
-
-
-
-
-    <g:FlowPanel>
-
-
+   <g:FlowPanel>
         <g:Grid>
             <g:row>
                 <g:customCell>
@@ -52,7 +44,7 @@
                     <g:Label text="Color: "/>
                 </g:customCell>
                 <g:customCell>
-                    <g:TextBox ui:field="color" />
+                    <c:ColorPickerComponent ui:field="colorPickerComponent" />
                 </g:customCell>
             </g:row>
 

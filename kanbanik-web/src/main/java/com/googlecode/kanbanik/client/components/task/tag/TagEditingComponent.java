@@ -10,7 +10,7 @@ public class TagEditingComponent extends BaseTagEditingComponent {
         description.setText(getDto().getDescription());
         pictureUrl.setText(getDto().getPictureUrl());
         onClickUrl.setText(getDto().getOnClickUrl());
-        color.setText(getDto().getColour());
+        setColorHex(getDto().getColour());
     }
 
     @Override

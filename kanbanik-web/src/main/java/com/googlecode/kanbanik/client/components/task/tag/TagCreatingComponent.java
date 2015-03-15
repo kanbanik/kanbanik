@@ -11,7 +11,7 @@ public class TagCreatingComponent extends BaseTagEditingComponent {
         description.setText("");
         pictureUrl.setText("");
         onClickUrl.setText("");
-        color.setText("");
+        setColorHex("003d89");
     }
 
     @Override

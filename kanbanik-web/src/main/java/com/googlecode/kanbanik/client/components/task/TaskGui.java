@@ -226,7 +226,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			res = tagImage;
 		}
 
-		res.getElement().getStyle().setBackgroundColor(tag.getColour());
+		res.getElement().getStyle().setBackgroundColor("#" + tag.getColour());
 		Dtos.TagClickTarget target = Dtos.TagClickTarget.from(tag.getOnClickTarget());
 		boolean onClickDefined = tag.getOnClickUrl() != null && !"".equals(tag.getOnClickUrl());
 		boolean targetDefined = target != Dtos.TagClickTarget.NONE;
