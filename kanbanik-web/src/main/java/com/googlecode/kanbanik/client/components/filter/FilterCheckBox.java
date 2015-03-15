@@ -48,4 +48,8 @@ public abstract class FilterCheckBox<T> extends CheckBox implements ValueChangeH
     public String provideText() {
         return provideText(entity);
     }
+
+    public T getEntity() {
+        return entity;
+    }
 }

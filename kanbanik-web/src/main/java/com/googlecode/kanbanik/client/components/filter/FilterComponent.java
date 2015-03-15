@@ -402,7 +402,36 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
                 filterObject.fireFilterChangedEvent();
             }
+
+            @Override
+            public void removed(Dtos.TaskTag tag) {
+                removeTag(tag);
+            }
         });
+    }
+
+    private void removeTag(final Dtos.TaskTag tag) {
+        filterObject.remove(tag);
+
+        tagsFilter.remove(new PanelWithCheckboxes.Predicate() {
+            @Override
+            public boolean toRemove(FilterCheckBox w) {
+                Dtos.TaskTag candidate = (Dtos.TaskTag) w.getEntity();
+                return objEq(candidate.getName(), tag.getName());
+            }
+        });
+    }
+
+    private boolean objEq(Object o1, Object o2) {
+        if (o1 == null) {
+            return o2 == null;
+        }
+
+        if (o2 == null) {
+            return false;
+        }
+
+        return o1.equals(o2);
     }
 
     private void addTag(Dtos.TaskTag tag, boolean loaded, BoardsFilter filterObject) {
@@ -458,7 +487,6 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         private List<T> data;
 
-        @Override
         public void messageArrived(Message<T> message) {
             data.add(message.getPayload());
         }

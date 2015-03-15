@@ -2,15 +2,22 @@ package com.googlecode.kanbanik.client.managers;
 
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
+public class TaskTagsManager {
 
     private static final TaskTagsManager INSTANCE = new TaskTagsManager();
 
@@ -18,10 +25,15 @@ public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
 
     private List<Dtos.TaskTag> tags;
 
+    private Map<String, List<String>> taskIdToTagName = new HashMap<String, List<String>>();
+
     private static Dtos.TaskTag noTag;
 
     private TaskTagsManager() {
-        MessageBus.registerListener(TaskAddedMessage.class, this);
+        AddedEditedListener addedEditedListener = new AddedEditedListener();
+        MessageBus.registerListener(TaskAddedMessage.class, addedEditedListener);
+        MessageBus.registerListener(TaskEditedMessage.class, addedEditedListener);
+        MessageBus.registerListener(TaskDeletedMessage.class, new RemovedListener());
     }
 
     public Dtos.TaskTag noTag() {
@@ -34,10 +46,16 @@ public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
         return noTag;
     }
 
-    public void addTaskTag(Dtos.TaskTag toAdd) {
+    private void addTaskTag(String taskId, Dtos.TaskTag toAdd) {
         if (tags == null) {
             tags = new ArrayList<Dtos.TaskTag>();
         }
+
+        if (!taskIdToTagName.containsKey(taskId)) {
+            taskIdToTagName.put(taskId, new ArrayList<String>());
+        }
+
+        taskIdToTagName.get(taskId).add(toAdd.getName());
 
         boolean contains = false;
 
@@ -54,6 +72,23 @@ public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
                 listener.added(toAdd);
             }
         }
+    }
+
+    private void removeTaskTag(String tagOfTask) {
+        Dtos.TaskTag tag = null;
+        for (Dtos.TaskTag candidate : tags) {
+            if (objEq(candidate.getName(), tagOfTask)) {
+                tag = candidate;
+                break;
+            }
+        }
+
+        if (tag == null) {
+            return;
+        }
+
+        tags.remove(tag);
+        listener.removed(tag);
     }
 
     private boolean equals(Dtos.TaskTag tag, Dtos.TaskTag toAdd) {
@@ -85,18 +120,88 @@ public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
     }
 
 
-    @Override
-    public void messageArrived(Message<Dtos.TaskDto> message) {
-        if (message == null || message.getPayload() == null) {
-            return;
-        }
+    class RemovedListener implements MessageListener<Dtos.TaskDto> {
 
-        List<Dtos.TaskTag> taskTags = message.getPayload().getTaskTags();
-        if (taskTags != null) {
-            for(Dtos.TaskTag tag : taskTags) {
-                addTaskTag(tag);
+        public void messageArrived(Message<Dtos.TaskDto> message) {
+            if (message == null || message.getPayload() == null) {
+                return;
+            }
+
+            List<Dtos.TaskTag> taskTags = message.getPayload().getTaskTags();
+            String taskId = message.getPayload().getId();
+            if (taskTags == null) {
+                return;
+            }
+
+            if (!taskIdToTagName.containsKey(taskId)) {
+                return;
+            }
+
+            List<String> tagNames = new ArrayList<String>();
+            for(String name : taskIdToTagName.get(taskId)) {
+                tagNames.add(name);
+            }
+
+            taskIdToTagName.remove(taskId);
+
+            for (String tagToRemove : tagNames) {
+                    // still some reference?
+                    if (!isReferenced(tagToRemove)) {
+                        // no, remove
+                        removeTaskTag(tagToRemove);
+                    }
+                }
             }
         }
+
+    class AddedEditedListener implements MessageListener<Dtos.TaskDto> {
+
+        public void messageArrived(Message<Dtos.TaskDto> message) {
+            if (message == null || message.getPayload() == null) {
+                return;
+            }
+
+            List<Dtos.TaskTag> taskTags = message.getPayload().getTaskTags();
+            String taskId = message.getPayload().getId();
+            if (taskTags == null) {
+                return;
+            }
+
+            List<String> tagNames = new ArrayList<String>();
+            for(Dtos.TaskTag tag : taskTags) {
+                addTaskTag(taskId, tag);
+                tagNames.add(tag.getName());
+            }
+
+            // todo move it before the add
+            if (!taskIdToTagName.containsKey(taskId)) {
+                return;
+            }
+
+            for (String tagOfTask : new ArrayList<String>(taskIdToTagName.get(taskId))) {
+                if (!tagNames.contains(tagOfTask)) {
+                    taskIdToTagName.get(taskId).remove(tagOfTask);
+                    // still some reference?
+                    if (!isReferenced(tagOfTask)) {
+                        // no, remove
+                        removeTaskTag(tagOfTask);
+                    }
+                }
+            }
+
+        }
+    }
+
+
+
+    private boolean isReferenced(String tagOfTask) {
+        for (List<String> vals : taskIdToTagName.values()) {
+            if (vals.contains(tagOfTask)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void setListener(TagsChangedListener listener) {
@@ -105,5 +210,8 @@ public class TaskTagsManager implements MessageListener<Dtos.TaskDto> {
 
     public static interface TagsChangedListener {
         void added(Dtos.TaskTag tag);
+        void removed(Dtos.TaskTag tag);
     }
+
+
 }

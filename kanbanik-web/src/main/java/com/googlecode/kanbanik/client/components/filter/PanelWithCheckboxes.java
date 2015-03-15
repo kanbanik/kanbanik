@@ -13,6 +13,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import java.util.Comparator;
+
 public class PanelWithCheckboxes extends Composite {
 
     interface MyUiBinder extends UiBinder<Widget, PanelWithCheckboxes> {}
@@ -99,8 +101,29 @@ public class PanelWithCheckboxes extends Composite {
         contentPanel.add(w);
     }
 
+    public void remove(Predicate predicate) {
+        Widget toRemove = null;
+        for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
+            Widget w = contentPanel.getWidget(i);
+            if (w instanceof FilterCheckBox) {
+                if (predicate.toRemove((FilterCheckBox) w)) {
+                    toRemove = w;
+                    break;
+                }
+            }
+        }
+
+        if (toRemove != null) {
+            contentPanel.remove(toRemove);
+        }
+    }
+
     public void initialize(BoardsFilter boardsFilter) {
         contentPanel.clear();
         this.boardsFilter = boardsFilter;
+    }
+
+    public static interface Predicate {
+        boolean toRemove(FilterCheckBox w);
     }
 }
