@@ -32,6 +32,18 @@
 
             <g:row>
                 <g:customCell>
+                    <g:Label ui:field="picturePreviewLabel" text="Image Preview: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:FlowPanel>
+                        <g:Image ui:field="picturePreview" />
+                        <g:Label ui:field="picturePreviewErrorLabel" text="Error Loading Image" />
+                    </g:FlowPanel>
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
                     <g:Label text="On Click URL: "/>
                 </g:customCell>
                 <g:customCell>

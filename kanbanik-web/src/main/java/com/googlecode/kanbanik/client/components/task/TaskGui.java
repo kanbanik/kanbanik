@@ -214,10 +214,11 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	private Widget renderTag(final Dtos.TaskTag tag) {
 		Widget res;
 		String pictureUrl = tag.getPictureUrl();
+
 		if (pictureUrl == null || "".equals(pictureUrl)) {
 			FlowPanel tagPanel = new FlowPanel();
 			tagPanel.addStyleName(style.tagStyle());
-			tagPanel.add(new Label(tag.getDescription()));
+			tagPanel.add(new Label(tag.getName()));
 			res = tagPanel;
 		} else {
 			Image tagImage = new Image();
@@ -227,6 +228,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		}
 
 		res.getElement().getStyle().setBackgroundColor("#" + tag.getColour());
+        String description = tag.getDescription();
+        res.setTitle(description != null ? description : "No description provided");
+
 		Dtos.TagClickTarget target = Dtos.TagClickTarget.from(tag.getOnClickTarget());
 		boolean onClickDefined = tag.getOnClickUrl() != null && !"".equals(tag.getOnClickUrl());
 		boolean targetDefined = target != Dtos.TagClickTarget.NONE;

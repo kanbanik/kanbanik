@@ -1,13 +1,8 @@
 package com.googlecode.kanbanik.client.components.security;
 
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ErrorEvent;
-import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -20,7 +15,7 @@ import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
+import com.googlecode.kanbanik.client.components.common.PicturePreviewHandler;
 
 public abstract class BaseUserManipulatingComponent extends Composite implements PanelContainingDialolgListener, Closable, Component<Dtos.UserDto>, ClickHandler {
 
@@ -94,7 +89,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	@Override
 	public void onClick(ClickEvent event) {
 		dialog.center();
-		
+
 		initialize();
 	}
 
@@ -114,50 +109,9 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	}
 	
 	protected void initialize() {
-		pictureUrl.addBlurHandler(new BlurHandler() {
-			
-			@Override
-			public void onBlur(BlurEvent event) {
-				updateAssigneePicturePreview();		
-			}
-		});
-		
-		updateAssigneePicturePreview();
+        new PicturePreviewHandler(pictureUrl, assiggneePicturePreview, assigneePicturePreviewLabel, assiggneePicturePreviewErrorLabel).initialize();
 	}
 
-	private void updateAssigneePicturePreview() {
-		String url = pictureUrl.getText();
-		assigneePicturePreviewLabel.setText("Image Preview");
-		if (url == null || "".equals(url)) {
-			assiggneePicturePreview.setVisible(false);
-			assiggneePicturePreviewErrorLabel.setVisible(true);
-			assiggneePicturePreviewErrorLabel.setText("No Picture Set");
-		} else {
-			assigneePicturePreviewLabel.setText("Image Preview (Loading...)");
-			assiggneePicturePreview.addLoadHandler(new PictureResizingLoadHandler(assiggneePicturePreview) {
-				@Override
-				public void onLoad(LoadEvent event) {
-					super.onLoad(event);
-					
-					assigneePicturePreviewLabel.setText("Image Preview");
-					assiggneePicturePreviewErrorLabel.setVisible(false);
-				}
-			});
-			
-			assiggneePicturePreview.addErrorHandler(new ErrorHandler() {
-				
-				@Override
-				public void onError(ErrorEvent event) { 
-					assigneePicturePreviewLabel.setText("Image Preview");
-					assiggneePicturePreviewErrorLabel.setVisible(true);
-					assiggneePicturePreviewErrorLabel.setText("Error Loading Image");
-					assiggneePicturePreview.setVisible(false);
-				}
-			});
-			assiggneePicturePreview.setUrl(url);	
-		}
-	}
-	
 	protected String checkPasswords(TextBox box1, TextBox box2) {
         if (isEmpty(box1) || isEmpty(box2)) {
             return "<li>The password can not be changed to empty";

@@ -11,7 +11,7 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
 
-public class UserAddingComponent extends BaseUserManipulatingComponent{
+public class UserAddingComponent extends BaseUserManipulatingComponent {
 
 	@UiField
 	TextBox password2;

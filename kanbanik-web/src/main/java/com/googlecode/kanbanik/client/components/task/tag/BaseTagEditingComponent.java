@@ -9,6 +9,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -17,6 +19,7 @@ import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.common.ColorPickerComponent;
+import com.googlecode.kanbanik.client.components.common.PicturePreviewHandler;
 import net.auroris.ColorPicker.client.ColorPicker;
 
 public abstract class BaseTagEditingComponent extends Composite implements Component<Dtos.TaskTag>,PanelContainingDialog.PanelContainingDialolgListener, ClickHandler {
@@ -39,6 +42,15 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
 
     @UiField
     ColorPickerComponent colorPickerComponent;
+
+    @UiField
+    Image picturePreview;
+
+    @UiField
+    Label picturePreviewErrorLabel;
+
+    @UiField
+    Label picturePreviewLabel;
 
     private Dtos.TaskTag dto;
 
@@ -80,6 +92,8 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     public void onClick(ClickEvent event) {
         dialog.center();
         edit();
+
+        new PicturePreviewHandler(pictureUrl, picturePreview, picturePreviewLabel, picturePreviewErrorLabel).initialize();
     }
 
     protected abstract void edit();
