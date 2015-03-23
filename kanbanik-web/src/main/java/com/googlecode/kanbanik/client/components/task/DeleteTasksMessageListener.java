@@ -50,7 +50,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
             }
         }
         tasksIds += "]";
-        DeleteKeyListener.INSTANCE.stop();
+        GlobalKeyListener.INSTANCE.stop();
 
         warningPanel = new WarningPanel("Are you sure you want to delete the following tasks: '" + tasksIds + "'?");
         yesNoDialog = new PanelContainingDialog("Are you sure?", warningPanel);
@@ -67,7 +67,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
         }
 
         public void okClicked(PanelContainingDialog dialog) {
-            DeleteKeyListener.INSTANCE.initialize();
+            GlobalKeyListener.INSTANCE.initialize();
 
             TasksDto tasks = DtoFactory.tasksDto(tasksDto);
             tasks.setCommandName(CommandNames.DELETE_TASK.name);
@@ -89,7 +89,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
         public void cancelClicked(PanelContainingDialog dialog) {
             MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
-            DeleteKeyListener.INSTANCE.initialize();
+            GlobalKeyListener.INSTANCE.initialize();
         }
     }
 

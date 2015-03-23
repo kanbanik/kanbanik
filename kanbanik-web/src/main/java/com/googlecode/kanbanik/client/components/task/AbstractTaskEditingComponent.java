@@ -421,7 +421,7 @@ public abstract class AbstractTaskEditingComponent {
 
     protected void onHideDialog() {
         MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
-        DeleteKeyListener.INSTANCE.initialize();
+        GlobalKeyListener.INSTANCE.initialize();
     }
 
     class SimpleSuggestion implements Suggestion {

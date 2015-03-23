@@ -18,7 +18,7 @@ import com.googlecode.kanbanik.client.components.board.BoardPanel;
 import com.googlecode.kanbanik.client.components.board.BoardsPanel;
 import com.googlecode.kanbanik.client.components.board.NoContentWarningPanel;
 import com.googlecode.kanbanik.client.components.board.ProjectHeader;
-import com.googlecode.kanbanik.client.components.task.DeleteKeyListener;
+import com.googlecode.kanbanik.client.components.task.GlobalKeyListener;
 import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
@@ -43,7 +43,7 @@ public class BoardsModule {
 
 	static {
 		style.ensureInjected();
-		DeleteKeyListener.INSTANCE.initialize();
+		GlobalKeyListener.INSTANCE.initialize();
 		new DeleteTasksMessageListener().initialize();
 	}
 

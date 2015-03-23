@@ -17,8 +17,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.KanbanikResources;
@@ -141,8 +139,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		MessageBus.registerListener(TaskDeletedMessage.class, this);
 		MessageBus.registerListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
 		MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);
+        MessageBus.registerListener(GetTasksByPredicateRequestMessage.class, this);
+
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
-		
+
 		new TaskEditingComponent(this, editButton, boardDto);
 		new TaskDeletingComponent(this, deleteButton);
 
@@ -337,7 +337,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	public void messageArrived(Message<TaskDto> message) {
 		if (message instanceof GetSelectedTasksRequestMessage) {
             if (isSelected()) {
-				MessageBus.sendMessage(new GetSelectedTasksRsponseMessage(getDto(), this));
+				MessageBus.sendMessage(new GetTasksRsponseMessage(getDto(), this));
 			}
 		} else if ((message instanceof TaskEditedMessage) || message instanceof TaskChangedMessage) {
 			doTaskChanged(message);
@@ -345,6 +345,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			if (message.getPayload().equals(getDto())) {
 				unregisterListeners();	
 			}
+        } else if (message instanceof GetTasksByPredicateRequestMessage) {
+            if (((GetTasksByPredicateRequestMessage) message).getPredicate().match(getDto())) {
+                MessageBus.sendMessage(new GetTasksRsponseMessage(getDto(), this));
+            }
         }
 	}
 
@@ -382,6 +386,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		if (!MessageBus.listens(GetSelectedTasksRequestMessage.class, this)) {
 			MessageBus.registerListener(GetSelectedTasksRequestMessage.class, this);	
 		}
+
+        if (!MessageBus.listens(GetTasksByPredicateRequestMessage.class, this)) {
+            MessageBus.registerListener(GetTasksByPredicateRequestMessage.class, this);
+        }
 	}
 
 	@Override
@@ -396,6 +404,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		MessageBus.unregisterListener(TaskDeletedMessage.class, this);
 		MessageBus.unregisterListener(ChangeTaskSelectionMessage.class, taskSelectionChangeListener);
 		MessageBus.unregisterListener(GetSelectedTasksRequestMessage.class, this);
+        MessageBus.unregisterListener(GetTasksByPredicateRequestMessage.class, this);
 	}
 
     class TaskFilterChangeListener implements MessageListener<BoardsFilter> {
@@ -440,7 +449,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		public void messageArrived(Message<ChangeTaskSelectionParams> message) {
 			ChangeTaskSelectionParams params = message.getPayload();
 			boolean forAll = params.isAll();
-			boolean toMe = !forAll && params.getTask().equals(getDto());
+			boolean toMe = !forAll && params.getTasks().contains(getDto());
 			boolean ignoreMe = !params.isApplyToYourself() && message.getSource() == TaskGui.this;
 			
 			if ((forAll || toMe) && !ignoreMe) {
