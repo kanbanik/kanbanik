@@ -8,5 +8,6 @@ public class WarningPanel extends SimplePanel {
 		add(new Label(message));
 		setWidth("200px");
 		setHeight("100px");
+                getElement().getStyle().setOverflowX(com.google.gwt.dom.client.Style.Overflow.AUTO);
 	}
 }
