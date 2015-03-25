@@ -9,6 +9,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
+import com.googlecode.kanbanik.client.components.task.tag.TagResizingPictureLoadHandler;
 import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
 
 public class PicturePreviewHandler {
@@ -54,7 +55,7 @@ public class PicturePreviewHandler {
             picturePreviewErrorLabel.setText("No Picture Set");
         } else {
             previewLabel.setText("Image Preview (Loading...)");
-            picturePreview.addLoadHandler(new PictureResizingLoadHandler(picturePreview) {
+            picturePreview.addLoadHandler(new TagResizingPictureLoadHandler(picturePreview) {
                 @Override
                 public void onLoad(LoadEvent event) {
                     super.onLoad(event);
@@ -62,6 +63,7 @@ public class PicturePreviewHandler {
                     previewLabel.setText("Image Preview: ");
                     picturePreviewErrorLabel.setVisible(false);
                 }
+
             });
 
             picturePreview.addErrorHandler(new ErrorHandler() {

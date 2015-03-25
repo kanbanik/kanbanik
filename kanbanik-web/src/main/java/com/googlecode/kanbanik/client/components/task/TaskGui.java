@@ -24,7 +24,9 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
+import com.googlecode.kanbanik.client.components.task.tag.TagResizingPictureLoadHandler;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
+import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -221,7 +223,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			tagPanel.add(new Label(tag.getName()));
 			res = tagPanel;
 		} else {
-			Image tagImage = new Image();
+			final Image tagImage = new Image();
+			tagImage.setVisible(false);
+			tagImage.addLoadHandler(new TagResizingPictureLoadHandler(tagImage));
+
 			tagImage.setUrl(pictureUrl);
 			tagImage.setAltText(tagImage.getTitle());
 			res = tagImage;

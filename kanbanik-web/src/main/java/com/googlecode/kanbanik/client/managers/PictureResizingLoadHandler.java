@@ -4,7 +4,7 @@ import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Image;
 
-public class PictureResizingLoadHandler implements LoadHandler {
+public abstract class PictureResizingLoadHandler implements LoadHandler {
 	private Image picture;
 
 	private int expectedHeight = 40;
@@ -22,10 +22,10 @@ public class PictureResizingLoadHandler implements LoadHandler {
 			return;
 		}
 
-		float ratio = height / width;
-		int newWidth = Math.round(expectedHeight / ratio);
-		picture.setHeight(expectedHeight + "px");
-		picture.setWidth(newWidth + "px");
+		doResize(width, height);
+
 		picture.setVisible(true);
 	}
+
+	protected abstract void doResize(int width, int height);
 }

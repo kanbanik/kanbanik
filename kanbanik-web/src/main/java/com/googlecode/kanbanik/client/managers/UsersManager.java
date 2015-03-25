@@ -50,9 +50,20 @@ public class UsersManager {
 			return defaultPicture;
 		}
 
-		Image picture = new Image();
+		final Image picture = new Image();
 		picture.setVisible(false);
-		picture.addLoadHandler(new PictureResizingLoadHandler(picture));
+		picture.addLoadHandler(new PictureResizingLoadHandler(picture) {
+			int expectedHeight = 40;
+			@Override
+			protected void doResize(int width, int height) {
+				picture.setHeight(expectedHeight + "px");
+				float ratio = height / width;
+				int newWidth = Math.round(expectedHeight / ratio);
+
+				picture.setHeight(expectedHeight + "px");
+				picture.setWidth(newWidth + "px");
+			}
+		});
 		picture.setUrl(user.getPictureUrl());
 		Style style = picture.getElement().getStyle();
 		style.setBorderStyle(BorderStyle.SOLID);
