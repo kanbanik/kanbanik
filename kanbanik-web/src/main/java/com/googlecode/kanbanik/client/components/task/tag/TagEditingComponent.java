@@ -6,6 +6,8 @@ public class TagEditingComponent extends BaseTagEditingComponent {
 
     @Override
     protected void edit() {
+        super.edit();
+
         name.setText(getDto().getName());
         description.setText(getDto().getDescription());
         pictureUrl.setText(getDto().getPictureUrl());

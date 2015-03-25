@@ -7,11 +7,13 @@ public class TagCreatingComponent extends BaseTagEditingComponent {
 
     @Override
     protected void edit() {
+        super.edit();
+
         name.setText("");
         description.setText("");
         pictureUrl.setText("");
         onClickUrl.setText("");
-        setColorHex("003d89");
+        setColorHex("ffffff");
     }
 
     @Override
