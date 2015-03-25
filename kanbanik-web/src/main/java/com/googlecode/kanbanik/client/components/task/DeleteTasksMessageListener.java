@@ -17,6 +17,7 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage
 import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 import static com.googlecode.kanbanik.client.api.Dtos.TasksDto;
@@ -68,8 +69,12 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
         public void okClicked(PanelContainingDialog dialog) {
             GlobalKeyListener.INSTANCE.initialize();
-
-            TasksDto tasks = DtoFactory.tasksDto(tasksDto);
+            List<TaskDto> toSend = new ArrayList<TaskDto>();
+            for (TaskDto oneTask : tasksDto) {
+                oneTask.setDescription("");
+                toSend.add(oneTask);
+            }
+            TasksDto tasks = DtoFactory.tasksDto(toSend);
             tasks.setCommandName(CommandNames.DELETE_TASK.name);
 
             ServerCaller.<TasksDto, Dtos.EmptyDto>sendRequest(
