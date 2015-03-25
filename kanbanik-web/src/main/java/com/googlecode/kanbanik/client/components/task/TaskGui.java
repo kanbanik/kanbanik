@@ -346,7 +346,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 				unregisterListeners();	
 			}
         } else if (message instanceof GetTasksByPredicateRequestMessage) {
-            if (((GetTasksByPredicateRequestMessage) message).getPredicate().match(getDto())) {
+            if (((GetTasksByPredicateRequestMessage) message).getPredicate().match(this)) {
                 MessageBus.sendMessage(new GetTasksRsponseMessage(getDto(), this));
             }
         }

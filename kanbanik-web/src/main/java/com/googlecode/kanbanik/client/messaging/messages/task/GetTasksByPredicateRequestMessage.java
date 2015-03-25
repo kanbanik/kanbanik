@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.messaging.messages.task;
 
+import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.BaseMessage;
 
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
@@ -18,6 +19,6 @@ public class GetTasksByPredicateRequestMessage extends BaseMessage<TaskDto> {
     }
 
     public static interface Predicate {
-        boolean match(TaskDto task);
+        boolean match(TaskGui task);
     }
 }

@@ -55,10 +55,19 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
     private void doSelect() {
         List<TaskDto> selectedTasks = getTasksByRequestMessage(new GetSelectedTasksRequestMessage(null, this));
         if (selectedTasks.size() == 0) {
-            MessageBus.sendMessage(ChangeTaskSelectionMessage.selectAll(this));
+            selectAllVisible();
         } else {
             selectSomeTasks(selectedTasks);
         }
+    }
+
+    private void selectAllVisible() {
+        selectByPredicate(new GetTasksByPredicateRequestMessage.Predicate() {
+            @Override
+            public boolean match(TaskGui task) {
+                return task.isVisible();
+            }
+        });
     }
 
     private void selectSomeTasks(List<TaskDto> selectedTasks) {
@@ -67,12 +76,18 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
             workflowitemIds.add(task.getWorkflowitemId());
         }
 
-        GetTasksByPredicateRequestMessage requestMessage = new GetTasksByPredicateRequestMessage(new GetTasksByPredicateRequestMessage.Predicate() {
+        selectByPredicate(new GetTasksByPredicateRequestMessage.Predicate() {
             @Override
-            public boolean match(TaskDto task) {
-                return workflowitemIds.contains(task.getWorkflowitemId());
+            public boolean match(TaskGui task) {
+                return workflowitemIds.contains(task.getDto().getWorkflowitemId())
+                        && task.isVisible()
+                        ;
             }
-        }, null, this);
+        });
+    }
+
+    private void selectByPredicate(GetTasksByPredicateRequestMessage.Predicate predicate) {
+        GetTasksByPredicateRequestMessage requestMessage = new GetTasksByPredicateRequestMessage(predicate, null, this);
 
         List<TaskDto> tasks = getTasksByRequestMessage(requestMessage);
 

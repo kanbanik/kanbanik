@@ -601,8 +601,6 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         public TaskTagFilterCheckBox(Dtos.TaskTag entity, BoardsFilter filter) {
             super(entity, filter);
             setValue(filter.isSelected(entity));
-            getElement().getStyle().setBackgroundColor(entity.getColour());
-            // todo support images
         }
 
         @Override
