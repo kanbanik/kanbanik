@@ -3,7 +3,7 @@
 
 	<ui:style>
 		.headerStyle {
-			background-color: #92c1f0;
+			background-color: #e6e9ec;
 			width: 100%;
 			height: 30px;
 			float: left;
