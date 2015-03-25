@@ -299,6 +299,13 @@ public class BoardsFilter {
         }
     }
 
+    public void deleteFromStorage(Dtos.TaskTag tag) {
+        int id = findByName(tag);
+        if (id != -1) {
+            filterDataDto.getTaskTags().remove(id);
+        }
+    }
+
     public void remove(Dtos.BoardDto boardDto) {
         int id = findById(boardDto);
         if (id != -1) {

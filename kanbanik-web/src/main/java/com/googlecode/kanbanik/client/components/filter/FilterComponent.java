@@ -411,7 +411,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     }
 
     private void removeTag(final Dtos.TaskTag tag) {
-        filterObject.remove(tag);
+        filterObject.deleteFromStorage(tag);
 
         tagsFilter.remove(new PanelWithCheckboxes.Predicate() {
             @Override
@@ -420,6 +420,8 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
                 return objEq(candidate.getName(), tag.getName());
             }
         });
+
+        filterObject.storeFilterData();
     }
 
     private boolean objEq(Object o1, Object o2) {

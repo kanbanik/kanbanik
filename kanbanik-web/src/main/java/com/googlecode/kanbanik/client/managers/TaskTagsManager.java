@@ -2,7 +2,6 @@ package com.googlecode.kanbanik.client.managers;
 
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
-import com.googlecode.kanbanik.client.components.task.DeleteTasksMessageListener;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -11,8 +10,6 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +27,9 @@ public class TaskTagsManager {
     private static Dtos.TaskTag noTag;
 
     private TaskTagsManager() {
-        AddedEditedListener addedEditedListener = new AddedEditedListener();
-        MessageBus.registerListener(TaskAddedMessage.class, addedEditedListener);
-        MessageBus.registerListener(TaskEditedMessage.class, addedEditedListener);
+        AddedOrEditedListener addedOrEditedListener = new AddedOrEditedListener();
+        MessageBus.registerListener(TaskAddedMessage.class, addedOrEditedListener);
+        MessageBus.registerListener(TaskEditedMessage.class, addedOrEditedListener);
         MessageBus.registerListener(TaskDeletedMessage.class, new RemovedListener());
     }
 
@@ -154,7 +151,7 @@ public class TaskTagsManager {
             }
         }
 
-    class AddedEditedListener implements MessageListener<Dtos.TaskDto> {
+    class AddedOrEditedListener implements MessageListener<Dtos.TaskDto> {
 
         public void messageArrived(Message<Dtos.TaskDto> message) {
             if (message == null || message.getPayload() == null) {
@@ -208,7 +205,7 @@ public class TaskTagsManager {
         this.listener = listener;
     }
 
-    public static interface TagsChangedListener {
+    public interface TagsChangedListener {
         void added(Dtos.TaskTag tag);
         void removed(Dtos.TaskTag tag);
     }
