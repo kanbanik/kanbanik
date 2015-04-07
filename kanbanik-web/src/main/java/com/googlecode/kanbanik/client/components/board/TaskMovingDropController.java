@@ -23,16 +23,18 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
 public class TaskMovingDropController extends FlowPanelDropController {
 
+	private final Dtos.BoardDto board;
 	private Dtos.WorkflowitemDto workflowitem;
 	private final Dtos.ProjectDto project;
 	private final TaskContainer taskContainer;
     private PickupDragController dragController;
 
-	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project, PickupDragController dragController) {
+	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project, Dtos.BoardDto board, PickupDragController dragController) {
 		super(dropTarget.asFlowPanel());
 		taskContainer = dropTarget;
 		this.workflowitem = workflowitem;
 		this.project = project;
+		this.board = board;
         this.dragController = dragController;
 	}
 
@@ -53,6 +55,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		
 		task.getDto().setWorkflowitemId(workflowitem.getId());
 		task.getDto().setProjectId(project.getId());
+		task.getDto().setBoardId(board.getId());
 		
 		TaskDto prevTask = null;
 		TaskDto nextTask = null;

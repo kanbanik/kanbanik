@@ -98,7 +98,7 @@ public class BoardGuiBuilder {
             Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
         TaskContainer taskContainer = new TaskContainer(board, currentItem);
         DropController dropController = new TaskMovingDropController(
-                taskContainer, currentItem, project, dragController);
+                taskContainer, currentItem, project, board, dragController);
         dragController.registerDropController(dropController);
         return taskContainer;
     }
