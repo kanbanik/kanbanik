@@ -6,14 +6,17 @@
 			min-width: 140px;
             width: 100%;
 			min-height: 45px;
+
 		}
 
         .inWip {
             background-color: #f5faff;
+			margin-top: -2px;
         }
 
         .wipOverrun {
             background-color: #ef8686;
+			margin-top: -2px;
         }
 
 		.defaultContantPanelStyle {

@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikProgressBar;
@@ -92,7 +93,9 @@ public class BoardsModule {
 	}
 
 	private Widget buildBoard(Dtos.BoardsWithProjectsDto result) {
+		AbsolutePanel boardsPanelWrapper = new AbsolutePanel();
 	    BoardsPanel panel = new BoardsPanel();
+		boardsPanelWrapper.add(panel);
 		panel.getElement().setId("boards");
 
 		List<Dtos.BoardWithProjectsDto> boardsWithProjects = result.getValues();
@@ -100,35 +103,36 @@ public class BoardsModule {
 		if (boardsWithProjects == null || boardsWithProjects.size() == 0) {
 			createNoBoardsPanel(panel);
 		} else {
-			createBoardsPanel(panel, boardsWithProjects);
+			createBoardsPanel(panel, boardsPanelWrapper, boardsWithProjects);
 		}
 
-		return panel;
+		return boardsPanelWrapper;
 	}
 
 	private void createBoardsPanel(BoardsPanel panel,
-			List<Dtos.BoardWithProjectsDto> boardsWithProjects) {
+								   AbsolutePanel boardsPanelWrapper, List<Dtos.BoardWithProjectsDto> boardsWithProjects) {
 		BoardGuiBuilder boardBuilder = new BoardGuiBuilder();
+		boardsPanelWrapper.addDomHandler(new ClickHandler() {
+
+			public void onClick(ClickEvent event) {
+				MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
+			}
+		}, ClickEvent.getType());
+
+		PickupDragController dragController = new PickupDragController(
+				boardsPanelWrapper, false);
+
+		dragController.setBehaviorMultipleSelection(true);
+		dragController.setBehaviorDragStartSensitivity(3);
+		dragController.setBehaviorCancelDocumentSelections(true);
+
 		for (Dtos.BoardWithProjectsDto boardWithProjects : boardsWithProjects) {
 			Dtos.BoardDto board = boardWithProjects.getBoard();
 
 			FlexTable boardTable = new FlexTable();
-			AbsolutePanel panelWithDraggabls = new AbsolutePanel();
-			panelWithDraggabls.addDomHandler(new ClickHandler() {
-				
-				public void onClick(ClickEvent event) {
-					MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
-				}
-			}, ClickEvent.getType());
-			
-			PickupDragController dragController = new PickupDragController(
-					panelWithDraggabls, false);
+			AbsolutePanel projects = new AbsolutePanel();
 
-            dragController.setBehaviorMultipleSelection(true);
-            dragController.setBehaviorDragStartSensitivity(3);
-            dragController.setBehaviorCancelDocumentSelections(true);
-
-			panelWithDraggabls.add(boardTable);
+			projects.add(boardTable);
 			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard() != null ? boardWithProjects.getProjectsOnBoard().getValues() : null;
 			if (projectsOnBoard == null || projectsOnBoard.size() == 0) {
 				addNoProjects(boardTable);
@@ -136,7 +140,7 @@ public class BoardsModule {
 				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
 			}
 
-			panel.addBoard(new BoardPanel(panelWithDraggabls, board));
+			panel.addBoard(new BoardPanel(projects, board));
 
 		}
 	}

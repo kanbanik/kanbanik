@@ -3,16 +3,16 @@
 
 	<ui:style>
 		.boardStyle {
-			border: 1px solid black;
+			border: 3px solid #e6e9ec;
 			margin-bottom: 15px;
+			border-radius: 4px;
 		}
 		
 		.boardLabelStyle {
-			background-color: #92c1f0;
+			background-color: #e6e9ec;
 			text-align: center;
 			font-weight: bold;
 			font-size: 17px;
-            margin-bottom: 1px;
 		}
 
 	</ui:style>

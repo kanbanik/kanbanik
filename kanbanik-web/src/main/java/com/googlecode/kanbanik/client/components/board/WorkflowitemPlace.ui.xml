@@ -9,10 +9,9 @@
 		
 		.headerPanel {
 			text-align: center;
-			background-color: #e6e9ec;
+			background-color: #f5faff;
 			font-weight: bold;
             margin-top: 2px;
-            margin-bottom: -2px;
             border-top-right-radius: 3px;
             border-top-left-radius: 3px;
 		}

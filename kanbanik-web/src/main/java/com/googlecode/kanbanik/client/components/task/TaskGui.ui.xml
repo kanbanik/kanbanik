@@ -34,9 +34,11 @@
 		
 		.mainPanel {
 			border-style: solid; 
-			border-width: 2px;
-			align: right;
+			border-width: 1px;
 			margin-bottom: 4px;
+			border-color: black;
+			margin-right: 6px;
+			margin-left: 6px;
 			border-radius: 3px;
             width: 140px;
 		}
@@ -77,6 +79,10 @@
 		.mainSectionContent {
 			width: 100%;
 			overflow: hidden;
+			position: relative;
+			top: -1px;
+			padding-left: 2px;
+			padding-bottom: 2px;
 		}
 		
 		

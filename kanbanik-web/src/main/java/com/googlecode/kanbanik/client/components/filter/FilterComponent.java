@@ -6,6 +6,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
@@ -73,12 +74,22 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     @UiField
     CheckBox activateFilter;
 
+
+
     private BoardsFilter filterObject;
 
     public FilterComponent() {
         fullTextFilter = new FullTextMatcherFilterComponent("Contains Text");
 
         initWidget(uiBinder.createAndBindUi(this));
+
+        try {
+            com.google.gwt.dom.client.Element tr = disclosurePanel.getHeader().getElement().getFirstChildElement().getFirstChildElement();
+            com.google.gwt.dom.client.Element labelTd = tr.getFirstChildElement().getNextSiblingElement();
+            labelTd.getStyle().setColor("#f4faff");
+        } catch (Exception e) {
+//            quite risky operation only for changing the color of a label - if it will fail than it is better to ignore it and leave the black there and continue than fail the whole app
+        }
 
         activateFilter.setText(FILTERS_ACTIVE);
 

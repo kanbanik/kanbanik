@@ -7,12 +7,21 @@
 
         .mainContainer {
             width: 100%;
+            margin-bottom: 4px;
+
+        }
+
+        .disclosurePanel, .disclosurePanelHeader {
+            color: #f4faff;
         }
 
         .disclosurePanel {
             width: 100%;
         }
 
+        .activeFilterCheckboxStyle, .headerStyleName {
+            color: #f4faff;
+        }
 
         .filtersRow, .filterBox {
             display: flex;
@@ -59,10 +68,13 @@
 
     <g:FlowPanel addStyleNames="{style.mainContainer}">
         <g:FlowPanel>
-            <g:CheckBox ui:field="activateFilter"/>
+            <g:CheckBox ui:field="activateFilter" addStyleNames="{style.activeFilterCheckboxStyle}"/>
         </g:FlowPanel>
         <g:DisclosurePanel ui:field="disclosurePanel" addStyleNames="{style.disclosurePanel}">
             <g:header>Filters</g:header>
+            <!--<g:customHeader>-->
+                <!--<g:Label addStyleNames="{style.disclosurePanelHeader}">Filtering</g:Label>-->
+            <!--</g:customHeader>-->
 
             <g:FlowPanel addStyleNames="{style.filterBox}">
                 <g:FlowPanel addStyleNames="{style.filtersRow}">

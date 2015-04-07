@@ -4,11 +4,14 @@
 	<ui:style>
 		.loginModuleStyle {
 			border-style: 1px solid black;
-			width: 220px;
+			width: 300px;
 			position: absolute;
-			top: 45%;
+			top: 40%;
 			left: 45%;
-			border: 1px solid black;			
+			border: 1px solid black;
+			background-color: #e6e9ec;
+			border-radius: 4px;
+			padding: 18px;
 		}
 		
 		

@@ -41,6 +41,30 @@ body {
 	overflow: auto;
 }
 
+.gwt-TabBar {
+  position: absolute !important;;
+  top: 13px !important;;
+}
+
+.gwt-TabBarItem, .gwt-TabBarItem-selected {
+	width: 130px !important;;
+	border-top-right-radius: 3px !important;;
+    border-top-left-radius: 3px !important;;
+    background-color: #e6e9ec !important;;
+}
+
+.gwt-DisclosurePanel {
+	color: f5faff !important;
+}
+
+.gwt-TabPanelBottom {
+	border-style: none !important;;
+}
+
+.gwt-TabBarItem-selected {
+		background-color: #d4d6d9 !important;;
+}
+
 .gwt-TabBarItem {
 	width: 130px;
 }
@@ -56,6 +80,7 @@ body {
 .gwt-TabBarRest-wrapper {
 	width: 100%;
 }
+
 
 .task-class-of-service {
 }

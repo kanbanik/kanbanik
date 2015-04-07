@@ -3,19 +3,46 @@
 
 	<ui:style>
 		.mainPanel {
-			float: left;
-            margin-right: 5px;
+			margin-right: 5px;
+			background-color: #e6e9ec;
+			width: 100%;
+			height: 100%;
+			display: inline-block;
+			margin-left: -3px;
+			margin-top: -2px;
 		}
 		
 		.projectNameLabel {
 			font-weight: bold;
-			padding-bottom: 3px;
+			color: #f5faff;
+			writing-mode: tb-rl;
+			-webkit-transform: rotate(90deg);
+			-moz-transform: rotate(90deg);
+			-o-transform: rotate(90deg);
+			-ms-transform: rotate(90deg);
+			transform: rotate(90deg);
+			white-space: nowrap;
+			display: block;
+			bottom: 0;
+			width: 17px;
+			float: left;
+			margin-top: 30px;
+		}
+
+		.addButtonStyle {
+			width: 100%;
+			height: 10px;
+			vertical-align: middle;
+			text-align: center;
+			margin-right: 2px;
+			position: relative;
+			top: -42px;
 		}
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.mainPanel}">
 		<g:Label ui:field="projectName" addStyleNames="{style.projectNameLabel}"/>
-		<g:PushButton styleName="imageButtonStyle" ui:field="addButton" text="Add Task" title="Add Task" />
+		<g:PushButton styleName="{style.addButtonStyle}" ui:field="addButton" text="Add Task" title="Add Task" />
 	</g:FlowPanel>
 
 </ui:UiBinder>
