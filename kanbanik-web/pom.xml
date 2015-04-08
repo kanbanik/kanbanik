@@ -110,11 +110,11 @@
 			<version>${atmosphere-gwt.version}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlets</artifactId>
 			<version>9.2.5.v20141112</version>
-		</dependency>
+		</dependency-->
 
 	</dependencies>
 
