@@ -76,6 +76,7 @@ public abstract class AbstractTaskEditingComponent {
     private Dtos.BoardDto board;
 
     private boolean inited = false;
+    private Dtos.BoardDto boardDto;
 
     public AbstractTaskEditingComponent(HasClickHandlers clickHandler, Dtos.BoardDto board) {
         this.name = "Task Details";
@@ -352,6 +353,10 @@ public abstract class AbstractTaskEditingComponent {
     }
 
     protected abstract String getDueDate();
+
+    public void setBoardDto(Dtos.BoardDto boardDto) {
+        this.board = boardDto;
+    }
 
     class ShowDialogHandler implements ClickHandler {
 

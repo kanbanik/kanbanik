@@ -1,31 +1,43 @@
 package com.googlecode.kanbanik.client.components.filter;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
+import com.googlecode.kanbanik.client.components.common.DataCollector;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.TaskTagsManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
-import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
-import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetBoardsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class FilterComponent extends Composite implements ModulesLifecycleListener, BoardsFilter.NumOfHiddenFieldsChangedListener {
 
@@ -361,7 +373,12 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         MessageBus.unregisterListener(GetAllBoardsResponseMessage.class, boardsCollector);
         MessageBus.registerListener(GetAllBoardsResponseMessage.class, boardsCollector);
         boardsCollector.init();
-        MessageBus.sendMessage(new GetAllBoardsRequestMessage(null, this));
+        MessageBus.sendMessage(new GetBoardsRequestMessage(null, new GetBoardsRequestMessage.Filter() {
+            @Override
+            public boolean apply(Dtos.BoardDto boardDto) {
+                return true;
+            }
+        }, this));
 
         List<Dtos.BoardDto> boards = boardsCollector.getData();
         List<Dtos.BoardDto> shallowBoards = new ArrayList<Dtos.BoardDto>();
@@ -495,23 +512,6 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             projectOnBoardFilter.add(new ProjectOnBoardFilterCheckBox(boardWithProjectDtos, filterObject));
         }
      }
-
-    class DataCollector<T> implements MessageListener<T> {
-
-        private List<T> data;
-
-        public void messageArrived(Message<T> message) {
-            data.add(message.getPayload());
-        }
-
-        public void init() {
-            data = new ArrayList<T>();
-        }
-
-        public List<T> getData() {
-            return data;
-        }
-    }
 
     class UserFilterCheckBox extends FilterCheckBox<Dtos.UserDto> {
 

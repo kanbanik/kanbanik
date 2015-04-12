@@ -33,10 +33,19 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
     )
 
     val newOrder = calculateNewOrder(params)
-    val toStore = oldTask.copy(order = newOrder, projectId = newTask.projectId, workflowitemId = newTask.workflowitemId)
-    val resTask = toStore.store()
-    Left(taskBuilder.buildDto(resTask))
 
+    val toStore = oldTask.copy(order = newOrder, projectId = newTask.projectId, workflowitemId = newTask.workflowitemId)
+
+    val resTask = if (newTask.boardId == oldTask.boardId) {
+      toStore.store
+    } else {
+      // task was moved to a different board
+      oldTask.delete(oldTask.boardId)
+
+      toStore.copy(id = None, boardId = newTask.boardId).store
+    }
+
+    Left(taskBuilder.buildDto(resTask))
   }
   
   

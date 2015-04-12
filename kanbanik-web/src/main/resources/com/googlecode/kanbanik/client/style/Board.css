@@ -2,8 +2,6 @@
 	height: 100%;
 	width: 100%;
 	display: inline-table;
-	margin: -5px;
-	border-spacing: 1px;
 }
 
 #boards table, #boards tr, #boards td {
@@ -14,4 +12,5 @@
     padding-top: 0px;
     margin-top: 0px;
     padding-bottom: 0px;
+    border-spacing: 0px;
 }

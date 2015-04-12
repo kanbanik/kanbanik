@@ -23,6 +23,7 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.common.DataCollector;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.components.task.tag.TagResizingPictureLoadHandler;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
@@ -31,6 +32,8 @@ import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetBoardsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.*;
 import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectionMessage.ChangeTaskSelectionParams;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
@@ -83,6 +86,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private DragController dragController;
 
+	private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
+
 	@UiField
 	Style style;
 	
@@ -123,7 +128,9 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private Dtos.BoardDto boardDto;
 
-    public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto, DragController dragController) {
+	private TaskEditingComponent taskEditingComponent;
+
+	public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto, DragController dragController) {
         this.dragController = dragController;
 
         nameLabelTextArea = new TextArea();
@@ -145,7 +152,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 
-		new TaskEditingComponent(this, editButton, boardDto);
+		taskEditingComponent = new TaskEditingComponent(this, editButton, boardDto);
 		new TaskDeletingComponent(this, deleteButton);
 
         wholePanel.addClickHandler(this);
@@ -167,7 +174,6 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
             nameLabel.getElement().getStyle().setDisplay(Display.NONE);
             nameLabelTextArea.getElement().getStyle().setDisplay(Display.BLOCK);
         }
-
 
 		boolean showingPictureEnabled = boardDto.isShowUserPictureEnabled();
 		boolean hasAssignee = taskDto.getAssignee() != null;
@@ -288,7 +294,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	    long diff = day1 - day2;
 	    
 	    if (diff < 0) {
-	    	dueDateLabel.setTitle("Due date deadline ("+dueDateText+") is already missed!");
+	    	dueDateLabel.setTitle("Due date deadline (" + dueDateText + ") is already missed!");
 	    	dueDateLabel.setHTML(TEMPLATE.messageWithLink(style.missedStyle(), "missed!"));
 	    	return;
 	    }
@@ -361,6 +367,33 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		TaskDto payload = message.getPayload();
 		if (payload.getId().equals(taskDto.getId())) {
 			this.taskDto = payload;
+			if (message instanceof TaskChangedMessage) {
+				final String newId = ((TaskChangedMessage) message).getNewId();
+
+				if (newId != null) {
+					// this means it has been moved to a different board
+					taskDto.setId(newId);
+
+					MessageBus.unregisterListener(GetAllBoardsResponseMessage.class, boardsCollector);
+					MessageBus.registerListener(GetAllBoardsResponseMessage.class, boardsCollector);
+					boardsCollector.init();
+					MessageBus.sendMessage(new GetBoardsRequestMessage(null, new GetBoardsRequestMessage.Filter() {
+						@Override
+						public boolean apply(Dtos.BoardDto boardDto) {
+							return taskDto.getBoardId().equals(boardDto.getId());
+						}
+					}, this));
+
+					List<Dtos.BoardDto> boards = boardsCollector.getData();
+					if (boards.size() != 1) {
+						// todo handle somehow this error case
+					}
+
+					boardDto = boards.iterator().next();
+					taskEditingComponent.setBoardDto(boardDto);
+
+				}
+			}
 			setupAccordingDto(payload);
             reevaluateFilter();
 		}		

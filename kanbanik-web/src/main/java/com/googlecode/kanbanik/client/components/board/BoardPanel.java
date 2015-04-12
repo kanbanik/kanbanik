@@ -10,13 +10,11 @@ import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
-import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsRequestMessage;
+import com.googlecode.kanbanik.client.messaging.messages.board.GetBoardsRequestMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.GetAllBoardsResponseMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
-
-import java.util.List;
 
 public class BoardPanel extends Composite implements ModulesLifecycleListener, MessageListener<Dtos.BoardDto> {
 	
@@ -42,7 +40,7 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 		
 		boardName.setText(boardDto.getName());
 
-        MessageBus.registerListener(GetAllBoardsRequestMessage.class, this);
+        MessageBus.registerListener(GetBoardsRequestMessage.class, this);
         MessageBus.registerListener(FilterChangedMessage.class, filterChangedListener);
 
         new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
@@ -50,8 +48,8 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 
     @Override
     public void activated() {
-        if (!MessageBus.listens(GetAllBoardsRequestMessage.class, this)) {
-            MessageBus.registerListener(GetAllBoardsRequestMessage.class, this);
+        if (!MessageBus.listens(GetBoardsRequestMessage.class, this)) {
+            MessageBus.registerListener(GetBoardsRequestMessage.class, this);
         }
 
         if (!MessageBus.listens(FilterChangedMessage.class, filterChangedListener)) {
@@ -61,13 +59,17 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 
     @Override
     public void deactivated() {
-        MessageBus.unregisterListener(GetAllBoardsRequestMessage.class, this);
+        MessageBus.unregisterListener(GetBoardsRequestMessage.class, this);
         MessageBus.unregisterListener(FilterChangedMessage.class, filterChangedListener);
     }
 
     @Override
     public void messageArrived(Message<Dtos.BoardDto> message) {
-        MessageBus.sendMessage(new GetAllBoardsResponseMessage(boardDto, this));
+        if (message instanceof GetBoardsRequestMessage) {
+            if (((GetBoardsRequestMessage) message).getFilter().apply(boardDto)) {
+                MessageBus.sendMessage(new GetAllBoardsResponseMessage(boardDto, this));
+            }
+        }
     }
 
     class FilterChangedListener implements MessageListener<BoardsFilter> {

@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
-import com.allen_sauer.gwt.dnd.client.DragController;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -89,7 +88,7 @@ public class BoardGuiBuilder {
 			table.addStyleName("not-balanced-table");
 		}
 		
-		table.getElement().getStyle().setBackgroundColor("#141517");
+		table.getElement().getStyle().setProperty("background", "#2e2e2e url(background.png)");
 		table.setWidth("100%");
 	}
 

@@ -130,6 +130,7 @@ public class BoardsModule {
 			Dtos.BoardDto board = boardWithProjects.getBoard();
 
 			FlexTable boardTable = new FlexTable();
+			boardTable.getElement().getStyle().setProperty("borderSpacing", "0px");
 			AbsolutePanel projects = new AbsolutePanel();
 
 			projects.add(boardTable);

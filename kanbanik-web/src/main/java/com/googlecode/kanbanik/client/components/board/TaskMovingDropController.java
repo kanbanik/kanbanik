@@ -52,6 +52,9 @@ public class TaskMovingDropController extends FlowPanelDropController {
 	private void notifyDropped(final TaskGui task) {
 		final String prevWorkflowitem = task.getDto().getWorkflowitemId();
 		final String prevProject = task.getDto().getProjectId();
+		final String prevBoard = board.getId();
+		// in case moved to a different board it will get a new ID
+		final String prevId = task.getDto().getId();
 		
 		task.getDto().setWorkflowitemId(workflowitem.getId());
 		task.getDto().setProjectId(project.getId());
@@ -86,7 +89,11 @@ public class TaskMovingDropController extends FlowPanelDropController {
 
                     @Override
                     public void success(TaskDto response) {
-                        MessageBus.sendMessage(new TaskChangedMessage(response, TaskMovingDropController.this));
+						// needed so the listeners will find out that is is about this particular task
+						String newId = response.getId();
+						response.setId(prevId);
+
+						MessageBus.sendMessage(new TaskChangedMessage(response, newId, TaskMovingDropController.this));
                         dragController.toggleSelection(task);
                     }
 
@@ -96,6 +103,8 @@ public class TaskMovingDropController extends FlowPanelDropController {
                         // TODO move the item really back to its prev place
                         task.getDto().setWorkflowitemId(prevWorkflowitem);
                         task.getDto().setProjectId(prevProject);
+						task.getDto().setProjectId(prevProject);
+						task.getDto().setBoardId(prevBoard);
 
                         MessageBus.sendMessage(new TaskChangedMessage(task.getDto(), TaskMovingDropController.this));
                     }

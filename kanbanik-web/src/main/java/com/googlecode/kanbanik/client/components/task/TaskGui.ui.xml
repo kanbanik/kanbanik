@@ -81,7 +81,6 @@
 			overflow: hidden;
 			position: relative;
 			top: -1px;
-			padding-left: 2px;
 			padding-bottom: 2px;
 		}
 		
