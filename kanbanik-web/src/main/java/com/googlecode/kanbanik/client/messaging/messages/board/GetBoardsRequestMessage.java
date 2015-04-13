@@ -9,6 +9,7 @@ public class GetBoardsRequestMessage extends BaseMessage<Dtos.BoardDto> {
 
 	public GetBoardsRequestMessage(Dtos.BoardDto payload, Filter filter, Object source) {
 		super(payload, source);
+		this.filter = filter;
 	}
 
 	public Filter getFilter() {
