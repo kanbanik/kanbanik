@@ -89,6 +89,7 @@ public class BoardGuiBuilder {
 		}
 		
 		table.getElement().getStyle().setProperty("background", "#2e2e2e url(background.png)");
+
 		table.setWidth("100%");
 	}
 

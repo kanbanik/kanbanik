@@ -165,6 +165,8 @@ public class BoardsModule {
             boardTable.setWidget(row, 0, projectHeader);
 			FlexTable projectTable = new ProjectGui(board, project, projectHeader);
 			projectTable.setStyleName(style.board());
+			projectTable.getElement().getStyle().setProperty("paddingBottom", "2px");
+			projectTable.getElement().getStyle().setProperty("marginLeft", "-3px");
 			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
 			if (hasWorkflow) {
 				boardBuilder.buildBoard(

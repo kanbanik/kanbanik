@@ -6,6 +6,7 @@
 			border: 3px solid #e6e9ec;
 			margin-bottom: 15px;
 			border-radius: 4px;
+			padding-right: 2px;
 		}
 		
 		.boardLabelStyle {
@@ -13,6 +14,7 @@
 			text-align: center;
 			font-weight: bold;
 			font-size: 17px;
+			margin-right: -2px;
 		}
 
 	</ui:style>

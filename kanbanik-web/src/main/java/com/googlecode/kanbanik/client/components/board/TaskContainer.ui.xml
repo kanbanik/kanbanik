@@ -11,12 +11,10 @@
 
         .inWip {
             background-color: #f5faff;
-			margin-top: -2px;
         }
 
         .wipOverrun {
             background-color: #ef8686;
-			margin-top: -2px;
         }
 
 		.defaultContantPanelStyle {
