@@ -14,7 +14,18 @@
 		.tagStyle {
 			border: 1px solid black;
 			border-radius: 3px;
+                        imargin-top: 1px;
+                        margin-bottom: 1px;
 		}
+
+                .tagLabelStyle {
+                       margin-left: 1px;
+                }
+
+                .tagImageStyle {
+                    border: 1px solid black;
+                    border-radius: 4px;
+                }
 
 		.selected {
 			border: 2px solid #92C1F0;
@@ -123,10 +134,15 @@
             background-color: transparent;
         }
 
+        .tagsPanelStyle {
+           padding-left: 4px;
+           padding-right: 3px; 
+        }
+
 	</ui:style>
 
 	<g:FocusPanel ui:field="wholePanel" addStyleNames="{style.unselected}">
-		<g:FlowPanel addStyleNames="{style.mainPanel}">
+		<g:FlowPanel addStyleNames="{style.mainPanel}" ui:field="mainPanel">
 			<g:FlowPanel addStyleNames="{style.headrHolder}">
 				<g:FocusPanel addStyleNames="{style.headerStyle}" ui:field="header">
 					<g:FlowPanel addStyleNames="{style.headerContentStyle}">
@@ -161,7 +177,7 @@
 				</table>
 			</g:HTMLPanel>
 
-			<g:FlowPanel ui:field="tagsPanel"/>
+			<g:FlowPanel ui:field="tagsPanel" addStyleNames="{style.tagsPanelStyle}"/>
 		</g:FlowPanel>
 </g:FocusPanel>
 

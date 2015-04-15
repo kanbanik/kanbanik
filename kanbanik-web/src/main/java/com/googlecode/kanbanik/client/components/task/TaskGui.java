@@ -72,6 +72,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	@UiField
 	FocusPanel wholePanel;
 
+	@UiField
+	FlowPanel mainPanel;
+
+
     @UiField
     HTMLPanel contentContainer;
 
@@ -120,6 +124,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		String missedStyle();
 
 		String tagStyle();
+
+                String tagLabelStyle();
+
+                String tagImageStyle();
 	}
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
@@ -164,6 +172,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		header.setStyleName("task-class-of-service");
 		header.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
         contentContainer.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
+                mainPanel.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
@@ -226,11 +235,14 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		if (pictureUrl == null || "".equals(pictureUrl)) {
 			FlowPanel tagPanel = new FlowPanel();
 			tagPanel.addStyleName(style.tagStyle());
-			tagPanel.add(new Label(tag.getName()));
+                        Label tagLabel = new Label(tag.getName());
+                        tagLabel.addStyleName(style.tagLabelStyle());
+			tagPanel.add(tagLabel);
 			res = tagPanel;
 		} else {
 			final Image tagImage = new Image();
 			tagImage.setVisible(false);
+                        tagImage.addStyleName(style.tagImageStyle());
 			tagImage.addLoadHandler(new TagResizingPictureLoadHandler(tagImage));
 
 			tagImage.setUrl(pictureUrl);

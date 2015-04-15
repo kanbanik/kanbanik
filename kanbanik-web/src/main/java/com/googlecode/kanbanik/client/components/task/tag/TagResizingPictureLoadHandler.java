@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
 
 public class TagResizingPictureLoadHandler extends PictureResizingLoadHandler {
 
-    private int maxWidth = 140;
+    private int maxWidth = 130;
 
     private Image picture;
 
