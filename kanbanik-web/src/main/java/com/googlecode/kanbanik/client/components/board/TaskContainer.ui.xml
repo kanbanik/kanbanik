@@ -15,6 +15,7 @@
 
         .wipOverrun {
             background-color: #ef8686;
+			padding-top: 5px;
         }
 
 		.defaultContantPanelStyle {
