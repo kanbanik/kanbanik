@@ -12,11 +12,15 @@ public class TagEditingComponent extends BaseTagEditingComponent {
         description.setText(getDto().getDescription());
         pictureUrl.setText(getDto().getPictureUrl());
         onClickUrl.setText(getDto().getOnClickUrl());
-        setColorHex(getDto().getColour());
+        setColor(getDto().getColour());
     }
 
     @Override
     public void okClicked(PanelContainingDialog dialog) {
+        if (!validate()) {
+            return;
+        }
+
         getParentWidget().editItem(doFlush(getDto()));
         super.okClicked(dialog);
     }

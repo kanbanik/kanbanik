@@ -13,11 +13,15 @@ public class TagCreatingComponent extends BaseTagEditingComponent {
         description.setText("");
         pictureUrl.setText("");
         onClickUrl.setText("");
-        setColorHex("ffffff");
+        setColor(TagConstants.predefinedColors.get(TagConstants.TRANSPARENT_INDEX));
     }
 
     @Override
     public void okClicked(PanelContainingDialog dialog) {
+        if (!validate()) {
+            return;
+        }
+
         getParentWidget().addNewItem(doFlush(DtoFactory.taskTag()));
         super.okClicked(dialog);
     }

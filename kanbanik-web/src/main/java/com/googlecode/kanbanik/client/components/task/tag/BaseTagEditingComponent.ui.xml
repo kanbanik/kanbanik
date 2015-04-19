@@ -2,11 +2,25 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:c='urn:import:com.googlecode.kanbanik.client.components.common'>
 
+    <ui:style>
+        .requiredFieldStyle {
+            padding-left: 5px;
+            padding-top: 5px;
+            text-align: right;
+        }
+
+        .warningMessage {
+            font-weight: bold;
+            color: red;
+        }
+
+    </ui:style>
+
    <g:FlowPanel>
         <g:Grid>
             <g:row>
                 <g:customCell>
-                    <g:Label text="Name: "/>
+                    <g:Label text="Name(*): "/>
                 </g:customCell>
                 <g:customCell>
                     <g:TextBox ui:field="name" />
@@ -56,11 +70,18 @@
                     <g:Label text="Color: "/>
                 </g:customCell>
                 <g:customCell>
-                    <c:ColorPickerComponent ui:field="colorPickerComponent" />
+                    <g:FlowPanel>
+                        <g:ListBox ui:field="colorListBox"/>
+                        <c:ColorPickerComponent ui:field="colorPickerComponent" />
+                    </g:FlowPanel>
                 </g:customCell>
             </g:row>
 
         </g:Grid>
+
+       <g:Label addStyleNames="{style.requiredFieldStyle}" text="(*): required field" />
+
+       <g:Label addStyleNames="{style.warningMessage}" ui:field="warningMessage" text="The username field must not be emtpy!"/>
 
     </g:FlowPanel>
 

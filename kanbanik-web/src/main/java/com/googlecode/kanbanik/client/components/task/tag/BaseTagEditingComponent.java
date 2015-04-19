@@ -1,11 +1,11 @@
 package com.googlecode.kanbanik.client.components.task.tag;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -20,6 +20,8 @@ import com.googlecode.kanbanik.client.components.ListBoxWithAddEditDelete;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.common.ColorPickerComponent;
 import com.googlecode.kanbanik.client.components.common.PicturePreviewHandler;
+
+import static com.googlecode.kanbanik.client.components.task.tag.TagConstants.*;
 
 public abstract class BaseTagEditingComponent extends Composite implements Component<Dtos.TaskTag>,PanelContainingDialog.PanelContainingDialolgListener, ClickHandler {
 
@@ -40,6 +42,9 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     TextBox onClickUrl;
 
     @UiField
+    ListBox colorListBox;
+
+    @UiField
     ColorPickerComponent colorPickerComponent;
 
     @UiField
@@ -51,19 +56,15 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     @UiField
     Label picturePreviewLabel;
 
+    @UiField
+    Label warningMessage;
+
     private Dtos.TaskTag dto;
 
     interface MyUiBinder extends
         UiBinder<Widget, BaseTagEditingComponent> {
     }
 
-    public interface ButtonTemplate extends SafeHtmlTemplates {
-        @Template("<div style=\"width: 20px; height: 15px; background-color:#{0}\"/>")
-        SafeHtml buttonColour(String colour);
-    }
-
-    private static final ButtonTemplate template = GWT
-            .create(ButtonTemplate.class);
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
     public BaseTagEditingComponent() {
@@ -75,7 +76,27 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
         dialog = new PanelContainingDialog(title, this, name);
         dialog.addListener(this);
         clickHandler.addClickHandler(this);
+
+        for (String color: predefinedColors) {
+            colorListBox.addItem(color);
+        }
+
+        colorListBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                boolean customColorPicked = customColorPicked();
+                colorPickerComponent.setVisible(customColorPicked);
+                if (customColorPicked) {
+                    // reinit it to be rendered properly
+                    colorPickerComponent.setColor(colorPickerComponent.getColor());
+                }
+            }
+        });
         colorPickerComponent.init();
+    }
+
+    private boolean customColorPicked() {
+        return colorListBox.getSelectedIndex() == CUSTOM_INDEX;
     }
 
     @Override
@@ -90,6 +111,7 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     @Override
     public void onClick(ClickEvent event) {
         dialog.center();
+        warningMessage.setVisible(false);
         edit();
 
         new PicturePreviewHandler(pictureUrl, picturePreview, picturePreviewLabel, picturePreviewErrorLabel).initialize();
@@ -112,13 +134,30 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
         taskTag.setDescription(description.getText());
         taskTag.setPictureUrl(pictureUrl.getText());
         taskTag.setOnClickUrl(onClickUrl.getText());
-        taskTag.setColour(colorPickerComponent.getColor());
+        if (customColorPicked()) {
+            taskTag.setColour(colorPickerComponent.getColor());
+        } else {
+            taskTag.setColour(predefinedColors.get(colorListBox.getSelectedIndex()));
+        }
+
         taskTag.setOnClickTarget("".equals(onClickUrl.getText()) ? Dtos.TagClickTarget.NONE.getId() : Dtos.TagClickTarget.NEW_WINDOW.getId());
         return taskTag;
     }
 
-    protected void setColorHex(String color) {
-        colorPickerComponent.setColor(color);
+    protected void setColor(String color) {
+        if (color == null || "".equals(color)) {
+            colorListBox.setSelectedIndex(TRANSPARENT_INDEX);
+            colorPickerComponent.setVisible(false);
+        } else if (predefinedColors.contains(color)) {
+            int index = predefinedColors.indexOf(color);
+            colorListBox.setSelectedIndex(index);
+            if (index == TRANSPARENT_INDEX) {
+                colorPickerComponent.setVisible(false);
+            }
+        } else {
+            colorListBox.setSelectedIndex(CUSTOM_INDEX);
+            colorPickerComponent.setColor(color);
+        }
     }
 
     public ListBoxWithAddEditDelete<Dtos.TaskTag> getParentWidget() {
@@ -129,4 +168,14 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     public void okClicked(PanelContainingDialog dialog) {
         dialog.close();
     }
+
+    protected boolean validate() {
+        String nameStr = name.getText();
+        boolean valid = nameStr == null || "".equals(nameStr);
+
+        warningMessage.setVisible(valid);
+
+        return !valid;
+    }
+
 }

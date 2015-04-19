@@ -27,7 +27,6 @@ import com.googlecode.kanbanik.client.components.common.DataCollector;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.components.task.tag.TagResizingPictureLoadHandler;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
-import com.googlecode.kanbanik.client.managers.PictureResizingLoadHandler;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -39,6 +38,8 @@ import com.googlecode.kanbanik.client.messaging.messages.task.ChangeTaskSelectio
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
+
+import static com.googlecode.kanbanik.client.components.task.tag.TagConstants.*;
 
 public class TaskGui extends Composite implements MessageListener<TaskDto>, ModulesLifecycleListener, ClickHandler {
 
@@ -125,9 +126,11 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 		String tagStyle();
 
-                String tagLabelStyle();
+		String tagLabelStyle();
 
-                String tagImageStyle();
+		String tagImageStyle();
+
+		String clickableTag();
 	}
 	
 	interface MyUiBinder extends UiBinder<Widget, TaskGui> {}
@@ -141,10 +144,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	public TaskGui(TaskDto taskDto, Dtos.BoardDto boardDto, DragController dragController) {
         this.dragController = dragController;
 
-        nameLabelTextArea = new TextArea();
+		nameLabelTextArea = new TextArea();
         this.boardDto = boardDto;
 
-        initWidget(uiBinder.createAndBindUi(this));
+		initWidget(uiBinder.createAndBindUi(this));
 		
 		editButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.editButtonImage()));
 		deleteButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.deleteButtonImage()));
@@ -250,7 +253,20 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			res = tagImage;
 		}
 
-		res.getElement().getStyle().setBackgroundColor("#" + tag.getColour());
+		String color = tag.getColour();
+
+		if (!(color == null || "".equals(color))) {
+			int colorIndex = predefinedColors.indexOf(color);
+			if (colorIndex == -1) {
+				 color = "#" + color;
+			}
+
+			if (colorIndex != TRANSPARENT_INDEX) {
+				res.getElement().getStyle().setBackgroundColor(color);
+			}
+
+		}
+
         String description = tag.getDescription();
         res.setTitle(description != null ? description : "No description provided");
 
@@ -259,6 +275,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 		boolean targetDefined = target != Dtos.TagClickTarget.NONE;
 
 		if (onClickDefined && targetDefined) {
+			res.addStyleName(style.clickableTag());
 			res.addDomHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
