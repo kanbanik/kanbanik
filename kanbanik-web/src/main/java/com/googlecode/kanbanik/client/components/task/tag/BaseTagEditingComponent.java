@@ -6,9 +6,13 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -36,6 +40,9 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     TextBox description;
 
     @UiField
+    Label pictureUrlLabel;
+
+    @UiField
     TextBox pictureUrl;
 
     @UiField
@@ -57,7 +64,15 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     Label picturePreviewLabel;
 
     @UiField
+    FlowPanel picturePreviewValue;
+
+    @UiField
+    CheckBox usePicture;
+
+    @UiField
     Label warningMessage;
+
+    PicturePreviewHandler picturePreviewHandler;
 
     private Dtos.TaskTag dto;
 
@@ -93,6 +108,13 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
             }
         });
         colorPickerComponent.init();
+
+        usePicture.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                updatePictureVisibility(event.getValue());
+            }
+        });
     }
 
     private boolean customColorPicked() {
@@ -112,9 +134,11 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
     public void onClick(ClickEvent event) {
         dialog.center();
         warningMessage.setVisible(false);
+        picturePreviewHandler = new PicturePreviewHandler(pictureUrl, picturePreview, picturePreviewLabel, picturePreviewErrorLabel);
+
         edit();
 
-        new PicturePreviewHandler(pictureUrl, picturePreview, picturePreviewLabel, picturePreviewErrorLabel).initialize();
+        picturePreviewHandler.initialize();
     }
 
     protected void edit() {
@@ -142,6 +166,22 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
 
         taskTag.setOnClickTarget("".equals(onClickUrl.getText()) ? Dtos.TagClickTarget.NONE.getId() : Dtos.TagClickTarget.NEW_WINDOW.getId());
         return taskTag;
+    }
+
+    protected void setPictureUrl(String pictureUrlStr) {
+        boolean pictureUrlSet = pictureUrlStr != null && !"".equals(pictureUrlStr);
+        usePicture.setValue(pictureUrlSet);
+        pictureUrl.setText(pictureUrlStr);
+
+        updatePictureVisibility(pictureUrlSet);
+        picturePreviewHandler.updateAssigneePicturePreview();
+    }
+
+    private void updatePictureVisibility(boolean visible) {
+        pictureUrlLabel.setVisible(visible);
+        pictureUrl.setVisible(visible);
+        picturePreviewLabel.setVisible(visible);
+        picturePreviewValue.setVisible(visible);
     }
 
     protected void setColor(String color) {

@@ -38,7 +38,7 @@ public class PicturePreviewHandler {
 
             @Override
             public void onBlur(BlurEvent event) {
-                updateAssigneePicturePreview();
+                PicturePreviewHandler.this.updateAssigneePicturePreview();
             }
         });
 
@@ -46,7 +46,7 @@ public class PicturePreviewHandler {
     }
 
 
-    private void updateAssigneePicturePreview() {
+    public void updateAssigneePicturePreview() {
         String url = pictureUrl.getText();
         previewLabel.setText("Image Preview: ");
         if (url == null || "".equals(url)) {

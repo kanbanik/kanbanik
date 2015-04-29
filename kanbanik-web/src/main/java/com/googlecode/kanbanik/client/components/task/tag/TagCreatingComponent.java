@@ -11,7 +11,7 @@ public class TagCreatingComponent extends BaseTagEditingComponent {
 
         name.setText("");
         description.setText("");
-        pictureUrl.setText("");
+        setPictureUrl("");
         onClickUrl.setText("");
         setColor(TagConstants.predefinedColors.get(TagConstants.TRANSPARENT_INDEX));
     }

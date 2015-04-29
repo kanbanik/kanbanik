@@ -37,27 +37,6 @@
 
             <g:row>
                 <g:customCell>
-                    <g:Label text="Picture URL: "/>
-                </g:customCell>
-                <g:customCell>
-                    <g:TextBox ui:field="pictureUrl" />
-                </g:customCell>
-            </g:row>
-
-            <g:row>
-                <g:customCell>
-                    <g:Label ui:field="picturePreviewLabel" text="Image Preview: "/>
-                </g:customCell>
-                <g:customCell>
-                    <g:FlowPanel>
-                        <g:Image ui:field="picturePreview" />
-                        <g:Label ui:field="picturePreviewErrorLabel" text="Error Loading Image" />
-                    </g:FlowPanel>
-                </g:customCell>
-            </g:row>
-
-            <g:row>
-                <g:customCell>
                     <g:Label text="On Click URL: "/>
                 </g:customCell>
                 <g:customCell>
@@ -73,6 +52,36 @@
                     <g:FlowPanel>
                         <g:ListBox ui:field="colorListBox"/>
                         <c:ColorPickerComponent ui:field="colorPickerComponent" />
+                    </g:FlowPanel>
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label text="Use Picture: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:CheckBox ui:field="usePicture" />
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label ui:field="pictureUrlLabel" text="Picture URL: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:TextBox ui:field="pictureUrl" />
+                </g:customCell>
+            </g:row>
+
+            <g:row>
+                <g:customCell>
+                    <g:Label ui:field="picturePreviewLabel" text="Image Preview: "/>
+                </g:customCell>
+                <g:customCell>
+                    <g:FlowPanel ui:field="picturePreviewValue">
+                        <g:Image ui:field="picturePreview" />
+                        <g:Label ui:field="picturePreviewErrorLabel" text="Error Loading Image" />
                     </g:FlowPanel>
                 </g:customCell>
             </g:row>
