@@ -151,6 +151,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			if (content == null || content.size() == 0) {
 				clear();
 				this.items = new ArrayList<T>();
+				resetButtonAvailability();
 				return;
 			}
 
