@@ -48,10 +48,10 @@
 			border-width: 1px;
 			margin-bottom: 4px;
 			border-color: black;
-			margin-right: 6px;
-			margin-left: 6px;
 			border-radius: 3px;
             width: 140px;
+			margin: auto;
+			margin-bottom: 6px;
 		}
 		
 		.shortDescription {
