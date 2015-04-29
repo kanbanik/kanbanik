@@ -13,6 +13,8 @@ import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.dtos.{ErrorDto, EventDto}
 import org.atmosphere.cpr.{AtmosphereResource, BroadcasterFactory, Broadcaster, PerRequestBroadcastFilter}
 import org.atmosphere.cpr.BroadcastFilter.BroadcastAction
+import java.util.zip.GZIPOutputStream
+import java.nio.charset.Charset
 
 class KanbanikApi extends HttpServlet {
 
@@ -101,7 +103,15 @@ class KanbanikApi extends HttpServlet {
             notifyClients(commandName, sessionId, response)
           }
 
-          resp.getWriter.print(response)
+          val encoding = req.getHeader("accept-encoding")
+          if (encoding != null && encoding.indexOf("gzip") != -1) {
+              resp.setHeader("Content-Encoding", "gzip")
+              val gzip = new GZIPOutputStream(resp.getOutputStream())
+              gzip.write(response.getBytes(Charset.forName("UTF-8")))
+              gzip.close
+          } else {
+              resp.getWriter.print(response)
+          }
         case Right(x) =>
           respondAppError(x, resp)
       }

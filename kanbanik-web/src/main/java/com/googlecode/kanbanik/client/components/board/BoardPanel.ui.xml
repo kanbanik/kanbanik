@@ -7,6 +7,9 @@
 			margin-bottom: 15px;
 			border-radius: 4px;
 			padding-right: 2px;
+                        margin: 5px;
+                        display: inline-block;
+                        float: left;
 		}
 		
 		.boardLabelStyle {
