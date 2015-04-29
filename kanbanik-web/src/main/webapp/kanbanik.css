@@ -40,6 +40,7 @@ h1 {
 .gwt-TabBar {
   position: absolute !important;;
   top: 13px !important;;
+  width: 200px !important;
 }
 
 .gwt-TabBarItem, .gwt-TabBarItem-selected {
