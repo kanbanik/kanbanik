@@ -5,9 +5,12 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
+import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -21,7 +24,11 @@ import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycl
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 
-// listens on delete keyboard event and performs the tasks delete
+/**
+ * Listens on global keyboard shortcuts:
+ * - ctrl+a
+ * - delete
+ */
 public class GlobalKeyListener implements ModulesLifecycleListener, NativePreviewHandler {
 	
 	private boolean isBoards;
@@ -65,7 +72,7 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
         selectByPredicate(new GetTasksByPredicateRequestMessage.Predicate() {
             @Override
             public boolean match(TaskGui task) {
-                return task.isVisible();
+                return taskVisibleTransitively(task);
             }
         });
     }
@@ -80,10 +87,22 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
             @Override
             public boolean match(TaskGui task) {
                 return workflowitemIds.contains(task.getDto().getWorkflowitemId())
-                        && task.isVisible()
+                        && taskVisibleTransitively(task)
                         ;
             }
         });
+    }
+
+    private boolean taskVisibleTransitively(TaskGui task) {
+        Widget candidate = task;
+        do {
+            if (!candidate.isVisible()) {
+                return false;
+            }
+            candidate = candidate.getParent();
+        } while (candidate != null);
+
+        return true;
     }
 
     private void selectByPredicate(GetTasksByPredicateRequestMessage.Predicate predicate) {

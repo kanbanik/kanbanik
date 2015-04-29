@@ -128,7 +128,8 @@ public class PanelContainingDialog extends DialogBox implements Closable,
         if (storage != null) {
             String size = storage.getItem(PREFERRED_WINDOW_SIZE);
             if (size == null || "".equals(size)) {
-                // leave default
+                // hack to minimize it
+				expanded = true;
                 swithWindowSize();
                 return;
             }
