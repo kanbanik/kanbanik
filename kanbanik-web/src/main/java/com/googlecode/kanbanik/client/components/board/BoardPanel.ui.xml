@@ -2,14 +2,18 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style>
+		.boardWrapperStyle {
+			width: 100%;
+		}
+
 		.boardStyle {
 			border: 3px solid #e6e9ec;
 			margin-bottom: 15px;
 			border-radius: 4px;
 			padding-right: 2px;
-                        margin: 5px;
-                        display: inline-block;
-                        float: left;
+            margin: 5px;
+            display: inline-block;
+            float: left;
 		}
 		
 		.boardLabelStyle {
@@ -22,11 +26,13 @@
 
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="{style.boardStyle}">
-		<g:FlowPanel addStyleNames="{style.boardLabelStyle}">
-			<g:Label ui:field="boardName"/>
+	<g:FlowPanel addStyleNames="{style.boardWrapperStyle}">
+		<g:FlowPanel addStyleNames="{style.boardStyle}">
+			<g:FlowPanel addStyleNames="{style.boardLabelStyle}">
+				<g:Label ui:field="boardName"/>
+			</g:FlowPanel>
+			<g:Panel ui:field="projects"/>
 		</g:FlowPanel>
-		<g:Panel ui:field="projects"/>
 	</g:FlowPanel>
 
 </ui:UiBinder>
