@@ -24,7 +24,7 @@ class LoginCommand extends Command[LoginDto, UserDto] {
     } catch {
       case e: Exception =>
         e.printStackTrace()
-        Right(ErrorDto("Login not successful!"))
+        return Right(ErrorDto("Login not successful!"))
     }
     
     val principal = currentUser.getPrincipal.asInstanceOf[User]
