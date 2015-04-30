@@ -41,7 +41,6 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
         this.board = board;
         this.project = project;
         initWidget(uiBinder.createAndBindUi(this));
-        getParent().getElement().getStyle().setBackgroundColor("#e6e9ec");
 		projectName.setText(project.getName());
 		Dtos.WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
 		
@@ -96,6 +95,13 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 
         MessageBus.sendMessage(new GetAllProjectsResponseMessage(boardWithProjectsDto, this));
+    }
+
+    public void init() {
+        if (getParent() != null) {
+            // hack for firefox
+            getParent().getElement().getStyle().setBackgroundColor("#e6e9ec");
+        }
     }
 	
 }

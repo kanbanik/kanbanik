@@ -163,6 +163,7 @@ public class BoardsModule {
 		for (Dtos.ProjectDto project : projectsOnBoard) {
             ProjectHeader projectHeader = new ProjectHeader(board, project);
             boardTable.setWidget(row, 0, projectHeader);
+            projectHeader.init();
 			FlexTable projectTable = new ProjectGui(board, project, projectHeader);
 			projectTable.setStyleName(style.board());
 			projectTable.getElement().getStyle().setProperty("paddingBottom", "2px");
