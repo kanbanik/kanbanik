@@ -12,7 +12,7 @@
 		}
 		
 		.project-header {
-			background-color: #d0e4f6;
+			background-color: #e6e9ec;
 			border-bottom-style: solid;
 			border-bottom-width: 1px;
 			width: 100%;

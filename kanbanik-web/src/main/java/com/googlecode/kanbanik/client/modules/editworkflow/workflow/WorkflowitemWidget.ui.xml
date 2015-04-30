@@ -22,12 +22,13 @@
 		
 		.workflowitem-name {
 			font-weight: bold;
+			background-color: #e6e9ec;
 		}
 	</ui:style>
 
 	<g:HTMLPanel>
 		<div
-			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;"
+			style="border-style: solid; border-width: 1px; border-color: black; margin:5px 5px 5px 5px; align: right; background-color: #e6e9ec;"
 			ui:field="mainDiv">
 			<g:FocusPanel styleName="{style.workflowitem-header}"
 				ui:field="header">

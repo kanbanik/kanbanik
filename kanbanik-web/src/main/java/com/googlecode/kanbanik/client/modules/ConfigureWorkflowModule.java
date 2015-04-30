@@ -61,8 +61,6 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
 			removeEverything();
 		}
 		
-		
-		
 		editBoard(selectedDto);
 		
 		boardsBox.selectedBoardChanged(selectedDto == null ? null : selectedDto.getBoard());

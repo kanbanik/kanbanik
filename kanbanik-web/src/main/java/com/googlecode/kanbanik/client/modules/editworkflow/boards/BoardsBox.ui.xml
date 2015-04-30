@@ -17,40 +17,56 @@
 		.label-style {
 			font-weight: bold;
 		}
-		
+
 		.projectsOnBoard {
+			width: 100%;
+			border: 2px solid #e6e9ec;
+			border-radius: 4px;
+			background-color: #e6e9ec;
+		}
+
+		.projectsOnBoardHeader {
 			font-weight: bold;
 			text-align: center;
-			padding-top: 10px;
 		}
 		
 		.boardHeadler {
 			text-align: center;
 		}
 		
-		.listBoxStyle {
-			text-align: center;
-			width: 100%;
-		}
-		
 		.boardsBoxStyle {
 			width: 220px;
 			padding-right: 5px;
 		}
+
+		.listBoxStyle {
+			text-align: center;
+			width: 100%;
+			border: 2px solid #e6e9ec;
+			border-radius: 4px;
+			background-color: #e6e9ec;
+			margin-bottom: 3px;
+		}
+
+		.addButtonStyle {
+			text-align: center;
+		}
+
 	</ui:style>
 
 	<g:HTMLPanel styleName="{style.boardsBoxStyle}">
 		<div
 			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right; width: 212px;">
 			
-			<w:ListBoxWithAddEditDelete ui:field="boardsList" />
+			<w:ListBoxWithAddEditDelete ui:field="boardsList" styleName="{style.listBoxStyle}" />
 			
-			<w:ListBoxWithAddEditDelete ui:field="classOfServiceList" />
+			<w:ListBoxWithAddEditDelete ui:field="classOfServiceList" styleName="{style.listBoxStyle}" />
 
-			<g:Label text="Projects on Board" styleName="{style.projectsOnBoard}" />
-			<g:PushButton ui:field="addProjectButton" styleName="imageButtonStyle"
-				title="New Project" />
-			<g:SimplePanel ui:field="projectsToBoardAddingContainer" />
+			<g:FlowPanel addStyleNames="{style.projectsOnBoard}">
+				<g:Label text="Projects on Board" styleName="{style.projectsOnBoardHeader}" />
+				<g:PushButton ui:field="addProjectButton" styleName="{style.addButtonStyle}" title="New Project" />
+				<g:SimplePanel ui:field="projectsToBoardAddingContainer" />
+			</g:FlowPanel>
 		</div>
 
 	</g:HTMLPanel>

@@ -35,7 +35,6 @@ public class WorkflowEditingComponent extends Composite implements
 	}
 	
 	public interface Style extends CssResource {
-        String bordered();
         String dropTargetStyle();
 		String palettePanelStyle();
 		String headerTextStyle();
@@ -95,13 +94,10 @@ public class WorkflowEditingComponent extends Composite implements
 		paletteContent.addWithDraggable(new PaletteWorkflowitemWidget(vertical, imageResourceAsPanel(KanbanikResources.INSTANCE.downDropArrowImage())));
 		FlowPanel designPanel = new FlowPanel();
 		
-		Label headerLabel = new Label("Workflowitem Palette");
+		Label headerLabel = new Label("Drag and drop workflowitems from palette to workflow");
 		headerLabel.setStyleName(style.headerTextStyle());
-		
-		Label descriptionLabel = new Label("Drag and drop workflowitems from palette to workflow");
-		
+
 		designPanel.add(headerLabel);
-		designPanel.add(descriptionLabel);
 		designPanel.add(paletteContent);
 		designPanel.setStyleName(style.palettePanelStyle());
 		
@@ -180,7 +176,9 @@ public class WorkflowEditingComponent extends Composite implements
 					column,
 					createDropTarget(dragController, currentWorkflow,
 							current, Position.BEFORE,
-							KanbanikResources.INSTANCE.rightDropArrowImage()));
+							parentWorkflow == null ?
+								KanbanikResources.INSTANCE.rightDropArrowOuterImage() :
+								KanbanikResources.INSTANCE.rightDropArrowImage()));
 			column++;
 		} else if (Dtos.ItemType.from(current.getItemType()) == Dtos.ItemType.VERTICAL) {
 			table.setWidget(
@@ -188,7 +186,9 @@ public class WorkflowEditingComponent extends Composite implements
 					column,
 					createDropTarget(dragController, currentWorkflow,
 							current, Position.BEFORE,
-							KanbanikResources.INSTANCE.downDropArrowImage()));
+							parentWorkflow == null ?
+									KanbanikResources.INSTANCE.downDropArrowOuterImage() :
+									KanbanikResources.INSTANCE.downDropArrowImage()));
 
 			row++;
 		} else {
@@ -228,7 +228,10 @@ public class WorkflowEditingComponent extends Composite implements
 						row,
 						column,
 						createDropTarget(dragController, currentWorkflow,
-								currentItem, Position.AFTER, KanbanikResources.INSTANCE.rightDropArrowImage()));
+								currentItem, Position.AFTER,
+								parentWorkflow == null ?
+										KanbanikResources.INSTANCE.rightDropArrowOuterImage() :
+										KanbanikResources.INSTANCE.rightDropArrowImage()));
 				column++;
 			} else if (Dtos.ItemType.from(currentItem.getItemType()) == Dtos.ItemType.VERTICAL) {
 				row++;
@@ -236,7 +239,10 @@ public class WorkflowEditingComponent extends Composite implements
 						row,
 						column,
 						createDropTarget(dragController, currentWorkflow,
-								currentItem, Position.AFTER, KanbanikResources.INSTANCE.downDropArrowImage()));
+								currentItem, Position.AFTER,
+								parentWorkflow == null ?
+										KanbanikResources.INSTANCE.downDropArrowOuterImage() :
+										KanbanikResources.INSTANCE.downDropArrowImage()));
 				row++;
 			} else {
 				throw new IllegalStateException("Unsupported item type: '"

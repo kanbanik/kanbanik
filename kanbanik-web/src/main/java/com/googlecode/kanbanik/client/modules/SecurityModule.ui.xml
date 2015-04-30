@@ -8,10 +8,19 @@
 			border: 1px solid black;
 			border-bottom-width: 0px;
 		}
+
+		.listBoxStyle {
+			text-align: center;
+			border: 2px solid #e6e9ec;
+			border-radius: 4px;
+			background-color: #e6e9ec;
+			margin-bottom: 3px;
+		}
+
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.mainPanel}">
-		<w:ListBoxWithAddEditDelete ui:field="usersList" />
+		<w:ListBoxWithAddEditDelete ui:field="usersList" styleName="{style.listBoxStyle}" />
 	</g:FlowPanel>
 
 </ui:UiBinder>

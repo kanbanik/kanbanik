@@ -17,7 +17,7 @@
 		
 		.button-toolbar {
 			border-bottom-style: solid;
-			border-bottom-width: 1px;
+			border-bottom-width: 0px;
 			padding-bottom: 25px;
 		}
 		

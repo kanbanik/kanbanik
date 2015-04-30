@@ -13,11 +13,7 @@
 			.palettePanel {
 				float: left;
 			}
-			
-			.bordered { 
-				border: 1px solid black;
-			}
-			
+
 			.dropTargetStyle img {
 				display: block;
 				margin-left: auto;
@@ -27,15 +23,17 @@
 			.palettePanelStyle {
 				margin-top: 2px;
 				text-align: center;
-				border: 1px solid black;
 				margin-left: 0px;
-				margin-right: 0px
+				margin-right: 0px;
+				border: 2px solid #e6e9ec;
+				border-radius: 4px;
 			}
 			
 			.tablePanelStyle {
 				text-align: center;
-				border: 1px solid black;
 				margin-top: 5px;
+				border: 2px solid #e6e9ec;
+				border-radius: 4px;
 			}
 			
 			.palettePanelStyle>table {
@@ -45,6 +43,7 @@
 			
 			.headerTextStyle {
 				font-weight: bold;
+				background-color: #e6e9ec;
 			}
 			
 		</ui:style>

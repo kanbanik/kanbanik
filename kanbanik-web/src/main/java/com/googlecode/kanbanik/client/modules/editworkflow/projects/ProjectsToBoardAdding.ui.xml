@@ -5,10 +5,13 @@
 		.header-label {
 			border-bottom-style: solid;
 			border-bottom-width: 1px;
+			font-weight: bold;
+			text-align: center;
 		}
 		
 		.workflowedit-projects {
 			height: 100%;
+			width: 100%;
 		}
 		
 		.workflowedit-projects-part {
@@ -17,7 +20,6 @@
 			min-height: 100px;
 			min-width: 100px;
 			vertical-align: top;
-			background-color: #f2f4f9;
 		}
 		
 		.workflowedit-projects-part-left {
@@ -25,13 +27,17 @@
 			border-right-width: 1px;
 			height: 100%;
 		}
+
+		.main-panel {
+
+		}
 	</ui:style>
 
 	<g:HTMLPanel>
-		<div
-			style="border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;">
+		<!--<div-->
+			<!--style="background-color: red; border-style: solid; border-width: 1px; margin:5px 5px 5px 5px; align: right;">-->
 
-			<g:AbsolutePanel ui:field="panelWithDraggablePanels">
+			<g:AbsolutePanel ui:field="panelWithDraggablePanels" addStyleNames="{style.main-panel}">
 				<g:HorizontalPanel styleName="{style.workflowedit-projects}">
 					<g:FlowPanel styleName="{style.workflowedit-projects-part-left}">
 						<g:Label styleName="{style.header-label}" text="All Projects" />
@@ -46,7 +52,7 @@
 					</g:FlowPanel>
 				</g:HorizontalPanel>
 			</g:AbsolutePanel>
-		</div>
+		<!--</div>-->
 
 	</g:HTMLPanel>
 
