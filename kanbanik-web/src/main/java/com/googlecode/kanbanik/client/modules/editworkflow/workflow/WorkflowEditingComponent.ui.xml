@@ -26,6 +26,7 @@
 				margin-left: 0px;
 				margin-right: 0px;
 				border: 2px solid #e6e9ec;
+                                background-color: #e6e9ec;
 				border-radius: 4px;
 			}
 			
@@ -33,6 +34,7 @@
 				text-align: center;
 				margin-top: 5px;
 				border: 2px solid #e6e9ec;
+                                background-color: #e6e9ec;
 				border-radius: 4px;
 			}
 			

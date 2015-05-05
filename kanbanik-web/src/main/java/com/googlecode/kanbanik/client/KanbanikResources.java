@@ -38,12 +38,6 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/arrowDown.png")
 	ImageResource downDropArrowImage();
 
-	@Source("images/arrowRightOuter.png")
-	ImageResource rightDropArrowOuterImage();
-
-	@Source("images/arrowDownOuter.png")
-	ImageResource downDropArrowOuterImage();
-	
 	@Source("images/arrowInside.png")
 	ImageResource insideDropArrowImage();
 	

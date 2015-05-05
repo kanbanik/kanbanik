@@ -176,9 +176,7 @@ public class WorkflowEditingComponent extends Composite implements
 					column,
 					createDropTarget(dragController, currentWorkflow,
 							current, Position.BEFORE,
-							parentWorkflow == null ?
-								KanbanikResources.INSTANCE.rightDropArrowOuterImage() :
-								KanbanikResources.INSTANCE.rightDropArrowImage()));
+							KanbanikResources.INSTANCE.rightDropArrowImage()));
 			column++;
 		} else if (Dtos.ItemType.from(current.getItemType()) == Dtos.ItemType.VERTICAL) {
 			table.setWidget(
@@ -186,9 +184,7 @@ public class WorkflowEditingComponent extends Composite implements
 					column,
 					createDropTarget(dragController, currentWorkflow,
 							current, Position.BEFORE,
-							parentWorkflow == null ?
-									KanbanikResources.INSTANCE.downDropArrowOuterImage() :
-									KanbanikResources.INSTANCE.downDropArrowImage()));
+							KanbanikResources.INSTANCE.downDropArrowImage()));
 
 			row++;
 		} else {
@@ -229,9 +225,7 @@ public class WorkflowEditingComponent extends Composite implements
 						column,
 						createDropTarget(dragController, currentWorkflow,
 								currentItem, Position.AFTER,
-								parentWorkflow == null ?
-										KanbanikResources.INSTANCE.rightDropArrowOuterImage() :
-										KanbanikResources.INSTANCE.rightDropArrowImage()));
+								KanbanikResources.INSTANCE.rightDropArrowImage()));
 				column++;
 			} else if (Dtos.ItemType.from(currentItem.getItemType()) == Dtos.ItemType.VERTICAL) {
 				row++;
@@ -240,9 +234,7 @@ public class WorkflowEditingComponent extends Composite implements
 						column,
 						createDropTarget(dragController, currentWorkflow,
 								currentItem, Position.AFTER,
-								parentWorkflow == null ?
-										KanbanikResources.INSTANCE.downDropArrowOuterImage() :
-										KanbanikResources.INSTANCE.downDropArrowImage()));
+								KanbanikResources.INSTANCE.downDropArrowImage()));
 				row++;
 			} else {
 				throw new IllegalStateException("Unsupported item type: '"
