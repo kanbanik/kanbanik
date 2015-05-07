@@ -28,7 +28,7 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
 	
 	@Override
 	protected Dtos.WorkflowVerticalSizing getVerticalSizing() {
-		return Dtos.WorkflowVerticalSizing.BALANCED;
+		return Dtos.WorkflowVerticalSizing.MIN_POSSIBLE;
 	}
 
 	@Override
