@@ -33,7 +33,7 @@ public class TagDeletingComponent implements Component<Dtos.TaskTag>, ClickHandl
     public void setDto(Dtos.TaskTag dto) {
         this.dto = dto;
         warningPanel = new WarningPanel(
-                "Are you sure you want to delete class of service '" + dto.getName() + "'?");
+                "Are you sure you want to delete tag '" + dto.getName() + "'?");
     }
 
     @Override
