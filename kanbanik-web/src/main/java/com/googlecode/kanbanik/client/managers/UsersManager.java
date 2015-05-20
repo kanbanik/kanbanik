@@ -57,17 +57,15 @@ public class UsersManager {
 			@Override
 			protected void doResize(int width, int height) {
 				picture.setHeight(expectedHeight + "px");
-				float ratio = height / width;
-				int newWidth = Math.round(expectedHeight / ratio);
-
-				picture.setHeight(expectedHeight + "px");
-				picture.setWidth(newWidth + "px");
 			}
 		});
 		picture.setUrl(user.getPictureUrl());
 		Style style = picture.getElement().getStyle();
 		style.setBorderStyle(BorderStyle.SOLID);
 		style.setBorderWidth(1, Unit.PX);
+		style.setMarginTop(3, Unit.PX);
+		style.setMarginRight(3, Unit.PX);
+		style.setProperty("maxWidth", 43, Unit.PX);
 
 		return picture;
 	}

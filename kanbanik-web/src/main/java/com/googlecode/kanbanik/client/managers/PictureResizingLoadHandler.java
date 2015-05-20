@@ -7,8 +7,6 @@ import com.google.gwt.user.client.ui.Image;
 public abstract class PictureResizingLoadHandler implements LoadHandler {
 	private Image picture;
 
-	private int expectedHeight = 40;
-
 	public PictureResizingLoadHandler(Image picture) {
 		this.picture = picture;
 	}
