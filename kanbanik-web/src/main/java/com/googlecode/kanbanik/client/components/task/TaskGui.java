@@ -185,7 +185,10 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
         if (boardDto.isFixedSizeShortDescription()) {
             nameLabel.getElement().getStyle().setDisplay(Display.NONE);
             nameLabelTextArea.getElement().getStyle().setDisplay(Display.BLOCK);
-        }
+        } else {
+			nameLabel.getElement().getStyle().setDisplay(Display.BLOCK);
+			nameLabelTextArea.getElement().getStyle().setDisplay(Display.NONE);
+		}
 
 		boolean showingPictureEnabled = boardDto.isShowUserPictureEnabled();
 		boolean hasAssignee = taskDto.getAssignee() != null;
