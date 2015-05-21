@@ -191,7 +191,10 @@ public abstract class BaseTagEditingComponent extends Composite implements Compo
         } else if (predefinedColors.contains(color)) {
             int index = predefinedColors.indexOf(color);
             colorListBox.setSelectedIndex(index);
-            if (index == TRANSPARENT_INDEX) {
+            if (index == CUSTOM_INDEX) {
+                colorPickerComponent.setVisible(true);
+            } else {
+                // e,g, transparent or some predefined
                 colorPickerComponent.setVisible(false);
             }
         } else {
