@@ -2,30 +2,11 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style>
-		.labelStyle,.textboxStyle {
-			
-		}
-		
 		.warningMessage {
 			font-weight: bold;
 			color: red;
 		}
-		
-		
-		.labels,.values {
-			width: 150px;
-			float: left;
-			line-height: 31px;
-		}
 
-		.values,.textboxStyle {
-			width: 290px;
-		}
-		
-		.mainPanel {
-			width: 450px;
-		}
-		
 		.requiredFieldStyle {
 			padding-left: 5px;
 			padding-top: 5px;
@@ -44,25 +25,67 @@
 	
 	</ui:style>
 
-	<g:FlowPanel addStyleNames="{style.mainPanel}" ui:field="mainPanel">
-		<g:FlowPanel addStyleNames="{style.labels}">
-			<g:Label addStyleNames="{style.labelStyle}" text="Username(*): "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Real Name: "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Image Url: "/>
-			<g:Label addStyleNames="{style.imagePreviewLabel}" ui:field="assigneePicturePreviewLabel"/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Password(*): "/>
-			<g:Label addStyleNames="{style.labelStyle}" text="Password(again)(*): "/>
-		</g:FlowPanel>
+	<g:FlowPanel ui:field="mainPanel">
+		<g:Grid>
+			<g:row>
+				<g:customCell>
+					<g:Label text="Username(*): "/>
+				</g:customCell>
+				<g:customCell>
+					<g:TextBox ui:field="username" />
+				</g:customCell>
+			</g:row>
 
-		<g:FlowPanel addStyleNames="{style.values}">
-			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="username" />
-			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="realName" />
-			<g:TextBox addStyleNames="{style.textboxStyle}" ui:field="pictureUrl" />
-			<g:Image ui:field="assiggneePicturePreview" />
-			<g:Label addStyleNames="{style.imagePreviewErrorImage}" ui:field="assiggneePicturePreviewErrorLabel" text="Error Loading Image" />
-			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password" />
-			<g:PasswordTextBox addStyleNames="{style.textboxStyle}" ui:field="password2" />
-		</g:FlowPanel>
+			<g:row>
+				<g:customCell>
+					<g:Label text="Real Name: "/>
+				</g:customCell>
+				<g:customCell>
+					<g:TextBox ui:field="realName" />
+				</g:customCell>
+			</g:row>
+
+			<g:row>
+				<g:customCell>
+					<g:Label text="Image Url: "/>
+				</g:customCell>
+				<g:customCell>
+					<g:TextBox ui:field="pictureUrl" />
+				</g:customCell>
+			</g:row>
+
+			<g:row>
+				<g:customCell>
+					<g:Label addStyleNames="{style.imagePreviewLabel}" ui:field="assigneePicturePreviewLabel"/>
+				</g:customCell>
+				<g:customCell>
+					<g:FlowPanel>
+						<g:Image ui:field="assiggneePicturePreview" />
+						<g:Label addStyleNames="{style.imagePreviewErrorImage}" ui:field="assiggneePicturePreviewErrorLabel" text="Error Loading Image" />
+					</g:FlowPanel>
+				</g:customCell>
+			</g:row>
+
+			<g:row>
+				<g:customCell>
+					<g:Label text="Password(*): "/>
+				</g:customCell>
+				<g:customCell>
+					<g:PasswordTextBox ui:field="password" />
+				</g:customCell>
+			</g:row>
+
+			<g:row>
+				<g:customCell>
+					<g:Label text="Password(again)(*): "/>
+				</g:customCell>
+				<g:customCell>
+					<g:PasswordTextBox ui:field="password2" />
+				</g:customCell>
+			</g:row>
+
+		</g:Grid>
+
 		<g:Label addStyleNames="{style.requiredFieldStyle}" text="(*): required field" />
 		<g:HTML addStyleNames="{style.warningMessage}" ui:field="messages" />
 	</g:FlowPanel>
