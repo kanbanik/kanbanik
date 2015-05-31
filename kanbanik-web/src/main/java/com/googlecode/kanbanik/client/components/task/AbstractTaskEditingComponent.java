@@ -379,6 +379,7 @@ public abstract class AbstractTaskEditingComponent {
     }
 
     protected void doSetupAndShow() {
+        GlobalKeyListener.INSTANCE.stop();
         setupValues();
         dialog.center();
         taskName.setFocus(true);

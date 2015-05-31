@@ -32,7 +32,7 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 public class GlobalKeyListener implements ModulesLifecycleListener, NativePreviewHandler {
 	
 	private boolean isBoards;
-	
+
 	private HandlerRegistration registration;
 	
 	public static final GlobalKeyListener INSTANCE = new GlobalKeyListener();

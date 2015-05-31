@@ -54,7 +54,6 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
         MessageBus.registerListener(TaskAddedMessage.class, this);
         MessageBus.registerListener(MarkBoardsAsDirtyMessage.class, boardDirtyListener);
 
-        GlobalKeyListener.INSTANCE.stop();
         MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
         MessageBus.sendMessage(ChangeTaskSelectionMessage.selectOne(dto, TaskEditingComponent.this));
         doSetupAndShow();
