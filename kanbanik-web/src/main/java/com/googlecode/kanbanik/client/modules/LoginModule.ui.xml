@@ -43,7 +43,7 @@
 
 	<g:FlowPanel addStyleNames="{style.loginModuleStyle}">
 		<g:Label text="Log in to Kanbanik" addStyleNames="{style.labelStyle}" />
-		<g:Label text="v0.2.9-RC2" addStyleNames="{style.labelStyle}" />
+		<g:Label text="v0.2.9-RC3" addStyleNames="{style.labelStyle}" />
 		<g:Label text="Username" addStyleNames="{style.labelsStyle}" />
 		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
 		<g:Label text="Password" addStyleNames="{style.labelsStyle}"/>
