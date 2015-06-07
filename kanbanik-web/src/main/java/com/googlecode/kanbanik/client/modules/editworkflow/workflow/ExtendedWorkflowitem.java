@@ -29,6 +29,10 @@ public class ExtendedWorkflowitem {
         numOfTasks += diff;
     }
 
+    public boolean hasWipLimitSet() {
+        return current.getWipLimit() != -1;
+    }
+
     public boolean isUnderWip() {
         return current.getWipLimit() == -1 || current.getWipLimit() >= numOfTasks;
     }

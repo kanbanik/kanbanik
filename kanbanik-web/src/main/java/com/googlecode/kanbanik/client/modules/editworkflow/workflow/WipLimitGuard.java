@@ -1,7 +1,10 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -14,19 +17,28 @@ public class WipLimitGuard {
             return;
         }
 
-        Stack<ExtendedWorkflowitem> path = doIncDec(id, size - currentNumOfTasks);
+        List<ExtendedWorkflowitem> path = doIncDec(id, size - currentNumOfTasks);
 
+        // going from the highest parent to the lowest
         for (ExtendedWorkflowitem current : path) {
-            // something has been changed
+            if (!current.hasWipLimitSet()) {
+                 continue;
+            }
+
             if (current.isUnderWip() != current.isCurrentlyShowAsUnderWipLimit()) {
                 switchColorsTo(current.isUnderWip(), current);
+            }
+
+            if (!current.isUnderWip()) {
+                // this one is red, all it's children painted to red, the children can not override this setting, exiting loop
+                break;
             }
         }
     }
 
     private void switchColorsTo(boolean underWip, ExtendedWorkflowitem from) {
         if (underWip && !from.isUnderWip()) {
-            // ignore this branch - here it should stay red
+            // try to paint green but the wip limit is owerrun here, ignore the whole branch
             return;
         }
 
@@ -37,20 +49,21 @@ public class WipLimitGuard {
                 child.switchToCorrectColor(underWip);
                 switchColorsTo(underWip, child);
             }
-
         }
     }
 
-    private Stack<ExtendedWorkflowitem> doIncDec(String id, int diff) {
-        Stack<ExtendedWorkflowitem> path = new Stack<ExtendedWorkflowitem>();
+    private List<ExtendedWorkflowitem> doIncDec(String id, int diff) {
+        List<ExtendedWorkflowitem> path = new ArrayList<ExtendedWorkflowitem>();
         ExtendedWorkflowitem current = idToWorkflowitem.get(id);
         do {
             current.add(diff);
 
-            path.push(current);
+            path.add(current);
             current = current.getParent();
         } while (current != null);
 
+        // the first will be the parent-most workflowitem
+        Collections.reverse(path);
         return path;
     }
 
