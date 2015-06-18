@@ -16,7 +16,7 @@ Kanbanik is a Scala web application with a rich GWT frontend optimized for Googl
 
 You can try a [Live Demo](http://kanbanikdemo-jelkosz.rhcloud.com/) name: test, pass: test
 
-# Some Screenshots
+or [download](https://github.com/kanbanik/kanbanik/wiki/Downloads) and [install](https://github.com/kanbanik/kanbanik/wiki/Installation-Guide) on your own setup.
 
 ## Get in Touch
 You can follow us on [twitter](https://twitter.com/kanbanik)
@@ -26,6 +26,8 @@ Real time chat on [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gi
 Post questions to [Forum](https://groups.google.com/forum/#!forum/kanbanik)
 
 Mailing list: kanbanik@googlegroups.com
+
+# Some Screenshots
 
 ##Main Screen
 
