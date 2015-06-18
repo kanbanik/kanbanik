@@ -5,12 +5,10 @@ Features:
 * Rich (WYSIWYG) task editing
 * Drag and drop task moving
 * Drag and drop workflow editing
-* Complete JSON based [API]
+* Complete JSON based [API](https://github.com/kanbanik/kanbanik/wiki/API)
 * Editable class of service distinguished by colour
 * Possibility to assigne a user to a task
 * Support for simple authorization
-* Support for more projects on one board (with sharing workflow)
-* Support for one project on more boards (enables creating hierarchical boards)
 * Works on touchscreen (mobile) devices
 
 Full [documentation](https://github.com/kanbanik/kanbanik/wiki)
