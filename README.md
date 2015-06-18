@@ -14,9 +14,8 @@ Features:
 
 Kanbanik is a Scala web application with a rich GWT frontend optimized for Google Chrome. For simple install & try there is a runtime for Windows and for Linux available which contains jetty, mongoDB and scripts to run the application with no additional configuration required. For more information please read the full [documentation](https://github.com/kanbanik/kanbanik/wiki).
 
-You can try a [Live Demo](http://kanbanikdemo-jelkosz.rhcloud.com/) name: test, pass: test
-
-or [download](https://github.com/kanbanik/kanbanik/wiki/Downloads) and [install](https://github.com/kanbanik/kanbanik/wiki/Installation-Guide) on your own setup.
+You can try a [Live Demo](http://kanbanikdemo-jelkosz.rhcloud.com/) name: test, pass: test 
+Or [download](https://github.com/kanbanik/kanbanik/wiki/Downloads) and [install](https://github.com/kanbanik/kanbanik/wiki/Installation-Guide) on your own setup.
 
 ## Get in Touch
 You can follow us on [twitter](https://twitter.com/kanbanik)
