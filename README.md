@@ -1,8 +1,8 @@
 Kanbanik is a free and open source kanban board which can be used for personal kanban as well as for managing of small teams. 
 
-You can follow it also on [![twitter]](https://twitter.com/kanbanik)
+You can follow it also on [twitter](https://twitter.com/kanbanik)
 
-[![Live Demo]](http://kanbanikdemo-jelkosz.rhcloud.com/) name: test, pass: test
+[Live Demo](http://kanbanikdemo-jelkosz.rhcloud.com/) name: test, pass: test
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jelkosz/kanbanik?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -26,7 +26,7 @@ Kanbanik is a Scala web application with a rich GWT frontend optimized for Googl
 #Have question/comment?
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jelkosz/kanbanik?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Forum]](https://groups.google.com/forum/#!forum/kanbanik)
+[Forum](https://groups.google.com/forum/#!forum/kanbanik)
 
 Mailing list: kanbanik@googlegroups.com
 
