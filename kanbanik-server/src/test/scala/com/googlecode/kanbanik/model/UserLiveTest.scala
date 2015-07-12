@@ -1,12 +1,9 @@
 package com.googlecode.kanbanik.model
 
 import org.scalatest.FlatSpec
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 
-@RunWith(classOf[JUnitRunner])
 class UserLiveTest extends FlatSpec with BeforeAndAfter {
   "store()" should "create a new user if does not exist" in {
     mkDefaultUser.store

@@ -1,9 +1,7 @@
 package com.googlecode.kanbanik.integration
 
-import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import com.googlecode.kanbanik.builders.{TaskBuilder, WorkflowitemTestManipulation, ProjectBuilder}
 import com.googlecode.kanbanik.commands.AddProjectsToBoardCommand
 import com.googlecode.kanbanik.commands.EditWorkflowCommand
@@ -29,7 +27,6 @@ import scala.Some
  * This are tests which expects working DB and are trying to simulate some basic use
  * cases of the users. They are calling real commands
  */
-@RunWith(classOf[JUnitRunner])
 class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTestManipulation {
   "Kanbanik" should "be able to create a new setup from scratch use it and delete it" in {
       val start = System.currentTimeMillis()

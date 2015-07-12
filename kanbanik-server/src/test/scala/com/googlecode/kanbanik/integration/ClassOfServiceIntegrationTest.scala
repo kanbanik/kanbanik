@@ -1,8 +1,6 @@
 package com.googlecode.kanbanik.integration
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.model.DbCleaner
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
@@ -10,7 +8,6 @@ import com.googlecode.kanbanik.model.ClassOfService
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.dtos.ClassOfServiceDto
 
-@RunWith(classOf[JUnitRunner])
 class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
 
   "class of service" should "should be able to do the whole cycle" in {

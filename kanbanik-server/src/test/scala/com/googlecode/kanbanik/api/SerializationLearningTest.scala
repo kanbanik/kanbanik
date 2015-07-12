@@ -1,13 +1,10 @@
 package com.googlecode.kanbanik.api
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import net.liftweb.json._
 import org.scalatest.FlatSpec
 
 case class ClassWithOption(name: String, version: Option[Int])
 
-@RunWith(classOf[JUnitRunner])
 class SerializationLearningTest extends FlatSpec {
   implicit val formats = DefaultFormats // Brings in default date formats etc
 

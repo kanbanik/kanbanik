@@ -1,13 +1,10 @@
 package com.googlecode.kanbanik.model
 
 import org.scalatest.FunSpec
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.bson.types.ObjectId
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 
-@RunWith(classOf[JUnitRunner])
 class WorkflowTest extends BaseWorkflowManipulatingTest with BeforeAndAfter {
 
   "removeItem() flat" should "be able to remove the only item" in {

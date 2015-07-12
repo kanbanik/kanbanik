@@ -1,9 +1,7 @@
 package com.googlecode.kanbanik.integration
 
-import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.DeleteUserCommand
 import com.googlecode.kanbanik.commands.EditUserCommand
@@ -16,7 +14,6 @@ import org.apache.shiro.mgt.DefaultSecurityManager
 import com.googlecode.kanbanik.commands.LoginCommand
 import com.googlecode.kanbanik.dtos.{UserDto, SessionDto, ManipulateUserDto, LoginDto}
 
-@RunWith(classOf[JUnitRunner])
 class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
   "users" should "should be able to do the whole cycle" in {
     val userDto = ManipulateUserDto(
