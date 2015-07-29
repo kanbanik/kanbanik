@@ -1,9 +1,7 @@
 package com.googlecode.kanbanik.commands
 
-import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.SecureRandomNumberGenerator
 import org.apache.shiro.crypto.hash.Sha512Hash
-import org.apache.shiro.util.ByteSource
 import com.googlecode.kanbanik.security.KanbanikRealm
 import com.googlecode.kanbanik.model.User
 
