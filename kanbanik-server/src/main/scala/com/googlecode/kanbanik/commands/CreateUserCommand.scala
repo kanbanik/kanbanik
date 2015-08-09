@@ -29,7 +29,9 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
     		params.realName,
     		params.pictureUrl,
     		salt,
-    		1
+    		1,
+        List(),
+        false
     ).store
     
     new Left(userBuilder.buildDto(user, params.sessionId))

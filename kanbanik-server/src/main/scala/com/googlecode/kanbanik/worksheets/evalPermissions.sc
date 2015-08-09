@@ -13,7 +13,7 @@ type Check = PartialFunction[Permission, Boolean]
 
 type CheckWithMessage = (Check, String)
 
-def checkPermissions(user: User): List[String] = {
+def checkPermissions(user: User): Option[List[String]] = {
   doCheckPermissions(user, List[CheckWithMessage](
     ({case Permission(PermissionType.ManipulateBoard, some: String) => true}, "you need this"),
     ({case Permission(PermissionType.ManipulateUser, some: String) => true}, "you need that")
@@ -23,7 +23,11 @@ def checkPermissions(user: User): List[String] = {
 def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {
   val resultsToMessages: List[(Seq[Boolean], String)] = checks.map(check => (user.permissions collect check._1, check._2))
   val failedMessages = resultsToMessages collect {case rtm if !rtm._1.contains(true) => rtm._2}
-  failedMessages
+  if (failedMessages isEmpty) {
+    None
+  } else {
+    Some(failedMessages)
+  }
 }
 
 val manipulateProjectPermission = Permission(PermissionType.ManipulateProject)
@@ -36,4 +40,6 @@ checkPermissions(User("a", manipulateBoardPermission, manipulateProjectPermissio
 
 checkPermissions(User("a", manipulateBoardPermission, manipulateProjectPermission, manipulateUserPermission))
 
+PermissionType.ManipulateUser.id
+PermissionType(12)
 
