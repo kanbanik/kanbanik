@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.model
 
+import com.googlecode.kanbanik.dtos.PermissionType
 import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
@@ -75,14 +76,15 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
     val manipulateUserPermission = Permission(PermissionType.ManipulateUser, List())
     val manipulateBoardPermission = Permission(PermissionType.ManipulateBoard, List("the board id"))
     val manipulateProjectPermission = Permission(PermissionType.ManipulateProject, List("the board id", "the project id"))
-    val u = mkDefaultUser.copy(permissions = List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission))
+    mkDefaultUser.copy(permissions = List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission)).store
 
-    u.store
     assert(User.byId("name").permissions === List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission))
 
     User.byId("name").copy(permissions = List(manipulateBoardPermission, manipulateProjectPermission)).store
-
     assert(User.byId("name").permissions === List(manipulateBoardPermission, manipulateProjectPermission))
+
+    User.byId("name").copy(permissions = List()).store
+    assert(User.byId("name").permissions === List())
 
   }
 

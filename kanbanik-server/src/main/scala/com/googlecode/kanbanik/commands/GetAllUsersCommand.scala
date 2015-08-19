@@ -6,9 +6,7 @@ import com.googlecode.kanbanik.model.User
 
 class GetAllUsersCommand extends Command[SessionDto, ListDto[UserDto]] with CredentialsUtils {
 
-  lazy val userBuilder = new UserBuilder
-
   def execute(params: SessionDto): Either[ListDto[UserDto], ErrorDto] = {
-    Left(ListDto(User.all.map(userBuilder.buildDto(_, params.sessionId))))
+    Left(ListDto(User.all.map(UserBuilder.buildDto(_, params.sessionId))))
   }
 }

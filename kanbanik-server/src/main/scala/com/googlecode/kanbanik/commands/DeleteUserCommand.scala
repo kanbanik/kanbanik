@@ -1,14 +1,11 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.builders.UserBuilder
 import com.googlecode.kanbanik.model.User
 import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, UserDto}
 
 class DeleteUserCommand extends Command[UserDto, EmptyDto] with CredentialsUtils {
   
-  lazy val userBuilder = new UserBuilder
-
   def execute(params: UserDto): Either[EmptyDto, ErrorDto] = {
 
     if(User.all().size > 1) {

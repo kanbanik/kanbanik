@@ -21,7 +21,6 @@ import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
 import com.googlecode.kanbanik.dtos._
-import scala.Some
 
 /**
  * This are tests which expects working DB and are trying to simulate some basic use
@@ -33,7 +32,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     // creation phase
     
     // create user
-    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, "", 1, "aaa", "aaa"))
+    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, "", 1, "aaa", "aaa", None))
 
     // create board
     val board = BoardDto(

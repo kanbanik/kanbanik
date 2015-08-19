@@ -6,9 +6,17 @@ package object dtos {
 
   case class SessionDto(sessionId: String)
 
-  case class UserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int)
+  case class UserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, permissions: Option[List[PermissionDto]])
 
-  case class ManipulateUserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, password: String, newPassword: String)
+  case class ManipulateUserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, password: String, newPassword: String, permissions: Option[List[PermissionDto]])
+
+  case class PermissionDto(permissionType: Int, args: List[String])
+
+  object PermissionType extends Enumeration {
+    val ManipulateBoard = Value(0)
+    val ManipulateUser = Value(1)
+    val ManipulateProject = Value(2)
+  }
 
   case class ClassOfServiceDto(id: Option[String], name: String, description: String, colour: String, version: Int, sessionId: Option[String])
 

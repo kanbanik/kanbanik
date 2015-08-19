@@ -8,8 +8,6 @@ import scala.Some
 class TaskBuilder extends TaskManipulation {
 
   lazy val classOfServiceBuilder = new ClassOfServiceBuilder
-  
-  lazy val userBuilder = new UserBuilder
 
   def buildDto(task: Task): TaskDto = {
     TaskDto(
@@ -35,7 +33,7 @@ class TaskBuilder extends TaskManipulation {
       task.projectId.toString,
       {
         if (task.assignee.isDefined) {
-          Some(userBuilder.buildDto(task.assignee.get, ""))
+          Some(UserBuilder.buildDto(task.assignee.get, ""))
         } else {
           None
         }
@@ -82,7 +80,7 @@ class TaskBuilder extends TaskManipulation {
       if (!taskDto.assignee.isDefined) {
         None
       } else {
-        Some(userBuilder.buildEntity(taskDto.assignee.get))
+        Some(UserBuilder.buildEntity(taskDto.assignee.get))
       }
     },
     taskDto.dueDate.getOrElse(""),

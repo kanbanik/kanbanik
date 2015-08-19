@@ -1,13 +1,11 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.UserBuilder
-import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.model.{Permission, User}
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.dtos.{ErrorDto, UserDto, ManipulateUserDto}
+import com.googlecode.kanbanik.dtos._
 
 class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils with HasMongoConnection {
-
-  lazy val userBuilder = new UserBuilder
   
   def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
 
@@ -34,7 +32,7 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
         false
     ).store
     
-    new Left(userBuilder.buildDto(user, params.sessionId))
+    new Left(UserBuilder.buildDto(user, params.sessionId))
   }
 
 }

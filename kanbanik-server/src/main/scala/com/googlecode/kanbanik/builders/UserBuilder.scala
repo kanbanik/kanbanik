@@ -1,11 +1,17 @@
 package com.googlecode.kanbanik.builders
 
-import com.googlecode.kanbanik.dtos.{UserDto => NewUserDto}
+import com.googlecode.kanbanik.dtos.UserDto
 import com.googlecode.kanbanik.model.User
 
-class UserBuilder {
+object UserBuilder {
 
-  def buildDto(user: User, sessionId: String) = new NewUserDto(user.name, user.realName, user.pictureUrl, sessionId, user.version)
+  def buildDto(user: User, sessionId: String) = new UserDto(user.name,
+    user.realName,
+    user.pictureUrl,
+    sessionId,
+    user.version,
+    Some(user.permissions.map(PermissionsBuilder.buildDto(_)))
+  )
 
-  def buildEntity(userDto: NewUserDto) = User(userDto.userName)
+  def buildEntity(userDto: UserDto) = User(userDto.userName)
 }

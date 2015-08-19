@@ -10,8 +10,6 @@ import com.googlecode.kanbanik.dtos.{ErrorDto, UserDto, LoginDto}
 
 class LoginCommand extends Command[LoginDto, UserDto] {
   
-  lazy val userBuilder = new UserBuilder
-  
   // 8h - one working day
   lazy val timeout = 28800000
   
@@ -29,6 +27,6 @@ class LoginCommand extends Command[LoginDto, UserDto] {
     
     val principal = currentUser.getPrincipal.asInstanceOf[User]
 
-    Left(userBuilder.buildDto(principal, SecurityUtils.getSubject.getSession.getId.toString))
+    Left(UserBuilder.buildDto(principal, SecurityUtils.getSubject.getSession.getId.toString))
   }
 }

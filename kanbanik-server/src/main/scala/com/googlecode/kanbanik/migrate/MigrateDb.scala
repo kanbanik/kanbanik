@@ -78,7 +78,9 @@ class From1To2 extends MigrationPart {
       "sessionId",
       1,
       "admin",
-      "admin")
+      "admin",
+      None
+    )
 
     // create the first user
     new CreateUserCommand().execute(userDto)

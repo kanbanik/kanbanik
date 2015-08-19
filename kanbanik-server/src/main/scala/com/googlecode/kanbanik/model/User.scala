@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.model
 
 import com.googlecode.kanbanik.db.{HasMidAirCollisionDetection, HasMongoConnection}
 import com.googlecode.kanbanik.commons._
+import com.googlecode.kanbanik.dtos.PermissionType
 import com.mongodb.{BasicDBList, DBObject}
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
@@ -160,3 +161,5 @@ object User extends HasMongoConnection {
   }
 
 }
+
+case class Permission(permissionType: PermissionType.Value, arg: List[String])

@@ -1,3 +1,4 @@
+import com.googlecode.kanbanik.dtos.{PermissionDto, ErrorDto}
 
 object PermissionType extends Enumeration {
   val ManipulateBoard = Value(0)
@@ -41,5 +42,13 @@ checkPermissions(User("a", manipulateBoardPermission, manipulateProjectPermissio
 checkPermissions(User("a", manipulateBoardPermission, manipulateProjectPermission, manipulateUserPermission))
 
 PermissionType.ManipulateUser.id
-PermissionType(12)
+
+findIncorrectPermissions(List(new PermissionDto(1, List()), new PermissionDto(9, List()), new PermissionDto(8, List())))
+
+def findIncorrectPermissions(permissions: List[PermissionDto]): Option[ErrorDto] = {
+  val ids = for (t <- PermissionType.values) yield t.id
+  val res = permissions.filter(p => !ids.contains(p.permissionType))
+  if (res.isEmpty) None else Some(ErrorDto("Unknown permission ids: " + res.map(_.permissionType).mkString(", ")))
+}
+
 

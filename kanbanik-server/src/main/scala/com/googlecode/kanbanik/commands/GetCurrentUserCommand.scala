@@ -9,8 +9,6 @@ import com.googlecode.kanbanik.dtos.{SessionDto, ErrorDto, UserDto, EmptyDto}
 
 class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
-  lazy val userBuilder = new UserBuilder
-  
   def execute(params: SessionDto): Either[UserDto, ErrorDto] = {
     val sessionId = params.sessionId
 
@@ -22,7 +20,7 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
     if (user.isAuthenticated) {
       val userPrincipal = user.getPrincipal.asInstanceOf[User]
-    	Left(userBuilder.buildDto(userPrincipal, sessionId))
+    	Left(UserBuilder.buildDto(userPrincipal, sessionId))
     } else {
     	Right(ErrorDto("No user logged in."))
     }

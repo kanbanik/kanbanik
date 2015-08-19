@@ -1,6 +1,6 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.model.{Permission, User}
 import net.liftweb.json._
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.security._
@@ -11,7 +11,9 @@ abstract class Command[T: Manifest, R] {
 
   def execute(parsedJson: JValue, user: User): Either[R, ErrorDto] = {
     val param: T = parsedJson.extract[T]
-    val res = user.checkPermissions(this, param)
+
+    val res = user.checkPermissions[T, R](this, param)
+
     if (res.isDefined) {
       Right(ErrorDto("Insufficient permissions. Missing: " + res.get.mkString("; ")))
     } else {
