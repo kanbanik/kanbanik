@@ -4,6 +4,8 @@ import com.googlecode.kanbanik.builders.UserBuilder
 import com.googlecode.kanbanik.model.{Permission, User}
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.security._
+
 
 class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils with HasMongoConnection {
   
@@ -35,4 +37,9 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
     new Left(UserBuilder.buildDto(user, params.sessionId))
   }
 
+  override def checkPermissions[T](param: T, user: User): Option[List[String]] = {
+    doCheckPermissions(user, List[CheckWithMessage](
+      ({case Permission(PermissionType.ManipulateUser, List()) => true}, "You need to have the global Manipulate User permission")
+    ))
+  }
 }

@@ -12,7 +12,7 @@ abstract class Command[T: Manifest, R] {
   def execute(parsedJson: JValue, user: User): Either[R, ErrorDto] = {
     val param: T = parsedJson.extract[T]
 
-    val res = user.checkPermissions[T, R](this, param)
+    val res = checkPermissions[T](param, user)
 
     if (res.isDefined) {
       Right(ErrorDto("Insufficient permissions. Missing: " + res.get.mkString("; ")))
@@ -27,4 +27,10 @@ abstract class Command[T: Manifest, R] {
   }
 
   def execute(dto: T): Either[R, ErrorDto]
+
+  def checkPermissions[T](param: T, user: User): Option[List[String]] = {
+    // temporarily bypass permission check for all commands
+    // it will stay this way only until the development of this part will be done - never release this way
+    None
+  }
 }

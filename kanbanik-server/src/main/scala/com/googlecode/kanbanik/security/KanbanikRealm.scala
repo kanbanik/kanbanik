@@ -6,11 +6,9 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher
 import org.apache.shiro.realm.AuthenticatingRealm
+import org.apache.shiro.subject.{PrincipalCollection, Subject}
 import org.apache.shiro.util.ByteSource
 import com.googlecode.kanbanik.model.User
-import org.apache.shiro.codec.Base64
-import org.apache.shiro.codec.CodecSupport
-import org.apache.shiro.crypto.hash.Sha512Hash
 
 class KanbanikRealm extends AuthenticatingRealm {
 
@@ -32,5 +30,6 @@ class KanbanikRealm extends AuthenticatingRealm {
 
     new SimpleAuthenticationInfo(user, user.password, salt, getName)
   }
+
 
 }

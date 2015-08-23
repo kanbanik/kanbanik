@@ -3,10 +3,13 @@ package com.googlecode.kanbanik.api
 
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.security.KanbanikRealm
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
 import com.googlecode.kanbanik.commands._
 import com.googlecode.kanbanik.dto.CommandNames._
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.mgt.DefaultSecurityManager
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext;
 import com.googlecode.kanbanik.dto.ErrorCodes._
@@ -16,6 +19,7 @@ import org.atmosphere.cpr.{AtmosphereResource, BroadcasterFactory, Broadcaster, 
 import org.atmosphere.cpr.BroadcastFilter.BroadcastAction
 import java.util.zip.GZIPOutputStream
 import java.nio.charset.Charset
+import scala.collection.JavaConversions._
 
 class KanbanikApi extends HttpServlet {
 
@@ -91,7 +95,10 @@ class KanbanikApi extends HttpServlet {
         return
       }
       ThreadContext.bind(subject)
-      subject.getPrincipal.asInstanceOf[User]
+      // cleares the cached permissions of the user before every command call since the permission might be changed
+      // not efficient but very simple - when starts to be a bottleneck need a better solution
+      val cached = subject.getPrincipal.asInstanceOf[User]
+      User.byId(cached.name)
     }
 
     try {
