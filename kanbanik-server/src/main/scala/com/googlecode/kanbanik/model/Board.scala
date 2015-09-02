@@ -5,7 +5,8 @@ import com.mongodb.casbah.Imports._
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
+import com.googlecode.kanbanik.security._
+import com.googlecode.kanbanik.dtos.{PermissionType, WorkfloVerticalSizing}
 
 case class Board(
   id: Option[ObjectId],
@@ -92,21 +93,38 @@ object Board extends HasMongoConnection {
   }
 
   def all(includeTasks: Boolean, includeTaskDescription: Boolean): List[Board] = {
+    val manipulateUserPermission = List(
+      Permission(
+        PermissionType.ReadBoard, List("55e74298e5e089200feedc9a")
+      ),
+
+      Permission(
+        PermissionType.ManipulateUser, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
+      )
+    )
+    val u = User().copy(permissions = manipulateUserPermission)
+    all(includeTasks, includeTaskDescription, u)
+  }
+
+  def all(includeTasks: Boolean, includeTaskDescription: Boolean, user: User): List[Board] = {
+
+    val filter = Board.Fields.id.toString $in buildObjectIdFilterQuery(user, PermissionType.ReadBoard)
+
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
-            if (includeTaskDescription) {
-              // ok, no exclusions
-              MongoDBObject()
-            } else {
-              MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString -> 0)
-            }
+          if (includeTaskDescription) {
+            // ok, no exclusions
+            MongoDBObject()
+          } else {
+            MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString -> 0)
+          }
         } else {
           MongoDBObject(Board.Fields.tasks.toString -> 0)
         }
       }
-      
-      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
+
+      coll(conn, Coll.Boards).find(filter, taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 
@@ -151,4 +169,5 @@ object Board extends HasMongoConnection {
       resBoard
     }
   }
+
 }
