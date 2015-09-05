@@ -12,8 +12,8 @@ class LoginCommand extends Command[LoginDto, UserDto] {
   
   // 8h - one working day
   lazy val timeout = 28800000
-  
-  def execute(params: LoginDto): Either[UserDto, ErrorDto] = {
+
+  override def execute(params: LoginDto): Either[UserDto, ErrorDto] = {
     val currentUser = new Subject.Builder().buildSubject()
     try {
       currentUser.login(new UsernamePasswordToken(params.userName, params.password))

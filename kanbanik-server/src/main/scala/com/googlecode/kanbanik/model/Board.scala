@@ -87,23 +87,9 @@ object Board extends HasMongoConnection {
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
 
-  def all(includeTasks: Boolean): List[Board] = {
+  def all(includeTasks: Boolean, user: User): List[Board] = {
     // does not retrieve the description of the task even it retrieves tasks
-    all(includeTasks, includeTaskDescription = false)
-  }
-
-  def all(includeTasks: Boolean, includeTaskDescription: Boolean): List[Board] = {
-    val manipulateUserPermission = List(
-      Permission(
-        PermissionType.ReadBoard, List("55e74298e5e089200feedc9a")
-      ),
-
-      Permission(
-        PermissionType.ManipulateUser, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
-      )
-    )
-    val u = User().copy(permissions = manipulateUserPermission)
-    all(includeTasks, includeTaskDescription, u)
+    all(includeTasks, includeTaskDescription = false, user)
   }
 
   def all(includeTasks: Boolean, includeTaskDescription: Boolean, user: User): List[Board] = {

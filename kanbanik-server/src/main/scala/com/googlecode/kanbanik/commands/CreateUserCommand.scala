@@ -8,8 +8,8 @@ import com.googlecode.kanbanik.security._
 
 
 class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils with HasMongoConnection {
-  
-  def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
+
+  override def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
 
     val name = params.userName
 

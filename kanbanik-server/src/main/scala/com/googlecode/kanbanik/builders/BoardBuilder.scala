@@ -1,8 +1,7 @@
 package com.googlecode.kanbanik.builders
 
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{User, Board, Workflow}
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, BoardDto, WorkflowDto}
 
 class BoardBuilder extends BaseBuilder {
@@ -11,15 +10,15 @@ class BoardBuilder extends BaseBuilder {
 
   val taskBuilder = new TaskBuilder
 
-  def buildDto(board: Board): BoardDto = {
-    buildDto(board, None)
+  def buildDto(board: Board, user: User): BoardDto = {
+    buildDto(board, None, user)
   }
 
-  def buildDto(board: Board, workflow: Option[WorkflowDto]): BoardDto = {
+  def buildDto(board: Board, workflow: Option[WorkflowDto], user: User): BoardDto = {
     val res = buildShallowDto(board)
 
     res.copy(
-      workflow = Some(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res))))
+      workflow = Some(workflow.getOrElse(workflowBuilder.buildDto(board.workflow, Some(res), user)))
     )
   }
 

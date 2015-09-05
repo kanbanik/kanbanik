@@ -8,7 +8,7 @@ class SaveBoardCommand extends Command[BoardDto, BoardDto] {
 
   lazy val boardBuilder = new BoardBuilder()
 
-  def execute(boardDto: BoardDto): Either[BoardDto, ErrorDto] = {
+  override def execute(boardDto: BoardDto): Either[BoardDto, ErrorDto] = {
     val storedBoard: Board = {
       try {
         boardBuilder.buildEntity(boardDto).store

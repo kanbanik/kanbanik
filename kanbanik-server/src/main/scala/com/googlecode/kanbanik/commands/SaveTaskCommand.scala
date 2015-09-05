@@ -10,7 +10,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
     if (taskDto.workflowitemId == null) {
       return Right(ErrorDto("At least one workflowitem must exist to create a task!"))
     }

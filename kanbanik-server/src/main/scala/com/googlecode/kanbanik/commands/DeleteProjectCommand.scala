@@ -1,4 +1,6 @@
 package com.googlecode.kanbanik.commands
+
+import com.googlecode.kanbanik.model.User
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
@@ -10,7 +12,7 @@ class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectVal
 
   lazy val projectBuilder = new ProjectBuilder
 
-  def execute(params: ProjectDto): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: ProjectDto, user: User): Either[EmptyDto, ErrorDto] = {
 
     if (!params.id.isDefined) {
       return Right(ErrorDto("The ID of the project has to be set"))
@@ -20,7 +22,7 @@ class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectVal
     
     val project = projectBuilder.buildEntity(params)
     
-    val (deletable, msg) = canBeDeleted(project)
+    val (deletable, msg) = canBeDeleted(project, user)
     if (!deletable) {
     	return Right(ErrorDto(msg))
     }

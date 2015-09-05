@@ -5,14 +5,14 @@ import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, UserDto}
 
 class DeleteUserCommand extends Command[UserDto, EmptyDto] with CredentialsUtils {
-  
-  def execute(params: UserDto): Either[EmptyDto, ErrorDto] = {
+
+  override  def execute(params: UserDto, user: User): Either[EmptyDto, ErrorDto] = {
 
     if(User.all().size > 1) {
       val user = User.byId(params.userName)
 
       // this is an expensive operation - consider to have this info on the user directly to speed things up
-      val tasksOfUser = for (board <- Board.all(includeTasks = true); task <- board.tasks if task.assignee.getOrElse(User()).name == user.name) yield task
+      val tasksOfUser = for (board <- Board.all(includeTasks = true, user); task <- board.tasks if task.assignee.getOrElse(User()).name == user.name) yield task
       if (tasksOfUser.size == 0) {
         user.copy(version = params.version).delete()
         Left(EmptyDto())

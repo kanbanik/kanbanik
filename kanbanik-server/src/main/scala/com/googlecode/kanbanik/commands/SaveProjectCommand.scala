@@ -9,7 +9,7 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
 
   private lazy val projectBuilder = new ProjectBuilder()
 
-  def execute(params: ProjectDto): Either[ProjectDto, ErrorDto] = {
+  override def execute(params: ProjectDto): Either[ProjectDto, ErrorDto] = {
 
     if (params.boardIds.isDefined) {
       for (board <- params.boardIds.get) {

@@ -17,7 +17,8 @@ abstract class Command[T: Manifest, R] {
     if (res.isDefined) {
       Right(ErrorDto("Insufficient permissions. Missing: " + res.get.mkString("; ")))
     } else {
-      execute(parsedJson.extract[T])
+      execute(parsedJson.extract[T], user)
+
     }
 
   }
@@ -26,7 +27,9 @@ abstract class Command[T: Manifest, R] {
     execute(dto)
   }
 
-  def execute(dto: T): Either[R, ErrorDto]
+  def execute(dto: T): Either[R, ErrorDto] = {
+    ???
+  }
 
   def checkPermissions[T](param: T, user: User): Option[List[String]] = {
     // temporarily bypass permission check for all commands

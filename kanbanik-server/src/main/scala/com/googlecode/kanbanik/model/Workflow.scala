@@ -117,9 +117,9 @@ case class Workflow(
     makeResult(traverseWorkflow(workflowitems))
   }
   
-  def board = _board.getOrElse(loadBoard)
+  def board(user: User) = _board.getOrElse(loadBoard(user))
 
-  def loadBoard = {
+  def loadBoard(user: User) = {
     
     def containsThisWorkflowInItems(workflowitems: List[Workflowitem]): Boolean = {
         workflowitems match {
@@ -138,7 +138,7 @@ case class Workflow(
     }
     
     // quite a heavy operation
-    val board = Board.all(includeTasks = false).find(board => containsThisWorkflow(board.workflow))
+    val board = Board.all(includeTasks = false, user).find(board => containsThisWorkflow(board.workflow))
     
 	board.getOrElse(throw new IllegalStateException("The workflow with id: '" + id + "' does not exist!"))
     

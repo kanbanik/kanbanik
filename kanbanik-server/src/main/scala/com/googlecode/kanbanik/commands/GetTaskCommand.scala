@@ -10,7 +10,7 @@ class GetTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
   lazy val taskBuilder = new TaskBuilder
 
-  def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
     val res = Task.byId(new ObjectId(taskDto.id.get))
     Left(taskBuilder.buildDto(res))
   }

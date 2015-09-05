@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{BoardBuilder, ProjectBuilder, TaskBuilder}
 import com.googlecode.kanbanik.dtos.{BoardWithProjectsDto, ErrorDto, GetAllBoardsWithProjectsDto, ListDto, _}
-import com.googlecode.kanbanik.model.{Board, Project}
+import com.googlecode.kanbanik.model.{User, Board, Project}
 
 class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[BoardWithProjectsDto]] {
 
@@ -12,9 +12,9 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
 
   val taskBuilder = new TaskBuilder
 
-  def execute(params: GetAllBoardsWithProjectsDto): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
+  def execute(params: GetAllBoardsWithProjectsDto, user: User): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
 
-    val loadedBoards = Board.all(params.includeTasks.getOrElse(false), params.includeTaskDescription.getOrElse(false))
+    val loadedBoards = Board.all(params.includeTasks.getOrElse(false), params.includeTaskDescription.getOrElse(false), user)
     val loadedProjects = Project.all()
 
     val res = ListDto(

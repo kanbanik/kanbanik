@@ -12,7 +12,7 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  def execute(taskDto: TasksDto): Either[TasksDto, ErrorDto] = {
+  override def execute(taskDto: TasksDto): Either[TasksDto, ErrorDto] = {
 
 	  val results = taskDto.values.par.map(doExecute)
 	  val errorResults = results.filter(_.isRight)

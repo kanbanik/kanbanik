@@ -6,7 +6,7 @@ import com.googlecode.kanbanik.dtos._
 
 class EditUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils {
 
-  def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
+  override def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
     if (params.password == "") {
       return Right(ErrorDto("The password can not be empty!"))
     }

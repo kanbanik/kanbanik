@@ -11,7 +11,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  def execute(params: MoveTaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(params: MoveTaskDto): Either[TaskDto, ErrorDto] = {
     
     val oldTask = loadTask(new ObjectId(params.task.id.get)).getOrElse(
         return Right(ErrorDto(ServerMessages.entityDeletedMessage("task")))

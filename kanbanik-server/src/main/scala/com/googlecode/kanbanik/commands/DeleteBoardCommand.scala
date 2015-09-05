@@ -12,7 +12,7 @@ class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnec
 
   lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: BoardDto): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: BoardDto): Either[EmptyDto, ErrorDto] = {
     val boardId = new ObjectId(params.id.getOrElse(
       return Right(ErrorDto("Board has to be defined"))
     ))

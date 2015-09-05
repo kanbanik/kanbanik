@@ -1,12 +1,10 @@
 package com.googlecode.kanbanik.model.validation
-import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Task
+import com.googlecode.kanbanik.model.{User, Project, Board, Task}
 
 trait ProjectValidation {
 
-  def canBeDeleted(project: Project): (Boolean, String) = {
-    val tasksOnProject = findTasksOnProject(project)
+  def canBeDeleted(project: Project, user: User): (Boolean, String) = {
+    val tasksOnProject = findTasksOnProject(project, user)
     if (tasksOnProject.isEmpty) {
       return (true, "")
     }
@@ -14,9 +12,9 @@ trait ProjectValidation {
     composeResult(tasksOnProject)
   }
 
-  def canBeRemoved(project: Project, board: Board): (Boolean, String) = {
+  def canBeRemoved(project: Project, board: Board, user: User): (Boolean, String) = {
     // especially here it is wasteful - but since there is rarely more than one board...
-    val tasksOnProject = findTasksOnProject(project)
+    val tasksOnProject = findTasksOnProject(project, user)
     if (tasksOnProject.isEmpty) {
       return (true, "")
     }
@@ -41,6 +39,6 @@ trait ProjectValidation {
 
   // REALLY heavy operation! It is based on assumption that there will be only few boards 
   // in the system - mostly one. As soon as this will not be true anymore, needs to be optimized!
-  private def findTasksOnProject(project: Project) = for (board <- Board.all(includeTasks = true); task <- board.tasks; if task.projectId == project.id.get) yield task
+  private def findTasksOnProject(project: Project, user: User) = for (board <- Board.all(includeTasks = true, user); task <- board.tasks; if task.projectId == project.id.get) yield task
 
 }
