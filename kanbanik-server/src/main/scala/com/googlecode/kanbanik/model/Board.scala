@@ -107,9 +107,6 @@ object Board extends HasMongoConnection {
   }
 
   def all(includeTasks: Boolean, includeTaskDescription: Boolean, user: User): List[Board] = {
-
-    val filter = Board.Fields.id.toString $in buildObjectIdFilterQuery(user, PermissionType.ReadBoard)
-
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
@@ -124,7 +121,10 @@ object Board extends HasMongoConnection {
         }
       }
 
-      coll(conn, Coll.Boards).find(filter, taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
+      coll(conn, Coll.Boards).find(
+        buildObjectIdFilterQuery(user, PermissionType.ReadBoard),
+        taskExclusionObject
+      ).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 

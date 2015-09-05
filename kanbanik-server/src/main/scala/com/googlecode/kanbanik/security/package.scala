@@ -3,7 +3,9 @@ package com.googlecode.kanbanik
 import com.googlecode.kanbanik.commands.{Command, CreateUserCommand}
 import com.googlecode.kanbanik.model.{User, Permission}
 import com.googlecode.kanbanik.dtos.PermissionType
+import com.mongodb.casbah.commons.MongoDBObject
 import org.bson.types.ObjectId
+import com.mongodb.casbah.Imports._
 
 package object security {
 
@@ -27,13 +29,25 @@ package object security {
     }
   }
 
-  def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): List[Any] = {
+  type CanReadAll = String
+
+  type PermittedIds = List[Any]
+
+  def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): MongoDBObject = {
     val conv: String => Any = x => new ObjectId(x)
-    buildFilterQuery(user, pt)(conv)
+    buildFilterQuery(user, pt)(conv) match {
+      case Left(ids) => "_id" $in ids
+      case Right(_) => MongoDBObject()
+    }
   }
 
-  def buildFilterQuery(user: User, pt: PermissionType.Value)(conv: String => Any): List[Any] = {
-    val r = user.permissions.collect {case Permission(realPt, args) if pt == realPt => args.map(conv)}
-    r.flatten
+  def buildFilterQuery(user: User, pt: PermissionType.Value)(conv: String => Any): Either[PermittedIds, CanReadAll] = {
+    val r = user.permissions.collect {case Permission(realPt, args) if pt == realPt => args}
+    val flat = r.flatten
+    if (!flat.contains("*")) {
+      Left(flat.map(conv))
+    } else {
+      Right("*")
+    }
   }
 }

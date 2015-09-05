@@ -93,7 +93,7 @@ object Project extends HasMongoConnection {
 
   private def asEntity(dbObject: DBObject): Project = {
     val allBoards = buildMap[Board](Board.all(includeTasks = false))
-    asEntity(dbObject, obj => toEntityList(obj.get(Fields.boards.toString), allBoards.get(_).get))
+    asEntity(dbObject, obj => toEntityList(obj.get(Fields.boards.toString), allBoards.get(_)))
   }
 
   private def asEntity(dbObject: DBObject, boardsProvider: DBObject => Option[List[Board]]): Project = {
@@ -118,11 +118,10 @@ object Project extends HasMongoConnection {
     }
   }
 
-  private def toEntityList[T](dbObject: Object, codeBlock: ObjectId => T) = {
+  private def toEntityList[T](dbObject: Object, codeBlock: ObjectId => Option[T]) = {
     if (dbObject == null || dbObject == None) {
       None
     } else {
-
       val processList: List[ObjectId] = {
         dbObject match {
           case ids: List[_] =>
@@ -135,7 +134,12 @@ object Project extends HasMongoConnection {
       if (processList == null || processList.size == 0) {
         None
       } else {
-        Some(for { boardId <- processList } yield codeBlock(boardId))
+        val res: List[T] = processList.map(boardId => codeBlock(boardId)).filter(_.isDefined).map(_.get)
+        if (res.size == 0) {
+          None
+        } else {
+          Some(res)
+        }
       }
     }
   }

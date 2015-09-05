@@ -8,6 +8,5 @@ trait ResourceManipulation {
       // do not close it - this is not a connection, this is a pool
       // of connections. It will be closed at shutdown of the web
       // container using a listener class
-//      param.close()
     }
 }

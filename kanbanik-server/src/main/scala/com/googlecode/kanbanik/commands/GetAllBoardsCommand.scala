@@ -1,14 +1,8 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Project
-import com.googlecode.kanbanik.builders.{TaskBuilder, ProjectBuilder, BoardBuilder}
-import com.googlecode.kanbanik.dtos._
-import com.googlecode.kanbanik.dtos.ErrorDto
-import com.googlecode.kanbanik.dtos.GetAllBoardsWithProjectsDto
-import com.googlecode.kanbanik.dtos.ListDto
-import scala.Some
-import com.googlecode.kanbanik.dtos.BoardWithProjectsDto
+import com.googlecode.kanbanik.builders.{BoardBuilder, ProjectBuilder, TaskBuilder}
+import com.googlecode.kanbanik.dtos.{BoardWithProjectsDto, ErrorDto, GetAllBoardsWithProjectsDto, ListDto, _}
+import com.googlecode.kanbanik.model.{Board, Project}
 
 class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[BoardWithProjectsDto]] {
 
