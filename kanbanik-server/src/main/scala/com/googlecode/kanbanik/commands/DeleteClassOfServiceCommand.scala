@@ -10,7 +10,7 @@ class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] w
 
   lazy val classOfServiceBuilder = new ClassOfServiceBuilder
 
-  def execute(params: ClassOfServiceDto, user: User): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: ClassOfServiceDto, user: User): Either[EmptyDto, ErrorDto] = {
     val entity = classOfServiceBuilder.buildEntity(params)
 
     loadClassOfService(entity.id.get).getOrElse(

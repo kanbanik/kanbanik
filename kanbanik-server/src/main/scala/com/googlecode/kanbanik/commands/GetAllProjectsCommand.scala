@@ -1,5 +1,5 @@
 package com.googlecode.kanbanik.commands
-import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.{User, Project}
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.dtos._
 import com.googlecode.kanbanik.dtos.ListDto
@@ -10,9 +10,9 @@ class GetAllProjectsCommand extends Command[EmptyDto, ListDto[ProjectDto]] {
 
   lazy val projectBuilder = new ProjectBuilder()
 
-  def execute(params: EmptyDto): Either[ListDto[ProjectDto], ErrorDto] = {
+  override def execute(params: EmptyDto, user: User): Either[ListDto[ProjectDto], ErrorDto] = {
 
-    val dtos = Project.all.map(projectBuilder.buildDto)
+    val dtos = Project.all(user).map(projectBuilder.buildDto)
 
     Left(ListDto(dtos))
   }

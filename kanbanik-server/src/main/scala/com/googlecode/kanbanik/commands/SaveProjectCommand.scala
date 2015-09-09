@@ -1,7 +1,7 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import scala.collection.JavaConversions._
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{User, Board}
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectDto}
 
@@ -9,7 +9,7 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
 
   private lazy val projectBuilder = new ProjectBuilder()
 
-  override def execute(params: ProjectDto): Either[ProjectDto, ErrorDto] = {
+  override def execute(params: ProjectDto, user: User): Either[ProjectDto, ErrorDto] = {
 
     if (params.boardIds.isDefined) {
       for (board <- params.boardIds.get) {
@@ -23,7 +23,7 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
     }
 
     val project = projectBuilder.buildEntity(params)
-    Left(projectBuilder.buildDto(project.store))
+    Left(projectBuilder.buildDto(project.store(user)))
   }
   
 }

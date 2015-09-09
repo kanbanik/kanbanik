@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Workflowitem}
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.db.HasEntityLoader
 import com.googlecode.kanbanik.dtos.{ErrorDto, TaskDto, MoveTaskDto}
@@ -11,9 +11,9 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  override def execute(params: MoveTaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(params: MoveTaskDto, user: User): Either[TaskDto, ErrorDto] = {
     
-    val oldTask = loadTask(new ObjectId(params.task.id.get)).getOrElse(
+    val oldTask = loadTask(new ObjectId(params.task.id.get), user).getOrElse(
         return Right(ErrorDto(ServerMessages.entityDeletedMessage("task")))
     )
     
@@ -28,7 +28,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
       return somethingFailedResult
     )
 
-    loadProject(new ObjectId(params.task.projectId)).getOrElse(
+    loadProject(new ObjectId(params.task.projectId), user).getOrElse(
     		return somethingFailedResult
     )
 
@@ -40,7 +40,7 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
       toStore.store
     } else {
       // task was moved to a different board
-      oldTask.delete(oldTask.boardId)
+      oldTask.delete(oldTask.boardId, user)
 
       toStore.copy(id = None, boardId = newTask.boardId).store
     }

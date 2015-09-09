@@ -57,7 +57,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
 
     val res = contextEntity.board(user).move(currentEntity, nextEntity, contextEntity).store
     val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
-    Left(workflowitemBuilder.buildDto(realCurrentEntity, None))
+    Left(workflowitemBuilder.buildDto(realCurrentEntity, None, user))
 
 
   }

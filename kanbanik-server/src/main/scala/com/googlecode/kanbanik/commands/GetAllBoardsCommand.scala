@@ -12,15 +12,15 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
 
   val taskBuilder = new TaskBuilder
 
-  def execute(params: GetAllBoardsWithProjectsDto, user: User): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
+  override def execute(params: GetAllBoardsWithProjectsDto, user: User): Either[ListDto[BoardWithProjectsDto], ErrorDto] = {
 
     val loadedBoards = Board.all(params.includeTasks.getOrElse(false), params.includeTaskDescription.getOrElse(false), user)
-    val loadedProjects = Project.all()
+    val loadedProjects = Project.all(user)
 
     val res = ListDto(
       loadedBoards.map(
         board => BoardWithProjectsDto(
-        boardBuilder.buildDto(board).copy(
+        boardBuilder.buildDto(board, user).copy(
           tasks = Some(board.tasks.map(taskBuilder.buildDto))
         ), {
           val projectDtos = loadedProjects.filter(

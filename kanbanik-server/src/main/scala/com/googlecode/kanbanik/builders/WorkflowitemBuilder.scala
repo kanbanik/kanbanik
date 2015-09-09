@@ -45,7 +45,7 @@ class WorkflowitemBuilder extends BaseBuilder {
       workflowitem.itemType,
       Some(workflowitem.version),
       None,
-      Some(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow), user))),
+      Some(parentWorkflow.getOrElse(workflowBuilder.buildShallowDto(workflowitem.parentWorkflow(user), parentBoard(parentWorkflow), user))),
       Some(workflowitem.verticalSize)
     )
   }
@@ -54,7 +54,7 @@ class WorkflowitemBuilder extends BaseBuilder {
     val dto = buildShallowDto(workflowitem, parentWorkflow, user)
     dto.copy(
       nestedWorkflow = Some(workflowBuilder.buildDto(workflowitem.nestedWorkflow, parentBoard(parentWorkflow), user)),
-      parentWorkflow = Some(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow, parentBoard(parentWorkflow), user)))
+      parentWorkflow = Some(parentWorkflow.getOrElse(workflowBuilder.buildDto(workflowitem.parentWorkflow(user), parentBoard(parentWorkflow), user)))
     )
   }
 

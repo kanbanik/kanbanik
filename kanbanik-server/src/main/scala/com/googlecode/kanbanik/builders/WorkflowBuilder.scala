@@ -33,7 +33,7 @@ class WorkflowBuilder extends BaseBuilder {
 
   def buildDto(workflow: Workflow, board: Option[BoardDto], user: User) = {
     val res = buildShallowDto(workflow, board, user)
-    val workflowitems = workflow.workflowitems.map(workflowitemBuilder.buildDto(_, Some(res)))
+    val workflowitems = workflow.workflowitems.map(workflowitemBuilder.buildDto(_, Some(res), user))
     res.copy(workflowitems = Some(workflowitems))
   }
 

@@ -3,18 +3,17 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Workflowitem, Board}
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.dtos.{TasksDto, EmptyDto, ErrorDto, TaskDto}
 
 class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulation {
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  override def execute(taskDto: TasksDto): Either[TasksDto, ErrorDto] = {
+  override def execute(taskDto: TasksDto, user: User): Either[TasksDto, ErrorDto] = {
 
-	  val results = taskDto.values.par.map(doExecute)
+	  val results = taskDto.values.par.map(doExecute(_, user))
 	  val errorResults = results.filter(_.isRight)
 	  if (errorResults.isEmpty) {
 	    Left(TasksDto(results.map(_.left.get).toList))
@@ -28,7 +27,7 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
 	  }
   }
   
-  private def doExecute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  private def doExecute(taskDto: TaskDto, user: User): Either[TaskDto, ErrorDto] = {
     val boardId = new ObjectId(taskDto.boardId)
     val workflowitemId = new ObjectId(taskDto.workflowitemId)
     
@@ -41,7 +40,7 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
     val task = taskBuilder.buildEntity(taskDto)
       
     try {
-    	task.delete(boardId)
+    	task.delete(boardId, user)
     } catch {
       case e: MidAirCollisionException =>
         	Right(ErrorDto(ServerMessages.midAirCollisionException))

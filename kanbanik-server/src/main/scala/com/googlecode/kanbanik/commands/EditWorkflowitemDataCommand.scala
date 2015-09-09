@@ -4,7 +4,7 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.dtos.{ErrorDto, WorkflowitemDto}
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{User, Board}
 import org.bson.types.ObjectId
 
 class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemDto] with HasMongoConnection {
@@ -13,7 +13,7 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
 
   private lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: WorkflowitemDto): Either[WorkflowitemDto, ErrorDto] = {
+  override def execute(params: WorkflowitemDto, user: User): Either[WorkflowitemDto, ErrorDto] = {
     val parentWorkflow = params.parentWorkflow.getOrElse(return Right(ErrorDto("The parent workflow is not set")))
     val board = params.parentWorkflow.get.board
 
@@ -23,7 +23,7 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
 
     val workflowReplaced = builtBoard.workflow.replaceItem(workflowitem)
     val storedBoard = builtBoard.copy(workflow = workflowReplaced).store
-    Left(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None))
+    Left(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None, user))
 
   }
 }

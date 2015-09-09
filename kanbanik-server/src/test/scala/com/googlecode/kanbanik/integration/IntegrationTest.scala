@@ -14,7 +14,7 @@ import com.googlecode.kanbanik.commands.DeleteTasksCommand
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
 import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
-import com.googlecode.kanbanik.model.{Task, Board, DbCleaner, Project}
+import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
@@ -203,7 +203,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     }
 
     assert(editProject.name.get === "project1_renamed")
-    assert(Project.all.size === 1)
+    assert(Project.all(User().withAllPermissions()).size === 1)
     // delete phase
     
     // delete task

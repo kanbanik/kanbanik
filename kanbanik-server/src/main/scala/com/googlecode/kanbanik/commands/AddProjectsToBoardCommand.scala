@@ -1,7 +1,6 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Project
+import com.googlecode.kanbanik.model.{User, Board, Project}
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
 
@@ -9,7 +8,7 @@ class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
   private val builder = new ProjectBuilder()
 
-  override def executeSpecific(board: Board, project: Project): Either[ProjectWithBoardDto, ErrorDto] = {
+  override def executeSpecific(board: Board, project: Project, user: User): Either[ProjectWithBoardDto, ErrorDto] = {
 
     val toStore = {
       if (project.boards.isDefined) {
@@ -19,6 +18,6 @@ class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
       }
     }
 
-    Left(ProjectWithBoardDto(builder.buildDto(toStore.store), board.id.get.toString))
+    Left(ProjectWithBoardDto(builder.buildDto(toStore.store(user)), board.id.get.toString))
   }
 }

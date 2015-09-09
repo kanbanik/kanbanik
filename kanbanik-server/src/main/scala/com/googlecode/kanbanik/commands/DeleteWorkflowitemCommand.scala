@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.commands
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Workflowitem}
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.db.HasEntityLoader
@@ -15,7 +15,7 @@ class DeleteWorkflowitemCommand extends Command[WorkflowitemDto, EmptyDto] with 
 
   lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: WorkflowitemDto): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: WorkflowitemDto, user: User): Either[EmptyDto, ErrorDto] = {
 
     val theId = new ObjectId(params.id.getOrElse(
     return Right(ErrorDto("The ID has to be defined"))

@@ -60,6 +60,14 @@ case class User(
     versionedDelete(Coll.Users, versionedQuery(name, version))
   }
 
+  def withAllPermissions(): User = {
+    copy(permissions = List(
+      Permission(PermissionType.ReadBoard, List("*")),
+      Permission(PermissionType.ManipulateBoard, List()),
+      Permission(PermissionType.ManipulateUser, List()),
+      Permission(PermissionType.ManipulateProject, List())
+    ))
+  }
 }
 
 object User extends HasMongoConnection {
@@ -77,7 +85,7 @@ object User extends HasMongoConnection {
   def apply(): User = User("", "", "", "", "", 1, List(), false)
 
   def apply(name: String): User = User(name, "", "", "", "", 1, List(), false)
-  
+
   def all(): List[User] = {
     using(createConnection) { conn =>
       coll(conn, Coll.Users).find().sort(MongoDBObject(User.Fields.name.toString -> 1)).map(asEntity).toList

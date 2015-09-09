@@ -128,7 +128,7 @@ class From2To3 extends MigrationPart {
     using(createConnection) {
       conn =>
         val rawBoards = coll(conn, Coll.Boards).find(MongoDBObject())
-        val realBoards = Board.all(false)
+        val realBoards = Board.all(false, User().withAllPermissions())
         rawBoards.foreach(migrateBalanced(_, realBoards))
     }
 
@@ -247,7 +247,7 @@ class From2To3 extends MigrationPart {
       using(createConnection) {
         conn =>
           val update = $push(Coll.Tasks.toString() -> asDBObject(this))
-          coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+          coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow(User().withAllPermissions()).board(User().withAllPermissions()).id.get), null, null, false, update, true, false)
       }
     }
 
@@ -283,7 +283,7 @@ class From2To3 extends MigrationPart {
     }
 
     def findWorkflowitem(): Workflowitem = {
-      val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
+      val board = Board.all(false, User().withAllPermissions()).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
       val workflowitem = board.workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
       workflowitem.orNull
     }

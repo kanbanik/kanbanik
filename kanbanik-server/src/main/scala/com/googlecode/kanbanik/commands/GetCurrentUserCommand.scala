@@ -9,7 +9,7 @@ import com.googlecode.kanbanik.dtos.{SessionDto, ErrorDto, UserDto, EmptyDto}
 
 class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
-  def execute(params: SessionDto): Either[UserDto, ErrorDto] = {
+  override def execute(params: SessionDto, user: User): Either[UserDto, ErrorDto] = {
     val sessionId = params.sessionId
 
     val user = if (sessionId != null && sessionId != "") {
