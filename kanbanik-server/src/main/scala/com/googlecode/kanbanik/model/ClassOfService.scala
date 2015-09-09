@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.model
 
+import com.googlecode.kanbanik.dtos.PermissionType
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.db.HasEntityLoader
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
@@ -54,9 +56,9 @@ object ClassOfService extends HasMongoConnection with HasEntityLoader {
     }
   }
 
-  def all() = {
+  def all(user: User) = {
     using(createConnection) { conn =>
-      coll(conn, Coll.ClassesOfService).find().sort(MongoDBObject(ClassOfService.Fields.name.toString -> 1)).map(asEntity(_)).toList
+      coll(conn, Coll.ClassesOfService).find(buildObjectIdFilterQuery(user, PermissionType.ReadClassOfService)).sort(MongoDBObject(ClassOfService.Fields.name.toString -> 1)).map(asEntity(_)).toList
     }
   }
   

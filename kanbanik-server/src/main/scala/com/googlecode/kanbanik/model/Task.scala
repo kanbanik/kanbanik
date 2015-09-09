@@ -190,7 +190,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   def asEntity(dbObject: DBObject): Task = {
-    asEntity(dbObject, ClassOfService.all(), User.all())
+    asEntity(dbObject, ClassOfService.all(User().withAllPermissions()), User.all(User().withAllPermissions()))
   }
 
   def asEntity(dbObject: DBObject, classesOfServices: List[ClassOfService], users: List[User]): Task = {

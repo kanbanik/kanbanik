@@ -1,4 +1,7 @@
 package com.googlecode.kanbanik.model
+
+import com.googlecode.kanbanik.dtos.PermissionType
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
@@ -7,6 +10,7 @@ import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
+import com.mongodb.casbah.Imports._
 
 case class Project(
   id: Option[ObjectId],
@@ -68,7 +72,7 @@ object Project extends HasMongoConnection {
 
   def all(user: User): List[Project] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Projects).find().sort(MongoDBObject(Fields.name.toString -> 1)).map(asEntity(_, user)).toList
+      coll(conn, Coll.Projects).find(buildObjectIdFilterQuery(user, PermissionType.ReadProject)).sort(MongoDBObject(Fields.name.toString -> 1)).map(asEntity(_, user)).toList
     }
   }
 

@@ -147,8 +147,8 @@ object Board extends HasMongoConnection {
     val tasks = dbObject.get(Fields.tasks.toString)
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
       val list = dbObject.get(Fields.tasks.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
-      val allUsers = User.all()
-      val allClassOfServices = ClassOfService.all()
+      val allUsers = User.all(User().withAllPermissions())
+      val allClassOfServices = ClassOfService.all(User().withAllPermissions())
       val taskEnitities = list.map(Task.asEntity(_, allClassOfServices, allUsers))
       resBoard.copy(tasks = taskEnitities)
     } else {

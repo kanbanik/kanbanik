@@ -7,6 +7,6 @@ import com.googlecode.kanbanik.model.User
 class GetAllUsersCommand extends Command[SessionDto, ListDto[UserDto]] with CredentialsUtils {
 
   override def execute(params: SessionDto, user: User): Either[ListDto[UserDto], ErrorDto] = {
-    Left(ListDto(User.all.map(UserBuilder.buildDto(_, params.sessionId))))
+    Left(ListDto(User.all(user).map(UserBuilder.buildDto(_, params.sessionId))))
   }
 }

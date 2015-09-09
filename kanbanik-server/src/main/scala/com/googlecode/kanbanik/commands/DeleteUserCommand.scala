@@ -8,7 +8,7 @@ class DeleteUserCommand extends Command[UserDto, EmptyDto] with CredentialsUtils
 
   override  def execute(params: UserDto, user: User): Either[EmptyDto, ErrorDto] = {
 
-    if(User.all().size > 1) {
+    if(User.all(User().withAllPermissions()).size > 1) {
       val user = User.byId(params.userName)
 
       // this is an expensive operation - consider to have this info on the user directly to speed things up

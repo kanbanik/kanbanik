@@ -18,6 +18,9 @@ package object dtos {
     val ManipulateProject = Value(2)
 
     val ReadBoard = Value(3)
+    val ReadProject = Value(4)
+    val ReadUser = Value(5)
+    val ReadClassOfService = Value(6)
   }
 
   case class ClassOfServiceDto(id: Option[String], name: String, description: String, colour: String, version: Int, sessionId: Option[String])

@@ -2,9 +2,8 @@ package com.googlecode.kanbanik.integration
 
 import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfter
-import com.googlecode.kanbanik.model.DbCleaner
+import com.googlecode.kanbanik.model.{User, DbCleaner, ClassOfService}
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
-import com.googlecode.kanbanik.model.ClassOfService
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.dtos.ClassOfServiceDto
 
@@ -26,8 +25,8 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
       case Right(x) => fail("SaveClassOfServiceCommand failed")
     }
 
-    assert(ClassOfService.all.size === 1)
-    assert(ClassOfService.all.head.name === "name 1")
+    assert(ClassOfService.all(User().withAllPermissions()).size === 1)
+    assert(ClassOfService.all(User().withAllPermissions()).head.name === "name 1")
     
     val renamedClassOfServiceDto = resClassOfService.copy(name = "name 2")
 
@@ -35,10 +34,10 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
       case Left(x) => x
       case Right(x) => fail("SaveClassOfServiceCommand failed")
     }
-    assert(ClassOfService.all.head.name === "name 2")
+    assert(ClassOfService.all(User().withAllPermissions()).head.name === "name 2")
     
     new DeleteClassOfServiceCommand().execute(renamedClassOfService)
-    assert(ClassOfService.all.size === 0)
+    assert(ClassOfService.all(User().withAllPermissions()).size === 0)
   }
   
    after {

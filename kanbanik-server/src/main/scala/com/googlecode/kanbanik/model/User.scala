@@ -3,9 +3,11 @@ package com.googlecode.kanbanik.model
 import com.googlecode.kanbanik.db.{HasMidAirCollisionDetection, HasMongoConnection}
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.PermissionType
+import com.googlecode.kanbanik.security._
 import com.mongodb.{BasicDBList, DBObject}
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 
 case class User(
   name: String,
@@ -63,6 +65,10 @@ case class User(
   def withAllPermissions(): User = {
     copy(permissions = List(
       Permission(PermissionType.ReadBoard, List("*")),
+      Permission(PermissionType.ReadClassOfService, List("*")),
+      Permission(PermissionType.ReadProject, List("*")),
+      Permission(PermissionType.ReadUser, List("*")),
+
       Permission(PermissionType.ManipulateBoard, List()),
       Permission(PermissionType.ManipulateUser, List()),
       Permission(PermissionType.ManipulateProject, List())
@@ -86,9 +92,9 @@ object User extends HasMongoConnection {
 
   def apply(name: String): User = User(name, "", "", "", "", 1, List(), false)
 
-  def all(): List[User] = {
+  def all(user: User): List[User] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Users).find().sort(MongoDBObject(User.Fields.name.toString -> 1)).map(asEntity).toList
+      coll(conn, Coll.Users).find(buildObjectIdFilterQuery(user, PermissionType.ReadUser)).sort(MongoDBObject(User.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 
