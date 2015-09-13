@@ -6,10 +6,15 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleActivatedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControlPanelModule extends TabPanel implements SelectionHandler<Integer> {
 	
@@ -28,11 +33,27 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
     private Class<?> currentlyActiveModule;
 
 	public ControlPanelModule() {
-		
-		add(boardsContent, "Boards");
-		add(configureWorkflowContent, "Configure");
-		add(securityContent, "Security");
-		
+
+        add(boardsContent, "Boards");
+
+        List<Dtos.PermissionDto> permissions = CurrentUser.getInstance().getUser().getPermissions();
+        List<Integer> permissionTypes = new ArrayList<Integer>();
+        for (Dtos.PermissionDto permission : permissions) {
+            permissionTypes.add(permission.getPermissionType());
+        }
+
+        int manipulateBoard = 0;
+        int manipulateProject = 2;
+        int manipulateUser = 1;
+
+        if (permissionTypes.contains(manipulateBoard) || permissionTypes.contains(manipulateProject)) {
+            add(configureWorkflowContent, "Configure");
+        }
+
+		if (permissionTypes.contains(manipulateUser)) {
+            add(securityContent, "Security");
+        }
+
 		addSelectionHandler(this);
 		selectTab(0);
 		setWidth("100%");

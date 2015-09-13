@@ -86,8 +86,7 @@ class KanbanikApi extends HttpServlet {
     val sessionId: String = extractSessionId(json)
 
     val user: User = if (sessionId == null || sessionId == "") {
-      // todo - load this really from the db
-       User("Unlogged User")
+      User.unlogged
     } else {
       val subject = new Subject.Builder().sessionId(sessionId).buildSubject
       if (!subject.isAuthenticated) {

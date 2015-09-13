@@ -12,8 +12,8 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
   override def execute(params: SessionDto, user: User): Either[UserDto, ErrorDto] = {
     val sessionId = params.sessionId
 
-    val user = if (sessionId != null && sessionId != "") {
-      new Subject.Builder().sessionId(sessionId).buildSubject
+    val user = if (sessionId.isDefined) {
+      new Subject.Builder().sessionId(sessionId.get).buildSubject
     } else {
       SecurityUtils.getSubject
     }
@@ -21,9 +21,9 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
     if (user.isAuthenticated) {
       val userPrincipal = user.getPrincipal.asInstanceOf[User]
       // refresh from DB
-    	Left(UserBuilder.buildDto(User.byId(userPrincipal.name), sessionId))
+    	Left(UserBuilder.buildDto(User.byId(userPrincipal.name), sessionId.getOrElse("")))
     } else {
-    	Right(ErrorDto("No user logged in."))
+    	Left(UserBuilder.buildDto(User.unlogged, ""))
     }
   }
   

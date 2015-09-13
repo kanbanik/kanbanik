@@ -47,6 +47,17 @@ public class Dtos {
 
         public String getSessionId();
         public void setSessionId(String sessionId);
+
+        public List<PermissionDto> getPermissions();
+        public void setPermissions(List<PermissionDto> permissions);
+    }
+
+    public static interface PermissionDto {
+        Integer getPermissionType();
+        void setPermissionType(Integer  permissionType);
+
+        List<String> getArgs();
+        void setArgs(List<String> args);
     }
 
     public static interface UserManipulationDto extends UserDto, BaseDto {

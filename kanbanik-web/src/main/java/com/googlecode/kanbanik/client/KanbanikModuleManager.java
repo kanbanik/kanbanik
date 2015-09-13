@@ -15,98 +15,94 @@ import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
 public class KanbanikModuleManager {
-	
-	private LoginListener loginListener = new LoginListener();
-	
-	private LogoutListener logoutListener = new LogoutListener();
+
+    private LoginListener loginListener = new LoginListener();
+
+    private LogoutListener logoutListener = new LogoutListener();
 
     private ServerEventsListener serverEventsListener = new ServerEventsListener();
-	
-	public void initialize() {
 
-		registerListeners();
+    public void initialize() {
+        registerListeners();
         String sessionId = CurrentUser.getInstance().getSessionId();
-        if (sessionId == null || "".equals(sessionId)) {
-            // the browser may think that he has a session even he does not - should never happen...
-            autologout();
-        } else {
-            Dtos.SessionDto dto = DtoFactory.sessionDto(sessionId);
-            dto.setCommandName(CommandNames.GET_CURRENT_USER.name);
 
-            ServerCaller.<Dtos.SessionDto, Dtos.UserDto>sendRequest(
-                    dto,
-                    Dtos.UserDto.class,
-                    new ServerCallCallback<Dtos.UserDto>() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(sessionId);
+        dto.setCommandName(CommandNames.GET_CURRENT_USER.name);
 
-                        @Override
-                        public void anyFailure() {
-                            // the browser may think that he has a session even he does not - should never happen...
-                            autologout();
-                        }
+        ServerCaller.<Dtos.SessionDto, Dtos.UserDto>sendRequest(
+                dto,
+                Dtos.UserDto.class,
+                new ServerCallCallback<Dtos.UserDto>() {
 
-                        @Override
-                        public void success(Dtos.UserDto response) {
-                            autologin(response);
-                        }
+                    @Override
+                    public void anyFailure() {
+                        // the browser may think that he has a session even he does not - should never happen...
+                        autologout();
                     }
-            );
-        }
-	}
 
-	private void showBoardsModule() {
-		clearAllModules();
-		refreshListeners();
-		RootPanel.get("mainSection").add(new HeaderComponent());
-		RootPanel.get("mainSection").add(new ControlPanelModule());
-	}
+                    @Override
+                    public void success(Dtos.UserDto response) {
+                        autologin(response);
+                    }
+                }
+        );
 
-	private void showLoginModule() {
-		clearAllModules();
-		refreshListeners();
-		RootPanel.get("mainSection").add(new LoginModule());
-	}
+    }
 
-	private void autologin(Dtos.UserDto result) {
-		CurrentUser.getInstance().login(result);
-	}
-	
-	private void autologout() {
-		CurrentUser.getInstance().logoutFrontend();
-	}
+    private void showBoardsModule() {
+        clearAllModules();
+        refreshListeners();
+        RootPanel.get("mainSection").add(new HeaderComponent());
+        RootPanel.get("mainSection").add(new ControlPanelModule());
+    }
 
-	private void refreshListeners() {
+    private void showLoginModule() {
+        clearAllModules();
+        refreshListeners();
+        RootPanel.get("mainSection").add(new LoginModule());
+    }
+
+    private void autologin(Dtos.UserDto result) {
+        CurrentUser.getInstance().login(result);
+    }
+
+    private void autologout() {
+        CurrentUser.getInstance().logoutFrontend();
+    }
+
+    private void refreshListeners() {
 //		registerListeners();
-	}
-	
-	private void registerListeners() {
-		MessageBus.registerListener(LoginEvent.class, loginListener);
-		MessageBus.registerListener(LogoutEvent.class, logoutListener);
-	}
+    }
 
-	class LoginListener implements MessageListener<Dtos.UserDto> {
+    private void registerListeners() {
+        MessageBus.registerListener(LoginEvent.class, loginListener);
+        MessageBus.registerListener(LogoutEvent.class, logoutListener);
+    }
 
-		public void messageArrived(Message<Dtos.UserDto> message) {
-			showBoardsModule();
+    class LoginListener implements MessageListener<Dtos.UserDto> {
+
+        public void messageArrived(Message<Dtos.UserDto> message) {
+            showBoardsModule();
             serverEventsListener.activate();
-		}
-		
-	}
-	
-	class LogoutListener implements MessageListener<Dtos.UserDto> {
+        }
 
-		public void messageArrived(Message<Dtos.UserDto> message) {
-			showLoginModule();
+    }
+
+    class LogoutListener implements MessageListener<Dtos.UserDto> {
+
+        public void messageArrived(Message<Dtos.UserDto> message) {
+            showLoginModule();
             serverEventsListener.deactivate();
             for (Modules module : Modules.values()) {
                 MessageBus.sendMessage(new ModuleDeactivatedMessage(module.toClass(), this));
             }
 
-		}
-		
-	}	
-	
-	private void clearAllModules() {
-		RootPanel.get("mainSection").clear();
-	}
+        }
+
+    }
+
+    private void clearAllModules() {
+        RootPanel.get("mainSection").clear();
+    }
 
 }

@@ -88,6 +88,8 @@ object User extends HasMongoConnection {
     val unlogged = Value("unlogged")
   }
 
+  val UNLOGGED = "unlogged"
+
   def apply(): User = User("", "", "", "", "", 1, List(), false)
 
   def apply(name: String): User = User(name, "", "", "", "", 1, List(), false)
@@ -98,11 +100,26 @@ object User extends HasMongoConnection {
     }
   }
 
-  def byId(name: String) = {
-
+  def unlogged: User = {
     using(createConnection) { conn =>
-      val dbProject = coll(conn, Coll.Users).findOne(MongoDBObject(Fields.id.toString -> name)).getOrElse(throw new IllegalArgumentException("No such user with name: " + name))
-      asEntity(dbProject)
+      val dbUser = coll(conn, Coll.Users).findOne(MongoDBObject(Fields.id.toString -> UNLOGGED))
+
+      if(dbUser.isDefined)  {
+        asEntity(dbUser.get)
+      } else {
+        User(UNLOGGED).copy(
+          unloggedFakeUser = true,
+          realName = "Unlogged User",
+          version = 1
+        ).store
+      }
+    }
+  }
+
+  def byId(name: String) = {
+    using(createConnection) { conn =>
+      val dbUser = coll(conn, Coll.Users).findOne(MongoDBObject(Fields.id.toString -> name)).getOrElse(throw new IllegalArgumentException("No such user with name: " + name))
+      asEntity(dbUser)
     }
 
   }

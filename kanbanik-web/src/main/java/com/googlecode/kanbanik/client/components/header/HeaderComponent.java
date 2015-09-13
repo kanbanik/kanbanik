@@ -32,15 +32,18 @@ public class HeaderComponent extends Composite implements ClickHandler {
 		
 		MessageBus.registerListener(UserEditedMessage.class, new MessageListener<Dtos.UserDto>() {
 
-			@Override
-			public void messageArrived(Message<Dtos.UserDto> message) {
-				if (message.getPayload().getUserName().equals(CurrentUser.getInstance().getUser().getUserName())) {
-					setupLabel(message.getPayload());
-				}
-			}
-		});
+            @Override
+            public void messageArrived(Message<Dtos.UserDto> message) {
+                if (message.getPayload().getUserName().equals(CurrentUser.getInstance().getUser().getUserName())) {
+                    setupLabel(message.getPayload());
+                }
+            }
+        });
 		
 		setupLabel(CurrentUser.getInstance().getUser());
+        String sessionId = CurrentUser.getInstance().getUser().getSessionId();
+        boolean loggedInUser = !(sessionId == null || "".equals(sessionId));
+        logoutButton.setText(loggedInUser ? "Logout" : "Login");
 		
 		logoutButton.addClickHandler(this);
 	}

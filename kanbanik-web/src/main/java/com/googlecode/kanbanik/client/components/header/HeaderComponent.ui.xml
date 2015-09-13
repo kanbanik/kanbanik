@@ -45,7 +45,7 @@
 			<!-- That much for the logo for now :) -->
 			<!--<g:Label addStyleNames="{style.kanbanikLabelStyle}" text="Kanbanik" />-->
 			<g:Label addStyleNames="{style.loggedInUserLabelStyle}" ui:field="loggedInUserLabel" />
-			<g:PushButton addStyleNames="{style.logoutButtonStyle}" ui:field="logoutButton" text="Logout" title="Logout" />
+			<g:PushButton addStyleNames="{style.logoutButtonStyle}" ui:field="logoutButton" />
 		</g:FlowPanel>
 	</g:FlowPanel>
 

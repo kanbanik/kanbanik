@@ -4,7 +4,7 @@ package object dtos {
 
   case class LoginDto(commandName: String, userName: String, password: String)
 
-  case class SessionDto(sessionId: String)
+  case class SessionDto(sessionId: Option[String])
 
   case class UserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, permissions: Option[List[PermissionDto]])
 
