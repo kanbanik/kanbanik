@@ -42,7 +42,11 @@ public class KanbanikModuleManager {
 
                     @Override
                     public void success(Dtos.UserDto response) {
-                        autologin(response);
+                        if (response == null || response.getPermissions() == null || response.getPermissions().size() == 0) {
+                            autologout();
+                        } else {
+                            autologin(response);
+                        }
                     }
                 }
         );

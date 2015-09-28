@@ -16,9 +16,10 @@ import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
 class MigrateDb extends HasMongoConnection {
 
   val versionMigrations = Map(
-    1 -> List(new From1To2, new From2To3, new From3To4),
-    2 -> List(new From2To3, new From3To4),
-    3 -> List(new From3To4)
+    1 -> List(new From1To2, new From2To3, new From3To4, new From4To5),
+    2 -> List(new From2To3, new From3To4, new From4To5),
+    3 -> List(new From3To4, new From4To5),
+    4 -> List(new From4To5)
   )
 
   def migrateDbIfNeeded {
@@ -413,4 +414,18 @@ class From3To4 extends MigrationPart {
 
   }
 
+}
+
+
+class From4To5 extends MigrationPart {
+  override def migrate {
+
+    // for now all users had all the permissions - this ensures this will hold
+    // also for fresh installations the newly created admin will be augmented to have all the permissions
+    User.all(User().withAllPermissions()).foreach(
+      user => user.withAllPermissions().store
+    )
+
+    setVersionTo(5)
+  }
 }

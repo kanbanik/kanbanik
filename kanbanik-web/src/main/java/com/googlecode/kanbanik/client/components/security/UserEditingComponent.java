@@ -61,6 +61,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
         newDto.setPassword(password.getText());
         newDto.setNewPassword(toChangePassword.getValue() ? newPassword.getText() : password.getText());
         newDto.setCommandName(CommandNames.EDIT_USER.name);
+		newDto.setPermissions(createPermissions());
 
         return newDto;
 	}
@@ -84,7 +85,6 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 
 	@Override
 	protected void makeServerCall() {
-
         ServerCaller.<Dtos.UserManipulationDto, Dtos.UserDto>sendRequest(
                 createDto(),
                 Dtos.UserDto.class,

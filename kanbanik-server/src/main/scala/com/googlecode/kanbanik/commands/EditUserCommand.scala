@@ -37,8 +37,13 @@ class EditUserCommand extends Command[ManipulateUserDto, UserDto] with Credentia
         permissions = newPermissions
       ).store
 
-      new Left(UserBuilder.buildDto(newUser, params.sessionId))
+      new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
     }
+  }
+
+
+  override def checkPermissions[ManipulateUserDto](param: ManipulateUserDto, user: User): Option[List[String]] = {
+    super.checkPermissions(param, user)
   }
 
   def findIncorrectPermissions(permissions: List[PermissionDto]): Option[ErrorDto] = {

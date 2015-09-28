@@ -80,6 +80,8 @@ public class DtoFactory {
 
         AutoBean<Dtos.BoardWithProjectsWithSelectedDto> boardWithProjectsWithSelectedDto();
 
+        AutoBean<Dtos.PermissionDto> permissionDto();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
@@ -212,6 +214,10 @@ public class DtoFactory {
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         dto.setCommandName(CommandNames.EDIT_WORKFLOW.name);
         return dto;
+    }
+
+    public static Dtos.PermissionDto permissionDto() {
+        return factory.permissionDto().as();
     }
 
     public static Dtos.EmptyDto emptyDto() {

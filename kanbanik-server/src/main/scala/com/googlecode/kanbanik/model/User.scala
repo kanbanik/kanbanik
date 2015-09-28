@@ -63,20 +63,22 @@ case class User(
   }
 
   def withAllPermissions(): User = {
-    copy(permissions = List(
-      Permission(PermissionType.ReadBoard, List("*")),
-      Permission(PermissionType.ReadClassOfService, List("*")),
-      Permission(PermissionType.ReadProject, List("*")),
-      Permission(PermissionType.ReadUser, List("*")),
-
-      Permission(PermissionType.ManipulateBoard, List()),
-      Permission(PermissionType.ManipulateUser, List()),
-      Permission(PermissionType.ManipulateProject, List())
-    ))
+    copy(permissions = User.allPermissions)
   }
 }
 
 object User extends HasMongoConnection {
+
+  val allPermissions = List(
+    Permission(PermissionType.ReadBoard, List("*")),
+    Permission(PermissionType.ReadClassOfService, List("*")),
+    Permission(PermissionType.ReadProject, List("*")),
+    Permission(PermissionType.ReadUser, List("*")),
+
+    Permission(PermissionType.ManipulateBoard, List()),
+    Permission(PermissionType.ManipulateUser, List()),
+    Permission(PermissionType.ManipulateProject, List())
+  )
 
   object Fields extends DocumentField {
     val realName = Value("realName")
