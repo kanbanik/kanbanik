@@ -34,7 +34,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	
 	@UiField
 	TextBox realName;
-	
+
 	@UiField
 	TextBox password;
 	

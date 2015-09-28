@@ -1,4 +1,4 @@
-package com.googlecode.kanbanik.client.components.filter;
+package com.googlecode.kanbanik.client.components.common.filters;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -13,14 +13,12 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PanelWithCheckboxes extends Composite {
-
+public class PanelWithCheckboxes<T> extends Composite{
     interface MyUiBinder extends UiBinder<Widget, PanelWithCheckboxes> {}
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-
-    private BoardsFilter boardsFilter;
 
     @UiField
     FlowPanel contentPanel;
@@ -50,8 +48,8 @@ public class PanelWithCheckboxes extends Composite {
 
                 for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
                     Widget w = contentPanel.getWidget(i);
-                    if (w instanceof FilterCheckBox) {
-                        final String text = ((FilterCheckBox) w).provideText();
+                    if (w instanceof CommonFilterCheckBox) {
+                        final String text = ((CommonFilterCheckBox) w).provideText();
                         if (text != null && text.toLowerCase().contains(filterText)) {
                             w.setVisible(true);
                         } else {
@@ -80,21 +78,14 @@ public class PanelWithCheckboxes extends Composite {
         noneButton.setText("none");
     }
 
-    private void setAllSelected(boolean selected) {
-
-        // don't fire the filter change event for all - do one bulk at the end
-        boardsFilter.setIgnoreFilterChanges(true);
-
+    protected void setAllSelected(boolean selected) {
         for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
             Widget w = contentPanel.getWidget(i);
-            if (w instanceof FilterCheckBox) {
-                ((FilterCheckBox) w).setValue(selected);
-                ((FilterCheckBox) w).doValueChanged(selected);
+            if (w instanceof CommonFilterCheckBox) {
+                ((CommonFilterCheckBox) w).setValue(selected);
+                ((CommonFilterCheckBox) w).doValueChanged(selected);
             }
         }
-
-        boardsFilter.setIgnoreFilterChanges(false);
-        boardsFilter.fireFilterChangedEvent();
     }
 
     public void add(Widget w) {
@@ -105,8 +96,8 @@ public class PanelWithCheckboxes extends Composite {
         Widget toRemove = null;
         for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
             Widget w = contentPanel.getWidget(i);
-            if (w instanceof FilterCheckBox) {
-                if (predicate.toRemove((FilterCheckBox) w)) {
+            if (w instanceof CommonFilterCheckBox) {
+                if (predicate.toRemove((CommonFilterCheckBox) w)) {
                     toRemove = w;
                     break;
                 }
@@ -118,12 +109,23 @@ public class PanelWithCheckboxes extends Composite {
         }
     }
 
-    public void initialize(BoardsFilter boardsFilter) {
+    public List<CommonFilterCheckBox<T>> getContent() {
+        List<CommonFilterCheckBox<T>> res = new ArrayList<>();
+        for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
+            Widget w = contentPanel.getWidget(i);
+            if (w instanceof CommonFilterCheckBox) {
+                res.add((CommonFilterCheckBox<T>) w);
+            }
+        }
+
+        return res;
+    }
+
+    public void initialize() {
         contentPanel.clear();
-        this.boardsFilter = boardsFilter;
     }
 
     public static interface Predicate {
-        boolean toRemove(FilterCheckBox w);
+        boolean toRemove(CommonFilterCheckBox w);
     }
 }

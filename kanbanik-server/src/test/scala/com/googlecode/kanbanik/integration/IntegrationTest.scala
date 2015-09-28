@@ -32,7 +32,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     // creation phase
     
     // create user
-    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, "", 1, "aaa", "aaa", None))
+    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, Some(""), 1, "aaa", "aaa", None))
 
     // create board
     val board = BoardDto(

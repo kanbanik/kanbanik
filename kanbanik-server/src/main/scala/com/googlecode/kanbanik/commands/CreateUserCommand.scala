@@ -34,7 +34,7 @@ class CreateUserCommand extends Command[ManipulateUserDto, UserDto] with Credent
         false
     ).store
     
-    new Left(UserBuilder.buildDto(user, params.sessionId))
+    new Left(UserBuilder.buildDto(user, params.sessionId.get))
   }
 
   override def checkPermissions[T](param: T, user: User): Option[List[String]] = {

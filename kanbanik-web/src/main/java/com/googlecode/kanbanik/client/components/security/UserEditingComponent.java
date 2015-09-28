@@ -32,7 +32,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	
 	public UserEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
-		
+
 		toChangePassword.setValue(false);
 		setChangePasswordEnabled(false);
 		username.setEnabled(false);

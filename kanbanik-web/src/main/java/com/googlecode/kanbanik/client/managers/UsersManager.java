@@ -9,6 +9,8 @@ import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UsersManager {
@@ -19,11 +21,14 @@ public class UsersManager {
 
     private static final Dtos.UserDto noUser = DtoFactory.userDto();
 
+    private static final Dtos.UserDto allUsers = DtoFactory.userDto();
+
 	private static final Image defaultPicture = new Image(
 			KanbanikResources.INSTANCE.noUserPicture());
 
     static {
         noUser.setUserName("No User");
+        allUsers.setUserName("All Users");
     }
 
 	public static UsersManager getInstance() {
@@ -38,14 +43,25 @@ public class UsersManager {
 		if (users == null) {
 			return new ArrayList<Dtos.UserDto>();
 		}
-		return users;
+
+		Collections.sort(users, new Comparator<Dtos.UserDto>() {
+			@Override
+			public int compare(Dtos.UserDto userDto, Dtos.UserDto userDto2) {
+				return userDto.getUserName().compareTo(userDto2.getUserName());
+			}
+		});
+		return new ArrayList<>(users);
 	}
 
     public Dtos.UserDto getNoUser() {
         return noUser;
     }
 
-	public Image getPictureFor(Dtos.UserDto user) {
+    public Dtos.UserDto getAllUsers() {
+        return allUsers;
+    }
+
+    public Image getPictureFor(Dtos.UserDto user) {
 		if (user.getPictureUrl() == null) {
 			return defaultPicture;
 		}

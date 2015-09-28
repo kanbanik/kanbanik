@@ -22,7 +22,9 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
+import com.googlecode.kanbanik.client.components.common.filters.CommonFilterCheckBox;
 import com.googlecode.kanbanik.client.components.common.DataCollector;
+import com.googlecode.kanbanik.client.components.common.filters.PanelWithCheckboxes;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.TaskTagsManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
@@ -50,19 +52,19 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     DisclosurePanel disclosurePanel;
 
     @UiField
-    PanelWithCheckboxes userFilter;
+    FilterPanelWithCheckboxes userFilter;
 
     @UiField
-    PanelWithCheckboxes classOfServiceFilter;
+    FilterPanelWithCheckboxes classOfServiceFilter;
 
     @UiField
-    PanelWithCheckboxes boardFilter;
+    FilterPanelWithCheckboxes boardFilter;
 
     @UiField
-    PanelWithCheckboxes tagsFilter;
+    FilterPanelWithCheckboxes tagsFilter;
 
     @UiField
-    PanelWithCheckboxes projectOnBoardFilter;
+    FilterPanelWithCheckboxes projectOnBoardFilter;
 
     @UiField(provided = true)
     FullTextMatcherFilterComponent fullTextFilter;
@@ -322,18 +324,11 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     }
 
     private void fillUsers(BoardsFilter filterObject, boolean loaded) {
-        List<Dtos.UserDto> sorted = new ArrayList<Dtos.UserDto>(UsersManager.getInstance().getUsers());
+        List<Dtos.UserDto> users = UsersManager.getInstance().getUsers();
 
-        Collections.sort(sorted, new Comparator<Dtos.UserDto>() {
-            @Override
-            public int compare(Dtos.UserDto userDto, Dtos.UserDto userDto2) {
-                return userDto.getUserName().compareTo(userDto2.getUserName());
-            }
-        });
+        users.add(0, UsersManager.getInstance().getNoUser());
 
-        sorted.add(0, UsersManager.getInstance().getNoUser());
-
-        for (Dtos.UserDto user : sorted) {
+        for (Dtos.UserDto user : users) {
             if (!loaded || filterObject.findById(user) == -1) {
                 filterObject.add(user);
             }
@@ -443,10 +438,11 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         tagsFilter.remove(new PanelWithCheckboxes.Predicate() {
             @Override
-            public boolean toRemove(FilterCheckBox w) {
+            public boolean toRemove(CommonFilterCheckBox w) {
                 Dtos.TaskTag candidate = (Dtos.TaskTag) w.getEntity();
                 return objEq(candidate.getName(), tag.getName());
             }
+
         });
 
         filterObject.storeFilterData();

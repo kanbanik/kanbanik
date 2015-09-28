@@ -76,7 +76,7 @@ class From1To2 extends MigrationPart {
       "admin",
       "Default User",
       null,
-      "sessionId",
+      Some("sessionId"),
       1,
       "admin",
       "admin",

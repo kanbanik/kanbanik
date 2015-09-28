@@ -1,44 +1,36 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{PermissionsBuilder, UserBuilder}
-import com.googlecode.kanbanik.model.User
 import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.model.User
 
 class EditUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils {
 
   override def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
-    if (params.password == "") {
-      return Right(ErrorDto("The password can not be empty!"))
-    }
+    val user = User.byId(params.userName)
 
-    if (!isAuthenticated(params.userName, params.password)) {
-      return Right(ErrorDto("The credentials provided are not correct!"))
-    } else {
-      val user = User.byId(params.userName)
-
-      val newPermissions = if (params.permissions.isDefined) {
-        val incorrectPermissions = findIncorrectPermissions(params.permissions.get)
-        if (incorrectPermissions.isDefined) {
-          return Right(incorrectPermissions.get)
-        }
-        params.permissions.get.map(PermissionsBuilder.buildEntity(_))
-      } else {
-        user.permissions
+    val newPermissions = if (params.permissions.isDefined) {
+      val incorrectPermissions = findIncorrectPermissions(params.permissions.get)
+      if (incorrectPermissions.isDefined) {
+        return Right(incorrectPermissions.get)
       }
-
-      val (resPassword, resSalt): (String, String) = hashPassword(params.newPassword)
-
-      val newUser = user.copy(
-        password = resPassword,
-        salt = resSalt,
-        realName = params.realName,
-        version = params.version,
-        pictureUrl = params.pictureUrl,
-        permissions = newPermissions
-      ).store
-
-      new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
+      params.permissions.get.map(PermissionsBuilder.buildEntity(_))
+    } else {
+      user.permissions
     }
+
+    val (resPassword, resSalt): (String, String) = hashPassword(params.newPassword)
+
+    val newUser = user.copy(
+      password = resPassword,
+      salt = resSalt,
+      realName = params.realName,
+      version = params.version,
+      pictureUrl = params.pictureUrl,
+      permissions = newPermissions
+    ).store
+
+    new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
   }
 
 

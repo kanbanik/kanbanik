@@ -19,7 +19,7 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
       "username",
       "real name",
       "some://picture.url",
-      "session id",
+      Some("session id"),
       1,
       "password",
       "new password",
