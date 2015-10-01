@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.model
 import com.googlecode.kanbanik.db.{HasMidAirCollisionDetection, HasMongoConnection}
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.PermissionType
+import com.googlecode.kanbanik.model.Permission
 import com.googlecode.kanbanik.security._
 import com.mongodb.{BasicDBList, DBObject}
 import com.mongodb.casbah.Imports.$set
@@ -76,8 +77,11 @@ object User extends HasMongoConnection {
     Permission(PermissionType.ReadUser, List("*")),
 
     Permission(PermissionType.ManipulateBoard, List()),
-    Permission(PermissionType.ManipulateUser, List()),
-    Permission(PermissionType.ManipulateProject, List())
+    Permission(PermissionType.EditUserData, List("*")),
+    Permission(PermissionType.EditUserPermissions, List("*")),
+    Permission(PermissionType.DeleteUser, List("*")),
+    Permission(PermissionType.ManipulateProject, List()),
+    Permission(PermissionType.CreateUser, List())
   )
 
   object Fields extends DocumentField {
@@ -98,7 +102,7 @@ object User extends HasMongoConnection {
 
   def all(user: User): List[User] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Users).find(buildObjectIdFilterQuery(user, PermissionType.ReadUser)).sort(MongoDBObject(User.Fields.name.toString -> 1)).map(asEntity).toList
+      coll(conn, Coll.Users).find(buildStringFilterQuery(user, PermissionType.ReadUser)).sort(MongoDBObject(User.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 

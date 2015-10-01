@@ -19,6 +19,10 @@ package object security {
   def isLoggedWithMessage(user: User): (PartialFunction[Permission, Boolean], String) = (isLogged(user), "You need to be logged in to perform this action")
 
 
+  def checkOneOf(permissionType: PermissionType.Value, id: String): (Check, String) = {
+    ({case Permission(PermissionType.EditUserData, ids: List[String]) => ids.contains(id) || ids.contains("*")}, permissionType.toString)
+  }
+
   def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {
     val resultsToMessages: List[(Seq[Boolean], String)] = checks.map(check => (user.permissions collect check._1, check._2))
     val failedMessages = resultsToMessages collect {case rtm if !rtm._1.contains(true) => rtm._2}
@@ -32,6 +36,14 @@ package object security {
   type CanReadAll = String
 
   type PermittedIds = List[Any]
+
+  def buildStringFilterQuery(user: User, pt: PermissionType.Value): MongoDBObject = {
+    val conv: String => Any = x => x
+    buildFilterQuery(user, pt)(conv) match {
+      case Left(ids) => "_id" $in ids
+      case Right(_) => MongoDBObject()
+    }
+  }
 
   def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): MongoDBObject = {
     val conv: String => Any = x => new ObjectId(x)

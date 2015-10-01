@@ -32,7 +32,12 @@ public class PermissionsEditingComponent extends Composite {
 
     private static final List<? extends GlobalPermissionEditingComponent> permissionEditors = Arrays.asList(
             new ManipulateBoardPEC(),
-            new ManipulateUserPEC()
+
+            new EditUserPermissionsPEC(),
+            new EditUserDataPEC(),
+            new DeleteUserPEC(),
+            new CreateUserPEC(),
+            new ReadUserPEC()
     );
 
     interface MyUiBinder extends UiBinder<Widget, PermissionsEditingComponent> {
@@ -131,14 +136,16 @@ public class PermissionsEditingComponent extends Composite {
             List<String> args = new ArrayList<>();
             for (CommonFilterCheckBox<T> checkBox : permissions.getContent()) {
                 if (checkBox instanceof IdProvider) {
-                    args.add(((IdProvider) checkBox).provideId());
+                    if (checkBox.getValue()) {
+                        args.add(((IdProvider) checkBox).provideId());
+                    }
                 }
 
             }
 
             permissionsDto.setArgs(args);
 
-            return super.flush();
+            return permissionsDto;
         }
 
         boolean hasPermission(int permission, String id) {
@@ -211,7 +218,25 @@ public class PermissionsEditingComponent extends Composite {
 
     }
 
-    static class ManipulateUserPEC extends ListPermissionEditingComponent<Dtos.UserDto> {
+    static class CreateUserPEC extends GlobalPermissionEditingComponent {
+
+        @Override
+        protected Integer getKey() {
+            return 8;
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows creating a new user";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Create User";
+        }
+    }
+
+    static abstract class BaseUserPEC extends ListPermissionEditingComponent<Dtos.UserDto> {
 
         @Override
         protected void fillPermissionsList(PanelWithCheckboxes<Dtos.UserDto> panelWithCheckboxes) {
@@ -225,6 +250,28 @@ public class PermissionsEditingComponent extends Composite {
                 checkBox.setValue(hasPermission(getKey(), checkBox.provideId()));
             }
         }
+
+    }
+
+    static class ReadUserPEC extends BaseUserPEC {
+
+        @Override
+        protected Integer getKey() {
+            return 5;
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to see the user";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Read User";
+        }
+    }
+
+    static class EditUserPermissionsPEC extends BaseUserPEC {
 
         @Override
         protected Integer getKey() {
@@ -241,6 +288,43 @@ public class PermissionsEditingComponent extends Composite {
             return "Manipulate User Permissions";
         }
 
+    }
+
+    static class EditUserDataPEC extends BaseUserPEC {
+
+        @Override
+        protected Integer getKey() {
+            return 1;
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to edit the user permissions. Allows to set only the permission this user holds.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Manipulate User Permissions";
+        }
+
+    }
+
+    static class DeleteUserPEC extends BaseUserPEC {
+
+        @Override
+        protected Integer getKey() {
+            return 9;
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows the user to delete the specific user";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete User";
+        }
     }
 
 }

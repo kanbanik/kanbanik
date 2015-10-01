@@ -13,9 +13,19 @@ package object dtos {
   case class PermissionDto(permissionType: Int, args: List[String])
 
   object PermissionType extends Enumeration {
+
+    // change user basic data (name, password, picture etc) - e.g. everything but permissions
+    val EditUserData = Value(1)
+
+    // allows to edit only the permissions
+    val EditUserPermissions = Value(7)
+
+    val CreateUser = Value(8)
+
+    val DeleteUser = Value(9)
+
     val ManipulateBoard = Value(0)
-    val ManipulateUser = Value(1)
-    val ManipulateUserPermissions = Value(7)
+
     val ManipulateProject = Value(2)
 
     val ReadBoard = Value(3)

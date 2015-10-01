@@ -44,6 +44,8 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 				setChangePasswordEnabled(toChangePassword.getValue());
 			}
 		});
+
+		password.setVisible(false);
 	}
 
 	private void setChangePasswordEnabled(boolean enabled) {
@@ -111,11 +113,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	@Override
 	protected String validate() {
 		String messages = super.validate();
-		
-		if (isEmpty(password)) {
-			messages += "<li>You must provide the password!";
-		}
-		
+
 		if (toChangePassword.getValue()) {
 			messages += checkPasswords(newPassword, newPassword2);
 		}

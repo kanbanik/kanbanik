@@ -45,10 +45,10 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
     assert(User.byId("username").realName === "other name")
 
     // add it's permissions
-    val manipulateUserPermissionDto = PermissionDto(PermissionType.ManipulateUser.id, List())
+    val manipulateUserPermissionDto = PermissionDto(PermissionType.EditUserData.id, List())
     val manipulateBoardPermissionDto = PermissionDto(PermissionType.ManipulateBoard.id, List("the board id"))
 
-    val manipulateUserPermission = Permission(PermissionType.ManipulateUser, List())
+    val manipulateUserPermission = Permission(PermissionType.EditUserData, List())
     val manipulateBoardPermission = Permission(PermissionType.ManipulateBoard, List("the board id"))
 
     new EditUserCommand().execute(userDto.copy(

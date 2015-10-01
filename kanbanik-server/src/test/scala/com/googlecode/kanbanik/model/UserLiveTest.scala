@@ -73,7 +73,7 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
   }
 
   "all flows commands " should "handle permissions properly" in {
-    val manipulateUserPermission = Permission(PermissionType.ManipulateUser, List())
+    val manipulateUserPermission = Permission(PermissionType.EditUserData, List())
     val manipulateBoardPermission = Permission(PermissionType.ManipulateBoard, List("the board id"))
     val manipulateProjectPermission = Permission(PermissionType.ManipulateProject, List("the board id", "the project id"))
     mkDefaultUser.copy(permissions = List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission)).store

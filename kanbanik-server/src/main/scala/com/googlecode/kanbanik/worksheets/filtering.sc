@@ -62,7 +62,7 @@ val manipulateUserPermission = List(
   ),
 
   Permission(
-    PermissionType.ManipulateUser, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
+    PermissionType.EditUserData, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
   )
 )
 val u = User().copy(permissions = manipulateUserPermission)

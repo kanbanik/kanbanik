@@ -2,9 +2,10 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{PermissionsBuilder, UserBuilder}
 import com.googlecode.kanbanik.dtos._
-import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.model.{Permission, User}
+import com.googlecode.kanbanik.security._
 
-class EditUserCommand extends Command[ManipulateUserDto, UserDto] with CredentialsUtils {
+class EditUserCommand extends BaseUserCommand with CredentialsUtils {
 
   override def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
     val user = User.byId(params.userName)
@@ -19,7 +20,11 @@ class EditUserCommand extends Command[ManipulateUserDto, UserDto] with Credentia
       user.permissions
     }
 
-    val (resPassword, resSalt): (String, String) = hashPassword(params.newPassword)
+    val (resPassword, resSalt): (String, String) = if (params.newPassword != null && params.newPassword != "") {
+      hashPassword(params.newPassword)
+    } else {
+      (user.password, user.salt)
+    }
 
     val newUser = user.copy(
       password = resPassword,
@@ -33,14 +38,30 @@ class EditUserCommand extends Command[ManipulateUserDto, UserDto] with Credentia
     new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
   }
 
+  override def checkPermissions(param: ManipulateUserDto, user: User): Option[List[String]] = {
+    val editUserCheck = List[CheckWithMessage](
+      checkOneOf(PermissionType.EditUserData, user.name)
+    )
+    if (!param.permissions.isDefined) {
+      doCheckPermissions(user, editUserCheck)
+    } else {
+      val incorrectPermissions = findIncorrectPermissions(param.permissions.get)
+      if (incorrectPermissions.isDefined) {
+        // will be handled by the check later
+        None
+      } else {
+        val wantsToSet = param.permissions.get.map(PermissionsBuilder.buildEntity(_))
+        // the user can set only permissions (s)he already holds
+        val allPermissionsIWantToSet: List[CheckWithMessage] = (for (oneToSet <- wantsToSet)
+          yield oneToSet.arg.map(checkOneOf(oneToSet.permissionType, _))).flatten
 
-  override def checkPermissions[ManipulateUserDto](param: ManipulateUserDto, user: User): Option[List[String]] = {
-    super.checkPermissions(param, user)
+        doCheckPermissions(user,
+          checkOneOf(PermissionType.EditUserPermissions, user.name) :: editUserCheck ++ allPermissionsIWantToSet
+
+        )
+      }
+    }
+
   }
 
-  def findIncorrectPermissions(permissions: List[PermissionDto]): Option[ErrorDto] = {
-    val ids = for (t <- PermissionType.values) yield t.id
-    val res = permissions.filter(p => !ids.contains(p.permissionType))
-    if (res.isEmpty) None else Some(ErrorDto("Unknown permission ids: " + res.map(_.permissionType).mkString(", ")))
-  }
 }
