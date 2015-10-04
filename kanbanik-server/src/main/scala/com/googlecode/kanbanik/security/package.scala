@@ -19,8 +19,12 @@ package object security {
   def isLoggedWithMessage(user: User): (PartialFunction[Permission, Boolean], String) = (isLogged(user), "You need to be logged in to perform this action")
 
 
+  def checkGlobal(permissionType: PermissionType.Value): (Check, String) = {
+    ({case Permission(permissionType, List()) => true}, permissionType.toString)
+  }
+
   def checkOneOf(permissionType: PermissionType.Value, id: String): (Check, String) = {
-    ({case Permission(PermissionType.EditUserData, ids: List[String]) => ids.contains(id) || ids.contains("*")}, permissionType.toString)
+    ({case Permission(permissionType, ids: List[String]) => ids.contains(id) || ids.contains("*")}, permissionType.toString)
   }
 
   def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {

@@ -20,7 +20,10 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
       user.permissions
     }
 
-    val (resPassword, resSalt): (String, String) = if (params.newPassword != null && params.newPassword != "") {
+    val (resPassword, resSalt): (String, String) = if (
+      params.newPassword != null && params.newPassword != "" &&
+      !user.unloggedFakeUser
+    ) {
       hashPassword(params.newPassword)
     } else {
       (user.password, user.salt)
@@ -39,11 +42,10 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
   }
 
   override def checkPermissions(param: ManipulateUserDto, user: User): Option[List[String]] = {
-    val editUserCheck = List[CheckWithMessage](
-      checkOneOf(PermissionType.EditUserData, user.name)
-    )
+    val editUserCheck = checkOneOf(PermissionType.EditUserData, user.name)
+
     if (!param.permissions.isDefined) {
-      doCheckPermissions(user, editUserCheck)
+      doCheckPermissions(user, List(editUserCheck))
     } else {
       val incorrectPermissions = findIncorrectPermissions(param.permissions.get)
       if (incorrectPermissions.isDefined) {
@@ -56,8 +58,7 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
           yield oneToSet.arg.map(checkOneOf(oneToSet.permissionType, _))).flatten
 
         doCheckPermissions(user,
-          checkOneOf(PermissionType.EditUserPermissions, user.name) :: editUserCheck ++ allPermissionsIWantToSet
-
+          checkOneOf(PermissionType.EditUserPermissions, user.name) :: editUserCheck :: allPermissionsIWantToSet
         )
       }
     }

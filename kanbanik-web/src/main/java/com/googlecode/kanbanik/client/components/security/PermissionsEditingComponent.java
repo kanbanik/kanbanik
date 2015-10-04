@@ -203,7 +203,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 0;
+            return Dtos.PermissionTypes.ManipulateBoard.getValue();
         }
 
         @Override
@@ -222,7 +222,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 8;
+            return Dtos.PermissionTypes.CreateUser.getValue();
         }
 
         @Override
@@ -257,7 +257,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 5;
+            return Dtos.PermissionTypes.ReadUser.getValue();
         }
 
         @Override
@@ -275,7 +275,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 7;
+            return Dtos.PermissionTypes.EditUserPermissions.getValue();
         }
 
         @Override
@@ -294,17 +294,17 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 1;
+            return Dtos.PermissionTypes.EditUserData.getValue();
         }
 
         @Override
         protected String getDescription() {
-            return "Allows to edit the user permissions. Allows to set only the permission this user holds.";
+            return "Allows to edit the user (everything except permissions).";
         }
 
         @Override
         protected String getLabel() {
-            return "Manipulate User Permissions";
+            return "Manipulate User Data";
         }
 
     }
@@ -313,7 +313,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected Integer getKey() {
-            return 9;
+            return Dtos.PermissionTypes.DeleteUser.getValue();
         }
 
         @Override

@@ -49,7 +49,7 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
 
   override def checkPermissions(param: ManipulateUserDto, user: User): Option[List[String]] = {
     doCheckPermissions(user, List[CheckWithMessage](
-      ({case Permission(PermissionType.CreateUser, List()) => true}, "CreateUser")
+      checkGlobal(PermissionType.CreateUser)
     ))
   }
 }

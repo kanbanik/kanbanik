@@ -32,26 +32,28 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 
     private Class<?> currentlyActiveModule;
 
+	private int boardsModuleIndex = 0;
+
+    private int configureModuleIndex = -1;
+
+    private int securityModuleIndex = -1;
+
 	public ControlPanelModule() {
 
         add(boardsContent, "Boards");
 
-        List<Dtos.PermissionDto> permissions = CurrentUser.getInstance().getUser().getPermissions();
-        List<Integer> permissionTypes = new ArrayList<Integer>();
-        for (Dtos.PermissionDto permission : permissions) {
-            permissionTypes.add(permission.getPermissionType());
-        }
-
-        int manipulateBoard = 0;
-        int manipulateProject = 2;
-        int manipulateUser = 1;
-
-        if (permissionTypes.contains(manipulateBoard) || permissionTypes.contains(manipulateProject)) {
+        if (CurrentUser.getInstance().canSeeConfigure()) {
             add(configureWorkflowContent, "Configure");
+            configureModuleIndex = 1;
         }
 
-		if (permissionTypes.contains(manipulateUser)) {
+		if (CurrentUser.getInstance().canSeeSecurity()) {
             add(securityContent, "Security");
+            if (configureModuleIndex == 1) {
+                securityModuleIndex = 2;
+            } else {
+                securityModuleIndex = 1;
+            }
         }
 
 		addSelectionHandler(this);
@@ -101,11 +103,11 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
             MessageBus.sendMessage(new ModuleDeactivatedMessage(currentlyActiveModule, this));
         }
 
-		if (event.getSelectedItem() == 0) {
+		if (event.getSelectedItem() == boardsModuleIndex) {
 			boardsModule.initialize(new BoardsRefreshed());
-		} else if (event.getSelectedItem() == 1) {
+		} else if (event.getSelectedItem() == configureModuleIndex) {
 			configureWorkflowModule.initialize(new ConfigureWorkflowRefreshed());
-		} else if (event.getSelectedItem() == 2) {
+		} else if (event.getSelectedItem() == securityModuleIndex) {
 			securityModule.initialize(new SecurityModuleRefreshed());
 		}
 	}

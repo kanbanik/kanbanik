@@ -14,6 +14,9 @@ import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
     private static final CurrentUser instance = new CurrentUser();
@@ -105,4 +108,42 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 	private boolean thisUserManipulated(Message<Dtos.UserDto> message) {
 		return message.getPayload().getUserName().equals(user.getUserName());
 	}
+
+	public boolean canSeeConfigure() {
+        return containsOne(getPermissionTypes(),
+                Dtos.PermissionTypes.ManipulateBoard.getValue(),
+                Dtos.PermissionTypes.ManipulateProject.getValue()
+        );
+    }
+
+    public boolean canSeeSecurity() {
+        return containsOne(getPermissionTypes(),
+                Dtos.PermissionTypes.EditUserData.getValue(),
+                Dtos.PermissionTypes.EditUserPermissions.getValue(),
+                Dtos.PermissionTypes.CreateUser.getValue(),
+                Dtos.PermissionTypes.DeleteUser.getValue(),
+                Dtos.PermissionTypes.CreateUser.getValue()
+        );
+    }
+
+    private List<Integer> getPermissionTypes() {
+        List<Dtos.PermissionDto> permissions = CurrentUser.getInstance().getUser().getPermissions();
+        List<Integer> permissionTypes = new ArrayList<Integer>();
+        for (Dtos.PermissionDto permission : permissions) {
+            permissionTypes.add(permission.getPermissionType());
+        }
+
+        return permissionTypes;
+    }
+
+    private boolean containsOne(List<Integer> list, int... values) {
+        for (int value : values) {
+            if (list.contains(value)) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
 }

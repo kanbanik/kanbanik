@@ -52,6 +52,33 @@ public class Dtos {
         public void setPermissions(List<PermissionDto> permissions);
     }
 
+    public static enum PermissionTypes {
+
+        EditUserData(1),
+        EditUserPermissions(7),
+        CreateUser(8),
+        DeleteUser(9),
+
+        ManipulateBoard(0),
+
+        ManipulateProject(2),
+
+        ReadBoard(3),
+        ReadProject(4),
+        ReadUser(5),
+        ReadClassOfService(6);
+
+        PermissionTypes(int value) {
+            this.value = value;
+        }
+
+        private int value;
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     public static interface PermissionDto {
         Integer getPermissionType();
         void setPermissionType(Integer  permissionType);
