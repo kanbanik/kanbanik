@@ -18,7 +18,6 @@ abstract class Command[T: Manifest, R] {
       Right(ErrorDto("Insufficient permissions. Missing: " + res.get.mkString("; ")))
     } else {
       execute(parsedJson.extract[T], user)
-
     }
 
   }

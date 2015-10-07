@@ -24,11 +24,12 @@ package object security {
   }
 
   def checkOneOf(permissionType: PermissionType.Value, id: String): (Check, String) = {
-    ({case Permission(permissionType, ids: List[String]) => ids.contains(id) || ids.contains("*")}, permissionType.toString)
+    ({case Permission(pt, ids: List[String])  if pt == permissionType => ids.contains(id) || ids.contains("*")}, permissionType.toString)
   }
 
   def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {
     val resultsToMessages: List[(Seq[Boolean], String)] = checks.map(check => (user.permissions collect check._1, check._2))
+    // the !contains(true) means that it either does not have the permission at all or does not have it for all what I need it for
     val failedMessages = resultsToMessages collect {case rtm if !rtm._1.contains(true) => rtm._2}
     if (failedMessages isEmpty) {
       None

@@ -1,6 +1,8 @@
 package com.googlecode.kanbanik.client.components.security;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -30,6 +32,9 @@ public class PermissionsEditingComponent extends Composite {
     @UiField
     VerticalPanel contentPanel;
 
+    @UiField
+    CheckBox editPermissions;
+
     private static final List<? extends GlobalPermissionEditingComponent> permissionEditors = Arrays.asList(
             new ManipulateBoardPEC(),
 
@@ -47,6 +52,15 @@ public class PermissionsEditingComponent extends Composite {
 
     public PermissionsEditingComponent() {
         initWidget(uiBinder.createAndBindUi(this));
+
+        editPermissions.setText("Edit permissions");
+
+        editPermissions.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                contentPanel.setVisible(event.getValue());
+            }
+        });
     }
 
     public void init(List<Dtos.PermissionDto> permissions) {
@@ -64,6 +78,10 @@ public class PermissionsEditingComponent extends Composite {
     }
 
     public List<Dtos.PermissionDto> flush() {
+        if (!editPermissions.getValue()) {
+            return null;
+        }
+
         List<Dtos.PermissionDto> res = new ArrayList<>();
 
         for (GlobalPermissionEditingComponent editor : permissionEditors) {
@@ -141,6 +159,10 @@ public class PermissionsEditingComponent extends Composite {
                     }
                 }
 
+            }
+
+            if (args.size() == 0) {
+                return null;
             }
 
             permissionsDto.setArgs(args);

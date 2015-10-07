@@ -57,7 +57,6 @@ val manipulateBoardPermission = Permission(PermissionType.ManipulateBoard, List(
 println("before")
 println("RRRes = " + checkPermissions(User("a", manipulateBoardPermission, manipulateProjectPermission)).mkString(", "))
 println("end")
-
 //findIncorrectPermissions(List(new PermissionDto(1, List()), new PermissionDto(9, List()), new PermissionDto(8, List())))
 //
 //def findIncorrectPermissions(permissions: List[PermissionDto]): Option[ErrorDto] = {

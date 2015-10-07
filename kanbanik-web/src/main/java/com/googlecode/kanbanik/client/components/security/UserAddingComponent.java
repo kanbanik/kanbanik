@@ -48,7 +48,10 @@ public class UserAddingComponent extends BaseUserManipulatingComponent {
         dto.setPassword(password.getText());
         dto.setNewPassword(password.getText());
 
-		dto.setPermissions(createPermissions());
+		List<Dtos.PermissionDto> permissions = createPermissions();
+		if (permissions != null) {
+			dto.setPermissions(permissions);
+		}
 
         dto.setCommandName(CommandNames.CREATE_USER.name);
 		return dto;

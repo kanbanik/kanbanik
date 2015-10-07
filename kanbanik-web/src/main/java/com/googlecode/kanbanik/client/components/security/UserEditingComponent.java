@@ -14,6 +14,8 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.List;
+
 public class UserEditingComponent extends BaseUserManipulatingComponent {
 
 	@UiField
@@ -63,7 +65,10 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
         newDto.setPassword(password.getText());
         newDto.setNewPassword(toChangePassword.getValue() ? newPassword.getText() : password.getText());
         newDto.setCommandName(CommandNames.EDIT_USER.name);
-		newDto.setPermissions(createPermissions());
+		List<Dtos.PermissionDto> permissions = createPermissions();
+		if (permissions != null) {
+			newDto.setPermissions(permissions);
+		}
 
         return newDto;
 	}
