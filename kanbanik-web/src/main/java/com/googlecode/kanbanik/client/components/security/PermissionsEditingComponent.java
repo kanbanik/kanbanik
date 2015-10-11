@@ -61,6 +61,9 @@ public class PermissionsEditingComponent extends Composite {
                 contentPanel.setVisible(event.getValue());
             }
         });
+
+        // todo only when has permission to edit permissions
+        contentPanel.setVisible(editPermissions.getValue());
     }
 
     public void init(List<Dtos.PermissionDto> permissions) {
@@ -119,6 +122,10 @@ public class PermissionsEditingComponent extends Composite {
             return null;
         }
 
+        public CheckBox getCheckBox() {
+            return checkBox;
+        }
+
         protected abstract Integer getKey();
 
         protected abstract String getDescription();
@@ -142,6 +149,17 @@ public class PermissionsEditingComponent extends Composite {
             permissions.initialize();
             fillPermissionsList(permissions);
             add(permissions);
+
+            getCheckBox().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+                    updateContentEnabled();
+                }
+            });
+        }
+
+        private void updateContentEnabled() {
+            permissions.setEnabled(getCheckBox().getValue());
         }
 
         @Override

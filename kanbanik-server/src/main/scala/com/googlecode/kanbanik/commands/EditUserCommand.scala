@@ -41,28 +41,9 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
     new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
   }
 
-  override def checkPermissions(param: ManipulateUserDto, user: User): Option[List[String]] = {
-    val editUserCheck = checkOneOf(PermissionType.EditUserData, param.userName)
+  override def baseCheck(param: ManipulateUserDto): (Check, String) = checkOneOf(PermissionType.EditUserData, param.userName)
 
-    if (!param.permissions.isDefined) {
-      doCheckPermissions(user, List(editUserCheck))
-    } else {
-      val incorrectPermissions = findIncorrectPermissions(param.permissions.get)
-      if (incorrectPermissions.isDefined) {
-        // will be handled by the check later
-        None
-      } else {
-        val wantsToSet = param.permissions.get.map(PermissionsBuilder.buildEntity(_))
-        // the user can set only permissions (s)he already holds
-        val allPermissionsIWantToSet: List[CheckWithMessage] =
-          (for (oneToSet <- wantsToSet) yield oneToSet.arg.map(checkOneOf(oneToSet.permissionType, _))).flatten
-
-        doCheckPermissions(user,
-          checkOneOf(PermissionType.EditUserPermissions, param.userName) :: editUserCheck :: allPermissionsIWantToSet
-        )
-      }
-    }
-
-  }
+  override def composeFullCheck(param: ManipulateUserDto, baseCheck: (Check, String), allPermissionsIWantToSet: List[(Check, String)]): List[(Check, String)] =
+    checkOneOf(PermissionType.EditUserPermissions, param.userName) :: baseCheck :: allPermissionsIWantToSet
 
 }

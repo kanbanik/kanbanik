@@ -3,15 +3,14 @@ package com.googlecode.kanbanik.migrate
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.googlecode.kanbanik.commands.CreateUserCommand
+import com.googlecode.kanbanik.commands.{CredentialsUtils}
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.model._
 import org.bson.types.ObjectId
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
-
+import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing}
 
 class MigrateDb extends HasMongoConnection {
 
@@ -68,23 +67,23 @@ trait MigrationPart extends HasMongoConnection {
 }
 
 // from 0.2.3 -> 0.2.4
-class From1To2 extends MigrationPart {
+class From1To2 extends MigrationPart with CredentialsUtils {
 
   def migrate {
     // create a default user
-    val userDto = ManipulateUserDto(
-      "admin",
-      "Default User",
-      null,
-      Some("sessionId"),
-      1,
-      "admin",
-      "admin",
-      None
-    )
+    val (password, salt) = hashPassword("admin")
 
     // create the first user
-    new CreateUserCommand().execute(userDto)
+    new User(
+      "admin",
+      password,
+      "Default User",
+      null,
+      salt,
+      1,
+      List(),
+      false
+    ).store
 
     setVersionTo(2)
   }
@@ -315,6 +314,7 @@ class From2To3 extends MigrationPart {
       }
     }
   }
+
 }
 
 // from 0.2.5 -> 0.2.6
@@ -361,26 +361,25 @@ class From3To4 extends MigrationPart {
 
   def asNewTask(dbObject: DBObject, boardId: ObjectId): Task = {
     new Task(
-      None,
-      dbObject.get(Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Fields.description.toString()).asInstanceOf[String],
-      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
-      dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
-      {
-        val version = dbObject.getWithDefault[Int](Fields.version, 1)
-        if (version != 0) {
-          version
-        } else {
-          1
-        }
-      },
-      dbObject.get(Fields.order.toString()).asInstanceOf[String],
-      loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
-      dbObject.getWithDefault[String](Fields.dueDate, ""),
-      dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
-      boardId,
-      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId],
-      None
+    None,
+    dbObject.get(Fields.name.toString()).asInstanceOf[String],
+    dbObject.get(Fields.description.toString()).asInstanceOf[String],
+    loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
+    dbObject.get(Fields.ticketId.toString()).asInstanceOf[String], {
+      val version = dbObject.getWithDefault[Int](Fields.version, 1)
+      if (version != 0) {
+        version
+      } else {
+        1
+      }
+    },
+    dbObject.get(Fields.order.toString()).asInstanceOf[String],
+    loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
+    dbObject.getWithDefault[String](Fields.dueDate, ""),
+    dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
+    boardId,
+    dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId],
+    None
     )
 
   }

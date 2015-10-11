@@ -7,6 +7,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.security._
 import com.googlecode.kanbanik.dtos._
 import org.bson.types.ObjectId
+
 //db.users.find({_id: {$in: ["aaaa", "some"]}})
 class Some extends HasMongoConnection {
   def load(ids: MongoDBObject): String = {
@@ -14,13 +15,12 @@ class Some extends HasMongoConnection {
     using(createConnection) { conn =>
 
       val taskExclusionObject = MongoDBObject()
-//      val ids: List[Any] = List(
-//        new ObjectId("555e1f0de5e05d6d4ca2a83e"),
-//        new ObjectId("55e74298e5e089200feedc9a")
-//      )
+      //      val ids: List[Any] = List(
+      //        new ObjectId("555e1f0de5e05d6d4ca2a83e"),
+      //        new ObjectId("55e74298e5e089200feedc9a")
+      //      )
 
-//      val s = Board.Fields.id.toString $in ids
-
+      //      val s = Board.Fields.id.toString $in ids
 
 
       val res = coll(conn, Coll.Boards).find(ids, taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
@@ -46,7 +46,7 @@ def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): MongoDBObjec
 }
 
 def buildFilterQuery(user: User, pt: PermissionType.Value)(conv: String => Any): Either[PermittedIds, CanReadAll] = {
-  val r = user.permissions.collect {case Permission(realPt, args) if pt == realPt => args}
+  val r = user.permissions.collect { case Permission(realPt, args) if pt == realPt => args }
   val flat = r.flatten
   if (!flat.contains("*")) {
     Left(flat.map(conv))
@@ -56,7 +56,7 @@ def buildFilterQuery(user: User, pt: PermissionType.Value)(conv: String => Any):
 }
 
 
-val manipulateUserPermission = List(
+val manipulateUserPermission: List[Permission] = List(
   Permission(
     PermissionType.ReadBoard, List("55e74298e5e089200feedc9a")
   ),
@@ -65,9 +65,68 @@ val manipulateUserPermission = List(
     PermissionType.EditUserData, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
   )
 )
+
+val manipulateUserPermission2: List[Permission] = List(
+  Permission(
+    PermissionType.ReadBoard, List("55e74298e5e089200feedc9a")
+  ),
+
+  Permission(
+    PermissionType.EditUserData, List("555e1f0de5e05d6d4ca2a83e", "55e74298e5e089200feedc9a")
+  )
+)
+
 val u = User().copy(permissions = manipulateUserPermission)
 //
 var l = buildObjectIdFilterQuery(u, PermissionType.ReadBoard)
 val x = new Some().load(l)
 println("end res is: ")
 
+
+def mergePermissions(source: List[Permission], toAdd: List[Permission]): List[Permission] = {
+  toAdd match {
+    case Nil => Nil
+    case x :: xs => {
+      val alreadyContained = source.find(_.permissionType == x.permissionType)
+      if (!alreadyContained.isDefined) {
+        // add new
+        x :: mergePermissions(source, xs)
+      } else {
+        // merge
+        Permission(x.permissionType, (x.arg ++ alreadyContained.get.arg).distinct) :: mergePermissions(source, xs)
+      }
+
+    }
+  }
+}
+
+val original = List(
+  Permission(
+    PermissionType.ReadBoard, List("1")
+  ),
+  Permission(
+    PermissionType.ReadClassOfService, List()
+  ),
+  Permission(
+    PermissionType.EditUserData, List("2", "3")
+  )
+)
+
+val add = List(
+  Permission(
+    PermissionType.DeleteUser, List("1", "6")
+  ),
+  Permission(
+    PermissionType.ReadBoard, List("1", "6")
+  ),
+
+  Permission(
+    PermissionType.EditUserData, List("2", "3")
+  ),
+
+  Permission(
+    PermissionType.ReadClassOfService, List()
+  )
+)
+
+mergePermissions(original, add)

@@ -125,6 +125,12 @@ public class PanelWithCheckboxes<T> extends Composite{
         contentPanel.clear();
     }
 
+    public void setEnabled(boolean enabled) {
+        for (CommonFilterCheckBox checkBox : getContent()) {
+            checkBox.setEnabled(enabled);
+        }
+    }
+
     public static interface Predicate {
         boolean toRemove(CommonFilterCheckBox w);
     }

@@ -6,10 +6,9 @@ import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dtos._
 import com.googlecode.kanbanik.security._
 
-
 class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMongoConnection {
 
-  override def execute(params: ManipulateUserDto): Either[UserDto, ErrorDto] = {
+  override def execute(params: ManipulateUserDto, currentUser: User): Either[UserDto, ErrorDto] = {
 
     val name = params.userName
 
@@ -40,16 +39,35 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
     		params.pictureUrl,
     		salt,
     		1,
-        permissions,
+        mergePermissions(permissions, List(Permission(PermissionType.ReadUser, List(name)))),
         false
     ).store
-    
+
+    // this is a race - if someomne will edit the currentUser now the permissions will not be granted
+    // ignoring for now because complex locking would be slow and this is not a too big deal - somne more powerful admin can
+    // fix it by granting the permissions by hand
+    addMePermissions(user, currentUser)
+
     new Left(UserBuilder.buildDto(user, params.sessionId.get))
   }
 
-  override def checkPermissions(param: ManipulateUserDto, user: User): Option[List[String]] = {
-    doCheckPermissions(user, List[CheckWithMessage](
-      checkGlobal(PermissionType.CreateUser)
-    ))
+  /**
+   * When created a user, I need to see who did I create
+   */
+  def addMePermissions(createdUser: User, currentUser: User) {
+    val newPermkissions = List(
+      Permission(PermissionType.ReadUser, List(createdUser.name)),
+      Permission(PermissionType.EditUserData, List(createdUser.name)),
+      Permission(PermissionType.EditUserPermissions, List(createdUser.name)),
+      Permission(PermissionType.DeleteUser, List(createdUser.name))
+    )
+
+    currentUser.copy(permissions = mergePermissions(currentUser.permissions, newPermkissions)).store
+
   }
+
+  override def baseCheck(param: ManipulateUserDto): (Check, String) = checkGlobal(PermissionType.CreateUser)
+
+  override def composeFullCheck(param: ManipulateUserDto, baseCheck: (Check, String), allPermissionsIWantToSet: List[(Check, String)]): List[(Check, String)] =
+    baseCheck :: allPermissionsIWantToSet
 }

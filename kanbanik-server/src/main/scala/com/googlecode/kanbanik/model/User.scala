@@ -150,7 +150,8 @@ object User extends HasMongoConnection {
       Fields.pictureUrl.toString -> {if (entity.pictureUrl == null) "" else entity.pictureUrl} ,
       Fields.salt.toString -> entity.salt,
       Fields.permissions.toString -> asPermissionsDbObject(entity),
-      Fields.version.toString -> entity.version)
+      Fields.version.toString -> entity.version,
+      Fields.unlogged.toString -> entity.unloggedFakeUser)
 
   }
 

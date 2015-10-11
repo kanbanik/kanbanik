@@ -67,4 +67,21 @@ package object security {
       Right("*")
     }
   }
+
+  def mergePermissions(source: List[Permission], toAdd: List[Permission]): List[Permission] = {
+    toAdd match {
+      case Nil => Nil
+      case x :: xs => {
+        val alreadyContained = source.find(_.permissionType == x.permissionType)
+        if (!alreadyContained.isDefined) {
+          // add new
+          x :: mergePermissions(source, xs)
+        } else {
+          // merge
+          Permission(x.permissionType, (x.arg ++ alreadyContained.get.arg).distinct) :: mergePermissions(source, xs)
+        }
+
+      }
+    }
+  }
 }
