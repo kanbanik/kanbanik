@@ -14,12 +14,17 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.common.filters.CommonFilterCheckBox;
 import com.googlecode.kanbanik.client.components.common.filters.PanelWithCheckboxes;
 import com.googlecode.kanbanik.client.managers.UsersManager;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +42,16 @@ public class PermissionsEditingComponent extends Composite {
 
     private static final List<? extends GlobalPermissionEditingComponent> permissionEditors = Arrays.asList(
             new ManipulateBoardPEC(),
+            new ReadBoardPEC(),
 
             new EditUserPermissionsPEC(),
             new EditUserDataPEC(),
             new DeleteUserPEC(),
             new CreateUserPEC(),
-            new ReadUserPEC()
+            new ReadUserPEC(),
+
+            new ReadProjectPEC()
+
     );
 
     interface MyUiBinder extends UiBinder<Widget, PermissionsEditingComponent> {
@@ -66,7 +75,63 @@ public class PermissionsEditingComponent extends Composite {
         contentPanel.setVisible(editPermissions.getValue());
     }
 
-    public void init(List<Dtos.PermissionDto> permissions) {
+
+    private boolean canEditPermissions(Dtos.UserDto userDto) {
+        for (Dtos.PermissionDto permission : CurrentUser.getInstance().getUser().getPermissions()) {
+            if (permission.getPermissionType().intValue() == Dtos.PermissionTypes.EditUserPermissions.getValue()) {
+                return permission.getArgs().contains(userDto.getUserName()) || permission.getArgs().contains("*");
+            }
+        }
+
+        return false;
+    }
+
+    private static Dtos.BoardsWithProjectsDto boardsWithProjectsDto;
+
+    private static Dtos.ProjectsDto projectsDto;
+
+    public void init(final List<Dtos.PermissionDto> permissions, final Dtos.UserDto userDto) {
+
+        boolean createNew = userDto == null;
+        if (!createNew && !canEditPermissions(userDto)) {
+            // if new, can edit it's permissions
+            // if edit, than it has to have the permission to do it
+            setVisible(false);
+            return;
+        }
+
+        ServerCaller.sendRequest(
+                DtoFactory.getAllBoardsWithProjectsDto(true, true),
+                Dtos.BoardsWithProjectsDto.class,
+                new ServerCallCallback<Dtos.BoardsWithProjectsDto>() {
+
+                    @Override
+                    public void onSuccess(final Dtos.BoardsWithProjectsDto response) {
+                        boardsWithProjectsDto = response;
+
+                        Dtos.SessionDto getAllProjectsReq = DtoFactory.sessionDto();
+                        getAllProjectsReq.setCommandName(CommandNames.GET_ALL_PROJECTS.name);
+
+                        ServerCaller.<Dtos.SessionDto, Dtos.ProjectsDto>sendRequest(
+                                getAllProjectsReq,
+                                Dtos.ProjectsDto.class,
+                                new ServerCallCallback<Dtos.ProjectsDto>() {
+
+                                    @Override
+                                    public void success(Dtos.ProjectsDto result) {
+                                        projectsDto = result;
+                                        initDialogAfterDataLoaded(permissions);
+                                    }
+                                }
+                        );
+
+
+                    }
+                }
+        );
+    }
+
+    private void initDialogAfterDataLoaded(List<Dtos.PermissionDto> permissions) {
         contentPanel.clear();
 
         Map<Integer, Dtos.PermissionDto> permissionDtoMap = new HashMap<>();
@@ -149,6 +214,8 @@ public class PermissionsEditingComponent extends Composite {
             permissions.initialize();
             fillPermissionsList(permissions);
             add(permissions);
+
+            updateContentEnabled();
 
             getCheckBox().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
@@ -367,4 +434,126 @@ public class PermissionsEditingComponent extends Composite {
         }
     }
 
+    static class BoardFilterCheckBox extends CommonFilterCheckBox<Dtos.BoardDto> implements IdProvider {
+
+        private Dtos.BoardDto entity;
+
+        public BoardFilterCheckBox(Dtos.BoardDto entity) {
+            super(entity);
+            this.entity = entity;
+        }
+
+        @Override
+        protected String provideText(Dtos.BoardDto entity) {
+            return entity.getName();
+        }
+
+        @Override
+        public String provideId() {
+            return entity.getId();
+        }
+    }
+
+    static class ProjectFilterCheckBox extends CommonFilterCheckBox<Dtos.ProjectDto> implements IdProvider {
+
+        private Dtos.ProjectDto entity;
+
+        public ProjectFilterCheckBox(Dtos.ProjectDto entity) {
+            super(entity);
+            this.entity = entity;
+        }
+
+        @Override
+        protected String provideText(Dtos.ProjectDto entity) {
+            return entity.getName();
+        }
+
+        @Override
+        public String provideId() {
+            return entity.getId();
+        }
+    }
+
+    static abstract class BaseProjectPEC extends ListPermissionEditingComponent<Dtos.ProjectDto> {
+
+        @Override
+        protected void fillPermissionsList(PanelWithCheckboxes<Dtos.ProjectDto> panelWithCheckboxes) {
+            List<Dtos.ProjectDto> projects = new ArrayList<>();
+
+            Dtos.ProjectDto allProjects = DtoFactory.projectDto();
+            allProjects.setId("*");
+            allProjects.setName("All Projects");
+
+            projects.add(0, allProjects);
+
+            for (Dtos.ProjectDto dto : projectsDto.getValues()) {
+                projects.add(dto);
+            }
+
+            for (Dtos.ProjectDto project : projects) {
+                ProjectFilterCheckBox checkBox = new ProjectFilterCheckBox(project);
+                panelWithCheckboxes.add(checkBox);
+                checkBox.setValue(hasPermission(getKey(), checkBox.provideId()));
+            }
+        }
+    }
+
+    static class ReadProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.ReadProject.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to see this particular project";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Read Project";
+        }
+    }
+
+    static abstract class BaseBoardPEC extends ListPermissionEditingComponent<Dtos.BoardDto> {
+
+        @Override
+        protected void fillPermissionsList(PanelWithCheckboxes<Dtos.BoardDto> panelWithCheckboxes) {
+            List<Dtos.BoardDto> boards = new ArrayList<>();
+            for (Dtos.BoardWithProjectsDto boardWithProjectsDto : boardsWithProjectsDto.getValues()) {
+                boards.add(boardWithProjectsDto.getBoard());
+            }
+
+            Dtos.BoardDto allBoards = DtoFactory.boardDto();
+            allBoards.setId("*");
+            allBoards.setName("All Boards");
+
+            boards.add(0, allBoards);
+
+            for (Dtos.BoardDto board : boards) {
+                BoardFilterCheckBox checkBox = new BoardFilterCheckBox(board);
+                panelWithCheckboxes.add(checkBox);
+                checkBox.setValue(hasPermission(getKey(), checkBox.provideId()));
+            }
+        }
+    }
+
+    static class ReadBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.ReadBoard.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to read the board";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Read Board";
+        }
+    }
 }

@@ -20,7 +20,7 @@ package object security {
 
 
   def checkGlobal(permissionType: PermissionType.Value): (Check, String) = {
-    ({case Permission(permissionType, List()) => true}, permissionType.toString)
+    ({case Permission(pt, List()) if pt == permissionType => true}, permissionType.toString)
   }
 
   def checkOneOf(permissionType: PermissionType.Value, id: String): (Check, String) = {
@@ -69,19 +69,18 @@ package object security {
   }
 
   def mergePermissions(source: List[Permission], toAdd: List[Permission]): List[Permission] = {
-    toAdd match {
-      case Nil => Nil
-      case x :: xs => {
-        val alreadyContained = source.find(_.permissionType == x.permissionType)
-        if (!alreadyContained.isDefined) {
-          // add new
-          x :: mergePermissions(source, xs)
-        } else {
-          // merge
-          Permission(x.permissionType, (x.arg ++ alreadyContained.get.arg).distinct) :: mergePermissions(source, xs)
-        }
 
+    def f(current: List[Permission], p: Permission): List[Permission] = {
+      val alreadyContained = current.find(_.permissionType == p.permissionType)
+
+      if (!alreadyContained.isDefined) {
+        p :: current
+      } else {
+        Permission(p.permissionType, (p.arg ++ alreadyContained.get.arg).distinct) :: current.filterNot(_.permissionType == p.permissionType)
       }
     }
+
+    (source ++ toAdd).foldLeft(List[Permission]())(f)
+
   }
 }

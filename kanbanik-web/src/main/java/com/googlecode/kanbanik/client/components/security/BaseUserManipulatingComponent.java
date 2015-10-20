@@ -129,7 +129,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
         permissionsEditingComponent = new PermissionsEditingComponent();
         List<Dtos.PermissionDto> permissions = oldDto != null ? oldDto.getPermissions() : Collections.EMPTY_LIST;
         permissions = permissions != null ? permissions : Collections.EMPTY_LIST;
-        permissionsEditingComponent.init(permissions);
+        permissionsEditingComponent.init(permissions, oldDto);
         permissionsPanel.clear();
         permissionsPanel.add(permissionsEditingComponent);
 	}

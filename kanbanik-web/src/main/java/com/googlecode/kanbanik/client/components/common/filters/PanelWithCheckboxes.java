@@ -126,6 +126,9 @@ public class PanelWithCheckboxes<T> extends Composite{
     }
 
     public void setEnabled(boolean enabled) {
+        allButton.setEnabled(enabled);
+        noneButton.setEnabled(enabled);
+        filterBox.setEnabled(enabled);
         for (CommonFilterCheckBox checkBox : getContent()) {
             checkBox.setEnabled(enabled);
         }

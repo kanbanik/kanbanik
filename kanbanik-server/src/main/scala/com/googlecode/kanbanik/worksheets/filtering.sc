@@ -84,49 +84,53 @@ println("end res is: ")
 
 
 def mergePermissions(source: List[Permission], toAdd: List[Permission]): List[Permission] = {
-  toAdd match {
-    case Nil => Nil
-    case x :: xs => {
-      val alreadyContained = source.find(_.permissionType == x.permissionType)
-      if (!alreadyContained.isDefined) {
-        // add new
-        x :: mergePermissions(source, xs)
-      } else {
-        // merge
-        Permission(x.permissionType, (x.arg ++ alreadyContained.get.arg).distinct) :: mergePermissions(source, xs)
-      }
 
+  def f(current: List[Permission], p: Permission): List[Permission] = {
+    val alreadyContained = current.find(_.permissionType == p.permissionType)
+
+    if (!alreadyContained.isDefined) {
+      p :: current
+    } else {
+      Permission(p.permissionType, (p.arg ++ alreadyContained.get.arg).distinct) :: current.filterNot(_.permissionType == p.permissionType)
     }
   }
+
+  (source ++ toAdd).foldLeft(List[Permission]())(f)
+
 }
 
 val original = List(
   Permission(
     PermissionType.ReadBoard, List("1")
   ),
+//  Permission(
+//    PermissionType.ReadClassOfService, List()
+//  ),
   Permission(
-    PermissionType.ReadClassOfService, List()
-  ),
-  Permission(
-    PermissionType.EditUserData, List("2", "3")
+    PermissionType.EditUserData, List("2", "3", "4")
   )
+//  Permission(
+//    PermissionType.ReadClassOfService, List()
+//  )
 )
 
 val add = List(
-  Permission(
-    PermissionType.DeleteUser, List("1", "6")
-  ),
-  Permission(
-    PermissionType.ReadBoard, List("1", "6")
-  ),
+//  Permission(
+//    PermissionType.DeleteUser, List("1", "6")
+//  ),
+//  Permission(
+//    PermissionType.ReadBoard, List("1", "6")
+//  ),
 
   Permission(
     PermissionType.EditUserData, List("2", "3")
   ),
-
   Permission(
     PermissionType.ReadClassOfService, List()
-  )
+   )
+
 )
 
-mergePermissions(original, add)
+
+
+mergePermissions(mergePermissions(original, add), original)
