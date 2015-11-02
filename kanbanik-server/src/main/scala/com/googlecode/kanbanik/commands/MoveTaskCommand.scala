@@ -1,11 +1,12 @@
 package com.googlecode.kanbanik.commands
 
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.model.{User, Workflowitem}
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ErrorDto, TaskDto, MoveTaskDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, TaskDto, MoveTaskDto}
 
 class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulation with HasEntityLoader {
 
@@ -92,5 +93,20 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
     } else {
       orderWithEmpty
     }
+  }
+
+  override def checkPermissions(param: MoveTaskDto, user: User): Option[List[String]] = {
+
+    val oldTask = loadTask(new ObjectId(param.task.id.get), user).getOrElse(
+      // will be handled later on validations
+      return None
+    )
+
+    doCheckPermissions(user, List(
+      checkOneOf(PermissionType.MoveTask_b, param.task.boardId),
+      checkOneOf(PermissionType.MoveTask_p, param.task.projectId),
+      checkOneOf(PermissionType.MoveTask_b, oldTask.boardId.toString),
+      checkOneOf(PermissionType.MoveTask_p, oldTask.projectId.toString)
+    ))
   }
 }

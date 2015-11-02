@@ -4,8 +4,9 @@ import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.{User, Workflowitem, Board}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dtos.{TasksDto, EmptyDto, ErrorDto, TaskDto}
+import com.googlecode.kanbanik.dtos._
 
 class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulation {
 
@@ -47,5 +48,15 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
     }
 
     Left(taskDto)
+  }
+
+  override def checkPermissions(param: TasksDto, user: User): Option[List[String]] = {
+
+    val checks = param.values.map(task => List(
+      checkOneOf(PermissionType.DeleteTask_b, task.boardId),
+      checkOneOf(PermissionType.DeleteTask_p, task.projectId)
+    )).flatten
+
+    doCheckPermissions(user, checks)
   }
 }

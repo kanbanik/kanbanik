@@ -66,7 +66,19 @@ public class Dtos {
         ReadBoard(3),
         ReadProject(4),
         ReadUser(5),
-        ReadClassOfService(6);
+        ReadClassOfService(6),
+
+        MoveTask_p(10),
+        CreateTask_p(11),
+        EditTask_p(12),
+        DeleteTask_p(13),
+
+        MoveTask_b(14),
+        CreateTask_b(15),
+        EditTask_b(16),
+        DeleteTask_b(17)
+
+        ;
 
         PermissionTypes(int value) {
             this.value = value;

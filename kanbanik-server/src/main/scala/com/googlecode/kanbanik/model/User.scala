@@ -81,7 +81,17 @@ object User extends HasMongoConnection {
     Permission(PermissionType.EditUserPermissions, List("*")),
     Permission(PermissionType.DeleteUser, List("*")),
     Permission(PermissionType.ManipulateProject, List()),
-    Permission(PermissionType.CreateUser, List())
+    Permission(PermissionType.CreateUser, List()),
+
+    Permission(PermissionType.CreateTask_p, List("*")),
+    Permission(PermissionType.EditTask_p, List("*")),
+    Permission(PermissionType.DeleteTask_p, List("*")),
+    Permission(PermissionType.MoveTask_p, List("*")),
+
+    Permission(PermissionType.CreateTask_b, List("*")),
+    Permission(PermissionType.EditTask_b, List("*")),
+    Permission(PermissionType.DeleteTask_b, List("*")),
+    Permission(PermissionType.MoveTask_b, List("*"))
   )
 
   object Fields extends DocumentField {

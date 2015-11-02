@@ -50,7 +50,16 @@ public class PermissionsEditingComponent extends Composite {
             new CreateUserPEC(),
             new ReadUserPEC(),
 
-            new ReadProjectPEC()
+            new ReadProjectPEC(),
+
+            new MoveTaskBoardPEC(),
+            new MoveTaskProjectPEC(),
+            new EditTaskBoardPEC(),
+            new EditTaskProjectPEC(),
+            new CreateTaskBoardPEC(),
+            new CreateTaskProjectPEC(),
+            new DeleteTaskBoardPEC(),
+            new DeleteTaskProjectPEC()
 
     );
 
@@ -554,6 +563,150 @@ public class PermissionsEditingComponent extends Composite {
         @Override
         protected String getLabel() {
             return "Read Board";
+        }
+    }
+
+    static class MoveTaskBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.MoveTask_b.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to move the task. Need to have it on both source and dest";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Move Task on Board";
+        }
+    }
+
+    static class MoveTaskProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.MoveTask_p.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to move the task. Need to have it on both source and dest";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Move Task on Project";
+        }
+    }
+
+    static class EditTaskBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.EditTask_b.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to edit the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Edit Task on Board";
+        }
+    }
+
+    static class EditTaskProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.EditTask_p.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to edit the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Edit Task on Project";
+        }
+    }
+
+    static class CreateTaskBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.CreateTask_b.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to create the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Create Task on Board";
+        }
+    }
+
+    static class CreateTaskProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.CreateTask_p.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to create the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Create Task on Project";
+        }
+    }
+
+    static class DeleteTaskBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.DeleteTask_b.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to delete the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete Task on Board";
+        }
+    }
+
+    static class DeleteTaskProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.DeleteTask_p.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to delete the task.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete Task on Project";
         }
     }
 }
