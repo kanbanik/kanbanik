@@ -3,8 +3,9 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.ClassOfServiceBuilder
 import com.googlecode.kanbanik.db.HasEntityLoader
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, ClassOfServiceDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, EmptyDto, ClassOfServiceDto}
 import com.googlecode.kanbanik.model.{User, Board}
+import com.googlecode.kanbanik.security._
 
 class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] with HasEntityLoader {
 
@@ -31,5 +32,10 @@ class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] w
       Left(EmptyDto())
     }
   }
-  
+
+  override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] = {
+    doCheckPermissions(user, List(
+      checkOneOf(PermissionType.DeleteClassOfService, param.id.get)
+    ))
+  }
 }

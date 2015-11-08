@@ -72,9 +72,13 @@ object User extends HasMongoConnection {
 
   val allPermissions = List(
     Permission(PermissionType.ReadBoard, List("*")),
-    Permission(PermissionType.ReadClassOfService, List("*")),
     Permission(PermissionType.ReadProject, List("*")),
     Permission(PermissionType.ReadUser, List("*")),
+
+    Permission(PermissionType.CreateClassOfService, List()),
+    Permission(PermissionType.ReadClassOfService, List("*")),
+    Permission(PermissionType.EditClassOfService, List("*")),
+    Permission(PermissionType.DeleteClassOfService, List("*")),
 
     Permission(PermissionType.ManipulateBoard, List()),
     Permission(PermissionType.EditUserData, List("*")),

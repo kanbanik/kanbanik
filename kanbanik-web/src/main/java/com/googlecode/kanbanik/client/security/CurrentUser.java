@@ -24,6 +24,8 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
     private String sessionId;
 
+    private Dtos.UserDto user;
+
 	private CurrentUser() {
 	}
 
@@ -56,10 +58,7 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 		
 		this.user = null;
 	}
-	
-	private Dtos.UserDto user;
-	
-	
+
 	private void unregisterListeners() {
 		MessageBus.unregisterListener(UserEditedMessage.class, this);
 		MessageBus.unregisterListener(UserDeletedMessage.class, this);

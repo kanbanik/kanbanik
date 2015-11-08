@@ -7,9 +7,11 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.api.DtoFactory;
@@ -18,13 +20,13 @@ import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.common.filters.CommonFilterCheckBox;
 import com.googlecode.kanbanik.client.components.common.filters.PanelWithCheckboxes;
+import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,26 +42,41 @@ public class PermissionsEditingComponent extends Composite {
     @UiField
     CheckBox editPermissions;
 
-    private static final List<? extends GlobalPermissionEditingComponent> permissionEditors = Arrays.asList(
-            new ManipulateBoardPEC(),
-            new ReadBoardPEC(),
+    private static final List<Group> permissionEditors = Arrays.asList(
+            new Group("Board Related Permissions",
+                    new ManipulateBoardPEC(),
+                    new ReadBoardPEC()
+            ),
 
-            new EditUserPermissionsPEC(),
-            new EditUserDataPEC(),
-            new DeleteUserPEC(),
-            new CreateUserPEC(),
-            new ReadUserPEC(),
+            new Group("User Related Permissions",
+                    new EditUserPermissionsPEC(),
+                    new EditUserDataPEC(),
+                    new DeleteUserPEC(),
+                    new CreateUserPEC(),
+                    new ReadUserPEC()
+            ),
 
-            new ReadProjectPEC(),
+            new Group("Project Related Permissions",
+                    new ReadProjectPEC()
+            ),
 
-            new MoveTaskBoardPEC(),
-            new MoveTaskProjectPEC(),
-            new EditTaskBoardPEC(),
-            new EditTaskProjectPEC(),
-            new CreateTaskBoardPEC(),
-            new CreateTaskProjectPEC(),
-            new DeleteTaskBoardPEC(),
-            new DeleteTaskProjectPEC()
+            new Group("Task Related Permissions",
+                    new MoveTaskBoardPEC(),
+                    new MoveTaskProjectPEC(),
+                    new EditTaskBoardPEC(),
+                    new EditTaskProjectPEC(),
+                    new CreateTaskBoardPEC(),
+                    new CreateTaskProjectPEC(),
+                    new DeleteTaskBoardPEC(),
+                    new DeleteTaskProjectPEC()
+            ),
+
+            new Group("Class of Service Related Permissions",
+                    new CreateClassOfServicePOC(),
+                    new ReadClassOfServicePOC(),
+                    new EditClassOfServicePOC(),
+                    new DeleteClassOfServicePOC()
+            )
 
     );
 
@@ -148,9 +165,9 @@ public class PermissionsEditingComponent extends Composite {
             permissionDtoMap.put(permission.getPermissionType(), permission);
         }
 
-        for (GlobalPermissionEditingComponent editor : permissionEditors) {
+        for (Group editor : permissionEditors) {
             editor.init(permissionDtoMap);
-            contentPanel.add(editor);
+            contentPanel.add((Widget) editor);
         }
     }
 
@@ -161,21 +178,69 @@ public class PermissionsEditingComponent extends Composite {
 
         List<Dtos.PermissionDto> res = new ArrayList<>();
 
-        for (GlobalPermissionEditingComponent editor : permissionEditors) {
-            Dtos.PermissionDto permission = editor.flush();
+        for (Group editor : permissionEditors) {
+            List<Dtos.PermissionDto> permission = editor.flush();
             if (permission != null) {
-                res.add(permission);
+                res.addAll(permission);
             }
         }
 
         return res;
     }
 
-    abstract static class GlobalPermissionEditingComponent extends HorizontalPanel {
+
+    interface Editable {
+        void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap);
+
+        Dtos.PermissionDto flush();
+    }
+
+    static class Group extends FlowPanel {
+
+        private DisclosurePanel disclosurePanel;
+
+        private List<Editable> editables = new ArrayList<>();
+
+        public Group(String header, Widget... widgets) {
+            disclosurePanel = new DisclosurePanel(header);
+            Panel contentPanel = new VerticalPanel();
+
+            for (Widget widget : widgets) {
+                contentPanel.add(widget);
+                if (widget instanceof Editable) {
+                    editables.add((Editable) widget);
+                }
+            }
+
+            disclosurePanel.setContent(contentPanel);
+        }
+
+        public void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
+            for (Editable editable : editables) {
+                editable.init(permissionDtoMap);
+            }
+        }
+
+        public List<Dtos.PermissionDto> flush() {
+            List<Dtos.PermissionDto> res = new ArrayList<>();
+
+            for (Editable editable : editables) {
+                Dtos.PermissionDto dto = editable.flush();
+                if (dto != null) {
+                    res.add(dto);
+                }
+            }
+
+            return res;
+        }
+    }
+
+
+    abstract static class GlobalPermissionEditingComponent extends HorizontalPanel implements Editable {
 
         private CheckBox checkBox = new CheckBox();
 
-        protected void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
+        public void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
             clear();
 
             Label label = new Label(getLabel());
@@ -186,7 +251,7 @@ public class PermissionsEditingComponent extends Composite {
             checkBox.setValue(permissionDtoMap.containsKey(getKey()));
         }
 
-        Dtos.PermissionDto flush() {
+        public Dtos.PermissionDto flush() {
             if (checkBox.getValue()) {
                 Dtos.PermissionDto res = DtoFactory.permissionDto();
                 res.setPermissionType(getKey());
@@ -215,7 +280,7 @@ public class PermissionsEditingComponent extends Composite {
         private Map<Integer, Dtos.PermissionDto> permissionDtoMap;
 
         @Override
-        protected void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
+        public void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
             this.permissionDtoMap = permissionDtoMap;
 
             super.init(permissionDtoMap);
@@ -239,7 +304,7 @@ public class PermissionsEditingComponent extends Composite {
         }
 
         @Override
-        Dtos.PermissionDto flush() {
+        public Dtos.PermissionDto flush() {
             Dtos.PermissionDto permissionsDto = super.flush();
             if (permissionsDto == null) {
                 return null;
@@ -300,7 +365,7 @@ public class PermissionsEditingComponent extends Composite {
         protected String provideText(Dtos.UserDto entity) {
             String res = entity.getUserName();
             if (entity.getRealName() != null && !entity.getRealName().equals("")) {
-                res += " ("+entity.getRealName()+")";
+                res += " (" + entity.getRealName() + ")";
             }
             return res;
         }
@@ -707,6 +772,121 @@ public class PermissionsEditingComponent extends Composite {
         @Override
         protected String getLabel() {
             return "Delete Task on Project";
+        }
+    }
+
+    // ---------------- class of services ----------------------
+
+    static class ClassOfServiceFilterCheckBox extends CommonFilterCheckBox<Dtos.ClassOfServiceDto> implements IdProvider {
+
+        private Dtos.ClassOfServiceDto entity;
+
+        public ClassOfServiceFilterCheckBox(Dtos.ClassOfServiceDto entity) {
+            super(entity);
+            this.entity = entity;
+        }
+
+        @Override
+        protected String provideText(Dtos.ClassOfServiceDto entity) {
+            return entity.getName();
+        }
+
+        @Override
+        public String provideId() {
+            return entity.getId();
+        }
+    }
+
+    static abstract class BaseClassOfServicePEC extends ListPermissionEditingComponent<Dtos.ClassOfServiceDto> {
+
+        @Override
+        protected void fillPermissionsList(PanelWithCheckboxes<Dtos.ClassOfServiceDto> panelWithCheckboxes) {
+            List<Dtos.ClassOfServiceDto> classOfServices = ClassOfServicesManager.getInstance().getAllWithNone();
+
+            Dtos.ClassOfServiceDto allClassOfServices = DtoFactory.classOfServiceDto();
+            allClassOfServices.setId("*");
+            allClassOfServices.setName("All Class of Services");
+
+            classOfServices.add(0, allClassOfServices);
+
+            for (Dtos.ClassOfServiceDto classOfService : classOfServices) {
+                ClassOfServiceFilterCheckBox checkBox = new ClassOfServiceFilterCheckBox(classOfService);
+                panelWithCheckboxes.add(checkBox);
+                checkBox.setValue(hasPermission(getKey(), checkBox.provideId()));
+            }
+        }
+
+    }
+
+    static class CreateClassOfServicePOC extends GlobalPermissionEditingComponent {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.CreateClassOfService.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to create a Class of Service";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Create Class of Service";
+        }
+    }
+
+    static class ReadClassOfServicePOC extends BaseClassOfServicePEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.ReadClassOfService.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to read a Class of Service";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Read Class of Service";
+        }
+    }
+
+    static class EditClassOfServicePOC extends BaseClassOfServicePEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.EditClassOfService.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to edit a Class of Service";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Edit Class of Service";
+        }
+    }
+
+    static class DeleteClassOfServicePOC extends BaseClassOfServicePEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.DeleteClassOfService.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to delete a Class of Service";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete Class of Service";
         }
     }
 }

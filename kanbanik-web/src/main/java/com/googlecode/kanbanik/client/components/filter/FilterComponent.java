@@ -323,23 +323,36 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         return true;
     }
 
-    private void fillUsers(BoardsFilter filterObject, boolean loaded) {
+    private void fillUsers(final BoardsFilter filterObject, final boolean loaded) {
         List<Dtos.UserDto> users = UsersManager.getInstance().getUsers();
 
         users.add(0, UsersManager.getInstance().getNoUser());
 
         for (Dtos.UserDto user : users) {
-            if (!loaded || filterObject.findById(user) == -1) {
-                filterObject.add(user);
-            }
-            userFilter.add(new UserFilterCheckBox(user, filterObject));
+            addUser(filterObject, loaded, user);
         }
+
+        UsersManager.getInstance().setListener(new UsersManager.UserChangedListener() {
+            @Override
+            public void added(Dtos.UserDto user) {
+                addUser(filterObject, loaded, user);
+
+                filterObject.fireFilterChangedEvent();
+            }
+
+        });
+    }
+
+    private void addUser(BoardsFilter filterObject, boolean loaded, Dtos.UserDto user) {
+        if (!loaded || filterObject.findById(user) == -1) {
+            filterObject.add(user);
+        }
+        userFilter.add(new UserFilterCheckBox(user, filterObject));
     }
 
 
-
-    private void fillClassOfServices(BoardsFilter filterObject, boolean loaded) {
-        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAll());
+    private void fillClassOfServices(final BoardsFilter filterObject, final boolean loaded) {
+        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAllWithNone());
 
         Collections.sort(sorted, new Comparator<Dtos.ClassOfServiceDto>() {
             @Override
@@ -354,11 +367,24 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
 
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
-            if (!loaded || filterObject.findById(classOfServiceDto) == -1) {
-                filterObject.add(classOfServiceDto);
-            }
-            classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
+            addClassOfService(filterObject, loaded, classOfServiceDto);
         }
+
+        ClassOfServicesManager.getInstance().setListener(new ClassOfServicesManager.ClassOfServiceChangedListener() {
+            @Override
+            public void added(Dtos.ClassOfServiceDto classOfServiceDto) {
+                addClassOfService(filterObject, loaded, classOfServiceDto);
+
+                filterObject.fireFilterChangedEvent();
+            }
+        });
+    }
+
+    private void addClassOfService(BoardsFilter filterObject, boolean loaded, Dtos.ClassOfServiceDto classOfServiceDto) {
+        if (!loaded || filterObject.findById(classOfServiceDto) == -1) {
+            filterObject.add(classOfServiceDto);
+        }
+        classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
     }
 
     private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();

@@ -33,7 +33,7 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
 	@Override
 	protected String getClassOfServiceAsString() {
-		List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAll();
+		List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAllWithNone();
 		if (classesOfService.size() != 0) {
             for (ClassOfServiceDto classOfService : classesOfService) {
                 if (classOfService.getName() != null && classOfService.getName().equals("Standard")) {

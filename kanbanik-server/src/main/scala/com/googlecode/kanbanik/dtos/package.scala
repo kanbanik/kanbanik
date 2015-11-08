@@ -31,7 +31,11 @@ package object dtos {
     val ReadBoard = Value(3)
     val ReadProject = Value(4)
     val ReadUser = Value(5)
+
     val ReadClassOfService = Value(6)
+    val CreateClassOfService = Value(18)
+    val EditClassOfService = Value(19)
+    val DeleteClassOfService = Value(20)
 
     val MoveTask_p = Value(10)
     val CreateTask_p = Value(11)

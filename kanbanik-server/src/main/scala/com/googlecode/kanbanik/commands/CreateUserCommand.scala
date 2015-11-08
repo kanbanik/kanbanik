@@ -43,8 +43,8 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
         false
     ).store
 
-    // this is a race - if someomne will edit the currentUser now the permissions will not be granted
-    // ignoring for now because complex locking would be slow and this is not a too big deal - somne more powerful admin can
+    // this is a race - if someone will edit the currentUser now the permissions will not be granted
+    // ignoring for now because complex locking would be slow and this is not a too big deal - some more powerful admin can
     // fix it by granting the permissions by hand
     addMePermissions(user, currentUser)
 
@@ -55,14 +55,14 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
    * When created a user, I need to see who did I create
    */
   def addMePermissions(createdUser: User, currentUser: User) {
-    val newPermkissions = List(
+    val newPermissions = List(
       Permission(PermissionType.ReadUser, List(createdUser.name)),
       Permission(PermissionType.EditUserData, List(createdUser.name)),
       Permission(PermissionType.EditUserPermissions, List(createdUser.name)),
       Permission(PermissionType.DeleteUser, List(createdUser.name))
     )
 
-    currentUser.copy(permissions = mergePermissions(currentUser.permissions, newPermkissions)).store
+    currentUser.copy(permissions = mergePermissions(currentUser.permissions, newPermissions)).store
 
   }
 

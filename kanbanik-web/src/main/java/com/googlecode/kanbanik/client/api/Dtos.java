@@ -66,7 +66,11 @@ public class Dtos {
         ReadBoard(3),
         ReadProject(4),
         ReadUser(5),
+
         ReadClassOfService(6),
+        CreateClassOfService(18),
+        EditClassOfService(19),
+        DeleteClassOfService(20),
 
         MoveTask_p(10),
         CreateTask_p(11),
