@@ -11,6 +11,8 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.List;
+
 public class UserAddingComponent extends BaseUserManipulatingComponent {
 
 	@UiField
@@ -46,11 +48,16 @@ public class UserAddingComponent extends BaseUserManipulatingComponent {
         dto.setPassword(password.getText());
         dto.setNewPassword(password.getText());
 
+		List<Dtos.PermissionDto> permissions = createPermissions();
+		if (permissions != null) {
+			dto.setPermissions(permissions);
+		}
+
         dto.setCommandName(CommandNames.CREATE_USER.name);
 		return dto;
 	}
 
-	@Override
+    @Override
 	public void cancelClicked(PanelContainingDialog dialog) {
 		super.cancelClicked(dialog);
 		

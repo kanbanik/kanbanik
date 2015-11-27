@@ -1,18 +1,19 @@
 package com.googlecode.kanbanik.commands
+
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{User, Board, Project}
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.model.Project
 import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, BoardDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, EmptyDto, BoardDto}
 
 class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnection {
 
   lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: BoardDto): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: BoardDto): Either[EmptyDto, ErrorDto] = {
     val boardId = new ObjectId(params.id.getOrElse(
       return Right(ErrorDto("Board has to be defined"))
     ))
@@ -43,4 +44,8 @@ class DeleteBoardCommand extends Command[BoardDto, EmptyDto] with HasMongoConnec
       return coll(conn, Coll.Projects).findOne(MongoDBObject(Project.Fields.boards.toString -> boardId)).isDefined
     }
   }
+
+  override def checkPermissions(param: BoardDto, user: User): Option[List[String]] =
+    checkIdIfDefined(user, param.id, PermissionType.DeleteBoard)
+
 }

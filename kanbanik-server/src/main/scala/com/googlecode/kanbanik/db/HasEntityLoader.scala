@@ -16,12 +16,12 @@ trait HasEntityLoader {
     }
   }
 
-  def loadTask(id: ObjectId) = {
-    loadEntity[Task](id, Task.byId)
+  def loadTask(id: ObjectId, user: User) = {
+    loadEntity[Task](id, Task.byId(_, user))
   }
   
-  def loadProject(id: ObjectId) = {
-    loadEntity[Project](id, Project.byId)
+  def loadProject(id: ObjectId, user: User) = {
+    loadEntity[Project](id, Project.byId(_, user))
   }
 
   def loadClassOfService(id: ObjectId) = {

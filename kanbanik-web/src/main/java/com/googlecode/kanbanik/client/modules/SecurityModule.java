@@ -63,14 +63,26 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
                 dto,
                 Dtos.UsersDto.class,
                 new ServerCallCallback<Dtos.UsersDto>() {
-                    @Override
-                    public void success(Dtos.UsersDto response) {
-                        usersList.setContent(response.getValues());
-                        usersList.setSelectedDto(CurrentUser.getInstance().getUser());
-                        initializedCallback.initialized(SecurityModule.this);
-                    }
-                }
+					@Override
+					public void success(Dtos.UsersDto response) {
+						List<Dtos.UserDto> users = response.getValues();
+						usersList.setContent(users);
 
+						Dtos.UserDto currentUser = CurrentUser.getInstance().getUser();
+						if (currentUser == null) {
+							initializedCallback.initialized(SecurityModule.this);
+						} else {
+							for (Dtos.UserDto user : users) {
+								if (user.getUserName().equals(currentUser.getUserName())) {
+									usersList.setSelectedDto(currentUser);
+									break;
+								}
+							}
+							initializedCallback.initialized(SecurityModule.this);
+
+						}
+					}
+				}
         );
 
 		setVisible(true);		

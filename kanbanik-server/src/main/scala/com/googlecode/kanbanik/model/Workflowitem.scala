@@ -28,11 +28,11 @@ case class Workflowitem(
     version: Int,
     nestedWorkflow: Workflow) = this(id, name, wipLimit, verticalSize, itemType, version, nestedWorkflow, None)
 
-  def parentWorkflow: Workflow = _parentWorkflow.getOrElse(loadWorkflow())
+  def parentWorkflow(user: User): Workflow = _parentWorkflow.getOrElse(loadWorkflow(user))
 
-  private def loadWorkflow(): Workflow = {
-    val parentBoard = Board.all(includeTasks = false).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
-    parentBoard.workflow.findItem(this).get.parentWorkflow
+  private def loadWorkflow(user: User): Workflow = {
+    val parentBoard = Board.all(includeTasks = false, user).find(board => board.workflow.containsItem(this)).getOrElse(throw new IllegalArgumentException("The workflowitem '" + id + "' does not exist on any board!"))
+    parentBoard.workflow.findItem(this).get.parentWorkflow(user)
   }
 
   def asDbObject(): DBObject = {

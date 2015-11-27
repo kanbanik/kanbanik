@@ -9,22 +9,20 @@ import com.googlecode.kanbanik.dtos.{SessionDto, ErrorDto, UserDto, EmptyDto}
 
 class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
 
-  lazy val userBuilder = new UserBuilder
-  
-  def execute(params: SessionDto): Either[UserDto, ErrorDto] = {
+  override def execute(params: SessionDto, user: User): Either[UserDto, ErrorDto] = {
     val sessionId = params.sessionId
 
-    val user = if (sessionId != null && sessionId != "") {
-      new Subject.Builder().sessionId(sessionId).buildSubject
+    if (sessionId.isDefined) {
+      val user = new Subject.Builder().sessionId(sessionId.get).buildSubject
+      if (user.isAuthenticated) {
+        val userPrincipal = user.getPrincipal.asInstanceOf[User]
+        // refresh from DB
+        Left(UserBuilder.buildDto(User.byId(userPrincipal.name), sessionId.getOrElse("")))
+      } else {
+        Left(UserBuilder.buildDto(User.unlogged, ""))
+      }
     } else {
-      SecurityUtils.getSubject
-    }
-
-    if (user.isAuthenticated) {
-      val userPrincipal = user.getPrincipal.asInstanceOf[User]
-    	Left(userBuilder.buildDto(userPrincipal, sessionId))
-    } else {
-    	Right(ErrorDto("No user logged in."))
+      Left(UserBuilder.buildDto(User.unlogged, ""))
     }
   }
   

@@ -5,7 +5,8 @@ import com.mongodb.casbah.Imports._
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
+import com.googlecode.kanbanik.security._
+import com.googlecode.kanbanik.dtos.{PermissionType, WorkfloVerticalSizing}
 
 case class Board(
   id: Option[ObjectId],
@@ -86,27 +87,30 @@ object Board extends HasMongoConnection {
 
   def apply() = new Board(Some(new ObjectId()), "", 1)
 
-  def all(includeTasks: Boolean): List[Board] = {
+  def all(includeTasks: Boolean, user: User): List[Board] = {
     // does not retrieve the description of the task even it retrieves tasks
-    all(includeTasks, includeTaskDescription = false)
+    all(includeTasks, includeTaskDescription = false, user)
   }
 
-  def all(includeTasks: Boolean, includeTaskDescription: Boolean): List[Board] = {
+  def all(includeTasks: Boolean, includeTaskDescription: Boolean, user: User): List[Board] = {
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
-            if (includeTaskDescription) {
-              // ok, no exclusions
-              MongoDBObject()
-            } else {
-              MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString -> 0)
-            }
+          if (includeTaskDescription) {
+            // ok, no exclusions
+            MongoDBObject()
+          } else {
+            MongoDBObject(Board.Fields.tasks + "." + Task.Fields.description.toString -> 0)
+          }
         } else {
           MongoDBObject(Board.Fields.tasks.toString -> 0)
         }
       }
-      
-      coll(conn, Coll.Boards).find(MongoDBObject(), taskExclusionObject).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
+
+      coll(conn, Coll.Boards).find(
+        buildObjectIdFilterQuery(user, PermissionType.ReadBoard),
+        taskExclusionObject
+      ).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
     }
   }
 
@@ -143,12 +147,13 @@ object Board extends HasMongoConnection {
     val tasks = dbObject.get(Fields.tasks.toString)
     if (tasks != null && tasks.isInstanceOf[BasicDBList]) {
       val list = dbObject.get(Fields.tasks.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
-      val allUsers = User.all()
-      val allClassOfServices = ClassOfService.all()
+      val allUsers = User.all(User().withAllPermissions())
+      val allClassOfServices = ClassOfService.all(User().withAllPermissions())
       val taskEnitities = list.map(Task.asEntity(_, allClassOfServices, allUsers))
       resBoard.copy(tasks = taskEnitities)
     } else {
       resBoard
     }
   }
+
 }

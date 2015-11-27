@@ -136,7 +136,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
     protected String getClassOfServiceAsString() {
         ClassOfServiceDto classOfService = dto.getClassOfService();
         if (classOfService == null) {
-            List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAll();
+            List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAllWithNone();
             if (classesOfService.size() != 0) {
                 return classesOfService.iterator().next().getName();
             }

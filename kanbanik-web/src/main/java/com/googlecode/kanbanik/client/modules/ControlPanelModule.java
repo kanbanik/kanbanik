@@ -6,10 +6,15 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleActivatedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.modules.ModuleDeactivatedMessage;
 import com.googlecode.kanbanik.client.modules.KanbanikModule.ModuleInitializeCallback;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControlPanelModule extends TabPanel implements SelectionHandler<Integer> {
 	
@@ -27,12 +32,30 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
 
     private Class<?> currentlyActiveModule;
 
+	private int boardsModuleIndex = 0;
+
+    private int configureModuleIndex = -1;
+
+    private int securityModuleIndex = -1;
+
 	public ControlPanelModule() {
-		
-		add(boardsContent, "Boards");
-		add(configureWorkflowContent, "Configure");
-		add(securityContent, "Security");
-		
+
+        add(boardsContent, "Boards");
+
+        if (CurrentUser.getInstance().canSeeConfigure()) {
+            add(configureWorkflowContent, "Configure");
+            configureModuleIndex = 1;
+        }
+
+		if (CurrentUser.getInstance().canSeeSecurity()) {
+            add(securityContent, "Security");
+            if (configureModuleIndex == 1) {
+                securityModuleIndex = 2;
+            } else {
+                securityModuleIndex = 1;
+            }
+        }
+
 		addSelectionHandler(this);
 		selectTab(0);
 		setWidth("100%");
@@ -80,11 +103,11 @@ public class ControlPanelModule extends TabPanel implements SelectionHandler<Int
             MessageBus.sendMessage(new ModuleDeactivatedMessage(currentlyActiveModule, this));
         }
 
-		if (event.getSelectedItem() == 0) {
+		if (event.getSelectedItem() == boardsModuleIndex) {
 			boardsModule.initialize(new BoardsRefreshed());
-		} else if (event.getSelectedItem() == 1) {
+		} else if (event.getSelectedItem() == configureModuleIndex) {
 			configureWorkflowModule.initialize(new ConfigureWorkflowRefreshed());
-		} else if (event.getSelectedItem() == 2) {
+		} else if (event.getSelectedItem() == securityModuleIndex) {
 			securityModule.initialize(new SecurityModuleRefreshed());
 		}
 	}

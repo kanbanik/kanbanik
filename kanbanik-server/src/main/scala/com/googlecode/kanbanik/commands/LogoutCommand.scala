@@ -8,7 +8,7 @@ import org.apache.shiro.SecurityUtils
 
 class LogoutCommand extends Command[SessionDto, StatusDto] {
 
-  def execute(params: SessionDto): Either[StatusDto, ErrorDto] = {
+  override def execute(params: SessionDto): Either[StatusDto, ErrorDto] = {
     val sessionId = params.sessionId
 
     val subject = new Subject.Builder().sessionId(sessionId).buildSubject

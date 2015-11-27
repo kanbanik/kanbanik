@@ -14,6 +14,8 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.List;
+
 public class UserEditingComponent extends BaseUserManipulatingComponent {
 
 	@UiField
@@ -32,7 +34,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	
 	public UserEditingComponent() {
 		initWidget(uiBinder.createAndBindUi(this));
-		
+
 		toChangePassword.setValue(false);
 		setChangePasswordEnabled(false);
 		username.setEnabled(false);
@@ -44,6 +46,8 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 				setChangePasswordEnabled(toChangePassword.getValue());
 			}
 		});
+
+		password.setVisible(false);
 	}
 
 	private void setChangePasswordEnabled(boolean enabled) {
@@ -61,6 +65,10 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
         newDto.setPassword(password.getText());
         newDto.setNewPassword(toChangePassword.getValue() ? newPassword.getText() : password.getText());
         newDto.setCommandName(CommandNames.EDIT_USER.name);
+		List<Dtos.PermissionDto> permissions = createPermissions();
+		if (permissions != null) {
+			newDto.setPermissions(permissions);
+		}
 
         return newDto;
 	}
@@ -84,7 +92,6 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 
 	@Override
 	protected void makeServerCall() {
-
         ServerCaller.<Dtos.UserManipulationDto, Dtos.UserDto>sendRequest(
                 createDto(),
                 Dtos.UserDto.class,
@@ -111,11 +118,7 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 	@Override
 	protected String validate() {
 		String messages = super.validate();
-		
-		if (isEmpty(password)) {
-			messages += "<li>You must provide the password!";
-		}
-		
+
 		if (toChangePassword.getValue()) {
 			messages += checkPasswords(newPassword, newPassword2);
 		}

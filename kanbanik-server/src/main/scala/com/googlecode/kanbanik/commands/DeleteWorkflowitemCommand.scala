@@ -1,13 +1,14 @@
 package com.googlecode.kanbanik.commands
 
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Workflowitem}
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ErrorDto, WorkflowitemDto, EmptyDto}
+import com.googlecode.kanbanik.dtos._
 
 class DeleteWorkflowitemCommand extends Command[WorkflowitemDto, EmptyDto] with HasMongoConnection with HasEntityLoader {
 
@@ -15,7 +16,7 @@ class DeleteWorkflowitemCommand extends Command[WorkflowitemDto, EmptyDto] with 
 
   lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: WorkflowitemDto): Either[EmptyDto, ErrorDto] = {
+  override def execute(params: WorkflowitemDto, user: User): Either[EmptyDto, ErrorDto] = {
 
     val theId = new ObjectId(params.id.getOrElse(
     return Right(ErrorDto("The ID has to be defined"))
@@ -52,5 +53,13 @@ class DeleteWorkflowitemCommand extends Command[WorkflowitemDto, EmptyDto] with 
     ))).store
 
     Left(EmptyDto())
+  }
+
+  override def checkPermissions(param: WorkflowitemDto, user: User) = {
+    if (param.parentWorkflow.isDefined) {
+      checkEditBoardPermissions(user, param.parentWorkflow.get.board.id)
+    } else {
+      None
+    }
   }
 }

@@ -1,4 +1,7 @@
 package com.googlecode.kanbanik.model
+
+import com.googlecode.kanbanik.dtos.PermissionType
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.commons.MongoDBObject
@@ -7,6 +10,7 @@ import com.mongodb.DBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
+import com.mongodb.casbah.Imports._
 
 case class Project(
   id: Option[ObjectId],
@@ -14,13 +18,13 @@ case class Project(
   version: Int,
   boards: Option[List[Board]]) extends HasMongoConnection with HasMidAirCollisionDetection with Equals {
 
-  def store: Project = {
+  def store(user: User): Project = {
     val idToUpdate = id.getOrElse({
       val obj = Project.asDBObject(this)
       using(createConnection) { conn =>
         coll(conn, Coll.Projects) += obj
       }
-      return Project.asEntity(obj)
+      return Project.asEntity(obj, user)
     })
 
     val update = $set(
@@ -28,7 +32,7 @@ case class Project(
       Project.Fields.version.toString -> { version + 1 },
       Project.Fields.boards.toString -> Project.toIdList[Board](boards, _.id.getOrElse(throw new IllegalArgumentException("The board has to exist!"))))
 
-    Project.asEntity(versionedUpdate(Coll.Projects, versionedQuery(idToUpdate, version), update))
+    Project.asEntity(versionedUpdate(Coll.Projects, versionedQuery(idToUpdate, version), update), user)
   }
 
   def delete() {
@@ -66,16 +70,16 @@ object Project extends HasMongoConnection {
     }
   }
 
-  def all(): List[Project] = {
+  def all(user: User): List[Project] = {
     using(createConnection) { conn =>
-      coll(conn, Coll.Projects).find().sort(MongoDBObject(Fields.name.toString -> 1)).map(asEntity).toList
+      coll(conn, Coll.Projects).find(buildObjectIdFilterQuery(user, PermissionType.ReadProject)).sort(MongoDBObject(Fields.name.toString -> 1)).map(asEntity(_, user)).toList
     }
   }
 
-  def byId(id: ObjectId): Project = {
+  def byId(id: ObjectId, user: User): Project = {
     using(createConnection) { conn =>
       val dbProject = coll(conn, Coll.Projects).findOne(MongoDBObject(Fields.id.toString -> id)).getOrElse(throw new IllegalArgumentException("No such project with id: " + id))
-      asEntity(dbProject)
+      asEntity(dbProject, user)
     }
   }
 
@@ -91,9 +95,9 @@ object Project extends HasMongoConnection {
     asEntity(dbObject, obj => Some(List(board)))
   }
 
-  private def asEntity(dbObject: DBObject): Project = {
-    val allBoards = buildMap[Board](Board.all(includeTasks = false))
-    asEntity(dbObject, obj => toEntityList(obj.get(Fields.boards.toString), allBoards.get(_).get))
+  private def asEntity(dbObject: DBObject, user: User): Project = {
+    val allBoards = buildMap[Board](Board.all(includeTasks = false, user))
+    asEntity(dbObject, obj => toEntityList(obj.get(Fields.boards.toString), allBoards.get(_)))
   }
 
   private def asEntity(dbObject: DBObject, boardsProvider: DBObject => Option[List[Board]]): Project = {
@@ -118,11 +122,10 @@ object Project extends HasMongoConnection {
     }
   }
 
-  private def toEntityList[T](dbObject: Object, codeBlock: ObjectId => T) = {
+  private def toEntityList[T](dbObject: Object, codeBlock: ObjectId => Option[T]) = {
     if (dbObject == null || dbObject == None) {
       None
     } else {
-
       val processList: List[ObjectId] = {
         dbObject match {
           case ids: List[_] =>
@@ -135,7 +138,12 @@ object Project extends HasMongoConnection {
       if (processList == null || processList.size == 0) {
         None
       } else {
-        Some(for { boardId <- processList } yield codeBlock(boardId))
+        val res: List[T] = processList.map(boardId => codeBlock(boardId)).filter(_.isDefined).map(_.get)
+        if (res.size == 0) {
+          None
+        } else {
+          Some(res)
+        }
       }
     }
   }

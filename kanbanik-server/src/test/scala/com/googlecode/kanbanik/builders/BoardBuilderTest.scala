@@ -2,10 +2,7 @@ package com.googlecode.kanbanik.builders
 
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dtos.{BoardDto, WorkflowDto}
-import com.googlecode.kanbanik.model.BaseWorkflowManipulatingTest
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.model.Workflow
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model._
 
 class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTestManipulation {
 
@@ -13,7 +10,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
 
   "buildDto() " should "be able to build a board without workflow" in {
     val board = Board().copy(name = "someName", version = 2, workflow = Workflow())
-    val res = builder.buildDto(board)
+    val res = builder.buildDto(board, User().withAllPermissions())
 
     assert(res.name === "someName")
     assert(res.version === 2)
@@ -28,7 +25,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
         Workflowitem().copy(name = "name3")))
     val board = Board().copy(name = "someName", version = 2, workflow = workflow)
 
-    val res = builder.buildDto(board)
+    val res = builder.buildDto(board, User().withAllPermissions())
 
     assert(res.name === "someName")
     assert(res.version === 2)
@@ -50,7 +47,7 @@ class BoardBuilderTest extends BaseWorkflowManipulatingTest with WorkflowitemTes
         Workflowitem().copy(name = "name3")))
 
     val board = Board().copy(name = "someName", version = 2, workflow = workflow)
-    val res = builder.buildDto(board)
+    val res = builder.buildDto(board, User().withAllPermissions())
 
     assert(res.name === "someName")
     assert(res.workflow.get.workflowitems.get.size === 3)

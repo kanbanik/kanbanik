@@ -86,6 +86,8 @@
 
 		</g:Grid>
 
+		<g:FlowPanel ui:field="permissionsPanel"/>
+
 		<g:Label addStyleNames="{style.requiredFieldStyle}" text="(*): required field" />
 		<g:HTML addStyleNames="{style.warningMessage}" ui:field="messages" />
 	</g:FlowPanel>

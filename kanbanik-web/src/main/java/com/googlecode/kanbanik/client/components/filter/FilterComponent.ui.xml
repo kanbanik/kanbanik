@@ -80,27 +80,27 @@
                 <g:FlowPanel addStyleNames="{style.filtersRow}">
                     <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                         <g:Label text="User" addStyleNames="{style.filterLabel}" />
-                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="userFilter" />
+                        <f:FilterPanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="userFilter" />
                      </g:FlowPanel>
 
                     <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                         <g:Label text="Board" addStyleNames="{style.filterLabel}"/>
-                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
+                        <f:FilterPanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="boardFilter" />
                     </g:FlowPanel>
 
                     <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                         <g:Label text="Project on Board" addStyleNames="{style.filterLabel}"/>
-                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
+                        <f:FilterPanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="projectOnBoardFilter" />
                     </g:FlowPanel>
 
                     <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                         <g:Label text="Class of Service" addStyleNames="{style.filterLabel}"/>
-                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
+                        <f:FilterPanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="classOfServiceFilter" />
                     </g:FlowPanel>
 
                     <g:FlowPanel addStyleNames="{style.filterPartContainer}">
                         <g:Label text="Tags" addStyleNames="{style.filterLabel}"/>
-                        <f:PanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="tagsFilter" />
+                        <f:FilterPanelWithCheckboxes addStyleNames="{style.filterPart}" ui:field="tagsFilter" />
                     </g:FlowPanel>
                 </g:FlowPanel>
 

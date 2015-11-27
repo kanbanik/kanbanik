@@ -226,7 +226,7 @@ public abstract class AbstractTaskEditingComponent {
         description.setHtml(getDescription());
 
 
-        classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getAll());
+        classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getAllWithNone());
         Map<String, String> classOfServiceSuggestionMap = new HashMap<String, String>();
         for (Map.Entry<String, Dtos.ClassOfServiceDto> entry : classOfServiceToName.entrySet()) {
             // enough, no need for description...

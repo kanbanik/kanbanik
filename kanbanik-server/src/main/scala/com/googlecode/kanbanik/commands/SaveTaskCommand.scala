@@ -1,16 +1,15 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.Task
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Task, Workflowitem, Board}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.model.Board
-import com.googlecode.kanbanik.dtos.{ErrorDto, TaskDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, TaskDto}
 
 class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
     if (taskDto.workflowitemId == null) {
       return Right(ErrorDto("At least one workflowitem must exist to create a task!"))
     }
@@ -58,4 +57,19 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
     Board.byId(new ObjectId(taskDto.boardId), includeTasks)
   }
 
+  override def checkPermissions(param: TaskDto, user: User): Option[List[String]] = {
+    val checks = if (param.id.isDefined) {
+      List(
+        checkOneOf(PermissionType.EditTask_b, param.boardId),
+        checkOneOf(PermissionType.EditTask_p, param.projectId)
+      )
+    } else {
+      List(
+        checkOneOf(PermissionType.CreateTask_b, param.boardId),
+        checkOneOf(PermissionType.CreateTask_p, param.projectId)
+      )
+    }
+
+    doCheckPermissions(user, checks)
+  }
 }

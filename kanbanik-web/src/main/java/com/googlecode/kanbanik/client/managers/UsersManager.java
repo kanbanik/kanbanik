@@ -7,11 +7,19 @@ import com.google.gwt.user.client.ui.Image;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.messaging.Message;
+import com.googlecode.kanbanik.client.messaging.MessageBus;
+import com.googlecode.kanbanik.client.messaging.MessageListener;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class UsersManager {
+public class UsersManager implements MessageListener<Dtos.TaskDto> {
 
 	private static final UsersManager INSTANCE = new UsersManager();
 
@@ -19,11 +27,21 @@ public class UsersManager {
 
     private static final Dtos.UserDto noUser = DtoFactory.userDto();
 
+    private static final Dtos.UserDto allUsers = DtoFactory.userDto();
+
 	private static final Image defaultPicture = new Image(
 			KanbanikResources.INSTANCE.noUserPicture());
 
+    private UserChangedListener listener;
+
     static {
         noUser.setUserName("No User");
+        allUsers.setUserName("All Users");
+    }
+
+	private UsersManager() {
+        MessageBus.registerListener(TaskAddedMessage.class, this);
+        MessageBus.registerListener(TaskEditedMessage.class, this);
     }
 
 	public static UsersManager getInstance() {
@@ -38,14 +56,25 @@ public class UsersManager {
 		if (users == null) {
 			return new ArrayList<Dtos.UserDto>();
 		}
-		return users;
+
+		Collections.sort(users, new Comparator<Dtos.UserDto>() {
+			@Override
+			public int compare(Dtos.UserDto userDto, Dtos.UserDto userDto2) {
+				return userDto.getUserName().compareTo(userDto2.getUserName());
+			}
+		});
+		return new ArrayList<>(users);
 	}
 
     public Dtos.UserDto getNoUser() {
         return noUser;
     }
 
-	public Image getPictureFor(Dtos.UserDto user) {
+    public Dtos.UserDto getAllUsers() {
+        return allUsers;
+    }
+
+    public Image getPictureFor(Dtos.UserDto user) {
 		if (user.getPictureUrl() == null) {
 			return defaultPicture;
 		}
@@ -69,5 +98,50 @@ public class UsersManager {
 
 		return picture;
 	}
+
+    public void setListener(UserChangedListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void messageArrived(Message<Dtos.TaskDto> message) {
+        if (message == null || message.getPayload() == null) {
+            return;
+        }
+
+        Dtos.TaskDto task = message.getPayload();
+        Dtos.UserDto assignee = task.getAssignee();
+        if (assignee == null) {
+            return;
+        }
+
+        String username = assignee.getUserName();
+        if (username == null) {
+            return;
+        }
+
+        if (!contains(users, assignee)) {
+            users.add(assignee);
+            if (listener != null) {
+                listener.added(assignee);
+            }
+
+        }
+    }
+
+    private boolean contains(List<Dtos.UserDto> users, Dtos.UserDto candidate) {
+        String candidateName = candidate.getUserName();
+        for (Dtos.UserDto user : users) {
+            if (candidateName.equals(user.getUserName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public interface UserChangedListener {
+        void added(Dtos.UserDto user);
+    }
 
 }

@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -16,6 +17,9 @@ import com.googlecode.kanbanik.client.components.Component;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
 import com.googlecode.kanbanik.client.components.common.PicturePreviewHandler;
+
+import java.util.Collections;
+import java.util.List;
 
 public abstract class BaseUserManipulatingComponent extends Composite implements PanelContainingDialolgListener, Closable, Component<Dtos.UserDto>, ClickHandler {
 
@@ -30,7 +34,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	
 	@UiField
 	TextBox realName;
-	
+
 	@UiField
 	TextBox password;
 	
@@ -45,9 +49,17 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	
 	@UiField
 	Label assiggneePicturePreviewErrorLabel;
-	
+
+	@UiField
+	FlowPanel permissionsPanel;
+
+    private PermissionsEditingComponent permissionsEditingComponent;
+
 	private PanelContainingDialog dialog;
-	
+
+    // may be null for new use
+    private Dtos.UserDto oldDto;
+
 	@Override
 	public void close() {
 		dialog.close();
@@ -73,7 +85,10 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	public void cancelClicked(PanelContainingDialog dialog) {
 		
 	}
-	
+
+    protected List<Dtos.PermissionDto> createPermissions() {
+        return permissionsEditingComponent.flush();
+    }
 
 	@Override
 	public void setup(HasClickHandlers clickHandler, String title) {
@@ -84,6 +99,7 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 
 	@Override
 	public void setDto(Dtos.UserDto dto) {
+        this.oldDto = dto;
 	}
 
 	@Override
@@ -110,6 +126,12 @@ public abstract class BaseUserManipulatingComponent extends Composite implements
 	
 	protected void initialize() {
         new PicturePreviewHandler(pictureUrl, assiggneePicturePreview, assigneePicturePreviewLabel, assiggneePicturePreviewErrorLabel).initialize();
+        permissionsEditingComponent = new PermissionsEditingComponent();
+        List<Dtos.PermissionDto> permissions = oldDto != null ? oldDto.getPermissions() : Collections.EMPTY_LIST;
+        permissions = permissions != null ? permissions : Collections.EMPTY_LIST;
+        permissionsEditingComponent.init(permissions, oldDto);
+        permissionsPanel.clear();
+        permissionsPanel.add(permissionsEditingComponent);
 	}
 
 	protected String checkPasswords(TextBox box1, TextBox box2) {

@@ -1,14 +1,15 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{Permission, User, Board}
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.dtos.{ErrorDto, BoardDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, BoardDto}
+import com.googlecode.kanbanik.security._
 
 class SaveBoardCommand extends Command[BoardDto, BoardDto] {
 
   lazy val boardBuilder = new BoardBuilder()
 
-  def execute(boardDto: BoardDto): Either[BoardDto, ErrorDto] = {
+  override def execute(boardDto: BoardDto, user: User): Either[BoardDto, ErrorDto] = {
     val storedBoard: Board = {
       try {
         boardBuilder.buildEntity(boardDto).store
@@ -18,7 +19,16 @@ class SaveBoardCommand extends Command[BoardDto, BoardDto] {
 
       }
     }
-    
-    Left(boardBuilder.buildDto(storedBoard, None))
+
+    addMePermissions(user, boardDto.id,
+      storedBoard.id.get.toString,
+      PermissionType.CreateTask_b,
+      PermissionType.ReadBoard,
+      PermissionType.EditBoard,
+      PermissionType.DeleteBoard)
+    Left(boardBuilder.buildDto(storedBoard, None, user))
   }
+
+  override def checkPermissions(param: BoardDto, user: User): Option[List[String]] =
+    checkSavePermissions(user, param.id, PermissionType.CreateBoard, PermissionType.EditBoard)
 }

@@ -22,7 +22,9 @@ import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.DatePickerDialog;
+import com.googlecode.kanbanik.client.components.common.filters.CommonFilterCheckBox;
 import com.googlecode.kanbanik.client.components.common.DataCollector;
+import com.googlecode.kanbanik.client.components.common.filters.PanelWithCheckboxes;
 import com.googlecode.kanbanik.client.managers.ClassOfServicesManager;
 import com.googlecode.kanbanik.client.managers.TaskTagsManager;
 import com.googlecode.kanbanik.client.managers.UsersManager;
@@ -50,19 +52,19 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     DisclosurePanel disclosurePanel;
 
     @UiField
-    PanelWithCheckboxes userFilter;
+    FilterPanelWithCheckboxes userFilter;
 
     @UiField
-    PanelWithCheckboxes classOfServiceFilter;
+    FilterPanelWithCheckboxes classOfServiceFilter;
 
     @UiField
-    PanelWithCheckboxes boardFilter;
+    FilterPanelWithCheckboxes boardFilter;
 
     @UiField
-    PanelWithCheckboxes tagsFilter;
+    FilterPanelWithCheckboxes tagsFilter;
 
     @UiField
-    PanelWithCheckboxes projectOnBoardFilter;
+    FilterPanelWithCheckboxes projectOnBoardFilter;
 
     @UiField(provided = true)
     FullTextMatcherFilterComponent fullTextFilter;
@@ -321,30 +323,36 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         return true;
     }
 
-    private void fillUsers(BoardsFilter filterObject, boolean loaded) {
-        List<Dtos.UserDto> sorted = new ArrayList<Dtos.UserDto>(UsersManager.getInstance().getUsers());
+    private void fillUsers(final BoardsFilter filterObject, final boolean loaded) {
+        List<Dtos.UserDto> users = UsersManager.getInstance().getUsers();
 
-        Collections.sort(sorted, new Comparator<Dtos.UserDto>() {
-            @Override
-            public int compare(Dtos.UserDto userDto, Dtos.UserDto userDto2) {
-                return userDto.getUserName().compareTo(userDto2.getUserName());
-            }
-        });
+        users.add(0, UsersManager.getInstance().getNoUser());
 
-        sorted.add(0, UsersManager.getInstance().getNoUser());
-
-        for (Dtos.UserDto user : sorted) {
-            if (!loaded || filterObject.findById(user) == -1) {
-                filterObject.add(user);
-            }
-            userFilter.add(new UserFilterCheckBox(user, filterObject));
+        for (Dtos.UserDto user : users) {
+            addUser(filterObject, loaded, user);
         }
+
+        UsersManager.getInstance().setListener(new UsersManager.UserChangedListener() {
+            @Override
+            public void added(Dtos.UserDto user) {
+                addUser(filterObject, loaded, user);
+
+                filterObject.fireFilterChangedEvent();
+            }
+
+        });
+    }
+
+    private void addUser(BoardsFilter filterObject, boolean loaded, Dtos.UserDto user) {
+        if (!loaded || filterObject.findById(user) == -1) {
+            filterObject.add(user);
+        }
+        userFilter.add(new UserFilterCheckBox(user, filterObject));
     }
 
 
-
-    private void fillClassOfServices(BoardsFilter filterObject, boolean loaded) {
-        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAll());
+    private void fillClassOfServices(final BoardsFilter filterObject, final boolean loaded) {
+        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAllWithNone());
 
         Collections.sort(sorted, new Comparator<Dtos.ClassOfServiceDto>() {
             @Override
@@ -359,11 +367,24 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }
 
         for (Dtos.ClassOfServiceDto classOfServiceDto : sorted) {
-            if (!loaded || filterObject.findById(classOfServiceDto) == -1) {
-                filterObject.add(classOfServiceDto);
-            }
-            classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
+            addClassOfService(filterObject, loaded, classOfServiceDto);
         }
+
+        ClassOfServicesManager.getInstance().setListener(new ClassOfServicesManager.ClassOfServiceChangedListener() {
+            @Override
+            public void added(Dtos.ClassOfServiceDto classOfServiceDto) {
+                addClassOfService(filterObject, loaded, classOfServiceDto);
+
+                filterObject.fireFilterChangedEvent();
+            }
+        });
+    }
+
+    private void addClassOfService(BoardsFilter filterObject, boolean loaded, Dtos.ClassOfServiceDto classOfServiceDto) {
+        if (!loaded || filterObject.findById(classOfServiceDto) == -1) {
+            filterObject.add(classOfServiceDto);
+        }
+        classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
     }
 
     private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
@@ -443,10 +464,11 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         tagsFilter.remove(new PanelWithCheckboxes.Predicate() {
             @Override
-            public boolean toRemove(FilterCheckBox w) {
+            public boolean toRemove(CommonFilterCheckBox w) {
                 Dtos.TaskTag candidate = (Dtos.TaskTag) w.getEntity();
                 return objEq(candidate.getName(), tag.getName());
             }
+
         });
 
         filterObject.storeFilterData();

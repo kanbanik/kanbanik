@@ -14,14 +14,13 @@ import com.googlecode.kanbanik.commands.DeleteTasksCommand
 import com.googlecode.kanbanik.commands.DeleteWorkflowitemCommand
 import com.googlecode.kanbanik.commands.DeleteProjectCommand
 import com.googlecode.kanbanik.commands.DeleteBoardCommand
-import com.googlecode.kanbanik.model.{Task, Board, DbCleaner, Project}
+import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.CreateUserCommand
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
 import com.googlecode.kanbanik.dtos._
-import scala.Some
 
 /**
  * This are tests which expects working DB and are trying to simulate some basic use
@@ -33,7 +32,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     // creation phase
     
     // create user
-    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, "", 1, "aaa", "aaa"))
+    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, Some(""), 1, "aaa", "aaa", None))
 
     // create board
     val board = BoardDto(
@@ -204,7 +203,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     }
 
     assert(editProject.name.get === "project1_renamed")
-    assert(Project.all.size === 1)
+    assert(Project.all(User().withAllPermissions()).size === 1)
     // delete phase
     
     // delete task

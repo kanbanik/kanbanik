@@ -47,6 +47,63 @@ public class Dtos {
 
         public String getSessionId();
         public void setSessionId(String sessionId);
+
+        public List<PermissionDto> getPermissions();
+        public void setPermissions(List<PermissionDto> permissions);
+    }
+
+    public static enum PermissionTypes {
+
+        ReadUser(5),
+        EditUserData(1),
+        EditUserPermissions(7),
+        CreateUser(8),
+        DeleteUser(9),
+
+        ReadBoard(3),
+        EditBoard(21),
+        CreateBoard(22),
+        DeleteBoard(23),
+
+        ReadProject(4),
+        EditProject(24),
+        CreateProject(25),
+        DeleteProject(26),
+
+        ReadClassOfService(6),
+        CreateClassOfService(18),
+        EditClassOfService(19),
+        DeleteClassOfService(20),
+
+        MoveTask_p(10),
+        CreateTask_p(11),
+        EditTask_p(12),
+        DeleteTask_p(13),
+
+        MoveTask_b(14),
+        CreateTask_b(15),
+        EditTask_b(16),
+        DeleteTask_b(17)
+
+        ;
+
+        PermissionTypes(int value) {
+            this.value = value;
+        }
+
+        private int value;
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public static interface PermissionDto {
+        Integer getPermissionType();
+        void setPermissionType(Integer  permissionType);
+
+        List<String> getArgs();
+        void setArgs(List<String> args);
     }
 
     public static interface UserManipulationDto extends UserDto, BaseDto {

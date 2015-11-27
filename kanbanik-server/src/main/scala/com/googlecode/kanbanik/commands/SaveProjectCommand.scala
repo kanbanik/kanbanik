@@ -1,15 +1,16 @@
 package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.builders.ProjectBuilder
+import com.googlecode.kanbanik.security._
 import scala.collection.JavaConversions._
-import com.googlecode.kanbanik.model.Board
+import com.googlecode.kanbanik.model.{User, Board}
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ClassOfServiceDto, ErrorDto, ProjectDto}
 
 class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
 
   private lazy val projectBuilder = new ProjectBuilder()
 
-  def execute(params: ProjectDto): Either[ProjectDto, ErrorDto] = {
+  override def execute(params: ProjectDto, user: User): Either[ProjectDto, ErrorDto] = {
 
     if (params.boardIds.isDefined) {
       for (board <- params.boardIds.get) {
@@ -23,7 +24,20 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
     }
 
     val project = projectBuilder.buildEntity(params)
-    Left(projectBuilder.buildDto(project.store))
+
+    val entity = project.store(user)
+
+    addMePermissions(user, params.id,
+      entity.id.get.toString,
+      PermissionType.CreateTask_p,
+      PermissionType.ReadProject,
+      PermissionType.EditProject,
+      PermissionType.DeleteProject)
+
+    Left(projectBuilder.buildDto(entity))
   }
-  
+
+  override def checkPermissions(param: ProjectDto, user: User): Option[List[String]] =
+    checkSavePermissions(user, param.id, PermissionType.CreateProject, PermissionType.EditProject)
+
 }

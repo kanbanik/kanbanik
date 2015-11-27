@@ -3,22 +3,22 @@ package com.googlecode.kanbanik.migrate
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.googlecode.kanbanik.commands.CreateUserCommand
+import com.googlecode.kanbanik.commands.{CredentialsUtils}
 import com.mongodb.DBObject
 import com.googlecode.kanbanik.model._
 import org.bson.types.ObjectId
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.commons._
-import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing, ManipulateUserDto}
-
+import com.googlecode.kanbanik.dtos.{WorkfloVerticalSizing}
 
 class MigrateDb extends HasMongoConnection {
 
   val versionMigrations = Map(
-    1 -> List(new From1To2, new From2To3, new From3To4),
-    2 -> List(new From2To3, new From3To4),
-    3 -> List(new From3To4)
+    1 -> List(new From1To2, new From2To3, new From3To4, new From4To5),
+    2 -> List(new From2To3, new From3To4, new From4To5),
+    3 -> List(new From3To4, new From4To5),
+    4 -> List(new From4To5)
   )
 
   def migrateDbIfNeeded {
@@ -67,21 +67,23 @@ trait MigrationPart extends HasMongoConnection {
 }
 
 // from 0.2.3 -> 0.2.4
-class From1To2 extends MigrationPart {
+class From1To2 extends MigrationPart with CredentialsUtils {
 
   def migrate {
     // create a default user
-    val userDto = ManipulateUserDto(
-      "admin",
-      "Default User",
-      null,
-      "sessionId",
-      1,
-      "admin",
-      "admin")
+    val (password, salt) = hashPassword("admin")
 
     // create the first user
-    new CreateUserCommand().execute(userDto)
+    new User(
+      "admin",
+      password,
+      "Default User",
+      null,
+      salt,
+      1,
+      List(),
+      false
+    ).store
 
     setVersionTo(2)
   }
@@ -126,7 +128,7 @@ class From2To3 extends MigrationPart {
     using(createConnection) {
       conn =>
         val rawBoards = coll(conn, Coll.Boards).find(MongoDBObject())
-        val realBoards = Board.all(false)
+        val realBoards = Board.all(false, User().withAllPermissions())
         rawBoards.foreach(migrateBalanced(_, realBoards))
     }
 
@@ -245,7 +247,7 @@ class From2To3 extends MigrationPart {
       using(createConnection) {
         conn =>
           val update = $push(Coll.Tasks.toString() -> asDBObject(this))
-          coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow.board.id.get), null, null, false, update, true, false)
+          coll(conn, Coll.Boards).findAndModify(MongoDBObject(Fields.id.toString() -> workflowitem.parentWorkflow(User().withAllPermissions()).board(User().withAllPermissions()).id.get), null, null, false, update, true, false)
       }
     }
 
@@ -281,7 +283,7 @@ class From2To3 extends MigrationPart {
     }
 
     def findWorkflowitem(): Workflowitem = {
-      val board = Board.all(false).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
+      val board = Board.all(false, User().withAllPermissions()).find(board => board.workflow.containsItem(Workflowitem().copy(id = Some(workflowitemId)))).getOrElse(return null)
       val workflowitem = board.workflow.findItem(Workflowitem().copy(id = Some(workflowitemId)))
       workflowitem.orNull
     }
@@ -312,6 +314,7 @@ class From2To3 extends MigrationPart {
       }
     }
   }
+
 }
 
 // from 0.2.5 -> 0.2.6
@@ -358,26 +361,25 @@ class From3To4 extends MigrationPart {
 
   def asNewTask(dbObject: DBObject, boardId: ObjectId): Task = {
     new Task(
-      None,
-      dbObject.get(Fields.name.toString()).asInstanceOf[String],
-      dbObject.get(Fields.description.toString()).asInstanceOf[String],
-      loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
-      dbObject.get(Fields.ticketId.toString()).asInstanceOf[String],
-      {
-        val version = dbObject.getWithDefault[Int](Fields.version, 1)
-        if (version != 0) {
-          version
-        } else {
-          1
-        }
-      },
-      dbObject.get(Fields.order.toString()).asInstanceOf[String],
-      loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
-      dbObject.getWithDefault[String](Fields.dueDate, ""),
-      dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
-      boardId,
-      dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId],
-      None
+    None,
+    dbObject.get(Fields.name.toString()).asInstanceOf[String],
+    dbObject.get(Fields.description.toString()).asInstanceOf[String],
+    loadOrNone[ObjectId, ClassOfService](Fields.classOfService.toString(), dbObject, loadClassOfService(_)),
+    dbObject.get(Fields.ticketId.toString()).asInstanceOf[String], {
+      val version = dbObject.getWithDefault[Int](Fields.version, 1)
+      if (version != 0) {
+        version
+      } else {
+        1
+      }
+    },
+    dbObject.get(Fields.order.toString()).asInstanceOf[String],
+    loadOrNone[String, User](Fields.assignee.toString(), dbObject, loadUser(_)),
+    dbObject.getWithDefault[String](Fields.dueDate, ""),
+    dbObject.get(Fields.workflowitem.toString()).asInstanceOf[ObjectId],
+    boardId,
+    dbObject.get(Fields.projectId.toString()).asInstanceOf[ObjectId],
+    None
     )
 
   }
@@ -411,4 +413,18 @@ class From3To4 extends MigrationPart {
 
   }
 
+}
+
+
+class From4To5 extends MigrationPart {
+  override def migrate {
+
+    // for now all users had all the permissions - this ensures this will hold
+    // also for fresh installations the newly created admin will be augmented to have all the permissions
+    User.all(User().withAllPermissions()).foreach(
+      user => user.withAllPermissions().store
+    )
+
+    setVersionTo(5)
+  }
 }

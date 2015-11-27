@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.model
 
+import com.googlecode.kanbanik.dtos.PermissionType
 import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
@@ -71,13 +72,31 @@ class UserLiveTest extends FlatSpec with BeforeAndAfter {
     }
   }
 
+  "all flows commands " should "handle permissions properly" in {
+    val manipulateUserPermission = Permission(PermissionType.EditUserData, List())
+    val manipulateBoardPermission = Permission(PermissionType.EditBoard, List("the board id"))
+    val manipulateProjectPermission = Permission(PermissionType.EditProject, List("the board id", "the project id"))
+    mkDefaultUser.copy(permissions = List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission)).store
+
+    assert(User.byId("name").permissions === List(manipulateUserPermission, manipulateBoardPermission, manipulateProjectPermission))
+
+    User.byId("name").copy(permissions = List(manipulateBoardPermission, manipulateProjectPermission)).store
+    assert(User.byId("name").permissions === List(manipulateBoardPermission, manipulateProjectPermission))
+
+    User.byId("name").copy(permissions = List()).store
+    assert(User.byId("name").permissions === List())
+
+  }
+
   def mkDefaultUser = new User(
     "name",
     "password",
     "real name",
     "url://some.png",
     "salt",
-    1)
+    1,
+    List(),
+    false)
 
   after {
     // cleanup database

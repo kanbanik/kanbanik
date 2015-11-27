@@ -1,6 +1,6 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.{Task, Project, Board}
+import com.googlecode.kanbanik.model.{User, Task, Project, Board}
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
@@ -10,9 +10,9 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
 
   private val builder = new ProjectBuilder()
 
-  override def executeSpecific(board: Board, project: Project): Either[ProjectWithBoardDto, ErrorDto] = {
+  override def executeSpecific(board: Board, project: Project, user: User): Either[ProjectWithBoardDto, ErrorDto] = {
 
-    val (deletable, msg) = canBeRemoved(project, board)
+    val (deletable, msg) = canBeRemoved(project, board, user)
 
     if (project.boards.isDefined) {
       if (!deletable) {
@@ -21,7 +21,7 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
       
       val newBoards = Some(project.boards.get.filter(_.id != board.id))
 
-      val stored = project.copy(boards = newBoards).store
+      val stored = project.copy(boards = newBoards).store(user)
       Left(ProjectWithBoardDto(builder.buildDto(stored), board.id.get.toString))
     } else {
       Right(ErrorDto("Project is on no boards - nothing to do"))

@@ -1,0 +1,16 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:style>
+        .permissionPanel {
+            width: 100%;
+        }
+
+    </ui:style>
+
+    <g:FlowPanel ui:field="mainPanel">
+        <g:CheckBox ui:field="editPermissions"></g:CheckBox>
+        <g:VerticalPanel ui:field="contentPanel" addStyleNames="{style.permissionPanel}"/>
+    </g:FlowPanel>
+
+</ui:UiBinder>

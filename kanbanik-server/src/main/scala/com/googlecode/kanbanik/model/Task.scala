@@ -75,7 +75,7 @@ case class Task(
     Task.asEntity(dbTask.head)
   }
 
-  def delete(boardId: ObjectId) {
+  def delete(boardId: ObjectId, user: User) {
     val update = $pull(
       Coll.Tasks.toString -> MongoDBObject(SimpleField.version.toString -> version, SimpleField.id.toString -> id.get))
 
@@ -89,7 +89,7 @@ case class Task(
 
       coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString -> boardId), update)
       try {
-        Task.byId(id.get)
+        Task.byId(id.get, user)
       } catch {
         case e: IllegalArgumentException => {
           return
@@ -101,7 +101,7 @@ case class Task(
 
   }
 
-  def project: Project = Project.byId(projectId)
+  def project(user: User): Project = Project.byId(projectId, user)
 
   def board: Board = Board.byId(boardId, includeTasks = false)
 
@@ -132,11 +132,11 @@ object Task extends HasMongoConnection with HasEntityLoader {
     val colour = Value("backgroundColour")
   }
 
-  def byId(id: ObjectId): Task = {
+  def byId(id: ObjectId, user: User): Task = {
     try {
       getFromNewMongo(id)
     } catch {
-      case _: Throwable => getFromOldMongo(id)
+      case _: Throwable => getFromOldMongo(id, user)
     }
   }
 
@@ -156,8 +156,8 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   // nasty and slow workaround for older mongodbs where the $elemMatch is not present
-  def getFromOldMongo(id: ObjectId): Task = {
-    val res = for (board <- Board.all(true, true);
+  def getFromOldMongo(id: ObjectId, user: User): Task = {
+    val res = for (board <- Board.all(true, true, user);
       task <- board.tasks;
       if (task.id.isDefined && task.id.get == id)
     ) yield task
@@ -190,7 +190,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
   }
 
   def asEntity(dbObject: DBObject): Task = {
-    asEntity(dbObject, ClassOfService.all(), User.all())
+    asEntity(dbObject, ClassOfService.all(User().withAllPermissions()), User.all(User().withAllPermissions()))
   }
 
   def asEntity(dbObject: DBObject, classesOfServices: List[ClassOfService], users: List[User]): Task = {

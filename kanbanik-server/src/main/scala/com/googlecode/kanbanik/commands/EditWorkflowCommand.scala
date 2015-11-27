@@ -1,16 +1,15 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
-import com.googlecode.kanbanik.model.Workflowitem
+import com.googlecode.kanbanik.model.{User, Workflowitem, Board, Workflow}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.db.HasMongoConnection
-import com.googlecode.kanbanik.model.Board
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.WorkflowBuilder
-import com.googlecode.kanbanik.model.Workflow
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ErrorDto, WorkflowitemDto, EditWorkflowParams, WorkflowDto}
+import com.googlecode.kanbanik.dtos._
 
 class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] with HasMongoConnection with HasEntityLoader {
 
@@ -20,7 +19,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
 
   lazy val boardBuilder = new BoardBuilder
 
-  def execute(params: EditWorkflowParams): Either[WorkflowitemDto, ErrorDto] = {
+  override def execute(params: EditWorkflowParams, user: User): Either[WorkflowitemDto, ErrorDto] = {
     val currenDto = params.current
     val nextDto = params.next
     val destContextDto = params.destinationWorkflow
@@ -34,11 +33,11 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
 
     val currentBoard = board.copy(version = params.board.version)
 
-    doExecute(currenDto, nextDto, destContextDto, currentBoard)
+    doExecute(currenDto, nextDto, destContextDto, currentBoard, user)
 
   }
 
-  private def doExecute(currentDto: WorkflowitemDto, nextDto: Option[WorkflowitemDto], destContextDto: WorkflowDto, currentBoard: Board): Either[WorkflowitemDto, ErrorDto] = {
+  private def doExecute(currentDto: WorkflowitemDto, nextDto: Option[WorkflowitemDto], destContextDto: WorkflowDto, currentBoard: Board, user: User): Either[WorkflowitemDto, ErrorDto] = {
 
     if (hasTasks(destContextDto)) {
       return Right(ErrorDto("The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out."))
@@ -57,9 +56,9 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
     }
     val contextEntity = workflowBuilder.buildEntity(destContextDto, Some(currentBoard))
 
-    val res = contextEntity.board.move(currentEntity, nextEntity, contextEntity).store
+    val res = contextEntity.board(user).move(currentEntity, nextEntity, contextEntity).store
     val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
-    Left(workflowitemBuilder.buildDto(realCurrentEntity, None))
+    Left(workflowitemBuilder.buildDto(realCurrentEntity, None, user))
 
 
   }
@@ -81,4 +80,5 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
     tasksOnWorkflowitem.size != 0
   }
 
+  override def checkPermissions(param: EditWorkflowParams, user: User) = checkEditBoardPermissions(user, param.board.id)
 }
