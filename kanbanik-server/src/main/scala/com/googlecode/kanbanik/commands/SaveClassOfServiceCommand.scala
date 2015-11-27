@@ -13,37 +13,18 @@ class SaveClassOfServiceCommand extends Command[ClassOfServiceDto, ClassOfServic
   override def execute(params: ClassOfServiceDto, user: User): Either[ClassOfServiceDto, ErrorDto] = {
     val entity = classOfServiceBuilder.buildEntity(params)
 
-    if (!params.id.isDefined) {
-      // created, granting all the permissions of it
-      addMePermissions(user, entity.id.get.toString)
-    }
+    val res = entity.store
 
-    Left(classOfServiceBuilder.buildDto(entity.store))
+    addMePermissions(user, params.id,
+      res.id.get.toString,
+      PermissionType.ReadClassOfService,
+      PermissionType.EditClassOfService,
+      PermissionType.DeleteClassOfService)
+
+    Left(classOfServiceBuilder.buildDto(res))
   }
 
-  def addMePermissions(user: User, classOfSerciceId: String) {
-    val newPermissions = List(
-      Permission(PermissionType.ReadClassOfService, List(classOfSerciceId)),
-      Permission(PermissionType.EditClassOfService, List(classOfSerciceId)),
-      Permission(PermissionType.DeleteClassOfService, List(classOfSerciceId))
-    )
+  override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] =
+    checkSavePermissions(user, param.id, PermissionType.CreateClassOfService, PermissionType.EditClassOfService)
 
-    user.copy(permissions = mergePermissions(user.permissions, newPermissions)).store
-
-  }
-
-  override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] = {
-
-    if (param.id.isDefined) {
-      doCheckPermissions(user, List(
-        checkOneOf(PermissionType.EditClassOfService, param.id.get)
-      ))
-    } else {
-      doCheckPermissions(user, List(
-        checkGlobal(PermissionType.CreateClassOfService)
-      ))
-    }
-
-
-  }
 }

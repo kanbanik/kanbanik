@@ -33,9 +33,7 @@ class DeleteClassOfServiceCommand extends Command[ClassOfServiceDto, EmptyDto] w
     }
   }
 
-  override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] = {
-    doCheckPermissions(user, List(
-      checkOneOf(PermissionType.DeleteClassOfService, param.id.get)
-    ))
-  }
+  override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] =
+    checkIdIfDefined(user, param.id, PermissionType.DeleteClassOfService)
+
 }

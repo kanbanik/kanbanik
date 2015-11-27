@@ -1,8 +1,8 @@
 package com.googlecode.kanbanik.commands
 
-import com.googlecode.kanbanik.model.{User, Board, Project}
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
+import com.googlecode.kanbanik.model.{Board, Project, User}
 
 class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
@@ -20,4 +20,5 @@ class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 
     Left(ProjectWithBoardDto(builder.buildDto(toStore.store(user)), board.id.get.toString))
   }
+
 }

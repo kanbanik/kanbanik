@@ -110,8 +110,13 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
 	public boolean canSeeConfigure() {
         return containsOne(getPermissionTypes(),
-                Dtos.PermissionTypes.ManipulateBoard.getValue(),
-                Dtos.PermissionTypes.ManipulateProject.getValue()
+                Dtos.PermissionTypes.CreateBoard.getValue(),
+                Dtos.PermissionTypes.EditBoard.getValue(),
+                Dtos.PermissionTypes.DeleteBoard.getValue(),
+
+                Dtos.PermissionTypes.CreateProject.getValue(),
+                Dtos.PermissionTypes.EditProject.getValue(),
+                Dtos.PermissionTypes.DeleteProject.getValue()
         );
     }
 

@@ -44,8 +44,10 @@ public class PermissionsEditingComponent extends Composite {
 
     private static final List<Group> permissionEditors = Arrays.asList(
             new Group("Board Related Permissions",
-                    new ManipulateBoardPEC(),
-                    new ReadBoardPEC()
+                    new CreateBoardPEC(),
+                    new ReadBoardPEC(),
+                    new EditBoardPEC(),
+                    new DeleteBoardPEC()
             ),
 
             new Group("User Related Permissions",
@@ -57,7 +59,10 @@ public class PermissionsEditingComponent extends Composite {
             ),
 
             new Group("Project Related Permissions",
-                    new ReadProjectPEC()
+                    new CreateProjectPEC(),
+                    new ReadProjectPEC(),
+                    new EditProjectPEC(),
+                    new DeleteProjectPEC()
             ),
 
             new Group("Task Related Permissions",
@@ -167,7 +172,7 @@ public class PermissionsEditingComponent extends Composite {
 
         for (Group editor : permissionEditors) {
             editor.init(permissionDtoMap);
-            contentPanel.add((Widget) editor);
+            contentPanel.add(editor);
         }
     }
 
@@ -213,6 +218,8 @@ public class PermissionsEditingComponent extends Composite {
             }
 
             disclosurePanel.setContent(contentPanel);
+
+            add(disclosurePanel);
         }
 
         public void init(Map<Integer, Dtos.PermissionDto> permissionDtoMap) {
@@ -380,21 +387,58 @@ public class PermissionsEditingComponent extends Composite {
         }
     }
 
-    static class ManipulateBoardPEC extends GlobalPermissionEditingComponent {
+    static class CreateBoardPEC extends GlobalPermissionEditingComponent {
 
         @Override
         protected Integer getKey() {
-            return Dtos.PermissionTypes.ManipulateBoard.getValue();
+            return Dtos.PermissionTypes.CreateBoard.getValue();
         }
 
         @Override
         protected String getDescription() {
-            return "Allows the user to edit the board's workflow.";
+            return "Allows creating a new board";
         }
 
         @Override
         protected String getLabel() {
-            return "Manipulate Board";
+            return "Create Board";
+        }
+    }
+
+    static class EditBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.EditBoard.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows the user to edit the board and it's workflow, assign and unassign projects from it.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Edit Board";
+        }
+
+    }
+
+    static class DeleteBoardPEC extends BaseBoardPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.DeleteBoard.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows the user to edit the board and it's workflow, assign and unassign projects from it.";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete Board";
         }
 
     }
@@ -466,7 +510,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected String getLabel() {
-            return "Manipulate User Permissions";
+            return "Edit User Permissions";
         }
 
     }
@@ -485,7 +529,7 @@ public class PermissionsEditingComponent extends Composite {
 
         @Override
         protected String getLabel() {
-            return "Manipulate User Data";
+            return "Edit User Data";
         }
 
     }
@@ -587,6 +631,60 @@ public class PermissionsEditingComponent extends Composite {
         @Override
         protected String getLabel() {
             return "Read Project";
+        }
+    }
+
+    static class EditProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.EditProject.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to edit this particular project";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Edit Project";
+        }
+    }
+
+    static class DeleteProjectPEC extends BaseProjectPEC {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.DeleteProject.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to delete this particular project";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Delete Project";
+        }
+    }
+
+    static class CreateProjectPEC extends GlobalPermissionEditingComponent {
+
+        @Override
+        protected Integer getKey() {
+            return Dtos.PermissionTypes.CreateProject.getValue();
+        }
+
+        @Override
+        protected String getDescription() {
+            return "Allows to create this particular project";
+        }
+
+        @Override
+        protected String getLabel() {
+            return "Create Project";
         }
     }
 

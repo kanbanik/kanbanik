@@ -11,7 +11,7 @@ type Check = PartialFunction[Permission, Boolean]
 type CheckWithMessage = (Check, String)
 def checkPermissions(user: User): Option[List[String]] = {
   doCheckPermissions(user, List[CheckWithMessage](
-    checkOneOf(PermissionType.ManipulateBoard, "param")
+    checkOneOf(PermissionType.EditBoard, "param")
   ))
 }
 
@@ -35,8 +35,8 @@ def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {
 }
 
 
-val manipulateProjectPermission = Permission(PermissionType.ManipulateProject, List())
-val manipulateBoardPermission = Permission(PermissionType.ManipulateBoard, List("param2"))
+val manipulateProjectPermission = Permission(PermissionType.EditProject, List())
+val manipulateBoardPermission = Permission(PermissionType.EditBoard, List("param2"))
 //val manipulateUserPermission = Permission(PermissionType.ManipulateUser, "other param")
 
 //checkOneOf(PermissionType.ManipulateBoard, "param")._1.isDefinedAt(manipulateBoardPermission)

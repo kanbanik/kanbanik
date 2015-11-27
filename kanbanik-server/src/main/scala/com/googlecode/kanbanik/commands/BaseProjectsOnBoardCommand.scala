@@ -1,5 +1,7 @@
 package com.googlecode.kanbanik.commands
+
 import com.googlecode.kanbanik.model.{User, Board, Project}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.db.HasEntityLoader
@@ -29,5 +31,8 @@ abstract class BaseProjectsOnBoardCommand
         Right(ErrorDto(ServerMessages.entityDeletedMessage("project")))
     }
   }
+
+  override def checkPermissions(param: ProjectWithBoardDto, user: User) = checkEditBoardPermissions(user, Some(param.boardId))
+
 }
 

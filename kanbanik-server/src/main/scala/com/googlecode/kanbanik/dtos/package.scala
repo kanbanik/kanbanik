@@ -14,23 +14,23 @@ package object dtos {
 
   object PermissionType extends Enumeration {
 
+    val ReadUser = Value(5)
     // change user basic data (name, password, picture etc) - e.g. everything but permissions
     val EditUserData = Value(1)
-
     // allows to edit only the permissions
     val EditUserPermissions = Value(7)
-
     val CreateUser = Value(8)
-
     val DeleteUser = Value(9)
 
-    val ManipulateBoard = Value(0)
-
-    val ManipulateProject = Value(2)
-
+    val EditBoard = Value(21)
     val ReadBoard = Value(3)
+    val CreateBoard = Value(22)
+    val DeleteBoard = Value(23)
+
     val ReadProject = Value(4)
-    val ReadUser = Value(5)
+    val EditProject = Value(24)
+    val CreateProject = Value(25)
+    val DeleteProject = Value(26)
 
     val ReadClassOfService = Value(6)
     val CreateClassOfService = Value(18)

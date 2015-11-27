@@ -83,4 +83,62 @@ package object security {
     (source ++ toAdd).foldLeft(List[Permission]())(f)
 
   }
+
+  // specific helpers
+  def checkSavePermissions(user: User,
+                           id: Option[String],
+                           create: PermissionType.Value,
+                           edit: PermissionType.Value): Option[List[String]] = {
+    if (id.isDefined) {
+      doCheckPermissions(user, List(
+        checkOneOf(edit, id.get)
+      ))
+    } else {
+      doCheckPermissions(user, List(
+        checkGlobal(create)
+      ))
+    }
+  }
+
+  def checkEditBoardPermissions(user: User, id: Option[String]): Option[List[String]] = {
+    // if not, it will fail after on validations
+    if (id.isDefined) {
+      doCheckPermissions(user, List(
+        checkOneOf(PermissionType.EditBoard, id.get)
+      ))
+    } else {
+      None
+    }
+  }
+
+  def checkIdIfDefined(user: User, id: Option[String], perm: PermissionType.Value): Option[List[String]] = {
+    if (id.isDefined) {
+      doCheckPermissions(user, List(
+        checkOneOf(perm, id.get)
+      ))
+    } else {
+      None
+    }
+  }
+
+  // this is a race - if someone will edit the entity now the permissions will not be granted
+  // ignoring for now because complex locking would be slow and this is not a too big deal - some more powerful admin can
+  // fix it by granting the permissions by hand
+  def addMePermissions(user: User,
+                       oldEntityId: Option[String],
+                       entityId: String,
+                       permissions: PermissionType.Value*) {
+
+    // e.g. not edit but new, so add this permissions and merge with old ones
+    if (!oldEntityId.isDefined) {
+      addMePermissions(user, entityId, permissions:_*)
+    }
+  }
+
+  def addMePermissions(user: User,
+                       entityId: String,
+                       permissions: PermissionType.Value*) {
+      val newPermissions = permissions.map(Permission(_, List(entityId)))
+      user.copy(permissions = mergePermissions(user.permissions, newPermissions.toList)).store
+  }
 }

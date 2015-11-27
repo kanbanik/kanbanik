@@ -71,8 +71,12 @@ case class User(
 object User extends HasMongoConnection {
 
   val allPermissions = List(
-    Permission(PermissionType.ReadBoard, List("*")),
+
     Permission(PermissionType.ReadProject, List("*")),
+    Permission(PermissionType.EditProject, List("*")),
+    Permission(PermissionType.DeleteProject, List("*")),
+    Permission(PermissionType.CreateProject, List()),
+
     Permission(PermissionType.ReadUser, List("*")),
 
     Permission(PermissionType.CreateClassOfService, List()),
@@ -80,11 +84,14 @@ object User extends HasMongoConnection {
     Permission(PermissionType.EditClassOfService, List("*")),
     Permission(PermissionType.DeleteClassOfService, List("*")),
 
-    Permission(PermissionType.ManipulateBoard, List()),
+    Permission(PermissionType.CreateBoard, List()),
+    Permission(PermissionType.ReadBoard, List("*")),
+    Permission(PermissionType.EditBoard, List("*")),
+    Permission(PermissionType.DeleteBoard, List("*")),
+
     Permission(PermissionType.EditUserData, List("*")),
     Permission(PermissionType.EditUserPermissions, List("*")),
     Permission(PermissionType.DeleteUser, List("*")),
-    Permission(PermissionType.ManipulateProject, List()),
     Permission(PermissionType.CreateUser, List()),
 
     Permission(PermissionType.CreateTask_p, List("*")),

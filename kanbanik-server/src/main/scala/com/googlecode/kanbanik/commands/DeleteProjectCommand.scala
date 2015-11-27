@@ -1,12 +1,13 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.model.validation.ProjectValidation
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ErrorDto, EmptyDto, ProjectDto}
+import com.googlecode.kanbanik.dtos._
 
 class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectValidation with HasEntityLoader {
 
@@ -31,4 +32,7 @@ class DeleteProjectCommand extends Command[ProjectDto, EmptyDto] with ProjectVal
 
     Left(EmptyDto())
   }
+
+  override def checkPermissions(param: ProjectDto, user: User): Option[List[String]] =
+    checkIdIfDefined(user, param.id, PermissionType.DeleteProject)
 }

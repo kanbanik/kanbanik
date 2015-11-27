@@ -54,18 +54,21 @@ public class Dtos {
 
     public static enum PermissionTypes {
 
+        ReadUser(5),
         EditUserData(1),
         EditUserPermissions(7),
         CreateUser(8),
         DeleteUser(9),
 
-        ManipulateBoard(0),
-
-        ManipulateProject(2),
-
         ReadBoard(3),
+        EditBoard(21),
+        CreateBoard(22),
+        DeleteBoard(23),
+
         ReadProject(4),
-        ReadUser(5),
+        EditProject(24),
+        CreateProject(25),
+        DeleteProject(26),
 
         ReadClassOfService(6),
         CreateClassOfService(18),

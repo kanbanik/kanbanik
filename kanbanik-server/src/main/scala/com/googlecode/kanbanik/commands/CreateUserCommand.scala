@@ -1,9 +1,9 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{PermissionsBuilder, UserBuilder}
-import com.googlecode.kanbanik.model.{Permission, User}
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dtos._
+import com.googlecode.kanbanik.model.{Permission, User}
 import com.googlecode.kanbanik.security._
 
 class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMongoConnection {
@@ -43,27 +43,15 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
         false
     ).store
 
-    // this is a race - if someone will edit the currentUser now the permissions will not be granted
-    // ignoring for now because complex locking would be slow and this is not a too big deal - some more powerful admin can
-    // fix it by granting the permissions by hand
-    addMePermissions(user, currentUser)
-
-    new Left(UserBuilder.buildDto(user, params.sessionId.get))
-  }
-
-  /**
-   * When created a user, I need to see who did I create
-   */
-  def addMePermissions(createdUser: User, currentUser: User) {
-    val newPermissions = List(
-      Permission(PermissionType.ReadUser, List(createdUser.name)),
-      Permission(PermissionType.EditUserData, List(createdUser.name)),
-      Permission(PermissionType.EditUserPermissions, List(createdUser.name)),
-      Permission(PermissionType.DeleteUser, List(createdUser.name))
+    addMePermissions(currentUser,
+      user.name,
+      PermissionType.ReadUser,
+      PermissionType.EditUserData,
+      PermissionType.EditUserPermissions,
+      PermissionType.DeleteUser
     )
 
-    currentUser.copy(permissions = mergePermissions(currentUser.permissions, newPermissions)).store
-
+    new Left(UserBuilder.buildDto(user, params.sessionId.get))
   }
 
   override def baseCheck(param: ManipulateUserDto): (Check, String) = checkGlobal(PermissionType.CreateUser)

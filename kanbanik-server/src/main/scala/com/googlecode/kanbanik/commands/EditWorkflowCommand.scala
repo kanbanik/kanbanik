@@ -2,13 +2,14 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.model.{User, Workflowitem, Board, Workflow}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.builders.BoardBuilder
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.builders.WorkflowBuilder
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ErrorDto, WorkflowitemDto, EditWorkflowParams, WorkflowDto}
+import com.googlecode.kanbanik.dtos._
 
 class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] with HasMongoConnection with HasEntityLoader {
 
@@ -79,4 +80,5 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
     tasksOnWorkflowitem.size != 0
   }
 
+  override def checkPermissions(param: EditWorkflowParams, user: User) = checkEditBoardPermissions(user, param.board.id)
 }

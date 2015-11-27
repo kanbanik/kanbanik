@@ -3,8 +3,9 @@ package com.googlecode.kanbanik.commands;
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.dtos.{ErrorDto, WorkflowitemDto}
+import com.googlecode.kanbanik.dtos.{ProjectWithBoardDto, ErrorDto, WorkflowitemDto}
 import com.googlecode.kanbanik.model.{User, Board}
+import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 
 class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemDto] with HasMongoConnection {
@@ -25,5 +26,13 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
     val storedBoard = builtBoard.copy(workflow = workflowReplaced).store
     Left(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None, user))
 
+  }
+
+  override def checkPermissions(param: WorkflowitemDto, user: User) = {
+    if (param.parentWorkflow.isDefined) {
+      checkEditBoardPermissions(user, param.parentWorkflow.get.board.id)
+    } else {
+      None
+    }
   }
 }
