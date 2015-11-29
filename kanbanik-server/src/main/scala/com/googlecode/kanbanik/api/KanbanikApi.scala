@@ -261,34 +261,34 @@ class KanbanikApi extends HttpServlet {
 
     // class of service
     GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
 
     // project
     GET_ALL_PROJECTS.name -> (new GetAllProjectsCommand(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)),
 
     // task
-    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
     GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(notifyByEvent = false)),
     GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(notifyByEvent = false)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)),
 
     // board / workflowitem
     EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)), // ???
     DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),      // ???
     GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(notifyByEvent = false)),
 
-    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
-    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
     EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)), // ???
     GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
 
