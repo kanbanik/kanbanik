@@ -31,4 +31,7 @@ class SaveBoardCommand extends Command[BoardDto, BoardDto] {
 
   override def checkPermissions(param: BoardDto, user: User): Option[List[String]] =
     checkSavePermissions(user, param.id, PermissionType.CreateBoard, PermissionType.EditBoard)
+
+  override def filter(toReturn: BoardDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadBoard, toReturn.id.getOrElse(""))
 }

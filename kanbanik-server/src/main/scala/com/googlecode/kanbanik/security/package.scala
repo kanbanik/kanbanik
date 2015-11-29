@@ -58,6 +58,13 @@ package object security {
     }
   }
 
+  def canRead(user: User, pt: PermissionType.Value, id: String): Boolean = {
+    buildFilterQuery(user, pt)(x => x) match {
+      case Left(ids) => ids.contains(id)
+      case Right(_) => true
+    }
+  }
+
   def buildFilterQuery(user: User, pt: PermissionType.Value)(conv: String => Any): Either[PermittedIds, CanReadAll] = {
     val r = user.permissions.collect {case Permission(realPt, args) if pt == realPt => args}
     val flat = r.flatten
@@ -141,4 +148,5 @@ package object security {
       val newPermissions = permissions.map(Permission(_, List(entityId)))
       user.copy(permissions = mergePermissions(user.permissions, newPermissions.toList)).store
   }
+
 }

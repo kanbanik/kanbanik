@@ -5,7 +5,7 @@ import net.liftweb.json._
 import com.googlecode.kanbanik.dtos.ErrorDto
 import com.googlecode.kanbanik.security._
 
-abstract class Command[T: Manifest, R] {
+abstract class Command[T: Manifest, R: Manifest] {
 
   implicit val formats = DefaultFormats
 
@@ -35,4 +35,8 @@ abstract class Command[T: Manifest, R] {
     // it will stay this way only until the development of this part will be done - never release this way
     None
   }
+
+  final def filterResult(res: Any, user: User): Boolean = filter(res.asInstanceOf[R], user)
+
+  def filter(toReturn: R, user: User): Boolean = true
 }

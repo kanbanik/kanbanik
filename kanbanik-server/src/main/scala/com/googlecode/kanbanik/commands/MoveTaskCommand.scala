@@ -109,4 +109,8 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
       checkOneOf(PermissionType.MoveTask_p, oldTask.projectId.toString)
     ))
   }
+
+  override def filter(toReturn: TaskDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadBoard, toReturn.boardId) && canRead(user, PermissionType.ReadProject, toReturn.projectId)
+
 }

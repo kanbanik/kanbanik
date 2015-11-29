@@ -40,4 +40,7 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
   override def checkPermissions(param: ProjectDto, user: User): Option[List[String]] =
     checkSavePermissions(user, param.id, PermissionType.CreateProject, PermissionType.EditProject)
 
+  override def filter(toReturn: ProjectDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadProject, toReturn.id.getOrElse(""))
+
 }

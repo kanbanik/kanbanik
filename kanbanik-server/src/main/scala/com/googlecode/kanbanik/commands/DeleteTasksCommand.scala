@@ -59,4 +59,11 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
 
     doCheckPermissions(user, checks)
   }
+
+  override def filter(toReturn: TasksDto, user: User): Boolean = {
+    toReturn.values.filter(task =>
+      !(canRead(user, PermissionType.ReadBoard, task.boardId) && canRead(user, PermissionType.ReadProject, task.projectId))
+    ).isEmpty
+  }
+
 }

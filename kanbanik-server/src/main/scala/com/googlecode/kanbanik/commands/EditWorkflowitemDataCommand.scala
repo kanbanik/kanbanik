@@ -3,7 +3,7 @@ package com.googlecode.kanbanik.commands;
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.builders.WorkflowitemBuilder
 import com.googlecode.kanbanik.builders.BoardBuilder
-import com.googlecode.kanbanik.dtos.{ProjectWithBoardDto, ErrorDto, WorkflowitemDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ProjectWithBoardDto, ErrorDto, WorkflowitemDto}
 import com.googlecode.kanbanik.model.{User, Board}
 import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
@@ -35,4 +35,5 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
       None
     }
   }
+
 }

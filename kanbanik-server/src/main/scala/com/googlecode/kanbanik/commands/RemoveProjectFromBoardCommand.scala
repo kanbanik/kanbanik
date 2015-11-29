@@ -3,7 +3,8 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.model.{User, Task, Project, Board}
 import com.googlecode.kanbanik.builders.ProjectBuilder
 import com.googlecode.kanbanik.model.validation.ProjectValidation
-import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, ProjectWithBoardDto}
+import com.googlecode.kanbanik.security._
 
 
 class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with ProjectValidation {
@@ -27,4 +28,5 @@ class RemoveProjectFromBoardCommand extends BaseProjectsOnBoardCommand with Proj
       Right(ErrorDto("Project is on no boards - nothing to do"))
     }
   }
+
 }

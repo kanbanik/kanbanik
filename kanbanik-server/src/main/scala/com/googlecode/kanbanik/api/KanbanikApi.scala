@@ -25,13 +25,17 @@ class KanbanikApi extends HttpServlet {
 
   implicit val formats = DefaultFormats
 
-  type WithExecute = {def execute(parsedJson: JValue, user: User): Either[AnyRef, ErrorDto]}
+  type AnyCommand = {
+    def execute(parsedJson: JValue, user: User): Either[AnyRef, ErrorDto]
+    def filterResult(res: Any, user: User): Boolean
+  }
 
   val factory = BroadcasterFactory.getDefault
   val broadcaster: Broadcaster = factory.lookup("/events")
 
   broadcaster.getBroadcasterConfig.addFilter(AuthorizationFilter)
   broadcaster.getBroadcasterConfig.addFilter(DontNotifyYourselfFilter)
+  broadcaster.getBroadcasterConfig.addFilter(ToJsonFilter)
 
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) = {
     process(req, resp)
@@ -105,7 +109,7 @@ class KanbanikApi extends HttpServlet {
         case Left(x) =>
           val response = write(x)
           if (config.notifyByEvent) {
-            notifyClients(commandName, sessionId, response)
+            notifyClients(commandName, sessionId, x, command.filterResult)
           }
 
           val encoding = req.getHeader("accept-encoding")
@@ -129,9 +133,14 @@ class KanbanikApi extends HttpServlet {
     }
   }
 
-  def notifyClients(commandName: String, sessionId: String, resp: String) {
-    // adds the session ID explicitely behind the response JSON so the filter will be able to ignore the resource which originated it
-    broadcaster.broadcast(write(EventDto(commandName, resp)) + "###" + sessionId)
+  case class ClientNotificationData(resp: AnyRef, commandName: String, sessionId: String, filter: (Any, User) => Boolean) {
+    def asEventDto = write(EventDto(commandName, write(resp)))
+  }
+
+
+  def notifyClients(commandName: String, sessionId: String, resp: AnyRef, filer: (Any, User) => Boolean) {
+    val data = ClientNotificationData(resp, commandName, sessionId, filer)
+    broadcaster.broadcast(data)
   }
 
   def extractSessionId(json: JValue): String = {
@@ -150,6 +159,24 @@ class KanbanikApi extends HttpServlet {
     ""
   }
 
+  object ToJsonFilter extends PerRequestBroadcastFilter {
+    override def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+      filter(broadcasterId, originalMessage, message)
+    }
+
+    override def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+      if (originalMessage == null) {
+        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+      } else {
+        originalMessage match {
+          case (m: ClientNotificationData) => new BroadcastAction(m.asEventDto)
+          case _ => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+        }
+      }
+
+    }
+  }
+
   object DontNotifyYourselfFilter extends PerRequestBroadcastFilter {
 
     def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
@@ -158,19 +185,14 @@ class KanbanikApi extends HttpServlet {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
         originalMessage match {
-          case(m : String) =>
-            val sessionIdStarts = m.lastIndexOf("###")
-            if (sessionIdStarts == -1) {
-              return new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
-            }
-            val originalSessionId = m.substring(sessionIdStarts + 3)
-
+          case(messageObject : ClientNotificationData) =>
+            val originalSessionId = messageObject.sessionId
             val toSendSessionId = extractSessionId(r)
 
             if (toSendSessionId == null || toSendSessionId == originalSessionId) {
-              new BroadcastAction(BroadcastAction.ACTION.ABORT, m.substring(0, sessionIdStarts))
+              new BroadcastAction(BroadcastAction.ACTION.ABORT, originalMessage)
             } else {
-              new BroadcastAction(m.substring(0, sessionIdStarts))
+              new BroadcastAction(message)
             }
 
           // other than String
@@ -188,12 +210,25 @@ class KanbanikApi extends HttpServlet {
 
     def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
       val sessionId = extractSessionId(r)
-      if (sessionId == null) {
+      if (sessionId == null || originalMessage == null) {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
         val subject = new Subject.Builder().sessionId(sessionId).buildSubject
         if (subject.isAuthenticated) {
-          new BroadcastAction(message)
+          val cached = subject.getPrincipal.asInstanceOf[User]
+          val realUser = User.byId(cached.name)
+
+          val allowed: Boolean = originalMessage match {
+            case (m : ClientNotificationData) => m.filter(m.resp, realUser)
+            // unconfigured, more safe not to allow at all
+            case _  => false
+          }
+
+          if (allowed) {
+            new BroadcastAction(message)
+          } else {
+            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          }
         } else {
           new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
         }
@@ -213,7 +248,7 @@ class KanbanikApi extends HttpServlet {
     }
   }
 
-  val commands = Map[String, (WithExecute, CommandConfiguration)](
+  val commands = Map[String, (AnyCommand, CommandConfiguration)](
     LOGIN.name -> (new LoginCommand(), CommandConfiguration(notifyByEvent = false)),
     LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(notifyByEvent = false)),
 
@@ -226,35 +261,35 @@ class KanbanikApi extends HttpServlet {
 
     // class of service
     GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)), // done
 
     // project
     GET_ALL_PROJECTS.name -> (new GetAllProjectsCommand(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
 
     // task
-    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)), // done
     GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(notifyByEvent = false)),
     GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(notifyByEvent = false)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)),
+    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)), // done
 
     // board / workflowitem
-    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),
+    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)), // ???
+    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),      // ???
     GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(notifyByEvent = false)),
 
-    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)),
+    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)), // done
+    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)), // ???
     GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
 
   )

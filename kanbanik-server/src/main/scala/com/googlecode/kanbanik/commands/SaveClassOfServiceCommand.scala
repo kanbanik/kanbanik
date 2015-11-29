@@ -27,4 +27,6 @@ class SaveClassOfServiceCommand extends Command[ClassOfServiceDto, ClassOfServic
   override def checkPermissions(param: ClassOfServiceDto, user: User): Option[List[String]] =
     checkSavePermissions(user, param.id, PermissionType.CreateClassOfService, PermissionType.EditClassOfService)
 
+  override def filter(toReturn: ClassOfServiceDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadClassOfService, toReturn.id.getOrElse(""))
 }

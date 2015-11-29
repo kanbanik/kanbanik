@@ -72,4 +72,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
     doCheckPermissions(user, checks)
   }
+
+  override def filter(toReturn: TaskDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadBoard, toReturn.boardId) && canRead(user, PermissionType.ReadProject, toReturn.projectId)
 }

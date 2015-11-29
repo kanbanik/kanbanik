@@ -1,8 +1,9 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.ProjectBuilder
-import com.googlecode.kanbanik.dtos.{ErrorDto, ProjectWithBoardDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ProjectDto, ErrorDto, ProjectWithBoardDto}
 import com.googlecode.kanbanik.model.{Board, Project, User}
+import com.googlecode.kanbanik.security._
 
 class AddProjectsToBoardCommand extends BaseProjectsOnBoardCommand {
 

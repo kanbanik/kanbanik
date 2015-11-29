@@ -5,7 +5,7 @@ import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.messages.ServerMessages
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{ProjectWithBoardDto, ErrorDto, ProjectDto}
+import com.googlecode.kanbanik.dtos.{PermissionType, ProjectWithBoardDto, ErrorDto, ProjectDto}
 
 abstract class BaseProjectsOnBoardCommand
   extends Command[ProjectWithBoardDto, ProjectWithBoardDto] with HasEntityLoader {
@@ -34,5 +34,7 @@ abstract class BaseProjectsOnBoardCommand
 
   override def checkPermissions(param: ProjectWithBoardDto, user: User) = checkEditBoardPermissions(user, Some(param.boardId))
 
+  override def filter(toReturn: ProjectWithBoardDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadProject, toReturn.project.id.getOrElse(""))
 }
 
