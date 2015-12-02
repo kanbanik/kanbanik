@@ -72,7 +72,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		this.deletingComponent = deletingComponent;
 		this.refresher = refresher;
 		
-		listBox = new ListBoxWithAddEditDeleteListBox();
+		listBox = new ListBoxWithAddEditDeleteListBox(this);
 		
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -143,8 +143,11 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 
 		private T selectedDto = null;
 
-		public ListBoxWithAddEditDeleteListBox() {
-			addChangeHandler(this);
+        private ListBoxWithAddEditDelete<T> parent;
+
+		public ListBoxWithAddEditDeleteListBox(ListBoxWithAddEditDelete<T> parent) {
+            this.parent = parent;
+            addChangeHandler(this);
 		}
 
 		public void setContent(List<T> content) {
@@ -222,21 +225,27 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
         }
 
 		private void resetButtonAvailability() {
-			editButton.setEnabled(selectedDto != null);
-			deleteButton.setEnabled(selectedDto != null);
+			boolean enabled = parent.isEnabled(selectedDto);
 
-			if (selectedDto != null) {
-				editButton.getUpFace()
-						.setImage(
-								new Image(KanbanikResources.INSTANCE
-										.editButtonImage()));
+			editButton.setEnabled(parent.isEditEnabled(selectedDto));
+			deleteButton.setEnabled(parent.isDeleteEnabled(selectedDto));
+
+            if (parent.isEditEnabled(selectedDto)) {
+                editButton.getUpFace()
+                        .setImage(
+                                new Image(KanbanikResources.INSTANCE
+                                        .editButtonImage()));
+            } else {
+                editButton.getUpFace().setImage(
+                        new Image(KanbanikResources.INSTANCE
+                                .editButtonDisabledImage()));
+            }
+
+			if (parent.isDeleteEnabled(selectedDto)) {
 				deleteButton.getUpFace().setImage(
-						new Image(KanbanikResources.INSTANCE
-								.deleteButtonImage()));
+                        new Image(KanbanikResources.INSTANCE
+                                .deleteButtonImage()));
 			} else {
-				editButton.getUpFace().setImage(
-						new Image(KanbanikResources.INSTANCE
-								.editButtonDisabledImage()));
 				deleteButton.getUpFace().setImage(
 						new Image(KanbanikResources.INSTANCE
 								.deleteButtonDisabledImage()));
@@ -306,6 +315,18 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		}
 
 	}
+
+    protected boolean isDeleteEnabled(T selectedDto) {
+        return isEnabled(selectedDto);
+    }
+
+    protected boolean isEditEnabled(T selectedDto) {
+        return isEnabled(selectedDto);
+    }
+
+    protected boolean isEnabled(T selectedDto) {
+        return selectedDto != null;
+    }
 
 	public static interface LabelProvider<T> {
 		String getLabel(T t);

@@ -6,7 +6,7 @@ package object dtos {
 
   case class SessionDto(sessionId: Option[String])
 
-  case class UserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, permissions: Option[List[PermissionDto]])
+  case class UserDto(userName: String, realName: String, pictureUrl: String, sessionId: String, version: Int, permissions: Option[List[PermissionDto]], unlogged: Option[Boolean])
 
   case class ManipulateUserDto(userName: String, realName: String, pictureUrl: String, sessionId: Option[String], version: Int, password: String, newPassword: String, permissions: Option[List[PermissionDto]])
 

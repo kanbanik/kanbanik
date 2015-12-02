@@ -34,9 +34,6 @@ import java.util.Map;
 public class PermissionsEditingComponent extends Composite {
 
     @UiField
-    FlowPanel mainPanel;
-
-    @UiField
     VerticalPanel contentPanel;
 
     @UiField
@@ -48,14 +45,6 @@ public class PermissionsEditingComponent extends Composite {
                     new ReadBoardPEC(),
                     new EditBoardPEC(),
                     new DeleteBoardPEC()
-            ),
-
-            new Group("User Related Permissions",
-                    new EditUserPermissionsPEC(),
-                    new EditUserDataPEC(),
-                    new DeleteUserPEC(),
-                    new CreateUserPEC(),
-                    new ReadUserPEC()
             ),
 
             new Group("Project Related Permissions",
@@ -81,6 +70,14 @@ public class PermissionsEditingComponent extends Composite {
                     new ReadClassOfServicePOC(),
                     new EditClassOfServicePOC(),
                     new DeleteClassOfServicePOC()
+            ),
+
+            new Group("User Related Permissions",
+                    new CreateUserPEC(),
+                    new ReadUserPEC(),
+                    new EditUserPermissionsPEC(),
+                    new EditUserDataPEC(),
+                    new DeleteUserPEC()
             )
 
     );

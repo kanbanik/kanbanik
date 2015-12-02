@@ -8,7 +8,7 @@
 
     </ui:style>
 
-    <g:FlowPanel ui:field="mainPanel">
+    <g:FlowPanel>
         <g:CheckBox ui:field="editPermissions"></g:CheckBox>
         <g:VerticalPanel ui:field="contentPanel" addStyleNames="{style.permissionPanel}"/>
     </g:FlowPanel>

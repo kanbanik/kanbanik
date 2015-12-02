@@ -81,7 +81,8 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
       "some://picture.url",
       "session id",
       3,
-      None
+      None,
+      Some(false)
     ))
     assert(deleteLastUserResult.isLeft === false)
 
@@ -94,7 +95,8 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
       "some://picture.url",
       "session id",
       3,
-      None
+      None,
+      Some(false)
     ))
     assertNumOfUsersIs(1)
 

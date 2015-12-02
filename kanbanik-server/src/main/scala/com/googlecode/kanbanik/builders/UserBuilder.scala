@@ -10,7 +10,8 @@ object UserBuilder {
     user.pictureUrl,
     sessionId,
     user.version,
-    Some(user.permissions.map(PermissionsBuilder.buildDto(_)))
+    Some(user.permissions.map(PermissionsBuilder.buildDto(_))),
+    Some(user.unloggedFakeUser)
   )
 
   def buildEntity(userDto: UserDto) = User(userDto.userName)

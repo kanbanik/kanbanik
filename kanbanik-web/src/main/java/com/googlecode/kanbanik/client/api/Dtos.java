@@ -50,6 +50,9 @@ public class Dtos {
 
         public List<PermissionDto> getPermissions();
         public void setPermissions(List<PermissionDto> permissions);
+
+        public Boolean getUnlogged();
+        public void setUnlogged(Boolean unlogged);
     }
 
     public static enum PermissionTypes {

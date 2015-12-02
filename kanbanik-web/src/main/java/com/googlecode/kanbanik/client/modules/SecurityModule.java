@@ -50,7 +50,12 @@ public class SecurityModule extends Composite implements KanbanikModule, Message
 				new UserEditingComponent(),
 				new UserDeletingComponent(),
 				new Refresher()
-				);
+				) {
+            @Override
+            protected boolean isDeleteEnabled(Dtos.UserDto selectedDto) {
+                return super.isEnabled(selectedDto) && selectedDto.getUnlogged() != null && !selectedDto.getUnlogged();
+            }
+        };
 		
 		initWidget(uiBinder.createAndBindUi(this));
 	}
