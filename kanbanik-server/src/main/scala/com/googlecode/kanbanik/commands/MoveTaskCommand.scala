@@ -102,11 +102,28 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
       return None
     )
 
-    doCheckPermissions(user, List(
+    val checks = List(
       checkOneOf(PermissionType.MoveTask_b, param.task.boardId),
-      checkOneOf(PermissionType.MoveTask_p, param.task.projectId),
-      checkOneOf(PermissionType.MoveTask_b, oldTask.boardId.toString),
+      checkOneOf(PermissionType.MoveTask_p, param.task.projectId))
+
+    val moveToDifferentBoardCheck = if (oldTask.boardId.toString != param.task.boardId) {
+      checkOneOf(PermissionType.MoveTask_b, oldTask.boardId.toString)
+    } else {
+      alwaysPassingCheck()
+    }
+
+    val moveToDifferentProjectCheck = if (oldTask.projectId.toString != param.task.projectId.toString) {
       checkOneOf(PermissionType.MoveTask_p, oldTask.projectId.toString)
+    } else {
+      alwaysPassingCheck()
+    }
+
+    doCheckPermissions(user,
+      moveToDifferentBoardCheck ::
+      moveToDifferentProjectCheck ::
+      List(
+        checkOneOf(PermissionType.MoveTask_b, param.task.boardId),
+        checkOneOf(PermissionType.MoveTask_p, param.task.projectId)
     ))
   }
 

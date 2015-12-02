@@ -18,6 +18,7 @@ trait WorkflowitemTestManipulation {
       Some(1),
       None,
       parentWorkflow,
+      None,
       None
     )
 

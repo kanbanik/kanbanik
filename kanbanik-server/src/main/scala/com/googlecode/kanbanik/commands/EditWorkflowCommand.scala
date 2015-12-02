@@ -38,7 +38,6 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
   }
 
   private def doExecute(currentDto: WorkflowitemDto, nextDto: Option[WorkflowitemDto], destContextDto: WorkflowDto, currentBoard: Board, user: User): Either[WorkflowitemDto, ErrorDto] = {
-
     if (hasTasks(destContextDto)) {
       return Right(ErrorDto("The workflowitem into which you are about to drop this item already has some tasks in it which would effectively hide them. Please move this tasks first out."))
     }
@@ -58,9 +57,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
 
     val res = contextEntity.board(user).move(currentEntity, nextEntity, contextEntity).store
     val realCurrentEntity = res.workflow.findItem(currentEntity).getOrElse(throw new IllegalStateException("Was not able to find the just stored workflowitem with id: '" + currentEntity.id + "'"))
-    Left(workflowitemBuilder.buildDto(realCurrentEntity, None, user))
-
-
+    Left(workflowitemBuilder.buildDto(realCurrentEntity, None, user, Some(currentBoard.id.get.toString)))
   }
 
   private def hasTasks(destContextDto: WorkflowDto): Boolean = {
@@ -81,4 +78,7 @@ class EditWorkflowCommand extends Command[EditWorkflowParams, WorkflowitemDto] w
   }
 
   override def checkPermissions(param: EditWorkflowParams, user: User) = checkEditBoardPermissions(user, param.board.id)
+
+  override def filter(toReturn: WorkflowitemDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadBoard, toReturn.boardId.getOrElse(""))
 }

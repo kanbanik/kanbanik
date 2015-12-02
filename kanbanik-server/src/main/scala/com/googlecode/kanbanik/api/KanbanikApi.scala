@@ -282,14 +282,14 @@ class KanbanikApi extends HttpServlet {
     DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)),
 
     // board / workflowitem
-    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)), // ???
-    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),      // ???
+    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)),
+    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),
     GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(notifyByEvent = false)),
 
     CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
     EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
     DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)), // ???
+    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)),
     GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
 
   )

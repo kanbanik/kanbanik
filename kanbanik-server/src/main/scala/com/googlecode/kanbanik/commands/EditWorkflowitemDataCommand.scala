@@ -24,7 +24,7 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
 
     val workflowReplaced = builtBoard.workflow.replaceItem(workflowitem)
     val storedBoard = builtBoard.copy(workflow = workflowReplaced).store
-    Left(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None, user))
+    Left(workflowitemBuilder.buildDto(storedBoard.workflow.findItem(workflowitem).get, None, user, Some(builtBoard.id.get.toString)))
 
   }
 
@@ -36,4 +36,6 @@ class EditWorkflowitemDataCommand extends Command[WorkflowitemDto, WorkflowitemD
     }
   }
 
+  override def filter(toReturn: WorkflowitemDto, user: User): Boolean =
+    canRead(user, PermissionType.ReadBoard, toReturn.boardId.getOrElse(""))
 }

@@ -1,4 +1,5 @@
 package com.googlecode.kanbanik.commands
+
 import com.googlecode.kanbanik.builders.TaskBuilder
 import com.googlecode.kanbanik.model.{User, Task, Workflowitem, Board}
 import com.googlecode.kanbanik.security._
@@ -28,7 +29,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
     val stored = setOrderIfNeeded(taskDto, task).store()
     Left(taskBuilder.buildDto(stored))
   }
-  
+
   def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {
     if (task.id.isDefined) {
       task
@@ -59,7 +60,35 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
   override def checkPermissions(param: TaskDto, user: User): Option[List[String]] = {
     val checks = if (param.id.isDefined) {
-      List(
+
+      val oldTask = try {
+        Task.byId(new ObjectId(param.id.get), user)
+      } catch {
+        // well... someone have deleted it in meanwhile so no need to do this checks
+        case _ => return None
+      }
+
+      val readUserCheck = if (param.assignee.isDefined) {
+        if (!oldTask.assignee.isDefined || oldTask.assignee.get.name != param.assignee.get.userName) {
+          checkOneOf(PermissionType.ReadUser, param.assignee.get.userName)
+        } else {
+          alwaysPassingCheck()
+        }
+      } else {
+        alwaysPassingCheck()
+      }
+
+      val readClassOfServiceCheck = if (param.classOfService.isDefined) {
+        if (!oldTask.classOfService.isDefined || oldTask.classOfService.get.id.get != param.classOfService.get.id.get) {
+          checkOneOf(PermissionType.ReadClassOfService, param.classOfService.get.id.get.toString)
+        } else {
+          alwaysPassingCheck()
+        }
+      } else {
+        alwaysPassingCheck()
+      }
+
+      readClassOfServiceCheck :: readUserCheck :: List(
         checkOneOf(PermissionType.EditTask_b, param.boardId),
         checkOneOf(PermissionType.EditTask_p, param.projectId)
       )

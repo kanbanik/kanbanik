@@ -89,7 +89,8 @@ package object dtos {
                              version: Option[Int],
                              nestedWorkflow: Option[WorkflowDto],
                              parentWorkflow: Option[WorkflowDto],
-                             verticalSize: Option[Int])
+                             verticalSize: Option[Int],
+                              boardId: Option[String])
 
   case class EditWorkflowParams(current: WorkflowitemDto, next: Option[WorkflowitemDto], destinationWorkflow: WorkflowDto, board: BoardDto)
 

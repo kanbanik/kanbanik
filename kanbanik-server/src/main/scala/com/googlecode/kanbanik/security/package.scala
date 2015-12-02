@@ -20,12 +20,15 @@ package object security {
 
 
   def checkGlobal(permissionType: PermissionType.Value): (Check, String) = {
-    ({case Permission(pt, List()) if pt == permissionType => true}, permissionType.toString)
+    ({case Permission(pt, List()) if pt == permissionType => true}, "Global permission of type: " + permissionType.toString)
   }
 
   def checkOneOf(permissionType: PermissionType.Value, id: String): (Check, String) = {
-    ({case Permission(pt, ids: List[String])  if pt == permissionType => ids.contains(id) || ids.contains("*")}, permissionType.toString)
+    ({case Permission(pt, ids: List[String]) if pt == permissionType => ids.contains(id) || ids.contains("*")}, "Permission: " + permissionType.toString + " on object with ID: " + id + " or on all objects (*)")
   }
+
+  def alwaysPassingCheck(): (Check, String) =
+    ({case _ => true}, "")
 
   def doCheckPermissions(user: User, checks: List[CheckWithMessage]) = {
     val resultsToMessages: List[(Seq[Boolean], String)] = checks.map(check => (user.permissions collect check._1, check._2))
