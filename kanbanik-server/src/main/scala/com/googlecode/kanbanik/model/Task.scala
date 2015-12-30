@@ -8,7 +8,6 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.Imports.$set
 import com.mongodb.casbah.Imports.$push
 import com.mongodb.casbah.Imports.$pull
-import com.mongodb.casbah.Imports.$and
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
@@ -157,7 +156,7 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   // nasty and slow workaround for older mongodbs where the $elemMatch is not present
   def getFromOldMongo(id: ObjectId, user: User): Task = {
-    val res = for (board <- Board.all(true, true, user);
+    val res = for (board <- Board.all(true, true, None, None, user);
       task <- board.tasks;
       if (task.id.isDefined && task.id.get == id)
     ) yield task

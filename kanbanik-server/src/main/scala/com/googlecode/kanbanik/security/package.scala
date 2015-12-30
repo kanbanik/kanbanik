@@ -53,7 +53,7 @@ package object security {
     }
   }
 
-  def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): MongoDBObject = {
+  def buildObjectIdFilterQuery(user: User, pt: PermissionType.Value): DBObject = {
     val conv: String => Any = x => new ObjectId(x)
     buildFilterQuery(user, pt)(conv) match {
       case Left(ids) => "_id" $in ids
@@ -82,7 +82,6 @@ package object security {
 
     def f(current: List[Permission], p: Permission): List[Permission] = {
       val alreadyContained = current.find(_.permissionType == p.permissionType)
-
       if (!alreadyContained.isDefined) {
         p :: current
       } else {

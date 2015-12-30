@@ -12,7 +12,7 @@ class GetAllProjectsCommand extends Command[EmptyDto, ListDto[ProjectDto]] {
 
   override def execute(params: EmptyDto, user: User): Either[ListDto[ProjectDto], ErrorDto] = {
 
-    val dtos = Project.all(user).map(projectBuilder.buildDto)
+    val dtos = Project.all(user, None, None).map(projectBuilder.buildDto)
 
     Left(ListDto(dtos))
   }

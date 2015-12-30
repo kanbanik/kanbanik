@@ -1,12 +1,13 @@
 package com.googlecode.kanbanik.model
 
-import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.commons.MongoDBObject
 import com.googlecode.kanbanik.db.HasMidAirCollisionDetection
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.security._
 import com.googlecode.kanbanik.dtos.{PermissionType, WorkfloVerticalSizing}
+import com.googlecode.kanbanik.filters._
 
 case class Board(
   id: Option[ObjectId],
@@ -89,10 +90,10 @@ object Board extends HasMongoConnection {
 
   def all(includeTasks: Boolean, user: User): List[Board] = {
     // does not retrieve the description of the task even it retrieves tasks
-    all(includeTasks, includeTaskDescription = false, user)
+    all(includeTasks, includeTaskDescription = false, None, None, user)
   }
 
-  def all(includeTasks: Boolean, includeTaskDescription: Boolean, user: User): List[Board] = {
+  def all(includeTasks: Boolean, includeTaskDescription: Boolean, ids: Option[List[ObjectId]], names: Option[List[String]], user: User): List[Board] = {
     using(createConnection) { conn =>
       val taskExclusionObject = {
         if (includeTasks) {
@@ -108,7 +109,11 @@ object Board extends HasMongoConnection {
       }
 
       coll(conn, Coll.Boards).find(
-        buildObjectIdFilterQuery(user, PermissionType.ReadBoard),
+        andFilter(
+          buildObjectIdFilterQuery(user, PermissionType.ReadBoard),
+          ids: Option[List[ObjectId]],
+          names: Option[List[String]]
+        ),
         taskExclusionObject
       ).sort(MongoDBObject(Board.Fields.name.toString -> 1)).map(asEntity).toList
     }

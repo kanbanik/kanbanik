@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.client.api;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
@@ -9,6 +10,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DtoFactory {
@@ -19,6 +21,10 @@ public class DtoFactory {
         AutoBean<Dtos.SessionDto> sessionDto();
 
         AutoBean<Dtos.ErrorDto> errorDto();
+
+        AutoBean<Dtos.FilterDto> filterDto();
+
+        AutoBean<Dtos.FiltersDto> filtersDto();
 
         AutoBean<Dtos.UserDto> userDto();
 
@@ -194,6 +200,7 @@ public class DtoFactory {
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         dto.setIncludeTasks(includeTasks);
         dto.setIncludeTaskDescription(includeTaskDescription);
+        dto.setFilters(DtoFactory.filterDto());
         dto.setCommandName(CommandNames.GET_ALL_BOARDS_WITH_PROJECTS.name);
         return dto;
     }
@@ -214,6 +221,24 @@ public class DtoFactory {
         dto.setSessionId(CurrentUser.getInstance().getSessionId());
         dto.setCommandName(CommandNames.EDIT_WORKFLOW.name);
         return dto;
+    }
+
+    public static List<Dtos.FilterDto> filterDto() {
+        //      [{"bname":"aa"}]
+        String hash = Window.Location.getHash();
+        List<Dtos.FilterDto> res = null;
+        if (hash != null && !"".equals(hash)) {
+            hash = "{\"values\":" + hash.substring(1) + "}";
+            try {
+                Dtos.FiltersDto filtersDto = DtoFactory.asDto(Dtos.FiltersDto.class, hash);
+                if (filtersDto != null) {
+                    res = filtersDto.getValues();
+                }
+            } catch (Throwable t) {
+                // nvm, just don't send it
+            }
+        }
+        return res;
     }
 
     public static Dtos.PermissionDto permissionDto() {

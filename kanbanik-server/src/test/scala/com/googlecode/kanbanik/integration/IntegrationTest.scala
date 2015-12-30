@@ -203,7 +203,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     }
 
     assert(editProject.name.get === "project1_renamed")
-    assert(Project.all(User().withAllPermissions()).size === 1)
+    assert(Project.all(User().withAllPermissions(), None, None).size === 1)
     // delete phase
     
     // delete task
@@ -257,7 +257,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
   }
   
   def loadAllBoards() = {
-	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true), Some(false))) match {
+	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true), Some(false), None)) match {
       case Left(x) => x.values
       case Right(_) => fail()
     }

@@ -78,7 +78,9 @@ package object dtos {
 
   case class WorkflowDto(id: Option[String], workflowitems: Option[List[WorkflowitemDto]], board: BoardDto)
 
-  case class GetAllBoardsWithProjectsDto(includeTasks: Option[Boolean], includeTaskDescription: Option[Boolean])
+  case class FilterDto(bid: Option[String], pid: Option[String], bname: Option[String], pname: Option[String])
+
+  case class GetAllBoardsWithProjectsDto(includeTasks: Option[Boolean], includeTaskDescription: Option[Boolean], filters: Option[List[FilterDto]])
 
   case class BoardWithProjectsDto(board: BoardDto, projectsOnBoard: Option[ProjectsDto])
 
@@ -90,7 +92,7 @@ package object dtos {
                              nestedWorkflow: Option[WorkflowDto],
                              parentWorkflow: Option[WorkflowDto],
                              verticalSize: Option[Int],
-                              boardId: Option[String])
+                             boardId: Option[String])
 
   case class EditWorkflowParams(current: WorkflowitemDto, next: Option[WorkflowitemDto], destinationWorkflow: WorkflowDto, board: BoardDto)
 

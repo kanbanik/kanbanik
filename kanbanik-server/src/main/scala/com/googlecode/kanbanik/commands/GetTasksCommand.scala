@@ -10,7 +10,7 @@ class GetTasksCommand extends Command[GetTasksDto, TasksDto] {
 
   override def execute(dto: GetTasksDto, user: User): Either[TasksDto, ErrorDto] = {
     val res = for (
-      board <- Board.all(includeTasks = true, includeTaskDescription = dto.includeDescription, user);
+      board <- Board.all(includeTasks = true, includeTaskDescription = dto.includeDescription, None, None, user);
       task <- board.tasks) yield taskBuilder.buildDto(task)
 
     Left(TasksDto(res))

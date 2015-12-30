@@ -277,6 +277,11 @@ public class Dtos {
         void setValues(List<TaskDto> values);
     }
 
+    public static interface FiltersDto {
+        List<FilterDto> getValues();
+        void setValues(List<FilterDto> values);
+    }
+
     public static interface MoveTaskDto extends BaseDto {
         TaskDto getTask();
         void setTask(TaskDto task);
@@ -499,6 +504,9 @@ public class Dtos {
 
         void setIncludeTaskDescription(Boolean includeTaskDescription);
         Boolean isIncludeTaskDescription();
+
+        List<FilterDto> getFilters();
+        void setFilters(List<FilterDto> filters);
     }
 
     public static interface EditWorkflowParams extends BaseDto {
@@ -546,6 +554,20 @@ public class Dtos {
 
     public static interface EmptyDto {
 
+    }
+
+    public static interface FilterDto {
+        void setBid(String bid);
+        void setBname(String bname);
+
+        String getBid();
+        String getBname();
+
+        void setPid(String pid);
+        void setPname(String pname);
+
+        String getPid();
+        String getPname();
     }
 
 }
