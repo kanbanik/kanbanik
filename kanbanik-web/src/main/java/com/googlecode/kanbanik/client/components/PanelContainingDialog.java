@@ -180,6 +180,14 @@ public class PanelContainingDialog extends DialogBox implements Closable,
 		cancelButton.setText(" Cancel ");
 	}
 
+	public void hideCancelButton() {
+        cancelButton.setVisible(false);
+    }
+
+    public void hideOKButton() {
+        okButton.setVisible(false);
+    }
+
 	public void addListener(PanelContainingDialolgListener listener) {
 		if (listeners == null) {
 			listeners = new ArrayList<PanelContainingDialog.PanelContainingDialolgListener>();

@@ -8,7 +8,7 @@
 			width: 100%;
 			height: 100%;
 			display: inline-block;
-                        min-height: 130px;
+            min-height: 130px;
 			margin-left: -3px;
 		}
 		
@@ -29,8 +29,8 @@
 		}
 
 		.addButtonStyle {
-			width: 100%;
-			height: 10px;
+			width: 16px;
+			height: 16px;
 			vertical-align: middle;
 			text-align: center;
 			margin-right: 2px;
@@ -42,6 +42,7 @@
 	<g:FlowPanel addStyleNames="{style.mainPanel}">
 		<g:Label ui:field="projectName" addStyleNames="{style.projectNameLabel}"/>
 		<g:PushButton styleName="{style.addButtonStyle}" ui:field="addButton" text="Add Task" title="Add Task" />
+		<!--<g:PushButton styleName="{style.addButtonStyle}" ui:field="linkButton" text="Make Link" title="Make Link" />-->
 	</g:FlowPanel>
 
 </ui:UiBinder>

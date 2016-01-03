@@ -1,6 +1,8 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
@@ -8,6 +10,7 @@ import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.task.TaskAddingComponent;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -33,11 +36,14 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 	@UiField
 	PushButton addButton;
 
+//    @UiField
+//    PushButton linkButton;
+
     private Dtos.BoardDto board;
 
     private Dtos.ProjectDto project;
 
-	public ProjectHeader(Dtos.BoardDto board, Dtos.ProjectDto project) {
+	public ProjectHeader(final Dtos.BoardDto board, final Dtos.ProjectDto project) {
         this.board = board;
         this.project = project;
         initWidget(uiBinder.createAndBindUi(this));
@@ -54,6 +60,13 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 		}
 		
 		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
+
+//        linkButton.addClickHandler(new LinkClickHandler() {
+//            @Override
+//            String getLinkUrl() {
+//                return GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + board.getId() + "\", \"pid\":\"" + project.getId() + "\"}]";
+//            }
+//        });
 
         MessageBus.registerListener(GetAllProjectsRequestMessage.class, this);
 

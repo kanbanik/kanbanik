@@ -1,11 +1,15 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
@@ -29,15 +33,27 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
     @UiField
 	Label boardName;
 
+    @UiField
+    PushButton linkButton;
+
     private FilterChangedListener filterChangedListener = new FilterChangedListener();
 
-	public BoardPanel(Panel projects, Dtos.BoardDto boardDto) {
+	public BoardPanel(Panel projects, final Dtos.BoardDto boardDto) {
 
 		this.projects = projects;
         this.boardDto = boardDto;
 
         initWidget(uiBinder.createAndBindUi(this));
-		
+
+        linkButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.chainImage()));
+
+        linkButton.addClickHandler(new LinkClickHandler() {
+            @Override
+            String getLinkUrl() {
+                return GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + boardDto.getId() + "\"}]";
+            }
+        });
+
 		boardName.setText(boardDto.getName());
 
         MessageBus.registerListener(GetBoardsRequestMessage.class, this);

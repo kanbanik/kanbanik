@@ -11,8 +11,8 @@
 			margin-bottom: 15px;
 			border-radius: 4px;
 			padding-right: 2px;
-	                margin: 5px;
-	                display: inline-block;
+	        margin: 5px;
+	        display: inline-block;
 		}
 		
 		.boardLabelStyle {
@@ -21,16 +21,32 @@
 			font-weight: bold;
 			font-size: 17px;
 			margin-right: -2px;
+            display: flex;
 		}
+
+        .linkStyle {
+            width: 16px;
+            height: 16px;
+        }
+
+        .boardLabelWithButtonStyle {
+            position: relative;
+            left: 50%;
+            display: flex;
+        }
 
 	</ui:style>
 
 	<g:FlowPanel addStyleNames="{style.boardWrapperStyle}">
 		<g:FlowPanel addStyleNames="{style.boardStyle}">
-			<g:FlowPanel addStyleNames="{style.boardLabelStyle}">
-				<g:Label ui:field="boardName"/>
-			</g:FlowPanel>
-			<g:Panel ui:field="projects"/>
+            <g:FlowPanel addStyleNames="{style.boardLabelStyle}">
+                <g:FlowPanel addStyleNames="{style.boardLabelWithButtonStyle}">
+                    <g:Label ui:field="boardName"/>
+                    <g:PushButton ui:field="linkButton" text="Make Link" title="Make Link" addStyleNames="{style.linkStyle}"/>
+                </g:FlowPanel>
+            </g:FlowPanel>
+
+            <g:Panel ui:field="projects"/>
 		</g:FlowPanel>
 	</g:FlowPanel>
 
