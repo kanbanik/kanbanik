@@ -20,6 +20,8 @@ import com.googlecode.kanbanik.client.messaging.messages.task.FilterChangedMessa
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 
+import java.util.List;
+
 public class BoardPanel extends Composite implements ModulesLifecycleListener, MessageListener<Dtos.BoardDto> {
 	
 	interface MyUiBinder extends UiBinder<Widget, BoardPanel> {}
@@ -38,21 +40,17 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
 
     private FilterChangedListener filterChangedListener = new FilterChangedListener();
 
-	public BoardPanel(Panel projects, final Dtos.BoardDto boardDto) {
+	public BoardPanel(Panel projects, final Dtos.BoardDto boardDto, List<Dtos.ProjectDto> projectsOnBoard) {
 
 		this.projects = projects;
         this.boardDto = boardDto;
 
         initWidget(uiBinder.createAndBindUi(this));
-
+//        , gwt-Button:active, gwt-Button:hover, gwt-Button[disabled], gwt-Button[disabled]:hover
         linkButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.chainImage()));
 
-        linkButton.addClickHandler(new LinkClickHandler() {
-            @Override
-            String getLinkUrl() {
-                return GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + boardDto.getId() + "\"}]";
-            }
-        });
+        linkButton.addClickHandler(new LinkClickHandler(boardDto, projectsOnBoard));
+        linkButton.removeStyleName("gwt-Button");
 
 		boardName.setText(boardDto.getName());
 

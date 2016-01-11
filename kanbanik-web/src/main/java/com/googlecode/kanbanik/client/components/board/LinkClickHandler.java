@@ -1,29 +1,60 @@
 package com.googlecode.kanbanik.client.components.board;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
+import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 
-public abstract class LinkClickHandler implements ClickHandler {
+import java.util.List;
+
+public class LinkClickHandler implements ClickHandler {
+
+    private final Dtos.BoardDto boardDto;
+
+    private final List<Dtos.ProjectDto> projectsOnBoard;
+
+    public LinkClickHandler(Dtos.BoardDto boardDto, List<Dtos.ProjectDto> projectsOnBoard) {
+        this.boardDto = boardDto;
+        this.projectsOnBoard = projectsOnBoard;
+    }
+
     @Override
     public void onClick(ClickEvent event) {
-        TextBox linkBox = new TextBox();
-        linkBox.setText(getLinkUrl());
-        linkBox.selectAll();
-        linkBox.getElement().getStyle().setWidth(100, Style.Unit.PCT);
+        FlowPanel allLinks = new FlowPanel();
+        allLinks.setWidth("100%");
 
-        VerticalPanel panel = new VerticalPanel();
-        panel.add(new Label("Please copy this link:"));
-        panel.add(linkBox);
+        allLinks.add(new Label("Please copy one of the links below:"));
+        allLinks.add(createLine("Whole Board", GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + boardDto.getId() + "\"}]"));
 
-        PanelContainingDialog linkDialog = new PanelContainingDialog("Link", panel, linkBox, true, 300, 50);
+        if (projectsOnBoard != null) {
+            for (Dtos.ProjectDto projectDto : projectsOnBoard) {
+                allLinks.add(createLine("Project: " + projectDto.getName(), GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + boardDto.getId() + "\", \"pid\":\"" + projectDto.getId() + "\"}]"));
+            }
+        }
+
+        PanelContainingDialog linkDialog = new PanelContainingDialog("Link", allLinks, null, false, 400, -1);
+        linkDialog.setupToMinSize();
         linkDialog.hideOKButton();
         linkDialog.center();
     }
 
-    abstract String getLinkUrl();
+    private Panel createLine(String text, String link) {
+        TextBox box = new TextBox();
+        box.setText(link);
+        box.getElement().getStyle().setWidth(90, Style.Unit.PCT);
+
+        FlowPanel res = new FlowPanel();
+        Label label = new Label(text);
+        label.getElement().getStyle().setFontWeight(Style.FontWeight.BOLD);
+        res.add(label);
+        res.add(box);
+        res.setWidth("100%");
+
+
+        return res;
+    }
+
 }

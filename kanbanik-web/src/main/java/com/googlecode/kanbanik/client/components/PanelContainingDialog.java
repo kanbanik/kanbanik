@@ -167,9 +167,13 @@ public class PanelContainingDialog extends DialogBox implements Closable,
         });
     }
 
-    private void setupToMinSize() {
-        contentWrapper.getElement().getStyle().setWidth(minWidth, Style.Unit.PX);
-        contentWrapper.getElement().getStyle().setHeight(minHeight, Style.Unit.PX);
+    public void setupToMinSize() {
+        if (minWidth != -1) {
+            contentWrapper.getElement().getStyle().setWidth(minWidth, Style.Unit.PX);
+        }
+        if (minHeight != -1) {
+            contentWrapper.getElement().getStyle().setHeight(minHeight, Style.Unit.PX);
+        }
     }
 
     private void setupButtons() {

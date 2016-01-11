@@ -142,7 +142,7 @@ public class BoardsModule {
 				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
 			}
 
-			panel.addBoard(new BoardPanel(projects, board));
+			panel.addBoard(new BoardPanel(projects, board, projectsOnBoard));
 
 		}
 	}
