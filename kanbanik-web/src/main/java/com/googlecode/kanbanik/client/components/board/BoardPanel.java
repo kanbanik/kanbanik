@@ -46,11 +46,11 @@ public class BoardPanel extends Composite implements ModulesLifecycleListener, M
         this.boardDto = boardDto;
 
         initWidget(uiBinder.createAndBindUi(this));
-//        , gwt-Button:active, gwt-Button:hover, gwt-Button[disabled], gwt-Button[disabled]:hover
         linkButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.chainImage()));
 
         linkButton.addClickHandler(new LinkClickHandler(boardDto, projectsOnBoard));
-        linkButton.removeStyleName("gwt-Button");
+        linkButton.removeStyleName("gwt-PushButton");
+        linkButton.removeStyleName("gwt-PushButton-up");
 
 		boardName.setText(boardDto.getName());
 

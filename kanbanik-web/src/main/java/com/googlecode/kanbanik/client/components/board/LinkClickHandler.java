@@ -26,7 +26,6 @@ public class LinkClickHandler implements ClickHandler {
         FlowPanel allLinks = new FlowPanel();
         allLinks.setWidth("100%");
 
-        allLinks.add(new Label("Please copy one of the links below:"));
         allLinks.add(createLine("Whole Board", GWT.getHostPageBaseURL() + "#[{\"bid\":\"" + boardDto.getId() + "\"}]"));
 
         if (projectsOnBoard != null) {
@@ -35,6 +34,16 @@ public class LinkClickHandler implements ClickHandler {
             }
         }
 
+        HTML explanation = new HTML("The syntax is: <br />" +
+                "<li> <b> All projects on a board by ID: </b> [{\"bid\":\"the board id\"}]" +
+                "<li> <b> All projects on a board by name: </b> [{\"bname\":\"the board name\"}]" +
+                "<li> <b> One project by IDs: </b> [{\"bid\":\"the board id\", \"pid\":\"the project id\"}]" +
+                "<li> <b> One project by names: </b> [{\"bname\":\"the board name\", \"pname\":\"the project name\"}]" +
+                "<li> <b> More selectors: </b> [{\"bname\":\"the board name 1\", \"pname\":\"the project name 1\"}, {\"bname\":\"the board name 2\", \"pname\":\"the project name 2\"}]"
+
+        );
+                allLinks.add(explanation);
+
         PanelContainingDialog linkDialog = new PanelContainingDialog("Link", allLinks, null, false, 400, -1);
         linkDialog.setupToMinSize();
         linkDialog.hideOKButton();
@@ -42,15 +51,32 @@ public class LinkClickHandler implements ClickHandler {
     }
 
     private Panel createLine(String text, String link) {
-        TextBox box = new TextBox();
+        final TextBox box = new TextBox();
         box.setText(link);
-        box.getElement().getStyle().setWidth(90, Style.Unit.PCT);
+        box.setWidth("312px");
+        box.getElement().getStyle().setFloat(Style.Float.LEFT);
+
+        PushButton selectAll = new PushButton("Select All");
+        selectAll.setWidth("60px");
+        selectAll.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        selectAll.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                box.selectAll();
+            }
+        });
+
+        FlowPanel linkWithBtn = new FlowPanel();
+        linkWithBtn.setWidth("100%");
+        linkWithBtn.getElement().getStyle().setDisplay(Style.Display.INLINE_BLOCK);
+        linkWithBtn.add(box);
+        linkWithBtn.add(selectAll);
 
         FlowPanel res = new FlowPanel();
         Label label = new Label(text);
         label.getElement().getStyle().setFontWeight(Style.FontWeight.BOLD);
         res.add(label);
-        res.add(box);
+        res.add(linkWithBtn);
         res.setWidth("100%");
 
 

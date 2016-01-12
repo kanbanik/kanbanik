@@ -35,10 +35,6 @@
             display: flex;
         }
 
-        @external .gwt-Button;
-        .gwt-Button {}
-
-
     </ui:style>
 
 	<g:FlowPanel addStyleNames="{style.boardWrapperStyle}">
