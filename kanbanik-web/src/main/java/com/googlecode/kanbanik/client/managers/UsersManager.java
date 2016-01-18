@@ -11,8 +11,10 @@ import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskAddedMessage;
-import com.googlecode.kanbanik.client.messaging.messages.task.TaskDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,35 @@ public class UsersManager implements MessageListener<Dtos.TaskDto> {
 	private UsersManager() {
         MessageBus.registerListener(TaskAddedMessage.class, this);
         MessageBus.registerListener(TaskEditedMessage.class, this);
+
+        MessageBus.registerListener(UserAddedMessage.class, new MessageListener<Dtos.UserDto>() {
+            @Override
+            public void messageArrived(Message<Dtos.UserDto> message) {
+                addIfNew(message.getPayload());
+            }
+        });
+
+
+        MessageBus.registerListener(UserDeletedMessage.class, new MessageListener<Dtos.UserDto>() {
+            @Override
+            public void messageArrived(Message<Dtos.UserDto> message) {
+                Dtos.UserDto real = find(message.getPayload());
+                if (real != null) {
+                    users.remove(real);
+                }
+            }
+        });
+
+        MessageBus.registerListener(UserEditedMessage.class, new MessageListener<Dtos.UserDto>() {
+            @Override
+            public void messageArrived(Message<Dtos.UserDto> message) {
+                Dtos.UserDto real = find(message.getPayload());
+                if (real != null) {
+                    users.remove(real);
+                    users.add(message.getPayload());
+                }
+            }
+        });
     }
 
 	public static UsersManager getInstance() {
@@ -120,24 +151,31 @@ public class UsersManager implements MessageListener<Dtos.TaskDto> {
             return;
         }
 
-        if (!contains(users, assignee)) {
-            users.add(assignee);
-            if (listener != null) {
-                listener.added(assignee);
-            }
+        addIfNew(assignee);
+    }
 
+    private void addIfNew(Dtos.UserDto candidate) {
+        if (!contains(candidate)) {
+            users.add(candidate);
+            if (listener != null) {
+                listener.added(candidate);
+            }
         }
     }
 
-    private boolean contains(List<Dtos.UserDto> users, Dtos.UserDto candidate) {
+    private boolean contains(Dtos.UserDto candidate) {
+        return find(candidate) != null;
+    }
+
+    private Dtos.UserDto find(Dtos.UserDto candidate) {
         String candidateName = candidate.getUserName();
         for (Dtos.UserDto user : users) {
             if (candidateName.equals(user.getUserName())) {
-                return true;
+                return user;
             }
         }
 
-        return false;
+        return null;
     }
 
     public interface UserChangedListener {

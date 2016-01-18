@@ -7,6 +7,9 @@ import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.board.MarkBoardsAsDirtyMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.*;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
+import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
 import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 import org.atmosphere.gwt20.client.*;
@@ -32,10 +35,20 @@ public class ServerEventsListener {
         eventToDto.put(CommandNames.DELETE_TASK.name, Dtos.TasksDto.class);
         eventToDto.put(CommandNames.MOVE_TASK.name, Dtos.TaskDto.class);
 
+        eventToDto.put(CommandNames.CREATE_USER.name, Dtos.UserDto.class);
+        eventToDto.put(CommandNames.EDIT_USER.name, Dtos.UserDto.class);
+        eventToDto.put(CommandNames.DELETE_USER.name, Dtos.UserDto.class);
+
+
         eventToAction.put(CommandNames.EDIT_TASK.name, new TaskEditedEventAction());
         eventToAction.put(CommandNames.CREATE_TASK.name, new TaskCreatedEventAction());
         eventToAction.put(CommandNames.DELETE_TASK.name, new TaskDeletedEventAction());
         eventToAction.put(CommandNames.MOVE_TASK.name, new TaskMovedEventAction());
+
+        eventToAction.put(CommandNames.CREATE_USER.name, new UserCreatedEventAction());
+        eventToAction.put(CommandNames.EDIT_USER.name, new UserEditedEventAction());
+        eventToAction.put(CommandNames.DELETE_USER.name, new UserDeletedEventAction());
+
         eventToAction.put(DEFAULT_ACTION_NAME, new DefaultEventAction());
     }
 
@@ -94,6 +107,32 @@ public class ServerEventsListener {
 
     interface EventAction {
         void execute(Pair pair);
+    }
+
+    static class UserDeletedEventAction implements EventAction {
+
+        @Override
+        public void execute(Pair pair) {
+            MessageBus.sendMessage(new UserDeletedMessage((Dtos.UserDto) pair.eventPayload, this));
+        }
+    }
+
+
+    static class UserCreatedEventAction implements EventAction {
+
+        @Override
+        public void execute(Pair pair) {
+            MessageBus.sendMessage(new UserAddedMessage((Dtos.UserDto) pair.eventPayload, this));
+        }
+    }
+
+
+    static class UserEditedEventAction implements EventAction {
+
+        @Override
+        public void execute(Pair pair) {
+            MessageBus.sendMessage(new UserEditedMessage((Dtos.UserDto) pair.eventPayload, this));
+        }
     }
 
     static class TaskEditedEventAction implements EventAction {

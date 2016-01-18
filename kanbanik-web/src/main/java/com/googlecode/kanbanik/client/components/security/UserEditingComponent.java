@@ -81,6 +81,18 @@ public class UserEditingComponent extends BaseUserManipulatingComponent {
 		username.setText(dto.getUserName());
 		realName.setText(dto.getRealName());
 		pictureUrl.setText(dto.getPictureUrl());
+
+        boolean logged = dto.getUnlogged() != null && !dto.getUnlogged();
+        if (!logged) {
+            toChangePassword.setValue(false);
+            toChangePassword.setTitle("Can not be edited for the unlogged user");
+        } else {
+            toChangePassword.setTitle("");
+        }
+
+        toChangePassword.setEnabled(logged);
+        newPassword.setEnabled(logged);
+        newPassword2.setEnabled(logged);
 	}
 	
 	@Override
