@@ -15,7 +15,7 @@ abstract class Command[T: Manifest, R: Manifest] {
     val res = checkPermissions(param, user)
 
     if (res.isDefined) {
-      Right(ErrorDto("Insufficient permissions. Missing: " + res.get.mkString("; ")))
+      Right(ErrorDto("Insufficient permissions for user '" + user.name +  "'. Missing: " + res.get.mkString("; ")))
     } else {
       execute(parsedJson.extract[T], user)
     }

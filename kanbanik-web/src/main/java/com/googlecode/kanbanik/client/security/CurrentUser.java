@@ -108,6 +108,31 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 		return message.getPayload().getUserName().equals(user.getUserName());
 	}
 
+    public boolean canMoveTask(String sourceBoardId, String destBoardId, String sourceProjectId, String destProjectId) {
+        return containsIdOrAll(Dtos.PermissionTypes.MoveTask_b, sourceBoardId) &&
+                containsIdOrAll(Dtos.PermissionTypes.MoveTask_b, destBoardId) &&
+                containsIdOrAll(Dtos.PermissionTypes.MoveTask_p, sourceProjectId) &&
+                containsIdOrAll(Dtos.PermissionTypes.MoveTask_p, destProjectId);
+
+    }
+
+    public boolean canAddTaskTo(Dtos.BoardDto board, Dtos.ProjectDto project) {
+        return containsIdOrAll(Dtos.PermissionTypes.CreateTask_b, board.getId()) &&
+                containsIdOrAll(Dtos.PermissionTypes.CreateTask_p, project.getId());
+    }
+
+    private boolean containsIdOrAll(Dtos.PermissionTypes type, String id) {
+        for (Dtos.PermissionDto dto : getUser().getPermissions()) {
+            if (dto.getPermissionType() == type.getValue()) {
+                if (dto.getArgs().contains("*") || dto.getArgs().contains(id)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 	public boolean canSeeConfigure() {
         return containsOne(getPermissionTypes(),
                 Dtos.PermissionTypes.CreateBoard.getValue(),
@@ -131,7 +156,7 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
     }
 
     private List<Integer> getPermissionTypes() {
-        List<Dtos.PermissionDto> permissions = CurrentUser.getInstance().getUser().getPermissions();
+        List<Dtos.PermissionDto> permissions = getUser().getPermissions();
         List<Integer> permissionTypes = new ArrayList<Integer>();
         for (Dtos.PermissionDto permission : permissions) {
             permissionTypes.add(permission.getPermissionType());

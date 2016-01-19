@@ -16,6 +16,7 @@ import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsR
 import com.googlecode.kanbanik.client.messaging.messages.project.GetAllProjectsResponseMessage;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +49,14 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
 		} else {
 			// the board has no workflow, disable add button
-			addButton.setEnabled(false);
-			addButton.setTitle("It is not possible to add a task to a board when the board has no workflow.");
-			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addDisabledButtonImage()));
+			disableAddButton("It is not possible to add a task to a board when the board has no workflow.");
 		}
+
+        if (addButton.isEnabled()) {
+            if (!CurrentUser.getInstance().canAddTaskTo(board, project)) {
+                disableAddButton("This user '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to create a task on this board and project");
+            }
+        }
 		
 		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
 
@@ -60,6 +65,11 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
         new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 	}
 
+    private void disableAddButton(String msg) {
+        addButton.setEnabled(false);
+        addButton.setTitle(msg);
+        addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addDisabledButtonImage()));
+    }
 	
 	private Dtos.WorkflowitemDto getInputQueue(Dtos.WorkflowitemDto root) {
 		if (root == null) {

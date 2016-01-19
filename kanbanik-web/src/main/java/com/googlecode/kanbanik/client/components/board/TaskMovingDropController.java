@@ -2,18 +2,21 @@ package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.VetoDragException;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.components.ErrorDialog;
 import com.googlecode.kanbanik.client.components.task.TaskGui;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.task.TaskChangedMessage;
 import com.googlecode.kanbanik.client.modules.editworkflow.projects.ProjectEditingComponent;
+import com.googlecode.kanbanik.client.security.CurrentUser;
 import com.googlecode.kanbanik.dto.CommandNames;
 import com.googlecode.kanbanik.client.api.ServerCallCallback;
 
@@ -38,7 +41,25 @@ public class TaskMovingDropController extends FlowPanelDropController {
         this.dragController = dragController;
 	}
 
-	@Override
+    @Override
+    public void onPreviewDrop(DragContext context) throws VetoDragException {
+        for (Widget widget : context.selectedWidgets) {
+            if (widget instanceof TaskGui) {
+                TaskDto dto = ((TaskGui) widget).getDto();
+                boolean canMove = CurrentUser.getInstance().canMoveTask(dto.getBoardId(), board.getId(), dto.getProjectId(), project.getId());
+                if (!canMove) {
+                    new ErrorDialog("User '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to move task. You need move task on source and dest board and source and dest project").center();
+                    throw new VetoDragException();
+                }
+            }
+        }
+
+
+
+        super.onPreviewDrop(context);
+    }
+
+    @Override
 	public void onDrop(DragContext context) {
 		super.onDrop(context);
 		
@@ -59,7 +80,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 		task.getDto().setWorkflowitemId(workflowitem.getId());
 		task.getDto().setProjectId(project.getId());
 		task.getDto().setBoardId(board.getId());
-		
+
 		TaskDto prevTask = null;
 		TaskDto nextTask = null;
 

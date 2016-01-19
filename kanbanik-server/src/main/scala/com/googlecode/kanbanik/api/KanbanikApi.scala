@@ -18,6 +18,7 @@ import com.googlecode.kanbanik.dtos.{ErrorDto, EventDto}
 import org.atmosphere.cpr.{AtmosphereResource, BroadcasterFactory, Broadcaster, PerRequestBroadcastFilter}
 import org.atmosphere.cpr.BroadcastFilter.BroadcastAction
 import java.util.zip.GZIPOutputStream
+import java.util.Objects
 import java.nio.charset.Charset
 import scala.collection.JavaConversions._
 
@@ -189,14 +190,15 @@ class KanbanikApi extends HttpServlet {
             val originalSessionId = messageObject.sessionId
             val toSendSessionId = extractSessionId(r)
 
-            if (toSendSessionId == null || toSendSessionId == originalSessionId) {
+            if (Objects.equals(originalSessionId, toSendSessionId)) {
               new BroadcastAction(BroadcastAction.ACTION.ABORT, originalMessage)
             } else {
               new BroadcastAction(message)
             }
 
-          // other than String
-          case(_) => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          case(_) => {
+            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          }
         }
       }
     }
@@ -210,18 +212,30 @@ class KanbanikApi extends HttpServlet {
 
     def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
       val sessionId = extractSessionId(r)
-      if (sessionId == null || originalMessage == null) {
+      if (originalMessage == null) {
         new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
       } else {
-        val subject = new Subject.Builder().sessionId(sessionId).buildSubject
-        if (subject.isAuthenticated) {
-          val cached = subject.getPrincipal.asInstanceOf[User]
-          val realUser = User.byId(cached.name)
+        val realUser = if (sessionId != null || sessionId == "") {
+          val subject = new Subject.Builder().sessionId(sessionId).buildSubject
+          if (subject.isAuthenticated) {
+            val cached = subject.getPrincipal.asInstanceOf[User]
+            User.byId(cached.name)
+          } else {
+            null
+          }
+        } else {
+          User.unlogged
+        }
 
+        if (realUser != null) {
           val allowed: Boolean = originalMessage match {
-            case (m : ClientNotificationData) => m.filter(m.resp, realUser)
+            case (m : ClientNotificationData) => {
+              m.filter(m.resp, realUser)
+            }
             // unconfigured, more safe not to allow at all
-            case _  => false
+            case _  => {
+              false
+            }
           }
 
           if (allowed) {
@@ -244,7 +258,12 @@ class KanbanikApi extends HttpServlet {
     if (url == null) {
       null
     } else {
-      url.substring(url.lastIndexOf("/") + 1, url.length)
+      val res = url.substring(url.lastIndexOf("/") + 1, url.length)
+      if (res == "undefined") {
+        null
+      } else {
+        res
+      }
     }
   }
 
