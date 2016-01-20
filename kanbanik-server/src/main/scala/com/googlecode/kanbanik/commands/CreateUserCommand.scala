@@ -39,7 +39,10 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
     		params.pictureUrl,
     		salt,
     		1,
-        permissions,
+        mergePermissions(permissions, List(
+          Permission(PermissionType.ReadUser, List(name)),
+          Permission(PermissionType.EditUserData, List(name)),
+          Permission(PermissionType.DeleteUser, List(name)))),
         false
     ).store
 
@@ -49,14 +52,6 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
       PermissionType.ReadUser,
       PermissionType.EditUserData,
       PermissionType.EditUserPermissions,
-      PermissionType.DeleteUser
-    )
-
-    // the newly created user will have basic permissions to himself
-    addMePermissions(user,
-      user.name,
-      PermissionType.ReadUser,
-      PermissionType.EditUserData,
       PermissionType.DeleteUser
     )
 

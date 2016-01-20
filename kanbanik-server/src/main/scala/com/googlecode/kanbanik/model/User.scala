@@ -194,11 +194,17 @@ object User extends HasMongoConnection {
 
   private def asPermissions(dbObject: DBObject): List[Permission] = {
     val permissions = dbObject.get(Fields.permissions.toString)
-    if (permissions != null && permissions.isInstanceOf[BasicDBList]) {
-      val list = dbObject.get(Fields.permissions.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
-      list.map(asPermissionEntity(_))
-    } else {
+    if (permissions == null) {
       List()
+    } else {
+      permissions match {
+        case p: BasicDBList => {
+          val list = dbObject.get(Fields.permissions.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
+          list.map(asPermissionEntity(_))
+        }
+        case p: List[DBObject] => p.map(asPermissionEntity(_))
+        case p: List[BasicDBObject] => p.map(asPermissionEntity(_))
+      }
     }
   }
 
@@ -211,11 +217,17 @@ object User extends HasMongoConnection {
 
   private def asPermissionParams(dbObject: DBObject): List[String] = {
     val params = dbObject.get(PermissionFields.params.toString)
-    if (params != null && params.isInstanceOf[BasicDBList]) {
-      val list = dbObject.get(PermissionFields.params.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
-      list.map(_.get(PermissionFields.value.toString).asInstanceOf[String])
-    } else {
+    if (params == null) {
       List()
+    } else {
+      params match {
+        case p: BasicDBList => {
+          val list = dbObject.get(PermissionFields.params.toString).asInstanceOf[BasicDBList].toArray.toList.asInstanceOf[List[DBObject]]
+          list.map(_.get(PermissionFields.value.toString).asInstanceOf[String])
+        }
+        case p: List[DBObject] => p.map(_.get(PermissionFields.value.toString).asInstanceOf[String])
+        case p: List[BasicDBObject] => p.map(_.get(PermissionFields.value.toString).asInstanceOf[String])
+      }
     }
   }
 
