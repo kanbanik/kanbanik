@@ -23,6 +23,9 @@ class SaveBoardCommand extends Command[BoardDto, BoardDto] {
     addMePermissions(user, boardDto.id,
       storedBoard.id.get.toString,
       PermissionType.CreateTask_b,
+      PermissionType.MoveTask_b,
+      PermissionType.EditTask_b,
+      PermissionType.DeleteTask_b,
       PermissionType.ReadBoard,
       PermissionType.EditBoard,
       PermissionType.DeleteBoard)

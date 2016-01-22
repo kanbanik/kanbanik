@@ -30,6 +30,9 @@ class SaveProjectCommand extends Command[ProjectDto, ProjectDto] {
     addMePermissions(user, params.id,
       entity.id.get.toString,
       PermissionType.CreateTask_p,
+      PermissionType.MoveTask_p,
+      PermissionType.EditTask_p,
+      PermissionType.DeleteTask_p,
       PermissionType.ReadProject,
       PermissionType.EditProject,
       PermissionType.DeleteProject)
