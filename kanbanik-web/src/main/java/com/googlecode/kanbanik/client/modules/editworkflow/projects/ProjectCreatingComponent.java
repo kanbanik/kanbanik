@@ -5,6 +5,7 @@ import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.project.ProjectAddedMessage;
 import com.googlecode.kanbanik.dto.CommandNames;
@@ -32,7 +33,8 @@ public class ProjectCreatingComponent extends AbstractProjectEditingComponent {
 
                     @Override
                     public void success(Dtos.ProjectDto response) {
-                        MessageBus.sendMessage(new ProjectAddedMessage(response, ProjectCreatingComponent.this));;
+                        MessageBus.sendMessage(new ProjectAddedMessage(response, ProjectCreatingComponent.this));
+                        UsersManager.getInstance().updateCurrentUser();
                     }
                 }
         );

@@ -7,6 +7,8 @@ import com.google.gwt.user.client.ui.Image;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.api.ServerCallCallback;
+import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -15,6 +17,8 @@ import com.googlecode.kanbanik.client.messaging.messages.task.TaskEditedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserAddedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserDeletedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.user.UserEditedMessage;
+import com.googlecode.kanbanik.client.security.CurrentUser;
+import com.googlecode.kanbanik.dto.CommandNames;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,6 +86,25 @@ public class UsersManager implements MessageListener<Dtos.TaskDto> {
 	public void initUsers(List<Dtos.UserDto> users) {
 		this.users = users;
 	}
+
+    public void updateCurrentUser() {
+        Dtos.SessionDto dto = DtoFactory.sessionDto(CurrentUser.getInstance().getSessionId());
+        dto.setCommandName(CommandNames.GET_CURRENT_USER.name);
+
+        ServerCaller.<Dtos.SessionDto, Dtos.UserDto>sendRequest(
+                dto,
+                Dtos.UserDto.class,
+                new ServerCallCallback<Dtos.UserDto>() {
+
+                    @Override
+                    public void success(Dtos.UserDto response) {
+                        if (response != null) {
+                            MessageBus.sendMessage(new UserEditedMessage(response, UsersManager.this));
+                        }
+                    }
+                }
+        );
+    }
 
 	public List<Dtos.UserDto> getUsers() {
 		if (users == null) {

@@ -5,9 +5,11 @@ import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
+import com.googlecode.kanbanik.client.managers.UsersManager;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardChangedMessage;
 import com.googlecode.kanbanik.client.messaging.messages.board.BoardCreatedMessage;
+import com.googlecode.kanbanik.client.modules.SecurityModule;
 import com.googlecode.kanbanik.dto.CommandNames;
 
 
@@ -62,6 +64,7 @@ public class BoardCreatingComponent extends AbstractBoardEditingComponent {
                     public void success(Dtos.BoardDto response) {
                         MessageBus.sendMessage(new BoardCreatedMessage(response, BoardCreatingComponent.this));
                         MessageBus.sendMessage(new BoardChangedMessage(response, BoardCreatingComponent.this));
+                        UsersManager.getInstance().updateCurrentUser();
                     }
                 }
         );
