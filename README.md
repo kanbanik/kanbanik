@@ -1,4 +1,5 @@
 The [main project page](http://kanbanik.github.io/kanbanik/)
+The [youtube video](https://www.youtube.com/watch?v=lLUDl1WmL9o)
 
 
 Kanbanik is a free and open source kanban board which can be used for personal kanban as well as for managing of small teams. 
