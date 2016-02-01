@@ -181,13 +181,13 @@ public class WorkflowItemEditPanel extends FlowPanel {
         String messagesTexts = "";
         boolean valid = true;
 
-        if (wipLimitEnabled.getValue() && getWipLimit() < 0) {
-            messagesTexts += "<li>WIP limit has to be a positive integer";
+        if (wipLimitEnabled.getValue() && getWipLimit() <= 0) {
+            messagesTexts += "<li>WIP limit has to be a positive integer greater than zero.";
             valid = false;
         }
 
-        if (verticalSizingEnabled.getValue() && getVerticalSize() < 0) {
-            messagesTexts += "<li>Vertical size has to be a positive integer";
+        if (verticalSizingEnabled.getValue() && getVerticalSize() <= 0) {
+            messagesTexts += "<li>Vertical size has to be a positive integer greater than zero.";
             valid = false;
         }
 
