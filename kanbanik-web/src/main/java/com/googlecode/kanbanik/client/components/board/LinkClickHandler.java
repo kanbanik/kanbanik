@@ -42,7 +42,11 @@ public class LinkClickHandler implements ClickHandler {
                 "<li> <b> More selectors: </b> [{\"bname\":\"the board name 1\", \"pname\":\"the project name 1\"}, {\"bname\":\"the board name 2\", \"pname\":\"the project name 2\"}]"
 
         );
-                allLinks.add(explanation);
+
+        DisclosurePanel detailsPanel = new DisclosurePanel("Detailed Syntax");
+        detailsPanel.add(explanation);
+
+        allLinks.add(detailsPanel);
 
         PanelContainingDialog linkDialog = new PanelContainingDialog("Link", allLinks, null, false, 400, -1);
         linkDialog.setupToMinSize();
