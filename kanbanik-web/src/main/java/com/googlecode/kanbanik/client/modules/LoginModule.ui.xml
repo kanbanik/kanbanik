@@ -45,10 +45,10 @@
 		<g:Label text="Log in to Kanbanik" addStyleNames="{style.labelStyle}" />
 		<g:Label text="v1.0.0-RC1" addStyleNames="{style.labelStyle}" />
 		<g:Label text="Username" addStyleNames="{style.labelsStyle}" />
-		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name"/>
-		<g:Label text="Password" addStyleNames="{style.labelsStyle}"/>
-		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" />
-		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" />
+		<g:TextBox addStyleNames="{style.nameStyle}" ui:field="name" tabIndex="1"/>
+		<g:Label text="Password" addStyleNames="{style.labelsStyle}" />
+		<g:PasswordTextBox addStyleNames="{style.passStyle}" ui:field="password" tabIndex="2"/>
+		<g:PushButton addStyleNames="{style.buttonStyle}" ui:field="loginButton" text="Login" title="Login" tabIndex="3"/>
 	</g:FlowPanel>
 
 </ui:UiBinder>
