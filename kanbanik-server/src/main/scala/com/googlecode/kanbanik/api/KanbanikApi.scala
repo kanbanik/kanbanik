@@ -3,6 +3,7 @@ package com.googlecode.kanbanik.api
 
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.Configuration
 import com.googlecode.kanbanik.security.KanbanikRealm
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
@@ -114,7 +115,7 @@ class KanbanikApi extends HttpServlet {
           }
 
           val encoding = req.getHeader("accept-encoding")
-          if (encoding != null && encoding.indexOf("gzip") != -1) {
+          if (Configuration.enableGzipCommunication && encoding != null && encoding.indexOf("gzip") != -1) {
               resp.setHeader("Content-Encoding", "gzip")
               val gzip = new GZIPOutputStream(resp.getOutputStream())
               gzip.write(response.getBytes(Charset.forName("UTF-8")))

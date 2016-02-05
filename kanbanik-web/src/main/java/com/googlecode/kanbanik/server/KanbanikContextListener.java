@@ -4,6 +4,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.googlecode.kanbanik.Configuration;
 import com.googlecode.kanbanik.model.KanbanikConnectionManager;
 import com.googlecode.kanbanik.security.KanbanikRealm;
 import org.apache.shiro.SecurityUtils;
@@ -26,7 +27,9 @@ public class KanbanikContextListener implements ServletContextListener {
 		String password = context.getInitParameter("mongoPassword");
 		String dbName = context.getInitParameter("mongoDBName");
 		String authenticationRequired = context.getInitParameter("mongoAuthenticationRequired");
-		
+        boolean enableGzipCommunication = Boolean.parseBoolean(context.getInitParameter("enableGzipCommunication"));
+        Configuration.init(enableGzipCommunication);
+
 		new KanbanikConnectionManager().initConnectionPool(
 				server,
 				port,

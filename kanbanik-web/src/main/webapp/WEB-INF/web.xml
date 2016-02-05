@@ -31,6 +31,13 @@
 		<param-name>mongoPassword</param-name>
 		<param-value></param-value>
 	</context-param>
+    <!-- By default, when the clients sends the accept-encoding header with value gzip, the answer will be gzipped-->
+    <!-- Since the default gzip implementation on some JREs may be broken, this switch can turn this ability off -->
+    <!-- and make Kanbanik ignore the accept-encoding  header -->
+    <context-param>
+        <param-name>enableGzipCommunication</param-name>
+        <param-value>true</param-value>
+    </context-param>
 
 	<listener>
 		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener
