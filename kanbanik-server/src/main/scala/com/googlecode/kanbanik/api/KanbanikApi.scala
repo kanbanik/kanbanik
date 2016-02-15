@@ -94,16 +94,24 @@ class KanbanikApi extends HttpServlet {
     val user: User = if (sessionId == null || sessionId == "") {
       User.unlogged
     } else {
-      val subject = new Subject.Builder().sessionId(sessionId).buildSubject
-      if (!subject.isAuthenticated) {
-        respond(ErrorDto("The user is not logged in!"), resp, USER_NOT_LOGGED_IN_STATUS)
-        return
+      try {
+        val subject = new Subject.Builder().sessionId(sessionId).buildSubject
+        if (!subject.isAuthenticated) {
+          respond(ErrorDto("The user is not logged in!"), resp, USER_NOT_LOGGED_IN_STATUS)
+          return
+        }
+        ThreadContext.bind(subject)
+        // cleares the cached permissions of the user before every command call since the permission might be changed
+        // not efficient but very simple - when starts to be a bottleneck need a better solution
+        val cached = subject.getPrincipal.asInstanceOf[User]
+        User.byId(cached.name)
+      } catch {
+        case _ => {
+          // the user has a session but an invalid one (e.g. the server has been restarted and forgotten all sessions)
+          respond(ErrorDto("The user is not logged in!"), resp, USER_NOT_LOGGED_IN_STATUS)
+          return
+        }
       }
-      ThreadContext.bind(subject)
-      // cleares the cached permissions of the user before every command call since the permission might be changed
-      // not efficient but very simple - when starts to be a bottleneck need a better solution
-      val cached = subject.getPrincipal.asInstanceOf[User]
-      User.byId(cached.name)
     }
 
     try {

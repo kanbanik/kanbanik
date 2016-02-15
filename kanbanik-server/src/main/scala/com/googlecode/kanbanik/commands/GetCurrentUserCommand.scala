@@ -1,7 +1,5 @@
 package com.googlecode.kanbanik.commands
 
-
-import org.apache.shiro.SecurityUtils
 import com.googlecode.kanbanik.builders.UserBuilder
 import com.googlecode.kanbanik.model.User
 import org.apache.shiro.subject.Subject
@@ -25,5 +23,5 @@ class GetCurrentUserCommand extends Command[SessionDto, UserDto] {
       Left(UserBuilder.buildDto(User.unlogged, ""))
     }
   }
-  
+
 }

@@ -26,6 +26,11 @@ public class KanbanikModuleManager {
         registerListeners();
         String sessionId = CurrentUser.getInstance().getSessionId();
 
+        loginOnBehalf(sessionId);
+
+    }
+
+    private void loginOnBehalf(final String sessionId) {
         Dtos.SessionDto dto = DtoFactory.sessionDto(sessionId);
         dto.setCommandName(CommandNames.GET_CURRENT_USER.name);
 
@@ -36,8 +41,21 @@ public class KanbanikModuleManager {
 
                     @Override
                     public void anyFailure() {
-                        // the browser may think that he has a session even he does not - should never happen...
+                        // exception on server - nothing better to do
                         autologout();
+                    }
+
+                    @Override
+                    public void onUserNotLoggedIn(Dtos.ErrorDto errorDto) {
+                        super.onUserNotLoggedIn(errorDto);
+                        if (sessionId != null && !"".equals(sessionId)) {
+                            // This can happen when the browser had a valid session but the server has been restarted and have forgotten it,
+                            // Try to login with an empty session id
+                            loginOnBehalf(null);
+                        } else {
+                            // ok, not even this worked
+                            autologout();
+                        }
                     }
 
                     @Override
@@ -50,7 +68,6 @@ public class KanbanikModuleManager {
                     }
                 }
         );
-
     }
 
     private void showBoardsModule() {
