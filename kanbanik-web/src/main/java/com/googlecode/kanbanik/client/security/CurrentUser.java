@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.client.security;
 
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
 import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
@@ -20,11 +21,13 @@ import java.util.List;
 public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
     private static final CurrentUser instance = new CurrentUser();
-    public static final String KANBANIK_SESSION_ID = "KanbanikSessionId";
+    private static final String KANBANIK_SESSION_ID = "KanbanikSessionId";
 
     private String sessionId;
 
     private Dtos.UserDto user;
+
+    private static final Storage storage = Storage.getLocalStorageIfSupported();
 
 	private CurrentUser() {
 	}
@@ -53,7 +56,7 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 	
 	public void logoutFrontend() {
 		unregisterListeners();
-        Cookies.removeCookie(KANBANIK_SESSION_ID);
+        removeSessionId();
 		MessageBus.sendMessage(new LogoutEvent(user, this));
 		
 		this.user = null;
@@ -80,14 +83,6 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 	public Dtos.UserDto getUser() {
 		return user;
 	}
-
-    public String getSessionId() {
-        return Cookies.getCookie(KANBANIK_SESSION_ID);
-    }
-
-    public void setSessionId(String sessionId) {
-        Cookies.setCookie(KANBANIK_SESSION_ID, sessionId);
-    }
 
 	@Override
 	public void messageArrived(Message<Dtos.UserDto> message) {
@@ -173,6 +168,30 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
         }
 
         return false;
-
     }
+
+    public String getSessionId() {
+        if (storage != null) {
+            return storage.getItem(KANBANIK_SESSION_ID);
+        } else {
+            return Cookies.getCookie(KANBANIK_SESSION_ID);
+        }
+    }
+
+    public void setSessionId(String id) {
+        if (storage != null) {
+            storage.setItem(KANBANIK_SESSION_ID, id);
+        } else {
+            Cookies.setCookie(KANBANIK_SESSION_ID, id);
+        }
+    }
+
+    public void removeSessionId() {
+        if (storage != null) {
+            storage.removeItem(KANBANIK_SESSION_ID);
+        } else {
+            Cookies.removeCookie(KANBANIK_SESSION_ID);
+        }
+    }
+
 }
