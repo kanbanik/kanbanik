@@ -1,8 +1,11 @@
 package com.googlecode.kanbanik.commands
 
+import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import com.googlecode.kanbanik.dtos.MoveTaskDto
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class SaveTaskCommandTest extends FlatSpec {
   private val command = new MoveTaskCommand
 

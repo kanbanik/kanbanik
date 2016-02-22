@@ -139,7 +139,7 @@ package object security {
                        permissions: PermissionType.Value*) {
 
     // e.g. not edit but new, so add this permissions and merge with old ones
-    if (!oldEntityId.isDefined) {
+    if (oldEntityId == null || !oldEntityId.isDefined) {
       addMePermissions(user, entityId, permissions:_*)
     }
   }
@@ -147,8 +147,10 @@ package object security {
   def addMePermissions(user: User,
                        entityId: String,
                        permissions: PermissionType.Value*) {
+    if (user.exists()) {
       val newPermissions = permissions.map(Permission(_, List(entityId)))
       user.copy(permissions = mergePermissions(user.permissions, newPermissions.toList)).store
+    }
   }
 
 }

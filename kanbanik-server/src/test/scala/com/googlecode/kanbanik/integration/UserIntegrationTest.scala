@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.integration
 
+import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import com.googlecode.kanbanik.commands.CreateUserCommand
@@ -12,7 +13,9 @@ import com.googlecode.kanbanik.security.KanbanikRealm
 import org.apache.shiro.mgt.DefaultSecurityManager
 import com.googlecode.kanbanik.commands.LoginCommand
 import com.googlecode.kanbanik.dtos._
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
   "users" should "should be able to do the whole cycle" in {
     val userDto = ManipulateUserDto(
@@ -27,7 +30,7 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
     )
 
     // create the first user
-    new CreateUserCommand().execute(userDto)
+    new CreateUserCommand().execute(userDto, User().withAllPermissions())
 
     val securityManager = new DefaultSecurityManager(new KanbanikRealm)
     SecurityUtils.setSecurityManager(securityManager)
@@ -60,17 +63,8 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
 
     assert(User.byId("username").permissions === List(manipulateUserPermission, manipulateBoardPermission))
 
-    // try to rename with incorrect credentials
-    new EditUserCommand().execute(userDto.copy(
-      realName = "other name2",
-      password = "incorrect password",
-      version = 2
-    ))
-
-    assert(User.byId("username").realName === "other name")
-
     // try to create existing user
-    val createExistingUserRes = new CreateUserCommand().execute(userDto)
+    val createExistingUserRes = new CreateUserCommand().execute(userDto, User().withAllPermissions())
     assert(createExistingUserRes.isRight)
     assertNumOfUsersIs(1)
 
@@ -83,10 +77,11 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
       3,
       None,
       Some(false)
-    ))
+    ), User().withAllPermissions())
+
     assert(deleteLastUserResult.isLeft === false)
 
-    new CreateUserCommand().execute(userDto.copy(userName = "otherUser"))
+    new CreateUserCommand().execute(userDto.copy(userName = "otherUser"), User().withAllPermissions())
     assertNumOfUsersIs(2)
 
     new DeleteUserCommand().execute(UserDto(
@@ -97,13 +92,13 @@ class UserIntegrationTest extends FlatSpec with BeforeAndAfter {
       3,
       None,
       Some(false)
-    ))
+    ), User().withAllPermissions())
     assertNumOfUsersIs(1)
 
   }
 
   def assertNumOfUsersIs(expected: Int) {
-    new GetAllUsersCommand().execute(SessionDto(None)) match {
+    new GetAllUsersCommand().execute(SessionDto(None), User().withAllPermissions()) match {
       case Left(allUsers) => assert(allUsers.values.size === expected)
       case Right(_) => ???
     }

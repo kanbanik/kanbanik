@@ -1,11 +1,14 @@
 package com.googlecode.kanbanik.model;
 
+import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.bson.types.ObjectId
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.db.HasMongoConnection
 import com.googlecode.kanbanik.dtos.WorkfloVerticalSizing
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class BaseWorkflowManipulatingTest extends FlatSpec with BeforeAndAfter with HasMongoConnection {
 
   val a = mkWorkflowItem(new ObjectId(), Workflow())

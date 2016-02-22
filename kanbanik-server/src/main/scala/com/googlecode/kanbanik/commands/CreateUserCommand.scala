@@ -47,13 +47,17 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
     ).store
 
     // the user who has created this one will get full permissions over him
-    addMePermissions(currentUser,
-      user.name,
-      PermissionType.ReadUser,
-      PermissionType.EditUserData,
-      PermissionType.EditUserPermissions,
-      PermissionType.DeleteUser
-    )
+    // in error cases this user may not exist anymore (e.g. race condition). Should not be re-created here.
+    if (currentUser.exists()) {
+      addMePermissions(currentUser,
+        user.name,
+        PermissionType.ReadUser,
+        PermissionType.EditUserData,
+        PermissionType.EditUserPermissions,
+        PermissionType.DeleteUser
+      )
+    }
+
 
     new Left(UserBuilder.buildDto(user, params.sessionId.get))
   }

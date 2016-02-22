@@ -1,5 +1,6 @@
 package com.googlecode.kanbanik.integration
 
+import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import com.googlecode.kanbanik.builders.{TaskBuilder, WorkflowitemTestManipulation, ProjectBuilder}
@@ -21,18 +22,21 @@ import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.commands.SaveTaskCommand
 import com.googlecode.kanbanik.commands.GetAllClassOfServices
 import com.googlecode.kanbanik.dtos._
+import org.scalatest.junit.JUnitRunner
 
 /**
  * This are tests which expects working DB and are trying to simulate some basic use
  * cases of the users. They are calling real commands
  */
+@RunWith(classOf[JUnitRunner])
 class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTestManipulation {
   "Kanbanik" should "be able to create a new setup from scratch use it and delete it" in {
       val start = System.currentTimeMillis()
     // creation phase
     
     // create user
-    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, Some(""), 1, "aaa", "aaa", None))
+    val storedUser = new CreateUserCommand().execute(ManipulateUserDto("user1", "", null, Some(""), 1, "aaa", "aaa", None),
+      User().withAllPermissions())
 
     // create board
     val board = BoardDto(
@@ -46,7 +50,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       None
     )
 
-    val storedBoard = new SaveBoardCommand().execute(board) match {
+    val storedBoard = new SaveBoardCommand().execute(board, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(_) => fail()
     }
@@ -54,21 +58,21 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     // create class of service
     val classOfServiceToCreate = ClassOfServiceDto(null, "eXpedite", "expedite description", "111111", 1, None)
 
-    val storedClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceToCreate) match {
+    val storedClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceToCreate, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail()
     }
     
     // create project
     val project = new ProjectDto(None, Some("project1"), None, 1)
-    val storedProject = new SaveProjectCommand().execute(project) match {
+    val storedProject = new SaveProjectCommand().execute(project, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail()
     }
     
     // assign project to board
     val projectWithBoard = ProjectWithBoardDto(storedProject, storedBoard.id.get.toString)
-    val storedBoardWithProjects = new AddProjectsToBoardCommand().execute(projectWithBoard) match {
+    val storedBoardWithProjects = new AddProjectsToBoardCommand().execute(projectWithBoard, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail()
     }
@@ -128,7 +132,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
 
     // edit workflowitem
     val itemToEdit = loadItem(1).copy(name = "item1_renamed")
-    new EditWorkflowitemDataCommand().execute(itemToEdit)
+    new EditWorkflowitemDataCommand().execute(itemToEdit, User().withAllPermissions())
     assert(asWorkflowList(loadWorkflow).map(_.name) === List("item3", "item1_renamed", "item2"))
     
     // move task
@@ -137,7 +141,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     val moveTaskParams = new MoveTaskDto(taskToMove, None, None)
 
 
-    val movedTask = new MoveTaskCommand().execute(moveTaskParams) match {
+    val movedTask = new MoveTaskCommand().execute(moveTaskParams, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(_) => fail()
     }
@@ -181,7 +185,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       showUserPictureEnabled = Some(false)
     )
 
-    val editedBoard = new SaveBoardCommand().execute(boardToEdit) match {
+    val editedBoard = new SaveBoardCommand().execute(boardToEdit, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(_) => fail()
     }
@@ -197,7 +201,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
       name = Some("project1_renamed")
     )
 
-    val editProject = new SaveProjectCommand().execute(projectToEdit) match {
+    val editProject = new SaveProjectCommand().execute(projectToEdit, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail()
     }
@@ -207,7 +211,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     // delete phase
     
     // delete task
-    new DeleteTasksCommand().execute(TasksDto(List(editedTask)))
+    new DeleteTasksCommand().execute(TasksDto(List(editedTask)), User().withAllPermissions())
     assert(loadBoard().tasks.get.size === 0)
     
     // delete workflowitems
@@ -215,22 +219,22 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     val loadedItem2 = loadItem(1)
     val loadedItem3 = loadItem(2)
     
-    new DeleteWorkflowitemCommand().execute(loadedItem1)
-    new DeleteWorkflowitemCommand().execute(loadedItem2)
-    new DeleteWorkflowitemCommand().execute(loadedItem3)
+    new DeleteWorkflowitemCommand().execute(loadedItem1, User().withAllPermissions())
+    new DeleteWorkflowitemCommand().execute(loadedItem2, User().withAllPermissions())
+    new DeleteWorkflowitemCommand().execute(loadedItem3, User().withAllPermissions())
     
     assert(loadWorkflowitems().size === 0)
     
     // delete project
-    new DeleteProjectCommand().execute(loadProject)
+    new DeleteProjectCommand().execute(loadProject, User().withAllPermissions())
     assert(loadAllBoards.head.projectsOnBoard.size === 0)
     
     // delete class of service
-    new DeleteClassOfServiceCommand().execute(storedClassOfService)
+    new DeleteClassOfServiceCommand().execute(storedClassOfService, User().withAllPermissions())
     assert(loadAllClassesOfService().size === 0)
     
     // delete board
-    new DeleteBoardCommand().execute(loadBoard)
+    new DeleteBoardCommand().execute(loadBoard, User().withAllPermissions())
     assert(loadAllBoards.size === 0)
   }
   
@@ -250,14 +254,14 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
   }
   
   def loadAllClassesOfService() = {
-    new GetAllClassOfServices().execute(EmptyDto()) match {
+    new GetAllClassOfServices().execute(EmptyDto(), User().withAllPermissions()) match {
       case Left(x) => x.values
       case Right(x) => fail()
     }
   }
   
   def loadAllBoards() = {
-	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true), Some(false), None)) match {
+	  new GetAllBoardsCommand().execute(new GetAllBoardsWithProjectsDto(Some(true), Some(false), None), User().withAllPermissions()) match {
       case Left(x) => x.values
       case Right(_) => fail()
     }
@@ -275,7 +279,7 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
         loadBoard()
     )
     
-    new EditWorkflowCommand().execute(editWorkflowParams)
+    new EditWorkflowCommand().execute(editWorkflowParams, User().withAllPermissions())
   }
 
   after {

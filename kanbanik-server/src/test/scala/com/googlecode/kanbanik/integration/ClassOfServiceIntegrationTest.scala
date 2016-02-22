@@ -1,12 +1,15 @@
 package com.googlecode.kanbanik.integration
 
+import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfter
 import com.googlecode.kanbanik.model.{User, DbCleaner, ClassOfService}
 import com.googlecode.kanbanik.commands.SaveClassOfServiceCommand
 import com.googlecode.kanbanik.commands.DeleteClassOfServiceCommand
 import com.googlecode.kanbanik.dtos.ClassOfServiceDto
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
 
   "class of service" should "should be able to do the whole cycle" in {
@@ -20,7 +23,7 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
 
     )
     
-    val resClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceDto) match {
+    val resClassOfService = new SaveClassOfServiceCommand().execute(classOfServiceDto, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail("SaveClassOfServiceCommand failed")
     }
@@ -30,13 +33,13 @@ class ClassOfServiceIntegrationTest extends FlatSpec with BeforeAndAfter {
     
     val renamedClassOfServiceDto = resClassOfService.copy(name = "name 2")
 
-    val renamedClassOfService = new SaveClassOfServiceCommand().execute(renamedClassOfServiceDto) match {
+    val renamedClassOfService = new SaveClassOfServiceCommand().execute(renamedClassOfServiceDto, User().withAllPermissions()) match {
       case Left(x) => x
       case Right(x) => fail("SaveClassOfServiceCommand failed")
     }
     assert(ClassOfService.all(User().withAllPermissions()).head.name === "name 2")
     
-    new DeleteClassOfServiceCommand().execute(renamedClassOfService)
+    new DeleteClassOfServiceCommand().execute(renamedClassOfService, User().withAllPermissions())
     assert(ClassOfService.all(User().withAllPermissions()).size === 0)
   }
   
