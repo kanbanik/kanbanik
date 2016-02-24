@@ -4,6 +4,9 @@ import java.util.List;
 
 public class Dtos {
 
+    private Dtos() {
+    }
+
     public static interface BaseDto {
         String getCommandName();
         void setCommandName(String commandName);

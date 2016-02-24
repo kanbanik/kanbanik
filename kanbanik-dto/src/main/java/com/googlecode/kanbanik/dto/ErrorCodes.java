@@ -5,4 +5,6 @@ public class ErrorCodes {
 
     public static final int USER_NOT_LOGGED_IN_STATUS = 453;
 
+    private ErrorCodes() {
+    }
 }

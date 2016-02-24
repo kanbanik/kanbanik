@@ -8,6 +8,9 @@ import static com.googlecode.kanbanik.dto.ErrorCodes.USER_NOT_LOGGED_IN_STATUS;
 
 public class ServerCaller {
 
+    private ServerCaller() {
+    }
+
     public static <T, R> void sendRequest(final T dto, final Class<R> responseClass, final ServerCallCallback<R> callback) {
         KanbanikProgressBar.show();
 
