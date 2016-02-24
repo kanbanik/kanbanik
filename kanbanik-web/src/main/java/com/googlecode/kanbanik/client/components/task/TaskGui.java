@@ -522,10 +522,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			boolean toMe = !forAll && params.getTasks().contains(getDto());
 			boolean ignoreMe = !params.isApplyToYourself() && message.getSource() == TaskGui.this;
 			
-			if ((forAll || toMe) && !ignoreMe) {
-                if (isSelected() != params.isSelect()) {
-                    dragController.toggleSelection(TaskGui.this);
-                }
+			if ((forAll || toMe) && !ignoreMe && isSelected() != params.isSelect()) {
+				dragController.toggleSelection(TaskGui.this);
 			}
 		}
 	}

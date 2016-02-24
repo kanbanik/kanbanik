@@ -317,10 +317,8 @@ public class PermissionsEditingComponent extends Composite {
 
             List<String> args = new ArrayList<>();
             for (CommonFilterCheckBox<T> checkBox : permissions.getContent()) {
-                if (checkBox instanceof IdProvider) {
-                    if (checkBox.getValue()) {
-                        args.add(((IdProvider) checkBox).provideId());
-                    }
+                if (checkBox instanceof IdProvider && checkBox.getValue()) {
+                    args.add(((IdProvider) checkBox).provideId());
                 }
 
             }

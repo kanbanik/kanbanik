@@ -96,11 +96,9 @@ public class PanelWithCheckboxes<T> extends Composite{
         Widget toRemove = null;
         for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
             Widget w = contentPanel.getWidget(i);
-            if (w instanceof CommonFilterCheckBox) {
-                if (predicate.toRemove((CommonFilterCheckBox) w)) {
-                    toRemove = w;
-                    break;
-                }
+            if (w instanceof CommonFilterCheckBox && predicate.toRemove((CommonFilterCheckBox) w)) {
+                toRemove = w;
+                break;
             }
         }
 
