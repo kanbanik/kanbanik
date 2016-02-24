@@ -207,7 +207,7 @@ public class BoardsFilter {
             return true;
         }
 
-        Date taskDueDate = null;
+        Date taskDueDate;
         try {
             taskDueDate = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(task.getDueDate());
         } catch (IllegalArgumentException e) {
@@ -251,7 +251,7 @@ public class BoardsFilter {
         String actual = !realEmpty ? real : "";
         String expected = !patternEmpty ? pattern.getString() : "";
 
-        boolean matches = false;
+        boolean matches;
 
         if (pattern.isRegex()) {
             try {
