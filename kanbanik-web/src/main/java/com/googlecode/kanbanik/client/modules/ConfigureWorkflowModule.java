@@ -40,7 +40,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
                     public void success(Dtos.BoardsWithProjectsDto response) {
                         List<Dtos.BoardWithProjectsDto> boards = response.getValues();
                         boardsBox.setBoards(boards);
-                        if (boards.size() != 0) {
+                        if (!boards.isEmpty()) {
                             selectedBoardChanged(boards.iterator().next());
                         } else {
                             selectedBoardChanged(null);

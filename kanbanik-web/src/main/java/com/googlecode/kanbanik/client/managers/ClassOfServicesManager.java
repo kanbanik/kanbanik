@@ -58,7 +58,7 @@ public class ClassOfServicesManager implements MessageListener<Dtos.TaskDto> {
 		List<ClassOfServiceDto> merged = new ArrayList<ClassOfServiceDto>();
 		merged.addAll(classesOfServices);
 		
-		if (merged.size() == 0) {
+		if (merged.isEmpty()) {
 			merged.add(getDefaultClassOfService());
 		}
 		

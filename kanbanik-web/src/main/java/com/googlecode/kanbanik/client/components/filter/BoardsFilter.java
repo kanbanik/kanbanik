@@ -74,7 +74,7 @@ public class BoardsFilter {
 
         List<Dtos.FilteredEntity> filteredEntities = filterDataDto.getFullTextFilter().getFilteredEntities();
 
-        if (filteredEntities != null && filteredEntities.size() != 0) {
+        if (filteredEntities != null && !filteredEntities.isEmpty()) {
             boolean matches = false;
 
             if (filteredEntities.contains(Dtos.FilteredEntity.SHORT_DESCRIPTION)) {
@@ -129,7 +129,7 @@ public class BoardsFilter {
     }
 
     private boolean checkTaskTagsMatches(Dtos.TaskDto task) {
-        if (task.getTaskTags() == null || task.getTaskTags().size() == 0) {
+        if (task.getTaskTags() == null || task.getTaskTags().isEmpty()) {
             int noTagId = findByName(TaskTagsManager.getInstance().noTag());
             if (noTagId == -1) {
                 return false;
@@ -514,7 +514,7 @@ public class BoardsFilter {
 
         List<Dtos.BoardWithSelectedDto> visibleBoards = filterDataDto.getBoards();
 
-        if (visibleBoards == null || visibleBoards.size() == 0) {
+        if (visibleBoards == null || visibleBoards.isEmpty()) {
             return true;
         }
 

@@ -45,7 +45,7 @@ public class BoardGuiBuilder {
             wipLimitGuard.addItem(currentItem.getId(), extendedWorkflowitem);
             children.add(extendedWorkflowitem);
 
-			if (currentItem.getNestedWorkflow().getWorkflowitems().size() > 0) {
+			if (!currentItem.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 				FlexTable childTable = new FlexTable();
 				
 				setupBoard(childTable, workflow.getBoard());
