@@ -99,9 +99,9 @@ public class BoardsBox extends Composite {
 			
 		}
 		
-		boardsList = new ListBoxWithAddEditDelete<Dtos.BoardWithProjectsDto>(
+		boardsList = new ListBoxWithAddEditDelete<>(
 				"Boards",
-				new IdProvider(), 
+				new IdProvider(),
 				new LabelProvider(),
 				new BoardCreatingComponent(),
 				new BoardEditingComponent(),

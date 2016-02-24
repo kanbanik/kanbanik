@@ -498,7 +498,7 @@ public class BoardsFilter {
         }
         Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
         boardWithProjectsDto.setBoard(boardDto);
-        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        List<Dtos.ProjectDto> projects = new ArrayList<>();
         projects.add(projectDto);
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 

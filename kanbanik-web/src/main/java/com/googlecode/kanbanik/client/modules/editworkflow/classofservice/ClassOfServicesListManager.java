@@ -35,13 +35,13 @@ public class ClassOfServicesListManager implements MessageListener<Dtos.ClassOfS
 	
 	public ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto> create() {
 
-		listComponent=  new ListBoxWithAddEditDelete<Dtos.ClassOfServiceDto>(
-				"Classes Of Service", 
-				new IdProvider(), 
+		listComponent= new ListBoxWithAddEditDelete<>(
+				"Classes Of Service",
+				new IdProvider(),
 				new LabelProvider(),
 				creatingComponent,
 				editingComponent,
-				new ClassOfServiceDeletingComponent(), 
+				new ClassOfServiceDeletingComponent(),
 				new Refresher()
 		);
 		

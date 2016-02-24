@@ -100,7 +100,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
     public void messageArrived(Message<Dtos.ProjectDto> message) {
         Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
         boardWithProjectsDto.setBoard(board);
-        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        List<Dtos.ProjectDto> projects = new ArrayList<>();
         projects.add(project);
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 

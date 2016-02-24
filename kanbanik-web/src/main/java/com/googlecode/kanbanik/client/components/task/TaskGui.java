@@ -91,7 +91,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private DragController dragController;
 
-	private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
+	private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<>();
 
 	@UiField
 	Style style;

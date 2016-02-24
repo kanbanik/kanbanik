@@ -20,7 +20,7 @@ public class ClassOfServicesManager implements MessageListener<Dtos.TaskDto> {
 
 	private static final ClassOfServicesManager INSTANCE = new ClassOfServicesManager();
 	
-	private List<ClassOfServiceDto> classesOfServices = new ArrayList<ClassOfServiceDto>();
+	private List<ClassOfServiceDto> classesOfServices = new ArrayList<>();
 
     private ClassOfServiceChangedListener listener;
 
@@ -55,7 +55,7 @@ public class ClassOfServicesManager implements MessageListener<Dtos.TaskDto> {
 
     public List<ClassOfServiceDto> getAllWithNone() {
 		
-		List<ClassOfServiceDto> merged = new ArrayList<ClassOfServiceDto>();
+		List<ClassOfServiceDto> merged = new ArrayList<>();
 		merged.addAll(classesOfServices);
 		
 		if (merged.size() == 0) {
@@ -66,7 +66,7 @@ public class ClassOfServicesManager implements MessageListener<Dtos.TaskDto> {
 	}
 	
 	public void setClassesOfServices(List<ClassOfServiceDto> dtos) {
-		classesOfServices = new ArrayList<ClassOfServiceDto>(); 
+		classesOfServices = new ArrayList<>(); 
 		for (ClassOfServiceDto dto : dtos) {
 			addClassOfService(dto);
 		}

@@ -58,7 +58,7 @@ public class TaskAddingComponent extends AbstractTaskEditingComponent {
 
     @Override
     protected List<Dtos.TaskTag> getTags() {
-        return new ArrayList<Dtos.TaskTag>();
+        return new ArrayList<>();
     }
 
     private String findOrder() {

@@ -24,8 +24,8 @@ public class ServerEventsListener {
 
     private Atmosphere atmosphere;
 
-    private static final Map<String, Class<?>> eventToDto = new HashMap<String, Class<?>>();
-    private static final Map<String, EventAction> eventToAction = new HashMap<String, EventAction>();
+    private static final Map<String, Class<?>> eventToDto = new HashMap<>();
+    private static final Map<String, EventAction> eventToAction = new HashMap<>();
 
     public static final String DEFAULT_ACTION_NAME = "DEFAULT";
 

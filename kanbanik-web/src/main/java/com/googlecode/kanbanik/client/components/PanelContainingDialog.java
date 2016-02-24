@@ -194,7 +194,7 @@ public class PanelContainingDialog extends DialogBox implements Closable,
 
 	public void addListener(PanelContainingDialolgListener listener) {
 		if (listeners == null) {
-			listeners = new ArrayList<PanelContainingDialog.PanelContainingDialolgListener>();
+			listeners = new ArrayList<>();
 		}
 
 		listeners.add(listener);
