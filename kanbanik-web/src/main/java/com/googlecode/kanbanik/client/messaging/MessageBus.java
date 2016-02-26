@@ -9,7 +9,10 @@ import java.util.Map;
 public class MessageBus {
 	
 	private static Map<Class<?>, List<MessageListener<?>>> listeners;
-	
+
+	private MessageBus() {
+	}
+
 	public static void sendMessage(Message<?> message) {
 		if (message == null) {
 			return;

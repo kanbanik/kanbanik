@@ -16,7 +16,10 @@ public class KanbanikProgressBar {
 		dialog.setGlassEnabled(true);
 		dialog.add(new Image(KanbanikResources.INSTANCE.progressBarImage()));
 	}
-	
+
+	private KanbanikProgressBar() {
+	}
+
 	public static void show() {
 		dialog.center();
 	}
