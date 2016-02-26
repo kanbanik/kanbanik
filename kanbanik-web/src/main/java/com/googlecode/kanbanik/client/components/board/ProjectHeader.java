@@ -43,7 +43,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
         this.project = project;
         initWidget(uiBinder.createAndBindUi(this));
 		projectName.setText(project.getName());
-		Dtos.WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
+		Dtos.WorkflowitemDto rootDto = !board.getWorkflow().getWorkflowitems().isEmpty() ? board.getWorkflow().getWorkflowitems().get(0) : null;
 		
 		if (rootDto != null) {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
@@ -75,7 +75,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 		}
 		
 		
-		if (root.getNestedWorkflow().getWorkflowitems().size() == 0) {
+		if (root.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 			return root;
 		} else {
 			return getInputQueue(root.getNestedWorkflow().getWorkflowitems().get(0));

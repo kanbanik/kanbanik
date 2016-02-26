@@ -146,7 +146,7 @@ public class WorkflowEditingComponent extends Composite implements
 				dragController, 0, 0);
 
 		// default DTO
-		if (boardDto.getWorkflow().getWorkflowitems().size() == 0) {
+		if (boardDto.getWorkflow().getWorkflowitems().isEmpty()) {
 			table.setWidget(
 					0,
 					0,
@@ -164,7 +164,7 @@ public class WorkflowEditingComponent extends Composite implements
 	public void buildBoard(Dtos.WorkflowDto parentWorkflow,
 			Dtos.WorkflowDto currentWorkflow, Dtos.ProjectDto project, FlexTable table,
 			PickupDragController dragController, int row, int column) {
-		if (currentWorkflow == null || currentWorkflow.getWorkflowitems().size() == 0) {
+		if (currentWorkflow == null || currentWorkflow.getWorkflowitems().isEmpty()) {
 			return;
 		}
 
@@ -193,7 +193,7 @@ public class WorkflowEditingComponent extends Composite implements
 		}
 
 		for(Dtos.WorkflowitemDto currentItem : currentWorkflow.getWorkflowitems()) {
-			if (currentItem.getNestedWorkflow().getWorkflowitems().size() != 0) {
+			if (!currentItem.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 				// this one has a child, so does not have a drop target in it's
 				// body (content)
 				FlexTable childTable = new FlexTable();

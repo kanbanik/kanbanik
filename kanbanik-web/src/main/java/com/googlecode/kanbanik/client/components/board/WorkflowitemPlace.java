@@ -205,7 +205,7 @@ public class WorkflowitemPlace extends Composite implements
 			
 			TaskContainer container = (TaskContainer) contentPanel;
 			List<TaskDto> tasks = container.getTasks();
-			if (tasks.size() == 0) {
+			if (tasks.isEmpty()) {
 				MessageBus.sendMessage(new GetFirstTaskResponseMessage(null, this));
 			} else {
 				MessageBus.sendMessage(new GetFirstTaskResponseMessage(tasks.get(0), this));

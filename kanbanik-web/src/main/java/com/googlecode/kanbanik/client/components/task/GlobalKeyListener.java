@@ -61,7 +61,7 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
 
     private void doSelect() {
         List<TaskDto> selectedTasks = getTasksByRequestMessage(new GetSelectedTasksRequestMessage(null, this));
-        if (selectedTasks.size() == 0) {
+        if (selectedTasks.isEmpty()) {
             selectAllVisible();
         } else {
             selectSomeTasks(selectedTasks);
