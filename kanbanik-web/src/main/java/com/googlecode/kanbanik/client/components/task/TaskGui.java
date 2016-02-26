@@ -299,7 +299,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			return;
 		}
 		
-		Date date = null;
+		Date date;
 		try {
 			date = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).parse(dueDate);
 		} catch(IllegalArgumentException e) {
