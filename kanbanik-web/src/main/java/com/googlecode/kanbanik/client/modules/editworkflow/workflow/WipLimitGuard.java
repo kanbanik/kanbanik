@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Stack;
 
 public class WipLimitGuard {
-    private Map<String, ExtendedWorkflowitem> idToWorkflowitem = new HashMap<String, ExtendedWorkflowitem>();
+    private Map<String, ExtendedWorkflowitem> idToWorkflowitem = new HashMap<>();
 
     public void taskCountChanged(String id, int size) {
         int currentNumOfTasks = idToWorkflowitem.get(id).getNumOfTasks();
@@ -53,7 +53,7 @@ public class WipLimitGuard {
     }
 
     private List<ExtendedWorkflowitem> doIncDec(String id, int diff) {
-        List<ExtendedWorkflowitem> path = new ArrayList<ExtendedWorkflowitem>();
+        List<ExtendedWorkflowitem> path = new ArrayList<>();
         ExtendedWorkflowitem current = idToWorkflowitem.get(id);
         do {
             current.add(diff);

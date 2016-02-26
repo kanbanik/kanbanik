@@ -280,7 +280,7 @@ public class PermissionsEditingComponent extends Composite {
 
     static abstract class ListPermissionEditingComponent<T> extends GlobalPermissionEditingComponent {
 
-        private PanelWithCheckboxes<T> permissions = new PanelWithCheckboxes<T>();
+        private PanelWithCheckboxes<T> permissions = new PanelWithCheckboxes<>();
 
         private Map<Integer, Dtos.PermissionDto> permissionDtoMap;
 

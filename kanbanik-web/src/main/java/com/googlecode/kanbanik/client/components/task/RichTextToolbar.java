@@ -46,7 +46,7 @@ public class RichTextToolbar extends Composite {
 	private static final String CSS_ROOT_NAME = "RichTextToolbar";
 	
 	//Color and Fontlists - First Value (key) is the Name to display, Second Value (value) is the HTML-Definition
-	public final static HashMap<String,String> GUI_COLORLIST = new HashMap<String,String>();
+	public final static HashMap<String,String> GUI_COLORLIST = new HashMap<>();
 	static {
 		GUI_COLORLIST.put("White", "#FFFFFF");
 		GUI_COLORLIST.put("Black", "#000000");
@@ -55,7 +55,7 @@ public class RichTextToolbar extends Composite {
 		GUI_COLORLIST.put("Yellow", "yellow");
 		GUI_COLORLIST.put("Blue", "blue");
 	}
-	public final static HashMap<String,String> GUI_FONTLIST = new HashMap<String,String>();
+	public final static HashMap<String,String> GUI_FONTLIST = new HashMap<>();
 	static {
 	    GUI_FONTLIST.put("Times New Roman", "Times New Roman");
 	    GUI_FONTLIST.put("Arial", "Arial");

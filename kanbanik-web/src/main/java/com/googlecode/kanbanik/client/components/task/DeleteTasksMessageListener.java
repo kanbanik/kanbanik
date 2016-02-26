@@ -69,7 +69,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
         public void okClicked(PanelContainingDialog dialog) {
             GlobalKeyListener.INSTANCE.initialize();
-            List<TaskDto> toSend = new ArrayList<TaskDto>();
+            List<TaskDto> toSend = new ArrayList<>();
             for (TaskDto oneTask : tasksDto) {
                 oneTask.setDescription("");
                 toSend.add(oneTask);

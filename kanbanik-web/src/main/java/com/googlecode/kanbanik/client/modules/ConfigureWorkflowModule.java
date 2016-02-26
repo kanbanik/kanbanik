@@ -104,7 +104,7 @@ public class ConfigureWorkflowModule extends HorizontalPanel implements Kanbanik
         }
 
         String boardId = boardWithProjects.getBoard().getId();
-        List<Dtos.ProjectDto> projectsOnBoard = new ArrayList<Dtos.ProjectDto>();
+        List<Dtos.ProjectDto> projectsOnBoard = new ArrayList<>();
         List<Dtos.ProjectDto> projectDtos = result.getValues() != null ? result.getValues() : new ArrayList<Dtos.ProjectDto>();
         for (Dtos.ProjectDto projectDto : projectDtos) {
             if (projectDto.getBoardIds() == null) {

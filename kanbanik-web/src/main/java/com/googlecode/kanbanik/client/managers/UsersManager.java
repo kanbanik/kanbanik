@@ -108,7 +108,7 @@ public class UsersManager implements MessageListener<Dtos.TaskDto> {
 
 	public List<Dtos.UserDto> getUsers() {
 		if (users == null) {
-			return new ArrayList<Dtos.UserDto>();
+			return new ArrayList<>();
 		}
 
 		Collections.sort(users, new Comparator<Dtos.UserDto>() {

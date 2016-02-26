@@ -79,7 +79,7 @@ public class BoardsModule {
     }
 
 	private void addTasks(final Dtos.BoardsWithProjectsDto result) {
-        List<Dtos.TaskDto> linearizedTasks = new ArrayList<Dtos.TaskDto>();
+        List<Dtos.TaskDto> linearizedTasks = new ArrayList<>();
 		for (Dtos.BoardWithProjectsDto boardWithProjects : result.getValues()) {
 			for (Dtos.TaskDto task : boardWithProjects.getBoard().getTasks()) {
 				linearizedTasks.add(task);

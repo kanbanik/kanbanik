@@ -140,7 +140,7 @@ public class TaskContainer extends Composite {
 	}
 
 	public List<TaskDto> getTasks() {
-		List<TaskDto> res = new ArrayList<TaskDto>();
+		List<TaskDto> res = new ArrayList<>();
 
 		for (int i = 0; i < contentPanel.getWidgetCount(); i++) {
 			Widget widget = contentPanel.getWidget(i);

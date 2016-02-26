@@ -152,7 +152,7 @@ public final class CurrentUser implements MessageListener<Dtos.UserDto> {
 
     private List<Integer> getPermissionTypes() {
         List<Dtos.PermissionDto> permissions = getUser().getPermissions();
-        List<Integer> permissionTypes = new ArrayList<Integer>();
+        List<Integer> permissionTypes = new ArrayList<>();
         for (Dtos.PermissionDto permission : permissions) {
             permissionTypes.add(permission.getPermissionType());
         }

@@ -78,7 +78,7 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
     }
 
     private void selectSomeTasks(List<TaskDto> selectedTasks) {
-        final List<String> workflowitemIds = new ArrayList<String>();
+        final List<String> workflowitemIds = new ArrayList<>();
         for (TaskDto task : selectedTasks) {
             workflowitemIds.add(task.getWorkflowitemId());
         }
@@ -124,7 +124,7 @@ public class GlobalKeyListener implements ModulesLifecycleListener, NativePrevie
 
 	class GetSelectedTasksListener implements MessageListener<TaskDto> {
 
-		private List<TaskDto> selectedTasks = new ArrayList<TaskDto>();
+		private List<TaskDto> selectedTasks = new ArrayList<>();
 		
 		@Override
 		public void messageArrived(Message<TaskDto> message) {
