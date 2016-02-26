@@ -52,10 +52,8 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 			disableAddButton("It is not possible to add a task to a board when the board has no workflow.");
 		}
 
-        if (addButton.isEnabled()) {
-            if (!CurrentUser.getInstance().canAddTaskTo(board, project)) {
-                disableAddButton("This user '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to create a task on this board and project");
-            }
+        if (addButton.isEnabled() && !CurrentUser.getInstance().canAddTaskTo(board, project)) {
+            disableAddButton("This user '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to create a task on this board and project");
         }
 		
 		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
