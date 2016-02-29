@@ -38,7 +38,7 @@ public class ProjectMovedDropController extends FlowPanelDropController {
 	}
 	
 	public void onDrop(DragContext context) {
-		List<Widget> toDrop = new ArrayList<Widget>();
+		List<Widget> toDrop = new ArrayList<>();
 		for (Widget widget : context.selectedWidgets) {
 			if (widget instanceof ProjectWidget) {
 				ProjectWidget projectWidget = (ProjectWidget) widget;

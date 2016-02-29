@@ -137,7 +137,7 @@ public class TaskEditingComponent extends AbstractTaskEditingComponent implement
         ClassOfServiceDto classOfService = dto.getClassOfService();
         if (classOfService == null) {
             List<ClassOfServiceDto> classesOfService = ClassOfServicesManager.getInstance().getAllWithNone();
-            if (classesOfService.size() != 0) {
+            if (!classesOfService.isEmpty()) {
                 return classesOfService.iterator().next().getName();
             }
 

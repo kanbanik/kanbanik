@@ -151,9 +151,9 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 		}
 
 		public void setContent(List<T> content) {
-			if (content == null || content.size() == 0) {
+			if (content == null || content.isEmpty()) {
 				clear();
-				this.items = new ArrayList<T>();
+				this.items = new ArrayList<>();
 				resetButtonAvailability();
 				return;
 			}
@@ -180,7 +180,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			}
 
 			int index = getSelectedIndex();
-			if (items.size() != 0 && index >= 0 && index < items.size()) {
+			if (!items.isEmpty() && index >= 0 && index < items.size()) {
 				selectedDto = items.get(index);
 			} else {
 				selectedDto = null;
@@ -282,7 +282,7 @@ public class ListBoxWithAddEditDelete<T> extends Composite {
 			items.remove(toRemove);
 			removeItem(toRemove);
             sortItems();
-			if (items.size() > 0) {
+			if (!items.isEmpty()) {
 				setSelectedIndex(0);
 			}
 			

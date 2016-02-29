@@ -91,7 +91,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
     private DragController dragController;
 
-	private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
+	private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<>();
 
 	@UiField
 	Style style;
@@ -299,7 +299,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			return;
 		}
 		
-		Date date = null;
+		Date date;
 		try {
 			date = DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).parse(dueDate);
 		} catch(IllegalArgumentException e) {
@@ -522,10 +522,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			boolean toMe = !forAll && params.getTasks().contains(getDto());
 			boolean ignoreMe = !params.isApplyToYourself() && message.getSource() == TaskGui.this;
 			
-			if ((forAll || toMe) && !ignoreMe) {
-                if (isSelected() != params.isSelect()) {
-                    dragController.toggleSelection(TaskGui.this);
-                }
+			if ((forAll || toMe) && !ignoreMe && isSelected() != params.isSelect()) {
+				dragController.toggleSelection(TaskGui.this);
 			}
 		}
 	}

@@ -74,7 +74,7 @@ public class BoardsFilter {
 
         List<Dtos.FilteredEntity> filteredEntities = filterDataDto.getFullTextFilter().getFilteredEntities();
 
-        if (filteredEntities != null && filteredEntities.size() != 0) {
+        if (filteredEntities != null && !filteredEntities.isEmpty()) {
             boolean matches = false;
 
             if (filteredEntities.contains(Dtos.FilteredEntity.SHORT_DESCRIPTION)) {
@@ -129,7 +129,7 @@ public class BoardsFilter {
     }
 
     private boolean checkTaskTagsMatches(Dtos.TaskDto task) {
-        if (task.getTaskTags() == null || task.getTaskTags().size() == 0) {
+        if (task.getTaskTags() == null || task.getTaskTags().isEmpty()) {
             int noTagId = findByName(TaskTagsManager.getInstance().noTag());
             if (noTagId == -1) {
                 return false;
@@ -207,7 +207,7 @@ public class BoardsFilter {
             return true;
         }
 
-        Date taskDueDate = null;
+        Date taskDueDate;
         try {
             taskDueDate = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_SHORT).parse(task.getDueDate());
         } catch (IllegalArgumentException e) {
@@ -251,7 +251,7 @@ public class BoardsFilter {
         String actual = !realEmpty ? real : "";
         String expected = !patternEmpty ? pattern.getString() : "";
 
-        boolean matches = false;
+        boolean matches;
 
         if (pattern.isRegex()) {
             try {
@@ -498,7 +498,7 @@ public class BoardsFilter {
         }
         Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
         boardWithProjectsDto.setBoard(boardDto);
-        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        List<Dtos.ProjectDto> projects = new ArrayList<>();
         projects.add(projectDto);
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 
@@ -514,7 +514,7 @@ public class BoardsFilter {
 
         List<Dtos.BoardWithSelectedDto> visibleBoards = filterDataDto.getBoards();
 
-        if (visibleBoards == null || visibleBoards.size() == 0) {
+        if (visibleBoards == null || visibleBoards.isEmpty()) {
             return true;
         }
 

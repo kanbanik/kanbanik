@@ -159,7 +159,7 @@ public abstract class AbstractTaskEditingComponent {
     }
 
     private Map<String, ClassOfServiceDto> initClassOfServiceToName(List<ClassOfServiceDto> classesOfService) {
-        Map<String, ClassOfServiceDto> res = new HashMap<String, ClassOfServiceDto>();
+        Map<String, ClassOfServiceDto> res = new HashMap<>();
         for (ClassOfServiceDto classOfService : classesOfService) {
             res.put(classOfService.getName(), classOfService);
         }
@@ -168,7 +168,7 @@ public abstract class AbstractTaskEditingComponent {
     }
 
     private Map<String, Dtos.UserDto> initUserToName(List<Dtos.UserDto> users) {
-        Map<String, Dtos.UserDto> res = new HashMap<String, Dtos.UserDto>();
+        Map<String, Dtos.UserDto> res = new HashMap<>();
         for (Dtos.UserDto user : users) {
             res.put(user.getUserName(), user);
         }
@@ -203,7 +203,7 @@ public abstract class AbstractTaskEditingComponent {
     private void fillOracle(Map<String, String> suggestions, MultiWordSuggestOracle oracle) {
         oracle.addAll(suggestions.keySet());
 
-        List<Suggestion> defaults = new ArrayList<Suggestion>();
+        List<Suggestion> defaults = new ArrayList<>();
         for (Map.Entry<String, String> suggestion : suggestions.entrySet()) {
             defaults.add(new SimpleSuggestion(suggestion));
         }
@@ -227,7 +227,7 @@ public abstract class AbstractTaskEditingComponent {
 
 
         classOfServiceToName = initClassOfServiceToName(ClassOfServicesManager.getInstance().getAllWithNone());
-        Map<String, String> classOfServiceSuggestionMap = new HashMap<String, String>();
+        Map<String, String> classOfServiceSuggestionMap = new HashMap<>();
         for (Map.Entry<String, Dtos.ClassOfServiceDto> entry : classOfServiceToName.entrySet()) {
             // enough, no need for description...
             classOfServiceSuggestionMap.put(entry.getKey(), entry.getKey());
@@ -236,7 +236,7 @@ public abstract class AbstractTaskEditingComponent {
         classOfServiceEditor.setValue(getClassOfServiceAsString());
 
         userToName = initUserToName(UsersManager.getInstance().getUsers());
-        Map<String, String> userSuggestionMap = new HashMap<String, String>();
+        Map<String, String> userSuggestionMap = new HashMap<>();
         for (Map.Entry<String, Dtos.UserDto> entry : userToName.entrySet()) {
             userSuggestionMap.put(entry.getKey(), entry.getKey() + " (" + entry.getValue().getRealName() + ")");
         }
@@ -487,7 +487,7 @@ public abstract class AbstractTaskEditingComponent {
         TagEditingComponent tagEditingComponent = new TagEditingComponent();
         TagDeletingComponent tagDeletingComponent = new TagDeletingComponent();
 
-        ListBoxWithAddEditDelete<Dtos.TaskTag> listBox = new ListBoxWithAddEditDelete<Dtos.TaskTag>(
+        ListBoxWithAddEditDelete<Dtos.TaskTag> listBox = new ListBoxWithAddEditDelete<>(
                 "Tags",
 
                 new ListBoxWithAddEditDelete.IdProvider<Dtos.TaskTag>() {

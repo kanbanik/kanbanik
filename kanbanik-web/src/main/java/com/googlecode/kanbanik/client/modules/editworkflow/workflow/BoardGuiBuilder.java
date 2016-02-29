@@ -45,7 +45,7 @@ public class BoardGuiBuilder {
             wipLimitGuard.addItem(currentItem.getId(), extendedWorkflowitem);
             children.add(extendedWorkflowitem);
 
-			if (currentItem.getNestedWorkflow().getWorkflowitems().size() > 0) {
+			if (!currentItem.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 				FlexTable childTable = new FlexTable();
 				
 				setupBoard(childTable, workflow.getBoard());
@@ -53,7 +53,7 @@ public class BoardGuiBuilder {
 				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable, workflow.getBoard());
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
-                List<ExtendedWorkflowitem> nestedChildren = new ArrayList<ExtendedWorkflowitem>();
+                List<ExtendedWorkflowitem> nestedChildren = new ArrayList<>();
                 extendedWorkflowitem.setChildren(nestedChildren);
 				buildBoard(wipLimitGuard, nestedChildren, extendedWorkflowitem, currentItem.getNestedWorkflow(), project, childTable, dragController, 0, 0);
 			} else {

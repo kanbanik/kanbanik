@@ -43,7 +43,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
         this.project = project;
         initWidget(uiBinder.createAndBindUi(this));
 		projectName.setText(project.getName());
-		Dtos.WorkflowitemDto rootDto = board.getWorkflow().getWorkflowitems().size() > 0 ? board.getWorkflow().getWorkflowitems().get(0) : null;
+		Dtos.WorkflowitemDto rootDto = !board.getWorkflow().getWorkflowitems().isEmpty() ? board.getWorkflow().getWorkflowitems().get(0) : null;
 		
 		if (rootDto != null) {
 			addButton.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.addButtonImage()));	
@@ -52,10 +52,8 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 			disableAddButton("It is not possible to add a task to a board when the board has no workflow.");
 		}
 
-        if (addButton.isEnabled()) {
-            if (!CurrentUser.getInstance().canAddTaskTo(board, project)) {
-                disableAddButton("This user '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to create a task on this board and project");
-            }
+        if (addButton.isEnabled() && !CurrentUser.getInstance().canAddTaskTo(board, project)) {
+            disableAddButton("This user '" + CurrentUser.getInstance().getUser().getUserName() + "' does not have permissions to create a task on this board and project");
         }
 		
 		new TaskAddingComponent(project, getInputQueue(rootDto), addButton, board);
@@ -77,7 +75,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
 		}
 		
 		
-		if (root.getNestedWorkflow().getWorkflowitems().size() == 0) {
+		if (root.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 			return root;
 		} else {
 			return getInputQueue(root.getNestedWorkflow().getWorkflowitems().get(0));
@@ -100,7 +98,7 @@ public class ProjectHeader extends Composite implements ModulesLifecycleListener
     public void messageArrived(Message<Dtos.ProjectDto> message) {
         Dtos.BoardWithProjectsDto boardWithProjectsDto = DtoFactory.boardWithProjectsDto();
         boardWithProjectsDto.setBoard(board);
-        List<Dtos.ProjectDto> projects = new ArrayList<Dtos.ProjectDto>();
+        List<Dtos.ProjectDto> projects = new ArrayList<>();
         projects.add(project);
         boardWithProjectsDto.setProjectsOnBoard(DtoFactory.projectsDto(projects));
 

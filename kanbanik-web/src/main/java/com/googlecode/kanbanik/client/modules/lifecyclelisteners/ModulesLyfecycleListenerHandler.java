@@ -20,7 +20,6 @@ public class ModulesLyfecycleListenerHandler {
 		ActivatedListener activatedListener = new ActivatedListener();
 		MessageBus.registerListener(ModuleActivatedMessage.class, activatedListener);
 		MessageBus.registerListener(ModuleDeactivatedMessage.class, new DeactivatedListener(activatedListener));
-        activatedListener = null;
 	}
 
 	class ActivatedListener implements MessageListener<Class<?>> {

@@ -34,7 +34,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
     @Override
     public void messageArrived(Message<List<TaskDto>> message) {
-        if (message.getPayload() == null || message.getPayload().size() == 0) {
+        if (message.getPayload() == null || message.getPayload().isEmpty()) {
             return;
         }
 
@@ -69,7 +69,7 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
         public void okClicked(PanelContainingDialog dialog) {
             GlobalKeyListener.INSTANCE.initialize();
-            List<TaskDto> toSend = new ArrayList<TaskDto>();
+            List<TaskDto> toSend = new ArrayList<>();
             for (TaskDto oneTask : tasksDto) {
                 oneTask.setDescription("");
                 toSend.add(oneTask);

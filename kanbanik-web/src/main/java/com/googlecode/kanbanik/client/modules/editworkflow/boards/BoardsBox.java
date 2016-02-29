@@ -86,7 +86,7 @@ public class BoardsBox extends Composite {
 			@Override
 			public void onChanged(List<Dtos.BoardWithProjectsDto> items,
 					Dtos.BoardWithProjectsDto selectedItem) {
-				if (items.size() == 0) {
+				if (items.isEmpty()) {
 					if (projectToBoardAdding != null) {
 						projectToBoardAdding.disable();
 					}
@@ -99,9 +99,9 @@ public class BoardsBox extends Composite {
 			
 		}
 		
-		boardsList = new ListBoxWithAddEditDelete<Dtos.BoardWithProjectsDto>(
+		boardsList = new ListBoxWithAddEditDelete<>(
 				"Boards",
-				new IdProvider(), 
+				new IdProvider(),
 				new LabelProvider(),
 				new BoardCreatingComponent(),
 				new BoardEditingComponent(),

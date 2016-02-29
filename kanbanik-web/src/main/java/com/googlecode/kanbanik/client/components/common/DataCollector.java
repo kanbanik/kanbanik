@@ -15,7 +15,7 @@ public class DataCollector<T> implements MessageListener<T> {
     }
 
     public void init() {
-        data = new ArrayList<T>();
+        data = new ArrayList<>();
     }
 
     public List<T> getData() {

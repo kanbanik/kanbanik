@@ -79,14 +79,14 @@ public class BoardsModule {
     }
 
 	private void addTasks(final Dtos.BoardsWithProjectsDto result) {
-        List<Dtos.TaskDto> linearizedTasks = new ArrayList<Dtos.TaskDto>();
+        List<Dtos.TaskDto> linearizedTasks = new ArrayList<>();
 		for (Dtos.BoardWithProjectsDto boardWithProjects : result.getValues()) {
 			for (Dtos.TaskDto task : boardWithProjects.getBoard().getTasks()) {
 				linearizedTasks.add(task);
 			}
 		}
 
-        if (linearizedTasks.size() > 0) {
+        if (!linearizedTasks.isEmpty()) {
             Scheduler.get().scheduleIncremental(new TaskAddingCommands(linearizedTasks));
         } else {
             KanbanikProgressBar.hide();
@@ -101,7 +101,7 @@ public class BoardsModule {
 
 		List<Dtos.BoardWithProjectsDto> boardsWithProjects = result.getValues();
 
-		if (boardsWithProjects == null || boardsWithProjects.size() == 0) {
+		if (boardsWithProjects == null || boardsWithProjects.isEmpty()) {
 			createNoBoardsPanel(panel);
 		} else {
 			createBoardsPanel(panel, boardsPanelWrapper, boardsWithProjects);
@@ -136,7 +136,7 @@ public class BoardsModule {
 
 			projects.add(boardTable);
 			List<Dtos.ProjectDto> projectsOnBoard = boardWithProjects.getProjectsOnBoard() != null ? boardWithProjects.getProjectsOnBoard().getValues() : null;
-			if (projectsOnBoard == null || projectsOnBoard.size() == 0) {
+			if (projectsOnBoard == null || projectsOnBoard.isEmpty()) {
 				addNoProjects(boardTable);
 			} else {
 				addProjcets(dragController, board, boardBuilder, boardTable, projectsOnBoard);
@@ -169,7 +169,7 @@ public class BoardsModule {
 			projectTable.setStyleName(style.board());
 			projectTable.getElement().getStyle().setProperty("paddingBottom", "2px");
 			projectTable.getElement().getStyle().setProperty("marginLeft", "-3px");
-			boolean hasWorkflow = board.getWorkflow().getWorkflowitems().size() != 0;
+			boolean hasWorkflow = !board.getWorkflow().getWorkflowitems().isEmpty();
 			if (hasWorkflow) {
 				boardBuilder.buildBoard(
                         new WipLimitGuard(),

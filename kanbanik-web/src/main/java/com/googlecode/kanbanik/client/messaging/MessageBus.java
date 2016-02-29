@@ -9,7 +9,10 @@ import java.util.Map;
 public class MessageBus {
 	
 	private static Map<Class<?>, List<MessageListener<?>>> listeners;
-	
+
+	private MessageBus() {
+	}
+
 	public static void sendMessage(Message<?> message) {
 		if (message == null) {
 			return;
@@ -33,7 +36,7 @@ public class MessageBus {
 			List<MessageListener<?>> listenersForType) {
 		
 		// the shallow copy is done because the reaction for a sent message can be the calling of unregister something which would lead to concurrent modification exception
-		for (@SuppressWarnings("rawtypes") MessageListener listener : new ArrayList<MessageListener<?>>(listenersForType)) {
+		for (@SuppressWarnings("rawtypes") MessageListener listener : new ArrayList<>(listenersForType)) {
 			listener.messageArrived(message);
 		}
 	}
@@ -58,7 +61,7 @@ public class MessageBus {
 
 	public static void registerListener(Class<?> messageType, MessageListener<?> listener) {
 		if (listeners == null) {
-			listeners = new HashMap<Class<?>, List<MessageListener<?>>>();
+			listeners = new HashMap<>();
 		}
 
 		if (!listeners.containsKey(messageType)) {

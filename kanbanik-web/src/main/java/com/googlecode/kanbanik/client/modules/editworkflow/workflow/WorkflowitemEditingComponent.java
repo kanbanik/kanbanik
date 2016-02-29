@@ -51,7 +51,7 @@ public class WorkflowitemEditingComponent implements PanelContainingDialolgListe
 		
 		panel.setVerticalSizing(dto.getVerticalSize() != -1, dto.getVerticalSize());
 		
-		if (dto.getNestedWorkflow().getWorkflowitems().size() != 0) {
+		if (!dto.getNestedWorkflow().getWorkflowitems().isEmpty()) {
 			panel.setVerticalSizingEnabled(false, "Can not be set for non-leaf workflowitems");
 		}
 		

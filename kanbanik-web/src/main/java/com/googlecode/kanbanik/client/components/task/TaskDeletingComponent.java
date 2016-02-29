@@ -32,7 +32,7 @@ public class TaskDeletingComponent implements ClickHandler {
 		MessageBus.sendMessage(ChangeTaskSelectionMessage.deselectAll(this));
 		MessageBus.sendMessage(ChangeTaskSelectionMessage.selectOne(taskGui.getDto(), this));
 		
-		List<TaskDto> list = new ArrayList<TaskDto>();
+		List<TaskDto> list = new ArrayList<>();
 		list.add(taskGui.getDto());
 		MessageBus.sendMessage(new DeleteTasksRequestMessage(list, this));
 	}

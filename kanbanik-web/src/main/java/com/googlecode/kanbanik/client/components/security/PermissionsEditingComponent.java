@@ -280,7 +280,7 @@ public class PermissionsEditingComponent extends Composite {
 
     static abstract class ListPermissionEditingComponent<T> extends GlobalPermissionEditingComponent {
 
-        private PanelWithCheckboxes<T> permissions = new PanelWithCheckboxes<T>();
+        private PanelWithCheckboxes<T> permissions = new PanelWithCheckboxes<>();
 
         private Map<Integer, Dtos.PermissionDto> permissionDtoMap;
 
@@ -317,15 +317,13 @@ public class PermissionsEditingComponent extends Composite {
 
             List<String> args = new ArrayList<>();
             for (CommonFilterCheckBox<T> checkBox : permissions.getContent()) {
-                if (checkBox instanceof IdProvider) {
-                    if (checkBox.getValue()) {
-                        args.add(((IdProvider) checkBox).provideId());
-                    }
+                if (checkBox instanceof IdProvider && checkBox.getValue()) {
+                    args.add(((IdProvider) checkBox).provideId());
                 }
 
             }
 
-            if (args.size() == 0) {
+            if (args.isEmpty()) {
                 return null;
             }
 

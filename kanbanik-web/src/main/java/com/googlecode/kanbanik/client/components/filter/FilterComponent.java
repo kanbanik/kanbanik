@@ -162,7 +162,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             filterDataDto = DtoFactory.filterDataDto();
 
             filterDataDto.setFullTextFilter(DtoFactory.fullTextMatcherDataDto());
-            List<Dtos.FilteredEntity> entities = new ArrayList<Dtos.FilteredEntity>();
+            List<Dtos.FilteredEntity> entities = new ArrayList<>();
             filterDataDto.getFullTextFilter().setCaseSensitive(false);
             filterDataDto.getFullTextFilter().setInverse(false);
             filterDataDto.getFullTextFilter().setRegex(false);
@@ -352,7 +352,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
 
     private void fillClassOfServices(final BoardsFilter filterObject, final boolean loaded) {
-        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<Dtos.ClassOfServiceDto>(ClassOfServicesManager.getInstance().getAllWithNone());
+        List<Dtos.ClassOfServiceDto> sorted = new ArrayList<>(ClassOfServicesManager.getInstance().getAllWithNone());
 
         Collections.sort(sorted, new Comparator<Dtos.ClassOfServiceDto>() {
             @Override
@@ -362,7 +362,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         });
 
         // add default class of service if not present
-        if (sorted.size() == 0 || sorted.get(0).getId() != null) {
+        if (sorted.isEmpty() || sorted.get(0).getId() != null) {
             sorted.add(0, ClassOfServicesManager.getInstance().getDefaultClassOfService());
         }
 
@@ -387,7 +387,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         classOfServiceFilter.add(new ClassOfServiceFilterCheckBox(classOfServiceDto, filterObject));
     }
 
-    private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<Dtos.BoardDto>();
+    private DataCollector<Dtos.BoardDto> boardsCollector = new DataCollector<>();
 
     private void fillBoards(BoardsFilter filterObject, boolean loaded) {
 
@@ -402,7 +402,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
         }, this));
 
         List<Dtos.BoardDto> boards = boardsCollector.getData();
-        List<Dtos.BoardDto> shallowBoards = new ArrayList<Dtos.BoardDto>();
+        List<Dtos.BoardDto> shallowBoards = new ArrayList<>();
         for (Dtos.BoardDto board : boards) {
             shallowBoards.add(asShallowBoard(board));
         }
@@ -432,7 +432,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
             }
         });
 
-        if (tags.size() == 0 || tags.get(0).getId() != null) {
+        if (tags.isEmpty() || tags.get(0).getId() != null) {
             tags.add(0, TaskTagsManager.getInstance().noTag());
         }
 
@@ -502,7 +502,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
     }
 
 
-    private DataCollector<Dtos.BoardWithProjectsDto> projectsOnBoardsCollector = new DataCollector<Dtos.BoardWithProjectsDto>();
+    private DataCollector<Dtos.BoardWithProjectsDto> projectsOnBoardsCollector = new DataCollector<>();
 
     private void fillProjectsOnBoards(BoardsFilter filterObject, boolean loaded) {
         MessageBus.unregisterListener(GetAllProjectsResponseMessage.class, projectsOnBoardsCollector);
@@ -512,7 +512,7 @@ public class FilterComponent extends Composite implements ModulesLifecycleListen
 
         List<Dtos.BoardWithProjectsDto> boardsWithProjectsDtos = projectsOnBoardsCollector.getData();
 
-        List<Dtos.BoardWithProjectsDto> shallowBoardsWithProjectsDtos = new ArrayList<Dtos.BoardWithProjectsDto>();
+        List<Dtos.BoardWithProjectsDto> shallowBoardsWithProjectsDtos = new ArrayList<>();
         for (Dtos.BoardWithProjectsDto boardWithProjectsDto : boardsWithProjectsDtos) {
             Dtos.BoardWithProjectsDto shallowBoardWithProjectsDto = DtoFactory.boardWithProjectsDto();
             shallowBoardWithProjectsDto.setBoard(asShallowBoard(boardWithProjectsDto.getBoard()));

@@ -60,7 +60,7 @@ public class KanbanikModuleManager {
 
                     @Override
                     public void success(Dtos.UserDto response) {
-                        if (response == null || response.getPermissions() == null || response.getPermissions().size() == 0) {
+                        if (response == null || response.getPermissions() == null || response.getPermissions().isEmpty()) {
                             autologout();
                         } else {
                             autologin(response);

@@ -146,7 +146,7 @@ public class FullTextMatcherFilterComponent extends Composite {
             fullTextMatcherDataDto.setInverse(inverse.getValue());
             fullTextMatcherDataDto.setRegex(regex.getValue());
 
-            List<Dtos.FilteredEntity> filteredEntities = new ArrayList<Dtos.FilteredEntity>();
+            List<Dtos.FilteredEntity> filteredEntities = new ArrayList<>();
 
             if (ticketId.getValue()) {
                 filteredEntities.add(Dtos.FilteredEntity.TICKET_ID);

@@ -10,4 +10,7 @@ public class TagConstants {
     public static final int TRANSPARENT_INDEX = 0;
 
     public static final int CUSTOM_INDEX = 1;
+
+    private TagConstants() {
+    }
 }

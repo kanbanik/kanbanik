@@ -22,7 +22,7 @@ public class TaskTagsManager {
 
     private List<Dtos.TaskTag> tags;
 
-    private Map<String, List<String>> taskIdToTagName = new HashMap<String, List<String>>();
+    private Map<String, List<String>> taskIdToTagName = new HashMap<>();
 
     private static Dtos.TaskTag noTag;
 
@@ -45,7 +45,7 @@ public class TaskTagsManager {
 
     private void addTaskTag(String taskId, Dtos.TaskTag toAdd) {
         if (tags == null) {
-            tags = new ArrayList<Dtos.TaskTag>();
+            tags = new ArrayList<>();
         }
 
         if (!taskIdToTagName.containsKey(taskId)) {
@@ -106,7 +106,7 @@ public class TaskTagsManager {
 
     public List<Dtos.TaskTag> getTags() {
         if (tags == null) {
-            return new ArrayList<Dtos.TaskTag>();
+            return new ArrayList<>();
         }
 
         return tags;
@@ -134,7 +134,7 @@ public class TaskTagsManager {
                 return;
             }
 
-            List<String> tagNames = new ArrayList<String>();
+            List<String> tagNames = new ArrayList<>();
             for(String name : taskIdToTagName.get(taskId)) {
                 tagNames.add(name);
             }
@@ -164,7 +164,7 @@ public class TaskTagsManager {
                 return;
             }
 
-            List<String> tagNames = new ArrayList<String>();
+            List<String> tagNames = new ArrayList<>();
             for(Dtos.TaskTag tag : taskTags) {
                 addTaskTag(taskId, tag);
                 tagNames.add(tag.getName());
@@ -175,7 +175,7 @@ public class TaskTagsManager {
                 return;
             }
 
-            for (String tagOfTask : new ArrayList<String>(taskIdToTagName.get(taskId))) {
+            for (String tagOfTask : new ArrayList<>(taskIdToTagName.get(taskId))) {
                 if (!tagNames.contains(tagOfTask)) {
                     taskIdToTagName.get(taskId).remove(tagOfTask);
                     // still some reference?
