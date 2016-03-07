@@ -17,6 +17,7 @@
 package com.googlecode.kanbanik.client.components.task;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
@@ -46,7 +47,7 @@ public class RichTextToolbar extends Composite {
 	private static final String CSS_ROOT_NAME = "RichTextToolbar";
 	
 	//Color and Fontlists - First Value (key) is the Name to display, Second Value (value) is the HTML-Definition
-	public final static HashMap<String,String> GUI_COLORLIST = new HashMap<>();
+	public final static Map<String,String> GUI_COLORLIST = new HashMap<>();
 	static {
 		GUI_COLORLIST.put("White", "#FFFFFF");
 		GUI_COLORLIST.put("Black", "#000000");
@@ -55,7 +56,7 @@ public class RichTextToolbar extends Composite {
 		GUI_COLORLIST.put("Yellow", "yellow");
 		GUI_COLORLIST.put("Blue", "blue");
 	}
-	public final static HashMap<String,String> GUI_FONTLIST = new HashMap<>();
+	public final static Map<String,String> GUI_FONTLIST = new HashMap<>();
 	static {
 	    GUI_FONTLIST.put("Times New Roman", "Times New Roman");
 	    GUI_FONTLIST.put("Arial", "Arial");
@@ -477,8 +478,8 @@ public class RichTextToolbar extends Composite {
 	    mylistBox.setVisibleItemCount(1);
 	
 	    mylistBox.addItem(GUI_LISTNAME_FONTS);
-	    for (String name: GUI_FONTLIST.keySet()) {
-	    	mylistBox.addItem(name, GUI_FONTLIST.get(name));
+	    for (Map.Entry<String, String> entry : GUI_FONTLIST.entrySet()) {
+	    	mylistBox.addItem(entry.getKey(), entry.getValue());
 	    }
 	    
 	    return mylistBox;
@@ -491,8 +492,8 @@ public class RichTextToolbar extends Composite {
 	    mylistBox.setVisibleItemCount(1);
 	
 	    mylistBox.addItem(GUI_LISTNAME_COLORS);
-	    for (String name: GUI_COLORLIST.keySet()) {
-	    	mylistBox.addItem(name, GUI_COLORLIST.get(name));
+	    for (Map.Entry<String, String> entry : GUI_COLORLIST.entrySet()) {
+	    	mylistBox.addItem(entry.getKey(), entry.getValue());
 	    }
 	    
 	    return mylistBox;

@@ -44,9 +44,9 @@ public class MessageBus {
 	private static List<MessageListener<?>> getListenersFor(
 			Message<?> message) {
 		List<MessageListener<?>> listenersForType = null;
-		for (Class<?> clazz : listeners.keySet()) {
-			if (clazz == message.getClass()) {
-				listenersForType = listeners.get(clazz);
+		for (Map.Entry<Class<?>, List<MessageListener<?>>> entry : listeners.entrySet()) {
+			if (entry.getKey() == message.getClass()) {
+				listenersForType = entry.getValue();
 				break;
 			}
 		}
