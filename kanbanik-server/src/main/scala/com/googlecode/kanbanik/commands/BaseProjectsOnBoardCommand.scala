@@ -25,7 +25,7 @@ abstract class BaseProjectsOnBoardCommand
 
   def executeOne(project: ProjectDto, board: Board, user: User): Either[ProjectWithBoardDto, ErrorDto] = {
     try {
-      executeSpecific(board, Project.byId(new ObjectId(project.id.orNull), user).copy(version = project.version), user)
+      executeSpecific(board, Project.byId(new ObjectId(project.id.orNull), User().withAllPermissions()).copy(version = project.version), user)
     } catch {
       case e: IllegalArgumentException =>
         Right(ErrorDto(ServerMessages.entityDeletedMessage("project")))
