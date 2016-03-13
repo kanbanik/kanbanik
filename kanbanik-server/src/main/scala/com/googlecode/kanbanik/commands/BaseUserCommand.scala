@@ -22,7 +22,8 @@ abstract class BaseUserCommand extends Command[ManipulateUserDto, UserDto] with 
         // will be handled by the check later
         None
       } else {
-        val wantsToSet = param.permissions.get.map(PermissionsBuilder.buildEntity(_))
+        val wantsToSet = composeWantsToSet(param.permissions.get.map(PermissionsBuilder.buildEntity(_)), user, param.userName)
+        param
         // the user can set only permissions (s)he already holds
         val allPermissionsIWantToSet: List[CheckWithMessage] =
           (for (oneToSet <- wantsToSet) yield {
@@ -39,6 +40,8 @@ abstract class BaseUserCommand extends Command[ManipulateUserDto, UserDto] with 
       }
     }
   }
+
+  def composeWantsToSet(wantToSet: List[Permission], currentUser: User, editedUser: String): List[Permission]
 
   def baseCheck(param: ManipulateUserDto): CheckWithMessage
 

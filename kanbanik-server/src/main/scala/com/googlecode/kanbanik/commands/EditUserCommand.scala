@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{PermissionsBuilder, UserBuilder}
 import com.googlecode.kanbanik.dtos._
-import com.googlecode.kanbanik.model.User
+import com.googlecode.kanbanik.model.{Permission, User}
 import com.googlecode.kanbanik.security._
 
 class EditUserCommand extends BaseUserCommand with CredentialsUtils {
@@ -39,6 +39,14 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
     ).store
 
     new Left(UserBuilder.buildDto(newUser, params.sessionId.get))
+  }
+
+
+  override def composeWantsToSet(wantToSet: List[Permission], currentUser: User, editedUser: String): List[Permission] = {
+    val user = User.byId(editedUser)
+//      remove the user.permissions from wantToSet
+
+    wantToSet
   }
 
   override def baseCheck(param: ManipulateUserDto): (Check, String) = checkOneOf(PermissionType.EditUserData, param.userName)

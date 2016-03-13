@@ -62,6 +62,9 @@ class CreateUserCommand extends BaseUserCommand with CredentialsUtils with HasMo
     new Left(UserBuilder.buildDto(user, params.sessionId.get))
   }
 
+
+  override def composeWantsToSet(wantToSet: List[Permission], currentUser: User, editedUserName: String): List[Permission] = wantToSet
+
   override def baseCheck(param: ManipulateUserDto): (Check, String) = checkGlobal(PermissionType.CreateUser)
 
   override def composeFullCheck(param: ManipulateUserDto, baseCheck: (Check, String), allPermissionsIWantToSet: List[(Check, String)]): List[(Check, String)] =
