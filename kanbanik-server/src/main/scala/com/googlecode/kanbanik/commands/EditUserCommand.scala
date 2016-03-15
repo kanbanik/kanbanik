@@ -44,9 +44,19 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
 
   override def composeWantsToSet(wantToSet: List[Permission], currentUser: User, editedUser: String): List[Permission] = {
     val user = User.byId(editedUser)
-//      remove the user.permissions from wantToSet
+    merge(wantToSet, user.permissions)
+  }
 
-    wantToSet
+  def merge(wantToSet: List[Permission], editedUserPermissions: List[Permission]): List[Permission] = {
+    val res: List[Option[Permission]] = for (oneToSet <- wantToSet)
+      yield
+      if (!editedUserPermissions.find(x => x.permissionType == oneToSet.permissionType).isDefined) {
+        Some(oneToSet)
+      } else {
+        None
+      }
+
+    res.filter(_.isDefined).map(_.get)
   }
 
   override def baseCheck(param: ManipulateUserDto): (Check, String) = checkOneOf(PermissionType.EditUserData, param.userName)
