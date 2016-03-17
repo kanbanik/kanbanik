@@ -55,8 +55,31 @@ class EditUserCommandTest extends FlatSpec {
       List(Permission(PermissionType.ReadUser, List("b")))
     )
 
-    assert(res == List(
-      Permission(PermissionType.ReadUser, List("a"))))
+    assert(res.head.arg == List("a"))
+  }
+
+  "merge" should "handle also the args with star on left" in {
+    val res = tested.merge(
+      List(
+        Permission(PermissionType.ReadUser, List("a", "b", "*"))
+      ),
+
+      List(Permission(PermissionType.ReadUser, List("b")))
+    )
+
+    assert(res.head.arg == List("a", "*"))
+  }
+
+  "merge" should "handle also the args with star on left" in {
+    val res = tested.merge(
+      List(
+        Permission(PermissionType.ReadUser, List("a", "b"))
+      ),
+
+      List(Permission(PermissionType.ReadUser, List("*", "b")))
+    )
+
+    assert(res.head.arg == List("a", "*"))
   }
 
   "merge" should "add to check permissions also the removed ones" in {

@@ -47,14 +47,31 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
     merge(wantToSet, user.permissions)
   }
 
+  def mergeParams(wantToSet: List[String], alreadyHas: List[String]): Option[List[String]] = {
+    val res = wantToSet.diff(alreadyHas)
+    if (res.isEmpty) {
+      None
+    } else {
+      Some(res)
+    }
+  }
+
   def merge(wantToSet: List[Permission], editedUserPermissions: List[Permission]): List[Permission] = {
-    val res: List[Option[Permission]] = for (oneToSet <- wantToSet)
-      yield
-      if (!editedUserPermissions.find(x => x.permissionType == oneToSet.permissionType).isDefined) {
-        Some(oneToSet)
-      } else {
-        None
-      }
+    val res: List[Option[Permission]] =
+      for (
+        wantToSetOne <- wantToSet;
+        alreadyHas = editedUserPermissions.find(x => x.permissionType == wantToSetOne.permissionType)
+      ) yield
+        if (!alreadyHas.isDefined) {
+          Some(wantToSetOne)
+        } else {
+          val merged = mergeParams(wantToSetOne.arg, alreadyHas.get.arg)
+          if (merged.isDefined) {
+            Some(wantToSetOne.copy(arg = merged.get))
+          } else {
+            None
+          }
+        }
 
     res.filter(_.isDefined).map(_.get)
   }
