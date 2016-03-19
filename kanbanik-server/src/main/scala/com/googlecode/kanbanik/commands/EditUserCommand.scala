@@ -22,7 +22,7 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
 
     val (resPassword, resSalt): (String, String) = if (
       params.newPassword != null && params.newPassword != "" &&
-      !user.unloggedFakeUser
+        !user.unloggedFakeUser
     ) {
       hashPassword(params.newPassword)
     } else {
@@ -48,7 +48,7 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
   }
 
   def mergeParams(wantToSet: List[String], alreadyHas: List[String]): Option[List[String]] = {
-    val res = wantToSet.diff(alreadyHas)
+    val res = wantToSet.diff(alreadyHas) ++ alreadyHas.diff(wantToSet)
     if (res.isEmpty) {
       None
     } else {
@@ -57,7 +57,8 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
   }
 
   def merge(wantToSet: List[Permission], editedUserPermissions: List[Permission]): List[Permission] = {
-    val res: List[Option[Permission]] =
+    // don't check this permissions if Im not touching them
+    val removed: List[Option[Permission]] =
       for (
         wantToSetOne <- wantToSet;
         alreadyHas = editedUserPermissions.find(x => x.permissionType == wantToSetOne.permissionType)
@@ -73,7 +74,14 @@ class EditUserCommand extends BaseUserCommand with CredentialsUtils {
           }
         }
 
-    res.filter(_.isDefined).map(_.get)
+    // check also this permissions if Im removing them
+    val added: List[Permission] =
+      for (
+        alreadyHas <- editedUserPermissions;
+        if !wantToSet.find(x => x.permissionType == alreadyHas.permissionType).isDefined
+      ) yield alreadyHas
+
+    removed.filter(_.isDefined).map(_.get) ++ added
   }
 
   override def baseCheck(param: ManipulateUserDto): (Check, String) = checkOneOf(PermissionType.EditUserData, param.userName)

@@ -6,8 +6,7 @@ import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 
-// intentionally commented - contains tests which are failing because the logic is not yet implemented
-//@RunWith(classOf[JUnitRunner])
+@RunWith(classOf[JUnitRunner])
 class EditUserCommandTest extends FlatSpec {
 
   val tested = new EditUserCommand()
@@ -46,6 +45,30 @@ class EditUserCommandTest extends FlatSpec {
       Permission(PermissionType.CreateTask_p, List())))
   }
 
+  "merge" should "handle also same args" in {
+    val res = tested.merge(
+      List(
+        Permission(PermissionType.ReadUser, List("a", "b", "c", "d"))
+      ),
+
+      List(Permission(PermissionType.ReadUser, List("a", "b", "c", "d")))
+    )
+
+    assert(res.size == 0)
+  }
+
+  "merge" should "handle also complicated args" in {
+    val res = tested.merge(
+      List(
+        Permission(PermissionType.ReadUser, List("a", "b", "c", "d"))
+      ),
+
+      List(Permission(PermissionType.ReadUser, List("b", "d", "x")))
+    )
+
+    assert(res.head.arg == List("a", "c", "x"))
+  }
+
   "merge" should "handle also the args" in {
     val res = tested.merge(
       List(
@@ -70,7 +93,7 @@ class EditUserCommandTest extends FlatSpec {
     assert(res.head.arg == List("a", "*"))
   }
 
-  "merge" should "handle also the args with star on left" in {
+  "merge" should "handle also the args with star on right" in {
     val res = tested.merge(
       List(
         Permission(PermissionType.ReadUser, List("a", "b"))
