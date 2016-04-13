@@ -174,8 +174,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	public void setupAccordingDto(TaskDto taskDto) {
 		header.setStyleName("task-class-of-service");
 		header.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
-        contentContainer.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
-                mainPanel.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
+//        contentContainer.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
+//        mainPanel.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
