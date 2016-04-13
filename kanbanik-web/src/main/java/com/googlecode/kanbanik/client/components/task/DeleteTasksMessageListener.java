@@ -61,6 +61,8 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
     class YesNoDialogListener implements PanelContainingDialolgListener {
 
+        private static final int BATCH_SIZE = 10;
+
         private List<TaskDto> tasksDto;
 
         public YesNoDialogListener(List<TaskDto> tasks) {
@@ -69,11 +71,27 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
         public void okClicked(PanelContainingDialog dialog) {
             GlobalKeyListener.INSTANCE.initialize();
-            List<TaskDto> toSend = new ArrayList<>();
-            for (TaskDto oneTask : tasksDto) {
+            sendBatch(0, dialog);
+        }
+
+
+        public void sendBatch(final int iteration, final PanelContainingDialog dialog) {
+            final List<TaskDto> toSend = new ArrayList<>();
+
+            int lastItem = BATCH_SIZE + iteration;
+
+            if (tasksDto.size() < lastItem) {
+                lastItem = tasksDto.size();
+            }
+
+            final boolean callNext = tasksDto.size() > BATCH_SIZE + iteration;
+
+            for (int i = iteration; i < lastItem; i++) {
+                TaskDto oneTask = tasksDto.get(i);
                 oneTask.setDescription("");
                 toSend.add(oneTask);
             }
+
             TasksDto tasks = DtoFactory.tasksDto(toSend);
             tasks.setCommandName(CommandNames.DELETE_TASK.name);
 
@@ -84,8 +102,12 @@ public class DeleteTasksMessageListener implements MessageListener<List<TaskDto>
 
                         @Override
                         public void success(Dtos.EmptyDto response) {
-                            for (TaskDto task : tasksDto) {
+                            for (TaskDto task : toSend) {
                                 MessageBus.sendMessage(new TaskDeletedMessage(task, DeleteTasksMessageListener.this));
+                            }
+
+                            if (callNext) {
+                                sendBatch(iteration + BATCH_SIZE, dialog);
                             }
                         }
                     }
