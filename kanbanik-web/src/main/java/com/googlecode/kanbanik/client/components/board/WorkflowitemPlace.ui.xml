@@ -9,7 +9,7 @@
 		
 		.headerPanel {
 			text-align: center;
-			background-color: #f5faff;
+			background-color: #e2e4e6;
 			font-weight: bold;
             margin-top: 2px;
             border-top-right-radius: 3px;

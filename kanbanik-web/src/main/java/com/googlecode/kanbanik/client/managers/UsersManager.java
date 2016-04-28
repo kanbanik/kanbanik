@@ -146,8 +146,8 @@ public class UsersManager implements MessageListener<Dtos.TaskDto> {
 		Style style = picture.getElement().getStyle();
 		style.setBorderStyle(BorderStyle.SOLID);
 		style.setBorderWidth(1, Unit.PX);
-		style.setMarginTop(3, Unit.PX);
-		style.setMarginRight(3, Unit.PX);
+		style.setMarginTop(15, Unit.PX);
+		style.setMarginRight(5, Unit.PX);
 		style.setProperty("maxWidth", 43, Unit.PX);
 
 		return picture;

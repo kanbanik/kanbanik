@@ -10,7 +10,7 @@
 		}
 
         .inWip {
-            background-color: #f5faff;
+            background-color: #e2e4e6;
         }
 
         .wipOverrun {

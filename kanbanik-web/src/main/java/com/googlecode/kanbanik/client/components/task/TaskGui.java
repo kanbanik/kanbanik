@@ -174,8 +174,8 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 	public void setupAccordingDto(TaskDto taskDto) {
 		header.setStyleName("task-class-of-service");
 		header.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
-//        contentContainer.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
-//        mainPanel.getElement().getStyle().setBackgroundColor(getColorOf(taskDto));
+        contentContainer.getElement().getStyle().setBackgroundColor("#ffffff");
+        mainPanel.getElement().getStyle().setBackgroundColor("#ffffff");
 		ticketIdLabel.setText(taskDto.getTicketId());
 		nameLabel.setText(taskDto.getName());
 		nameLabel.setTitle(taskDto.getName());
@@ -186,7 +186,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
             nameLabel.getElement().getStyle().setDisplay(Display.NONE);
             nameLabelTextArea.getElement().getStyle().setDisplay(Display.BLOCK);
         } else {
-			nameLabel.getElement().getStyle().setDisplay(Display.BLOCK);
+			nameLabel.getElement().getStyle().setDisplay(Display.TABLE_CELL);
 			nameLabelTextArea.getElement().getStyle().setDisplay(Display.NONE);
 		}
 
@@ -208,13 +208,13 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 			assigneePicturePlace.add(picture);
 			assigneePicturePlace.setTitle(taskDto.getAssignee().getRealName());
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.BLOCK);
-            nameLabel.setWidth("84px");
-            nameLabelTextArea.setWidth("73px");
+            nameLabel.setWidth("110px");
+            nameLabelTextArea.setWidth("130px");
             picture.addClickHandler(this);
 		} else {
 			assigneePicturePlace.getElement().getStyle().setDisplay(Display.NONE);
-            nameLabel.setWidth("130px");
-            nameLabelTextArea.setWidth("120px");
+            nameLabel.setWidth("190px");
+            nameLabelTextArea.setWidth("180px");
 		}
 
 		setupDueDate(taskDto.getDueDate());

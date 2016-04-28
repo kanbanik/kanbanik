@@ -46,12 +46,11 @@
 		.mainPanel {
 			border-style: solid; 
 			border-width: 1px;
-			margin-bottom: 4px;
 			border-color: black;
 			border-radius: 3px;
-            width: 140px;
+            width: 190px;
 			margin: auto;
-			margin-bottom: 6px;
+			margin-bottom: 7px;
 		}
 		
 		.shortDescription {
@@ -124,7 +123,8 @@
 
         .shortDescriptionStyle {
             word-wrap: break-word;
-			padding-left: 5px;
+            padding: 15px;
+            width: 175px;
         }
 
         .shortDescriptionTextArea {
