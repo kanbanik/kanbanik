@@ -225,7 +225,7 @@ public class DtoFactory {
 
     public static List<Dtos.FilterDto> filterDto() {
         //      [{"bname":"aa"}]
-        String hash = Window.Location.getHash();
+        String hash = URL.decode(Window.Location.getHash());
         List<Dtos.FilterDto> res = null;
         if (hash != null && !"".equals(hash)) {
             hash = "{\"values\":" + hash.substring(1) + "}";

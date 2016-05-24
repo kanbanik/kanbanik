@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -66,7 +67,12 @@ public class LinkClickHandler implements ClickHandler {
         selectAll.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                box.selectAll();
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        box.selectAll();
+                    }
+                });
             }
         });
 
