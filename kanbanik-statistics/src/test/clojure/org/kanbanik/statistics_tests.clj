@@ -2,16 +2,27 @@
   (:use clojure.test
         org.kanbanik.statistics))
 
-(testing "Testing the statistics"
-  (testing "my first test"
-    (is (= 2 (my-first-function 1)))
+(testing "Grouping stream of tasks by timeframes"
+  (testing "Empty input returns empty output"
+    (is (= [[]] (group-streams-by-time [], 10)))
     )
 
-  (testing "strange function name"
-    (is (= 12 (f->t)))
+  (testing "One element input returns one element output"
+    (is (= [[{:timestamp 1464509670 :name "name 1"}]]
+           (group-streams-by-time [{:timestamp 1464509670 :name "name 1"}], 10)))
     )
 
-  (testing "load something from mongo"
-    (is (not-empty (load-something-from-mongo)))
+  (testing "Two element input in the same chunk"
+    (is (= [[{:timestamp 1464509670 :name "name 1"}
+             {:timestamp 1464509671 :name "name 2"}]]
+           (group-streams-by-time [{:timestamp 1464509670 :name "name 1"}
+                                   {:timestamp 1464509671 :name "name 2"}], 10)))
+    )
+
+  (testing "Two element input in different chunks"
+    (is (= [[{:timestamp 1464509670 :name "name 1"}]
+             [{:timestamp 1464509681 :name "name 2"}]]
+           (group-streams-by-time [{:timestamp 1464509670 :name "name 1"}
+                                   {:timestamp 1464509681 :name "name 2"}], 10)))
     )
   )
