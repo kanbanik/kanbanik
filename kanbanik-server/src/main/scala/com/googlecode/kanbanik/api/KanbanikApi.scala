@@ -44,7 +44,6 @@ class KanbanikApi extends HttpServlet {
   }
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) = {
-    respondAppError(ErrorDto("Say something!"), resp)
     process(req, resp)
   }
 
@@ -64,7 +63,6 @@ class KanbanikApi extends HttpServlet {
     resp.addHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
     resp.addHeader("Access-Control-Allow-Headers","origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers")
     resp.addHeader("Access-Control-Max-Age", "1800")
-
     val commandJson = req.getParameter("command")
     if (commandJson == null) {
       respondAppError(ErrorDto("command has to be set!"), resp)
