@@ -44,6 +44,7 @@ class KanbanikApi extends HttpServlet {
   }
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) = {
+    respondAppError(ErrorDto("Say something!"), resp)
     process(req, resp)
   }
 
@@ -59,6 +60,11 @@ class KanbanikApi extends HttpServlet {
 
   private def process(req: HttpServletRequest, resp: HttpServletResponse) {
     resp.setCharacterEncoding("UTF-8")
+    resp.addHeader("Access-Control-Allow-Origin", "*")
+    resp.addHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
+    resp.addHeader("Access-Control-Allow-Headers","origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers")
+    resp.addHeader("Access-Control-Max-Age", "1800")
+
     val commandJson = req.getParameter("command")
     if (commandJson == null) {
       respondAppError(ErrorDto("command has to be set!"), resp)
@@ -124,12 +130,12 @@ class KanbanikApi extends HttpServlet {
 
           val encoding = req.getHeader("accept-encoding")
           if (Configuration.enableGzipCommunication && encoding != null && encoding.indexOf("gzip") != -1) {
-              resp.setHeader("Content-Encoding", "gzip")
-              val gzip = new GZIPOutputStream(resp.getOutputStream())
-              gzip.write(response.getBytes(Charset.forName("UTF-8")))
-              gzip.close
+            resp.setHeader("Content-Encoding", "gzip")
+            val gzip = new GZIPOutputStream(resp.getOutputStream())
+            gzip.write(response.getBytes(Charset.forName("UTF-8")))
+            gzip.close
           } else {
-              resp.getWriter.print(response)
+            resp.getWriter.print(response)
           }
         case Right(x) =>
           respondAppError(x, resp)
@@ -143,185 +149,185 @@ class KanbanikApi extends HttpServlet {
     }
   }
 
-  case class ClientNotificationData(resp: AnyRef, commandName: String, sessionId: String, filter: (Any, User) => Boolean) {
-    def asEventDto = write(EventDto(commandName, write(resp)))
-  }
+      case class ClientNotificationData(resp: AnyRef, commandName: String, sessionId: String, filter: (Any, User) => Boolean) {
+        def asEventDto = write(EventDto(commandName, write(resp)))
+      }
 
 
-  def notifyClients(commandName: String, sessionId: String, resp: AnyRef, filer: (Any, User) => Boolean) {
-    val data = ClientNotificationData(resp, commandName, sessionId, filer)
-    broadcaster.broadcast(data)
-  }
+      def notifyClients(commandName: String, sessionId: String, resp: AnyRef, filer: (Any, User) => Boolean) {
+        val data = ClientNotificationData(resp, commandName, sessionId, filer)
+        broadcaster.broadcast(data)
+      }
 
-  def extractSessionId(json: JValue): String = {
-    try {
-      return (json \ "sessionId").extract[String]
-    } catch {
-      case _: Throwable => return ""
-    }
+      def extractSessionId(json: JValue): String = {
+        try {
+          return (json \ "sessionId").extract[String]
+        } catch {
+          case _: Throwable => return ""
+        }
 
-    try {
-      return (json \ "sessionId").extract[Option[String]].get
-    } catch {
-      case _: Throwable => return ""
-    }
+        try {
+          return (json \ "sessionId").extract[Option[String]].get
+        } catch {
+          case _: Throwable => return ""
+        }
 
-    ""
-  }
+        ""
+      }
 
-  object ToJsonFilter extends PerRequestBroadcastFilter {
-    override def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      filter(broadcasterId, originalMessage, message)
-    }
+      object ToJsonFilter extends PerRequestBroadcastFilter {
+        override def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+          filter(broadcasterId, originalMessage, message)
+        }
 
-    override def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      if (originalMessage == null) {
-        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
-      } else {
-        originalMessage match {
-          case (m: ClientNotificationData) => new BroadcastAction(m.asEventDto)
-          case _ => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+        override def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+          if (originalMessage == null) {
+            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          } else {
+            originalMessage match {
+              case (m: ClientNotificationData) => new BroadcastAction(m.asEventDto)
+              case _ => new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+            }
+          }
+
         }
       }
 
-    }
-  }
+      object DontNotifyYourselfFilter extends PerRequestBroadcastFilter {
 
-  object DontNotifyYourselfFilter extends PerRequestBroadcastFilter {
+        def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
 
-    def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+          if (originalMessage == null) {
+            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          } else {
+            originalMessage match {
+              case(messageObject : ClientNotificationData) =>
+                val originalSessionId = messageObject.sessionId
+                val toSendSessionId = extractSessionId(r)
 
-      if (originalMessage == null) {
-        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
-      } else {
-        originalMessage match {
-          case(messageObject : ClientNotificationData) =>
-            val originalSessionId = messageObject.sessionId
-            val toSendSessionId = extractSessionId(r)
+                if (Objects.equals(originalSessionId, toSendSessionId)) {
+                  new BroadcastAction(BroadcastAction.ACTION.ABORT, originalMessage)
+                } else {
+                  new BroadcastAction(message)
+                }
 
-            if (Objects.equals(originalSessionId, toSendSessionId)) {
-              new BroadcastAction(BroadcastAction.ACTION.ABORT, originalMessage)
+              case(_) => {
+                new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+              }
+            }
+          }
+        }
+
+        def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+          new BroadcastAction(message)
+        }
+      }
+
+      object AuthorizationFilter extends PerRequestBroadcastFilter {
+
+        def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
+          val sessionId = extractSessionId(r)
+          if (originalMessage == null) {
+            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+          } else {
+            val realUser = if (sessionId != null || sessionId == "") {
+              val subject = new Subject.Builder().sessionId(sessionId).buildSubject
+              if (subject.isAuthenticated) {
+                val cached = subject.getPrincipal.asInstanceOf[User]
+                User.byId(cached.name)
+              } else {
+                null
+              }
             } else {
-              new BroadcastAction(message)
+              User.unlogged
             }
 
-          case(_) => {
-            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+            if (realUser != null) {
+              val allowed: Boolean = originalMessage match {
+                case (m : ClientNotificationData) => {
+                  m.filter(m.resp, realUser)
+                }
+                // unconfigured, more safe not to allow at all
+                case _  => {
+                  false
+                }
+              }
+
+              if (allowed) {
+                new BroadcastAction(message)
+              } else {
+                new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+              }
+              } else {
+                new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+              }
           }
+
         }
+
+        def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
       }
-    }
 
-    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      new BroadcastAction(message)
-    }
-  }
-
-  object AuthorizationFilter extends PerRequestBroadcastFilter {
-
-    def filter(broadcasterId: String, r: AtmosphereResource, originalMessage: scala.Any, message: scala.Any): BroadcastAction = {
-      val sessionId = extractSessionId(r)
-      if (originalMessage == null) {
-        new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
-      } else {
-        val realUser = if (sessionId != null || sessionId == "") {
-          val subject = new Subject.Builder().sessionId(sessionId).buildSubject
-          if (subject.isAuthenticated) {
-            val cached = subject.getPrincipal.asInstanceOf[User]
-            User.byId(cached.name)
-          } else {
+      def extractSessionId(r: AtmosphereResource) = {
+        val url = r.getRequest.getRequestURL
+        if (url == null) {
+          null
+        } else {
+          val res = url.substring(url.lastIndexOf("/") + 1, url.length)
+          if (res == "undefined") {
             null
-          }
-        } else {
-          User.unlogged
-        }
-
-        if (realUser != null) {
-          val allowed: Boolean = originalMessage match {
-            case (m : ClientNotificationData) => {
-              m.filter(m.resp, realUser)
-            }
-            // unconfigured, more safe not to allow at all
-            case _  => {
-              false
-            }
-          }
-
-          if (allowed) {
-            new BroadcastAction(message)
           } else {
-            new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
+            res
           }
-        } else {
-          new BroadcastAction(BroadcastAction.ACTION.ABORT, message)
         }
       }
 
-    }
+      val commands = Map[String, (AnyCommand, CommandConfiguration)](
+        LOGIN.name -> (new LoginCommand(), CommandConfiguration(notifyByEvent = false)),
+        LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(notifyByEvent = false)),
 
-    def filter(broadcasterId: String, originalMessage: scala.Any, message: scala.Any): BroadcastAction = new BroadcastAction(message)
-  }
+        // user
+        GET_CURRENT_USER.name -> (new GetCurrentUserCommand(), CommandConfiguration(notifyByEvent = false)),
+        CREATE_USER.name -> (new CreateUserCommand(), CommandConfiguration(notifyByEvent = false)),
+        EDIT_USER.name -> (new EditUserCommand(), CommandConfiguration(notifyByEvent = false)),
+        DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(notifyByEvent = false)),
+        GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(notifyByEvent = false)),
 
-  def extractSessionId(r: AtmosphereResource) = {
-    val url = r.getRequest.getRequestURL
-    if (url == null) {
-      null
-    } else {
-      val res = url.substring(url.lastIndexOf("/") + 1, url.length)
-      if (res == "undefined") {
-        null
-      } else {
-        res
-      }
-    }
-  }
+        // class of service
+        GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(notifyByEvent = false)),
+        EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+        CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+        DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
 
-  val commands = Map[String, (AnyCommand, CommandConfiguration)](
-    LOGIN.name -> (new LoginCommand(), CommandConfiguration(notifyByEvent = false)),
-    LOGOUT.name -> (new LogoutCommand(), CommandConfiguration(notifyByEvent = false)),
+        // project
+        GET_ALL_PROJECTS.name -> (new GetAllProjectsCommand(), CommandConfiguration(notifyByEvent = false)),
+        EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+        CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+        DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)),
+        ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+        REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)),
 
-    // user
-    GET_CURRENT_USER.name -> (new GetCurrentUserCommand(), CommandConfiguration(notifyByEvent = false)),
-    CREATE_USER.name -> (new CreateUserCommand(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_USER.name -> (new EditUserCommand(), CommandConfiguration(notifyByEvent = false)),
-    DELETE_USER.name -> (new DeleteUserCommand(), CommandConfiguration(notifyByEvent = false)),
-    GET_ALL_USERS_COMMAND.name -> (new GetAllUsersCommand(), CommandConfiguration(notifyByEvent = false)),
+        // task
+        MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+        CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+        EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
+        GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(notifyByEvent = false)),
+        GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(notifyByEvent = false)),
+        DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)),
 
-    // class of service
-    GET_ALL_CLASS_OF_SERVICE.name -> (new GetAllClassOfServices(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_CLASS_OF_SERVICE.name -> (new SaveClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_CLASS_OF_SERVICE.name -> (new DeleteClassOfServiceCommand(), CommandConfiguration(notifyByEvent = true)),
+        // board / workflowitem
+        EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)),
+        DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),
+        GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(notifyByEvent = false)),
 
-    // project
-    GET_ALL_PROJECTS.name -> (new GetAllProjectsCommand(), CommandConfiguration(notifyByEvent = false)),
-    EDIT_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_PROJECT.name -> (new SaveProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_PROJECT.name -> (new DeleteProjectCommand(), CommandConfiguration(notifyByEvent = true)),
-    ADD_PROJECT_TO_BOARD.name -> (new AddProjectsToBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    REMOVE_PROJECT_FROM_BOARD.name -> (new RemoveProjectFromBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+        CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+        EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+        DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
+        EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)),
+        GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
 
-    // task
-    MOVE_TASK.name -> (new MoveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
-    CREATE_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_TASK.name -> (new SaveTaskCommand(), CommandConfiguration(notifyByEvent = true)),
-    GET_TASK.name -> (new GetTaskCommand(), CommandConfiguration(notifyByEvent = false)),
-    GET_TASKS.name -> (new GetTasksCommand(), CommandConfiguration(notifyByEvent = false)),
-    DELETE_TASK.name -> (new DeleteTasksCommand(), CommandConfiguration(notifyByEvent = true)),
+      )
 
-    // board / workflowitem
-    EDIT_WORKFLOWITEM_DATA.name -> (new EditWorkflowitemDataCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_WORKFLOWITEM.name -> (new DeleteWorkflowitemCommand(), CommandConfiguration(notifyByEvent = true)),
-    GET_ALL_BOARDS_WITH_PROJECTS.name -> (new GetAllBoardsCommand(), CommandConfiguration(notifyByEvent = false)),
-
-    CREATE_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
-    EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)),
-    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
-
-  )
-
-  case class CommandConfiguration(notifyByEvent: Boolean)
+      case class CommandConfiguration(notifyByEvent: Boolean)
 
 }
