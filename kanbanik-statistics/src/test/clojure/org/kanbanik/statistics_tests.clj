@@ -21,8 +21,7 @@
   
     (testing "Two element input in different chunks"
       (is (= {1.0 [{:timestamp 1464509670 :name "name 1"}]
-              2.0 [{:timestamp 1464509681 :name "name 2"}]} 
-             (group-by-timeframe [{:timestamp 1464509670 :name "name 1"}
+              2.0 [{:timestamp 1464509681 :name "name 2"}]}              (group-by-timeframe [{:timestamp 1464509670 :name "name 1"}
                                      {:timestamp 1464509681 :name "name 2"}] 10)))
       ) 
   )
