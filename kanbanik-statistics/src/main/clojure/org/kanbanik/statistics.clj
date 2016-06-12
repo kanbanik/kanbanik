@@ -9,17 +9,17 @@
   )
 )
 
-(defn reduce-chunk [grouped-chunk base-timestamp]
-  (let [last-from-chunk (last (val (first grouped-chunk)))]
-    (assoc 
-      last-from-chunk
-      :timestamp
-      (- (:timestamp last-from-chunk) base-timestamp)
-    )
-  )
-)
-
 (defn reduce-tasks [grouped base-timestamp]
+  (defn reduce-chunk [grouped-chunk base-timestamp]
+    (let [last-from-chunk (last (val (first grouped-chunk)))]
+      (assoc 
+          last-from-chunk
+        :timestamp
+        (- (:timestamp last-from-chunk) base-timestamp)
+        )
+      )
+    )
+
   (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
     ; result is something like:
     ; ({10 [{:id 10, :timestamp 20}]} {20 [{:id 20, :timestamp 30}]}
@@ -46,3 +46,49 @@
     )
   )
 )
+
+
+
+(defn generate-report [descriptor tasks]
+"
+The tasks are one timeframe output from the reduce-tasks
+
+Example input (aka descriptor)
+[
+ {
+  :type :composite
+  :title \"some title\"
+  :children [
+   {   
+    :type :leaf
+    :filter {:worfklowitem-id 12}
+    :function :avg-cnt/:avg-time
+   } 
+  ]
+ }
+]
+
+Example output
+[
+ {
+  :title \"some title\"
+  :children [
+    {
+      :type :leaf
+      :value 10
+    }
+  ]
+ }
+]
+"
+  (loop [res [] desc descriptor]
+    (if (= (count desc) 0)
+      res
+      (if (= (:type (first desc)) :leaf)
+        (recur (conj res {:type :leaf :value 103}) (rest desc))
+        (recur (conj res {:title (:title (first desc)) :children (generate-report (:children (first desc)) tasks)}) (rest desc))
+      )
+    )
+  )
+)
+
