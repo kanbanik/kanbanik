@@ -48,47 +48,30 @@
 )
 
 
+(defn calculate-one [function filter tasks]
+1
+)
+
 
 (defn generate-report [descriptor tasks]
 "
 The tasks are one timeframe output from the reduce-tasks
 
 Example input (aka descriptor)
-[
- {
-  :type :composite
-  :title \"some title\"
-  :children [
-   {   
-    :type :leaf
-    :filter {:worfklowitem-id 12}
-    :function :avg-cnt/:avg-time
-   } 
-  ]
- }
-]
+(def x [{:function :function1 :filter :filter1 :children [{:function :cf1 :filter :cf1}]}])
 
 Example output
-[
- {
-  :title \"some title\"
-  :children [
-    {
-      :type :leaf
-      :value 10
-    }
-  ]
- }
-]
+[1 [103]]
 "
   (loop [res [] desc descriptor]
     (if (= (count desc) 0)
       res
-      (if (= (:type (first desc)) :leaf)
-        (recur (conj res {:type :leaf :value 103}) (rest desc))
-        (recur (conj res {:title (:title (first desc)) :children (generate-report (:children (first desc)) tasks)}) (rest desc))
+      (if (:children (first desc))
+        (recur (conj res [(calculate-one (:function (first desc)) (:filter (first desc)) tasks) (generate-report (:children (first desc)) tasks)]) (rest desc))
+        (recur (conj res 103) (rest desc))
       )
     )
   )
+
 )
 
