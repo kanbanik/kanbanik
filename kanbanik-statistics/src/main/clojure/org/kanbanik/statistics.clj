@@ -47,7 +47,28 @@
   )
 )
 
+"Defines the map of functions which can be used"
+(def functions 
+  {:cnt (fn [tasks] (count tasks))}
+)
 
+(defn apply-filter [filter-conditions tasks]
+"
+Takes an example of the task which should be matched and 
+returns the list of tasks which are matched by it.
+
+Currently supports only the workflowitem-id.
+"
+(filter (fn [task]
+  (= (:workflowitem-id filter-conditions) (:workflowitem-id task)))
+  tasks)
+)
+
+(defn apply-function [function tasks]
+  ((function functions) tasks)
+)
+
+"maybe delete because the above two should do the trick"
 (defn calculate-one [function filter tasks]
 1
 )
