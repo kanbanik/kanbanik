@@ -59,20 +59,14 @@ returns the list of tasks which are matched by it.
 
 Currently supports only the workflowitem-id.
 "
-(filter (fn [task]
-  (= (:workflowitem-id filter-conditions) (:workflowitem-id task)))
-  tasks)
+  (filter 
+   (fn [task] (= (:workflowitem-id filter-conditions) (:workflowitem-id task)))
+    tasks)
 )
 
 (defn apply-function [function tasks]
   ((function functions) tasks)
 )
-
-"maybe delete because the above two should do the trick"
-(defn calculate-one [function filter tasks]
-1
-)
-
 
 (defn generate-report [descriptor tasks]
 "
@@ -87,12 +81,13 @@ Example output
   (loop [res [] desc descriptor]
     (if (= (count desc) 0)
       res
-      (if (:children (first desc))
-        (recur (conj res [(calculate-one (:function (first desc)) (:filter (first desc)) tasks) (generate-report (:children (first desc)) tasks)]) (rest desc))
-        (recur (conj res 103) (rest desc))
-      )
+      (let [filtered-tasks (apply-filter (:filter (first desc)) tasks) function (:function (first desc))]
+           (if (:children (first desc))
+             (recur (conj res [(apply-function function filtered-tasks) (generate-report (:children (first desc)) filtered-tasks)]) (rest desc))
+             (recur (conj res (apply-function function filtered-tasks)) (rest desc))
+             )           
+       )
     )
   )
-
 )
 
