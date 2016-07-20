@@ -47,11 +47,6 @@
   )
 )
 
-"Defines the map of functions which can be used"
-(def functions 
-  {:cnt (fn [tasks] (count tasks))}
-)
-
 (defn apply-filter [filter-conditions tasks]
 "
 Takes an example of the task which should be matched and 
@@ -64,8 +59,18 @@ Currently supports only the workflowitem-id.
     tasks)
 )
 
+
+"Defines the map of functions which can be used"
+(def functions
+  {:cnt (fn [tasks] (count tasks))}
+)
+
+
 (defn apply-function [function tasks]
-  ((function functions) tasks)
+  (if (and (not (nil? function)) (function functions)) 
+    ((function functions) tasks)  
+    nil
+  )
 )
 
 (defn generate-report [descriptor tasks]
@@ -73,17 +78,20 @@ Currently supports only the workflowitem-id.
 The tasks are one timeframe output from the reduce-tasks
 
 Example input (aka descriptor)
-(def x [{:function :function1 :filter :filter1 :children [{:function :cf1 :filter :cf1}]}])
+(def d [{:function :cnt :filter {:workflowitem-id 10} :children [{:function :cnt :filter {:workflowitem-id 10}}]}])
+
+Example input (aka list of tasks)
+(def t [{:workflowitem-id 10} {:workflowitem-id 20}])
 
 Example output
-[1 [103]]
+[1 [1]]
 "
   (loop [res [] desc descriptor]
     (if (= (count desc) 0)
       res
       (let [filtered-tasks (apply-filter (:filter (first desc)) tasks) function (:function (first desc))]
            (if (:children (first desc))
-             (recur (conj res [(apply-function function filtered-tasks) (generate-report (:children (first desc)) filtered-tasks)]) (rest desc))
+             (recur (conj res (apply-function function filtered-tasks) (generate-report (:children (first desc)) filtered-tasks)) (rest desc))
              (recur (conj res (apply-function function filtered-tasks)) (rest desc))
              )           
        )
