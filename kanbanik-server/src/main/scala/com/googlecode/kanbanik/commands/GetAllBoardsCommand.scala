@@ -30,10 +30,16 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
       pnames
     )
 
-    // a hack - should be on DB level.
+
+    val projectIds = loadedProjects.map(p => p.id.get)
     def taskAllowed(task: Task): Boolean = {
-        return (pids.isDefined && pids.get.contains(task.id.get)) ||
-                (pnames.isDefined && pnames.get.contains(task.name))
+      if (!pids.isDefined && !pnames.isDefined) {
+        return true
+      }
+
+      // since the projectIds contain projects which has already been filtered on DB level
+      // this check takes into account also pnames transparently
+      return projectIds.contains(task.projectId)
     }
 
     val res = ListDto(
