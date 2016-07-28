@@ -3,7 +3,6 @@ import org.bson.types.ObjectId
 import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.commands.TaskManipulation
 import com.googlecode.kanbanik.dtos.TaskDto
-import scala.Some
 
 class TaskBuilder extends TaskManipulation {
 

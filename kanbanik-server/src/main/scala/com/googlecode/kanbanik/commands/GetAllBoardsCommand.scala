@@ -2,7 +2,7 @@ package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.{BoardBuilder, ProjectBuilder, TaskBuilder}
 import com.googlecode.kanbanik.dtos.{BoardWithProjectsDto, ErrorDto, GetAllBoardsWithProjectsDto, ListDto, _}
-import com.googlecode.kanbanik.model.{User, Board, Project}
+import com.googlecode.kanbanik.model.{User, Board, Project, Task}
 import org.bson.types.ObjectId
 
 class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[BoardWithProjectsDto]] {
@@ -20,17 +20,27 @@ class GetAllBoardsCommand extends Command[GetAllBoardsWithProjectsDto, ListDto[B
       extractFilters(params.filters, x => if (x.bid.isDefined) Some(new ObjectId(x.bid.get)) else None),
       extractFilters(params.filters, _.bname),
       user)
+
+    val pids = extractFilters(params.filters, x => if (x.pid.isDefined) Some(new ObjectId(x.pid.get)) else None)
+    val pnames = extractFilters(params.filters, _.pname)
+
     val loadedProjects = Project.all(
       user,
-      extractFilters(params.filters, x => if (x.pid.isDefined) Some(new ObjectId(x.pid.get)) else None),
-      extractFilters(params.filters, _.pname)
+      pids,
+      pnames
     )
+
+    // a hack - should be on DB level.
+    def taskAllowed(task: Task): Boolean = {
+        return (pids.isDefined && pids.get.contains(task.id.get)) ||
+                (pnames.isDefined && pnames.get.contains(task.name))
+    }
 
     val res = ListDto(
       loadedBoards.map(
         board => BoardWithProjectsDto(
         boardBuilder.buildDto(board, user).copy(
-          tasks = Some(board.tasks.map(taskBuilder.buildDto))
+          tasks = Some(board.tasks.filter(taskAllowed).map(taskBuilder.buildDto))
         ), {
           val projectDtos = loadedProjects.filter(
             project => project.boards.getOrElse(List[Board]()).exists(projectsBoard => projectsBoard.id == board.id)
