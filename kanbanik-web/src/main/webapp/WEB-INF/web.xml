@@ -39,6 +39,16 @@
         <param-value>true</param-value>
     </context-param>
 
+	<!--Allows / disallows the following headers:-->
+	<!--"Access-Control-Allow-Origin", "*"-->
+	<!--"Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS"-->
+	<!--"Access-Control-Allow-Headers","origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers"-->
+	<!--"Access-Control-Max-Age", "1800"-->
+	<context-param>
+		<param-name>enableAccessControlHeaders</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
 	<listener>
 		<listener-class>com.googlecode.kanbanik.server.KanbanikContextListener
 		</listener-class>

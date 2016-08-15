@@ -60,10 +60,12 @@ class KanbanikApi extends HttpServlet {
   private def process(req: HttpServletRequest, resp: HttpServletResponse) {
     resp.setCharacterEncoding("UTF-8")
 
-    resp.addHeader("Access-Control-Allow-Origin", "*")
-    resp.addHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
-    resp.addHeader("Access-Control-Allow-Headers","origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers")
-    resp.addHeader("Access-Control-Max-Age", "1800")
+    if (Configuration.enableAccessControlHeaders) {
+      resp.addHeader("Access-Control-Allow-Origin", "*")
+      resp.addHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
+      resp.addHeader("Access-Control-Allow-Headers", "origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers")
+      resp.addHeader("Access-Control-Max-Age", "1800")
+    }
 
     val commandJson = req.getParameter("command")
     if (commandJson == null) {

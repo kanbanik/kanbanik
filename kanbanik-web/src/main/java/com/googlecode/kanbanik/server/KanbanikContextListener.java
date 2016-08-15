@@ -27,8 +27,10 @@ public class KanbanikContextListener implements ServletContextListener {
 		String password = context.getInitParameter("mongoPassword");
 		String dbName = context.getInitParameter("mongoDBName");
 		String authenticationRequired = context.getInitParameter("mongoAuthenticationRequired");
-        boolean enableGzipCommunication = Boolean.parseBoolean(context.getInitParameter("enableGzipCommunication"));
-        Configuration.init(enableGzipCommunication);
+
+		boolean enableGzipCommunication = Boolean.parseBoolean(context.getInitParameter("enableGzipCommunication"));
+		boolean enableAccessControlHeaders = Boolean.parseBoolean(context.getInitParameter("enableAccessControlHeaders"));
+        Configuration.init(enableGzipCommunication, enableAccessControlHeaders);
 
 		new KanbanikConnectionManager().initConnectionPool(
 				server,
