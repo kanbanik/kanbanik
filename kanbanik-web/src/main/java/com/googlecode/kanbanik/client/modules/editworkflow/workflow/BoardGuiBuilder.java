@@ -7,7 +7,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.BoardStyle;
 import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.board.TableTaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
+import com.googlecode.kanbanik.client.components.board.TicketTaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskMovingDropController;
 import com.googlecode.kanbanik.client.components.board.WorkflowitemPlace;
 
@@ -96,11 +98,21 @@ public class BoardGuiBuilder {
     protected Widget createWorkflowitemPlaceContentWidget(
             PickupDragController dragController,
             Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
-        TaskContainer taskContainer = new TaskContainer(board, currentItem);
+
+		TaskContainer taskContainer;
+
+		if (currentItem.getName().equals("Gerrits to Review")) {
+			taskContainer = new TableTaskContainer(board, currentItem);
+		} else {
+            taskContainer = new TicketTaskContainer(board, currentItem);
+        }
+
+//		taskContainer = new TableTaskContainer(board, currentItem);
+
         DropController dropController = new TaskMovingDropController(
                 taskContainer, currentItem, project, board, dragController);
         dragController.registerDropController(dropController);
-        return taskContainer;
+        return taskContainer.asWidget();
     }
 
     protected Widget createWorkflowitemPlace(

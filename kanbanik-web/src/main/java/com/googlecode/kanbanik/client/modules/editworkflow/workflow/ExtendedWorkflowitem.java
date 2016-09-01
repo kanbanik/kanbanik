@@ -2,6 +2,7 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
+import com.googlecode.kanbanik.client.components.board.TicketTaskContainer;
 
 import java.util.List;
 

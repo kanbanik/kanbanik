@@ -1,7 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style type="com.googlecode.kanbanik.client.components.board.TaskContainer.Style">
+	<ui:style type="com.googlecode.kanbanik.client.components.board.TicketTaskContainer.Style">
 		.defaultContantPanelStyle, .fixedContantPanelStyle {
 			min-width: 210px;
             width: 100%;

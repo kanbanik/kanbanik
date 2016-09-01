@@ -9,6 +9,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HasVisibility;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
@@ -127,20 +128,16 @@ public class WorkflowitemPlace extends Composite implements
 		if (message instanceof TaskDeletedMessage) {
 			((TaskContainer) contentPanel).removeTask(taskDto, ((TaskDeletedMessage) message).isPartOfMove());
 		} else if (message instanceof TaskAddedMessage) {
+
 			if (((TaskContainer) contentPanel).containsTask(taskDto)) {
 				return;
 			}
-			TaskGui task = new TaskGui(taskDto, board, dragController);
-            if (((TaskAddedMessage) message).isPartOfMove()) {
-                task.setVisible(((TaskAddedMessage) message).wasVisible());
-            }
 
-			dragController.makeDraggable(task, task.getHeader());
-            dragController.makeDraggable(task, task.getNamePanel());
-            dragController.makeDraggable(task, task.getAssigneePicturePlace());
-			((TaskContainer) contentPanel).add(task);
-            task.setFilter(filter);
-            task.reevaluateFilter();
+            HasVisibility addedTask = ((TaskContainer) contentPanel).add(taskDto, filter, dragController);
+
+            if (((TaskAddedMessage) message).isPartOfMove()) {
+                addedTask.setVisible(((TaskAddedMessage) message).wasVisible());
+            }
 		}
 
 	}
@@ -222,7 +219,7 @@ public class WorkflowitemPlace extends Composite implements
                 return;
             }
 
-            TaskContainer container = (TaskContainer) contentPanel;
+            TicketTaskContainer container = (TicketTaskContainer) contentPanel;
             TaskGui task = container.getTaskGuiById(message.getPayload());
             if (task != null) {
                 MessageBus.sendMessage(new GetTaskByIdResponseMessage(task.getDto(), task.isVisible(), this));
