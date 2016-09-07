@@ -2,9 +2,21 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style>
+		.contentPanel {
+			overflow-x: scroll;
+			width: 1000px;
+		}
 
+		.searchBox {
+			width: 1000px;
+		}
 	</ui:style>
 
-	<g:FlowPanel ui:field="contentPanel" width="500px"/>
+	<g:FlowPanel>
+        <g:PushButton ui:field="optionsButton" text="configure"/>
+        <g:TextBox ui:field="searchBox" addStyleNames="{style.searchBox}"/>
+		<g:FlowPanel ui:field="contentPanel" addStyleNames="{style.contentPanel}"/>
+	</g:FlowPanel>
+
 
 </ui:UiBinder>

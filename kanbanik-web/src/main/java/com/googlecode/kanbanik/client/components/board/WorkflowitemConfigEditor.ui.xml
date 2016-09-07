@@ -1,0 +1,14 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+
+	</ui:style>
+
+	<g:FlowPanel>
+		<g:TextBox ui:field="widthBox" />
+		<g:Label text="from ui binder" />
+	</g:FlowPanel>
+
+
+</ui:UiBinder>

@@ -1,8 +1,12 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -13,22 +17,32 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.googlecode.kanbanik.client.api.Dtos;
+import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TableTaskContainer extends Composite implements TaskContainer {
 
     @UiField
     FlowPanel contentPanel;
 
+    @UiField
     TextBox searchBox;
+
+    @UiField
+    PushButton optionsButton;
 
     private List<Dtos.TaskDto> realList = new ArrayList<>();
 
@@ -41,6 +55,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
     private static TableTaskContainer.MyUiBinder uiBinder = GWT.create(TableTaskContainer.MyUiBinder.class);
 
+    private Map<String, Column<Dtos.TaskDto, String>> tagColumns = new HashMap<>();
+
     public TableTaskContainer(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
         Column<Dtos.TaskDto, String> nameColumn = new Column<Dtos.TaskDto, String>(new TableTaskCell()) {
             @Override
@@ -52,7 +68,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         nameColumn.setFieldUpdater(new FieldUpdater<Dtos.TaskDto, String>() {
             @Override
             public void update(int index, Dtos.TaskDto object, String value) {
-                String x = "";
+
             }
         });
 
@@ -80,12 +96,10 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                 });
         table.addColumnSortHandler(columnSortHandler);
         table.getColumnSortList().push(nameColumn);
-        table.setWidth("500px");
+        table.setWidth("1500px");
 
         initWidget(uiBinder.createAndBindUi(this));
 
-        searchBox = new TextBox();
-        searchBox.setWidth("492px");
         searchBox.getElement().setPropertyString("placeholder", "search...");
         searchBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -97,6 +111,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
         contentPanel.add(searchBox);
         contentPanel.add(table);
+
+        optionsButton.addClickHandler(new ConfigureClickHandler());
     }
 
     private void updateFilter() {
@@ -141,6 +157,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         dataProvider.getList().add(taskDto);
         realList.add(taskDto);
 
+        addLabelColumn(taskDto);
+
         return new HasVisibility() {
             @Override
             public boolean isVisible() {
@@ -154,6 +172,23 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         };
     }
 
+    private void addLabelColumn(Dtos.TaskDto taskDto) {
+        if (taskDto.getTaskTags() == null) {
+            return;
+        }
+
+        for (Dtos.TaskTag tag : taskDto.getTaskTags()) {
+            String tagName = tag.getName();
+            if (tagColumns.containsKey(tagName)) {
+                continue;
+            }
+
+            Column<Dtos.TaskDto, String> column = new TagColumn(new TextCell(), tagName);
+            tagColumns.put(tagName, column);
+            table.addColumn(column, tagName);
+        }
+    }
+
     @Override
     public void setWipLimitGuard(WipLimitGuard wipLimitGuard) {
 
@@ -163,4 +198,57 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     public void setWipCorrect(boolean wipCorrect) {
 
     }
+
+    class ConfigureClickHandler implements ClickHandler {
+
+        @Override
+        public void onClick(ClickEvent event) {
+            final WorkflowitemConfigEditor configEditor = new WorkflowitemConfigEditor();
+            PanelContainingDialog configEditorPopup = new PanelContainingDialog("Configure Workflowitem", configEditor, null, false, 400, -1);
+            configEditorPopup.addListener(new PanelContainingDialog.PanelContainingDialolgListener() {
+                @Override
+                public void okClicked(PanelContainingDialog dialog) {
+                    contentPanel.setWidth(configEditor.getWidth() + "px");
+                }
+
+                @Override
+                public void cancelClicked(PanelContainingDialog dialog) {
+
+                }
+            });
+            configEditorPopup.setupToMinSize();
+            configEditorPopup.center();
+        }
+    }
 }
+
+class TagColumn extends Column<Dtos.TaskDto, String> {
+
+    private String tagName;
+
+    public TagColumn(Cell<String> cell, String tagName) {
+        super(cell);
+        this.tagName = tagName;
+    }
+
+    @Override
+    public String getValue(Dtos.TaskDto object) {
+        if (object.getTaskTags() == null) {
+            return "";
+        }
+
+        for (Dtos.TaskTag tag : object.getTaskTags()) {
+            if (tagName.equals(tag.getName())) {
+                if (tag.getPictureUrl() != null) {
+                    return tag.getPictureUrl();
+                }
+
+                return tag.getDescription() != null ? tag.getDescription() : "";
+            }
+        }
+
+        return "";
+    }
+}
+
+
