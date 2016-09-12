@@ -52,20 +52,33 @@ public class BoardGuiBuilder {
 				
 				setupBoard(childTable, workflow.getBoard());
 				
-				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, childTable, workflow.getBoard());
+                Widget workflowitemPlace = new WorkflowitemPlace(
+                        currentItem,
+                        project,
+                        childTable,
+                        dragController,
+                        workflow.getBoard());
+
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
                 List<ExtendedWorkflowitem> nestedChildren = new ArrayList<>();
                 extendedWorkflowitem.setChildren(nestedChildren);
 				buildBoard(wipLimitGuard, nestedChildren, extendedWorkflowitem, currentItem.getNestedWorkflow(), project, childTable, dragController, 0, 0);
 			} else {
-				Widget taskContainer = createWorkflowitemPlaceContentWidget(dragController, currentItem, project, workflow.getBoard());
-				Widget workflowitemPlace = createWorkflowitemPlace(dragController, currentItem, project, taskContainer, workflow.getBoard());
+				TaskContainers taskContainers = createWorkflowitemPlaceContentWidget(dragController, currentItem, project, workflow.getBoard());
+                Widget workflowitemPlace = new WorkflowitemPlace(
+                        currentItem,
+                        project,
+                        taskContainers,
+                        dragController,
+                        workflow.getBoard());
+
 				workflowitemPlace.addStyleName(style.board());
 				table.setWidget(row, column, workflowitemPlace);
                 extendedWorkflowitem.setChildren(new ArrayList<ExtendedWorkflowitem>());
-                extendedWorkflowitem.setTaskContainer((TaskContainer) taskContainer);
-                ((TaskContainer) taskContainer).setWipLimitGuard(wipLimitGuard);
+                extendedWorkflowitem.setTaskContainer(taskContainers.getCurrent());
+                (taskContainers.getTableTaskContainer()).setWipLimitGuard(wipLimitGuard);
+                (taskContainers.getTicketTaskContainer()).setWipLimitGuard(wipLimitGuard);
 				setupBoard(table, workflow.getBoard());
 			}
 
@@ -95,24 +108,24 @@ public class BoardGuiBuilder {
 		table.setWidth("100%");
 	}
 
-    protected Widget createWorkflowitemPlaceContentWidget(
+    protected TaskContainers createWorkflowitemPlaceContentWidget(
             PickupDragController dragController,
             Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
 
 		TaskContainer taskContainer;
 
-		if (currentItem.getName().equals("Gerrits to Review")) {
-			taskContainer = new TableTaskContainer(board, currentItem);
-		} else {
-            taskContainer = new TicketTaskContainer(board, currentItem);
-        }
+        TableTaskContainer tableTaskContainer = new TableTaskContainer(board, currentItem);
+        TicketTaskContainer ticketTaskContainer = new TicketTaskContainer(board, currentItem);
 
-//		taskContainer = new TableTaskContainer(board, currentItem);
+        DropController tableDropController = new TaskMovingDropController(
+                tableTaskContainer, currentItem, project, board, dragController);
+        dragController.registerDropController(tableDropController);
 
-        DropController dropController = new TaskMovingDropController(
-                taskContainer, currentItem, project, board, dragController);
-        dragController.registerDropController(dropController);
-        return taskContainer.asWidget();
+        DropController ticketDropController = new TaskMovingDropController(
+                tableTaskContainer, currentItem, project, board, dragController);
+        dragController.registerDropController(ticketDropController);
+
+        return new TaskContainers(tableTaskContainer, ticketTaskContainer);
     }
 
     protected Widget createWorkflowitemPlace(

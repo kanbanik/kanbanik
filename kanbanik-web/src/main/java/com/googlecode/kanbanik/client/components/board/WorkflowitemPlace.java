@@ -5,12 +5,16 @@ import java.util.List;
 import com.allen_sauer.gwt.dnd.client.DragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.TableRowElement;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
@@ -20,6 +24,7 @@ import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
 import com.googlecode.kanbanik.client.messaging.messages.task.*;
+import com.googlecode.kanbanik.client.modules.editworkflow.workflow.TaskContainers;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLifecycleListener;
 import com.googlecode.kanbanik.client.modules.lifecyclelisteners.ModulesLyfecycleListenerHandler;
 import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
@@ -27,16 +32,23 @@ import static com.googlecode.kanbanik.client.api.Dtos.TaskDto;
 public class WorkflowitemPlace extends Composite implements
 		MessageListener<TaskDto>, ModulesLifecycleListener {
 
-	@UiField
+    private TaskContainers taskContainers;
+
+    @UiField
 	Label nameWithWipLimitField;
 
-	@UiField(provided = true)
-	Widget contentPanel;
+	@UiField
+    FlowPanel contentPanelWrapper;
+
+    Widget contentPanel;
 
     @UiField
     TableRowElement nameWithWipLimit;
 
-    private BoardsFilter filter;
+	@UiField
+	PushButton switchView;
+
+	private BoardsFilter filter;
 
     protected interface Style extends CssResource {
         String visibleHeader();
@@ -70,33 +82,73 @@ public class WorkflowitemPlace extends Composite implements
 
     private Dtos.BoardDto board;
 
-	public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
+    public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
                              Dtos.ProjectDto projectDto, Widget body, DragController dragController, Dtos.BoardDto board) {
-        this.board = board;
-		this.workflowitemDto = workflowitemDto;
-		this.projectDtoId = projectDto.getId();
-		contentPanel = body;
-		this.dragController = dragController;
-		initWidget(uiBinder.createAndBindUi(this));
 
-		String name = workflowitemDto.getName();
-		if ("".equals(name)) {
-			// an anonymous state - it has only body
-			nameWithWipLimitField.setVisible(false);
+        this.board = board;
+        this.workflowitemDto = workflowitemDto;
+        this.projectDtoId = projectDto.getId();
+
+        this.dragController = dragController;
+        initWidget(uiBinder.createAndBindUi(this));
+        contentPanelWrapper.add(body);
+        contentPanel = body;
+
+        String name = workflowitemDto.getName();
+        if ("".equals(name)) {
+            // an anonymous state - it has only body
+            nameWithWipLimitField.setVisible(false);
             nameWithWipLimit.addClassName(style.hiddenHeader());
-		} else {
+        } else {
             nameWithWipLimit.addClassName(style.visibleHeader());
         }
 
-		setupNameWithWipLimit();
+        if (workflowitemDto.getNestedWorkflow() != null) {
+            switchView.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (taskContainers == null || !(contentPanel instanceof TaskContainer)) {
+                        return;
+                    }
 
-		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+                    TaskContainer newCurrent = taskContainers.switchView();
+                    List<TaskDto> tasks = ((TaskContainer) contentPanel).getTasks();
+                    if (tasks != null) {
+                        for (TaskDto task : tasks) {
+                            newCurrent.add(task,
+                                    filter,
+                                    WorkflowitemPlace.this.dragController);
+                        }
+                    }
 
-		MessageBus.registerListener(TaskAddedMessage.class, this);
-		MessageBus.registerListener(TaskDeletedMessage.class, this);
+                    contentPanelWrapper.clear();
+                    contentPanelWrapper.add(newCurrent.asWidget());
+                    contentPanel = newCurrent.asWidget();
+                }
+            });
+
+            switchView.setText("Switch");
+        } else {
+            // currently supported only for leafs
+            switchView.setVisible(false);
+        }
+
+
+        setupNameWithWipLimit();
+
+        new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
+
+        MessageBus.registerListener(TaskAddedMessage.class, this);
+        MessageBus.registerListener(TaskDeletedMessage.class, this);
         MessageBus.registerListener(GetFirstTaskRequestMessage.class, getFirstTaskRequestMessageListener);
         MessageBus.registerListener(GetTaskByIdRequestMessage.class, getTaskByIdRequestMessageListener);
         MessageBus.registerListener(FilterChangedMessage.class, taskFilterChangeListener);
+    }
+
+	public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
+                             Dtos.ProjectDto projectDto, TaskContainers taskContainers, DragController dragController, Dtos.BoardDto board) {
+        this(workflowitemDto, projectDto, taskContainers.getCurrent().asWidget(), dragController, board);
+        this.taskContainers = taskContainers;
 	}
 
 	private void setupNameWithWipLimit() {

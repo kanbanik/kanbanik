@@ -46,10 +46,11 @@
 			<tr ui:field="nameWithWipLimit"><td>
 				<g:FlowPanel addStyleNames="{style.headerPanel}">
 					<g:Label ui:field="nameWithWipLimitField" />
+					<g:PushButton ui:field="switchView" />
 				</g:FlowPanel>
 			</td></tr>
 			<tr style="width: 100%; height: 100%"><td>
-				<g:Widget ui:field="contentPanel" addStyleNames="{style.contentPanelStyle}" />
+				<g:FlowPanel ui:field="contentPanelWrapper"/>
 			</td></tr>
 		</table>
 	</g:HTMLPanel>

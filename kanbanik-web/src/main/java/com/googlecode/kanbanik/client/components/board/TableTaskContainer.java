@@ -96,7 +96,6 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                 });
         table.addColumnSortHandler(columnSortHandler);
         table.getColumnSortList().push(nameColumn);
-        table.setWidth("1500px");
 
         initWidget(uiBinder.createAndBindUi(this));
 
@@ -173,20 +172,21 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     }
 
     private void addLabelColumn(Dtos.TaskDto taskDto) {
-        if (taskDto.getTaskTags() == null) {
-            return;
-        }
-
-        for (Dtos.TaskTag tag : taskDto.getTaskTags()) {
-            String tagName = tag.getName();
-            if (tagColumns.containsKey(tagName)) {
-                continue;
-            }
-
-            Column<Dtos.TaskDto, String> column = new TagColumn(new TextCell(), tagName);
-            tagColumns.put(tagName, column);
-            table.addColumn(column, tagName);
-        }
+        // it actually works but not needed now
+//        if (taskDto.getTaskTags() == null) {
+//            return;
+//        }
+//
+//        for (Dtos.TaskTag tag : taskDto.getTaskTags()) {
+//            String tagName = tag.getName();
+//            if (tagColumns.containsKey(tagName)) {
+//                continue;
+//            }
+//
+//            Column<Dtos.TaskDto, String> column = new TagColumn(new TextCell(), tagName);
+//            tagColumns.put(tagName, column);
+//            table.addColumn(column, tagName);
+//        }
     }
 
     @Override

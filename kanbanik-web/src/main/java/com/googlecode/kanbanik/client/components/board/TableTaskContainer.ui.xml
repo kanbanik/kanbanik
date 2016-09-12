@@ -4,11 +4,11 @@
 	<ui:style>
 		.contentPanel {
 			overflow-x: scroll;
-			width: 1000px;
+			width: 400px;
 		}
 
 		.searchBox {
-			width: 1000px;
+			width: 100%;
 		}
 	</ui:style>
 
