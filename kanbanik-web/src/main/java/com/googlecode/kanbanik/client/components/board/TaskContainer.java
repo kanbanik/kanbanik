@@ -26,7 +26,6 @@ public interface TaskContainer {
 
     boolean containsTask(Dtos.TaskDto taskDto);
 
-
     HasVisibility add(Dtos.TaskDto taskDto, BoardsFilter filter, DragController dragController);
 
     void setWipLimitGuard(WipLimitGuard wipLimitGuard);

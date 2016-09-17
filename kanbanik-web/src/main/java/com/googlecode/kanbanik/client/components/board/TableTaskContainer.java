@@ -76,6 +76,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
         nameColumn.setSortable(true);
         table.addColumn(nameColumn, "Name");
+        table.setWidth("100%");
 
         dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);

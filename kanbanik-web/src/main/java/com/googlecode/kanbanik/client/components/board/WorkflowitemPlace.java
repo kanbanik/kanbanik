@@ -105,7 +105,7 @@ public class WorkflowitemPlace extends Composite implements
             nameWithWipLimit.addClassName(style.visibleHeader());
         }
 
-        if (workflowitemDto.getNestedWorkflow() != null) {
+        if (workflowitemDto.getNestedWorkflow() != null && workflowitemDto.getNestedWorkflow().getWorkflowitems().size() == 0) {
             switchView.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -140,11 +140,8 @@ public class WorkflowitemPlace extends Composite implements
             });
 
             switchView.setText("Switch");
-        } else {
-            // currently supported only for leafs
-            switchView.setVisible(false);
+            switchView.setVisible(true);
         }
-
 
         setupNameWithWipLimit();
 
