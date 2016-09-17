@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -36,6 +37,8 @@ public class TicketTaskContainer extends Composite implements TaskContainer {
 
 	private Dtos.BoardDto board;
 	private Dtos.WorkflowitemDto currentItem;
+
+    private DropController dropController;
 
     public interface Style extends CssResource {
 		
@@ -214,6 +217,16 @@ public class TicketTaskContainer extends Composite implements TaskContainer {
             contentPanel.remove(widgetIndex);
         }
     }
+
+	@Override
+	public void setDropController(DropController dropController) {
+		this.dropController = dropController;
+	}
+
+	@Override
+	public DropController getDropController() {
+		return dropController;
+	}
 
 	private BigDecimal asBigDecimal(String string) {
 		if (string == null || "".equals(string)) {

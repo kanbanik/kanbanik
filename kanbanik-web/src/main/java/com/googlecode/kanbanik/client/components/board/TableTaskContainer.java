@@ -1,9 +1,9 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -17,7 +17,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
@@ -25,9 +24,9 @@ import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
-import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WorkflowEditingComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +43,14 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     @UiField
     PushButton optionsButton;
 
+    // this needs to be here because some of the tasks can be hidden but still present
     private List<Dtos.TaskDto> realList = new ArrayList<>();
 
     private CellTable<Dtos.TaskDto> table = new CellTable<>();
 
     private ListDataProvider<Dtos.TaskDto> dataProvider;
+
+    private DropController dropController;
 
     interface MyUiBinder extends UiBinder<FlowPanel, TableTaskContainer> {
     }
@@ -131,18 +133,38 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
     @Override
     public List<Dtos.TaskDto> getTasks() {
-        // todo return a copy of the list instead
-        return realList;
+        return Collections.unmodifiableList(realList);
     }
 
     @Override
     public int getTaskIndex(Dtos.TaskDto dto) {
-        return 0;
+        return getTaskIndexFrom(dataProvider.getList(), dto);
+    }
+
+    private int getTaskIndexFrom(List<Dtos.TaskDto> list, Dtos.TaskDto dto) {
+        int i = 0;
+        for (Dtos.TaskDto task : list) {
+            if (task.getId().equals(dto.getId())) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    private void removeFrom(List<Dtos.TaskDto> list, Dtos.TaskDto taskDto) {
+        int taskIndex = getTaskIndexFrom(list, taskDto);
+        if (taskIndex == -1) {
+            return;
+        }
+
+        list.remove(taskIndex);
     }
 
     @Override
     public void removeTask(Dtos.TaskDto taskDto, boolean partOfMove) {
-
+        removeFrom(realList, taskDto);
+        removeFrom(dataProvider.getList(), taskDto);
     }
 
     @Override
@@ -197,6 +219,16 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     @Override
     public void setWipCorrect(boolean wipCorrect) {
 
+    }
+
+    @Override
+    public void setDropController(DropController dropController) {
+        this.dropController = dropController;
+    }
+
+    @Override
+    public DropController getDropController() {
+        return dropController;
     }
 
     class ConfigureClickHandler implements ClickHandler {

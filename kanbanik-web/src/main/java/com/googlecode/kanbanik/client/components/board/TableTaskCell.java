@@ -22,8 +22,8 @@ public class TableTaskCell extends AbstractCell<String> {
     private static Template template;
 
     public TableTaskCell() {
-        super(BrowserEvents.DRAGSTART, BrowserEvents.DRAGEND, BrowserEvents.DRAGENTER, BrowserEvents.DRAGLEAVE,
-                BrowserEvents.DRAGOVER, BrowserEvents.DROP, BrowserEvents.DBLCLICK);
+//        super(BrowserEvents.DRAGSTART, BrowserEvents.DRAGEND, BrowserEvents.DRAGENTER, BrowserEvents.DRAGLEAVE,
+//                BrowserEvents.DRAGOVER, BrowserEvents.DROP, BrowserEvents.DBLCLICK);
 
         if (null == template) {
             template = GWT.create(Template.class);
@@ -33,26 +33,27 @@ public class TableTaskCell extends AbstractCell<String> {
     @Override
     public void render(Context context, String value, SafeHtmlBuilder sb) {
         sb.append(template.draggable(value));
-    }
-
-    @Override
-    public void onBrowserEvent(Context context, Element parent, String value, NativeEvent event,
-                               ValueUpdater<String> valueUpdater) {
-        String eventType = event.getType();
-
-        if (BrowserEvents.DROP.equals(eventType)) {
-            String player = event.getDataTransfer().getData("task");
-            setValue(context, parent, player);
-            if (null != valueUpdater) {
-                valueUpdater.update(player);
-            }
-        } else if (BrowserEvents.DRAGSTART.equals(eventType)) {
-            event.getDataTransfer().setData("task", value);
-            event.getDataTransfer().setData("column", Integer.toString(context.getColumn()));
-            event.getDataTransfer().setData("row", Integer.toString(context.getIndex()));
-        } else if (BrowserEvents.DBLCLICK.equals(eventType)) {
-
-        }
 
     }
+
+//    @Override
+//    public void onBrowserEvent(Context context, Element parent, String value, NativeEvent event,
+//                               ValueUpdater<String> valueUpdater) {
+//        String eventType = event.getType();
+//
+//        if (BrowserEvents.DROP.equals(eventType)) {
+//            String player = event.getDataTransfer().getData("task");
+//            setValue(context, parent, player);
+//            if (null != valueUpdater) {
+//                valueUpdater.update(player);
+//            }
+//        } else if (BrowserEvents.DRAGSTART.equals(eventType)) {
+//            event.getDataTransfer().setData("task", value);
+//            event.getDataTransfer().setData("column", Integer.toString(context.getColumn()));
+//            event.getDataTransfer().setData("row", Integer.toString(context.getIndex()));
+//        } else if (BrowserEvents.DBLCLICK.equals(eventType)) {
+//
+//        }
+//
+//    }
 }

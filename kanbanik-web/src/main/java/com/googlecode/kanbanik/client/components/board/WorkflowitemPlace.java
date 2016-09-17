@@ -3,6 +3,8 @@ package com.googlecode.kanbanik.client.components.board;
 import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -76,14 +78,14 @@ public class WorkflowitemPlace extends Composite implements
 
 	private final Dtos.WorkflowitemDto workflowitemDto;
 
-	private final DragController dragController;
+	private final PickupDragController dragController;
 
 	private final String projectDtoId;
 
     private Dtos.BoardDto board;
 
     public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
-                             Dtos.ProjectDto projectDto, Widget body, DragController dragController, Dtos.BoardDto board) {
+                             Dtos.ProjectDto projectDto, Widget body, PickupDragController dragController, Dtos.BoardDto board) {
 
         this.board = board;
         this.workflowitemDto = workflowitemDto;
@@ -111,19 +113,29 @@ public class WorkflowitemPlace extends Composite implements
                         return;
                     }
 
-                    TaskContainer newCurrent = taskContainers.switchView();
-                    List<TaskDto> tasks = ((TaskContainer) contentPanel).getTasks();
+                    TaskContainer newCurrentContentPanel = taskContainers.switchView();
+                    TaskContainer prevContentPanel = (TaskContainer) WorkflowitemPlace.this.contentPanel;
+
+                    List<TaskDto> tasks = prevContentPanel.getTasks();
+
                     if (tasks != null) {
                         for (TaskDto task : tasks) {
-                            newCurrent.add(task,
+                            prevContentPanel.removeTask(task, false);
+                            newCurrentContentPanel.add(task,
                                     filter,
                                     WorkflowitemPlace.this.dragController);
                         }
                     }
 
                     contentPanelWrapper.clear();
-                    contentPanelWrapper.add(newCurrent.asWidget());
-                    contentPanel = newCurrent.asWidget();
+                    contentPanelWrapper.add(newCurrentContentPanel.asWidget());
+
+                    DropController dropController = prevContentPanel.getDropController();
+                    if (dropController != null) {
+                        WorkflowitemPlace.this.dragController.unregisterDropController(dropController);
+                    }
+
+                    WorkflowitemPlace.this.contentPanel = newCurrentContentPanel.asWidget();
                 }
             });
 
@@ -146,7 +158,7 @@ public class WorkflowitemPlace extends Composite implements
     }
 
 	public WorkflowitemPlace(Dtos.WorkflowitemDto workflowitemDto,
-                             Dtos.ProjectDto projectDto, TaskContainers taskContainers, DragController dragController, Dtos.BoardDto board) {
+                             Dtos.ProjectDto projectDto, TaskContainers taskContainers, PickupDragController dragController, Dtos.BoardDto board) {
         this(workflowitemDto, projectDto, taskContainers.getCurrent().asWidget(), dragController, board);
         this.taskContainers = taskContainers;
 	}

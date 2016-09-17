@@ -31,6 +31,7 @@ public class TaskMovingDropController extends FlowPanelDropController {
 	public TaskMovingDropController(TaskContainer dropTarget, Dtos.WorkflowitemDto workflowitem, Dtos.ProjectDto project, Dtos.BoardDto board, PickupDragController dragController) {
 		super(dropTarget.asFlowPanel());
 		taskContainer = dropTarget;
+		taskContainer.setDropController(this);
 		this.workflowitem = workflowitem;
 		this.project = project;
 		this.board = board;
@@ -49,8 +50,6 @@ public class TaskMovingDropController extends FlowPanelDropController {
                 }
             }
         }
-
-
 
         super.onPreviewDrop(context);
     }

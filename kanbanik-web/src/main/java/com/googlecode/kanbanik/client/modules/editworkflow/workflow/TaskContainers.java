@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.kanbanik.client.components.board.TableTaskContainer;
 import com.googlecode.kanbanik.client.components.board.TaskContainer;
 import com.googlecode.kanbanik.client.components.board.TicketTaskContainer;

@@ -1,6 +1,7 @@
 package com.googlecode.kanbanik.client.components.board;
 
 import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,4 +32,8 @@ public interface TaskContainer {
     void setWipLimitGuard(WipLimitGuard wipLimitGuard);
 
     void setWipCorrect(boolean wipCorrect);
+
+    void setDropController(DropController dropController);
+
+    DropController getDropController();
 }

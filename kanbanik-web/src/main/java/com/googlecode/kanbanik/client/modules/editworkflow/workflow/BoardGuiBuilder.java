@@ -112,17 +112,15 @@ public class BoardGuiBuilder {
             PickupDragController dragController,
             Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project, Dtos.BoardDto board) {
 
-		TaskContainer taskContainer;
-
         TableTaskContainer tableTaskContainer = new TableTaskContainer(board, currentItem);
         TicketTaskContainer ticketTaskContainer = new TicketTaskContainer(board, currentItem);
 
-        DropController tableDropController = new TaskMovingDropController(
-                tableTaskContainer, currentItem, project, board, dragController);
-        dragController.registerDropController(tableDropController);
+//        DropController tableDropController = new TaskMovingDropController(
+//                tableTaskContainer, currentItem, project, board, dragController);
+//        dragController.registerDropController(tableDropController);
 
         DropController ticketDropController = new TaskMovingDropController(
-                tableTaskContainer, currentItem, project, board, dragController);
+                ticketTaskContainer, currentItem, project, board, dragController);
         dragController.registerDropController(ticketDropController);
 
         return new TaskContainers(tableTaskContainer, ticketTaskContainer);
