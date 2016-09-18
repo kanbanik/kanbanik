@@ -12,6 +12,7 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -19,12 +20,14 @@ import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
+import com.googlecode.kanbanik.client.components.task.TaskEditingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
 
 import java.util.ArrayList;
@@ -54,10 +57,13 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     @UiField
     PushButton optionsButton;
 
+    @UiField
+    FlowPanel taskDetailsPanel;
+
     // this needs to be here because some of the tasks can be hidden but still present
     private List<Dtos.TaskDto> realList = new ArrayList<>();
 
-    private CellTable<Dtos.TaskDto> table = new CellTable<>();
+    private CellTable<Dtos.TaskDto> table;
 
     private ListDataProvider<Dtos.TaskDto> dataProvider;
 
@@ -70,7 +76,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
     private Map<String, Column<Dtos.TaskDto, String>> tagColumns = new HashMap<>();
 
-    public TableTaskContainer(Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
+    public TableTaskContainer(final Dtos.BoardDto board, Dtos.WorkflowitemDto currentItem) {
         Column<Dtos.TaskDto, String> nameColumn = new Column<Dtos.TaskDto, String>(new TableTaskCell()) {
             @Override
             public String getValue(Dtos.TaskDto taskDto) {
@@ -86,6 +92,23 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         });
 
         nameColumn.setSortable(true);
+        table = new CellTable<Dtos.TaskDto>() {
+            @Override
+            protected void setKeyboardSelected(int index, boolean selected, boolean stealFocus) {
+                super.setKeyboardSelected(index, selected, stealFocus);
+                if (getKeyboardSelectedRow() == -1) {
+                    taskDetailsPanel.clear();
+                    taskDetailsPanel.setVisible(false);
+                } else if (selected) {
+                    TaskEditingComponent taskEditingComponent = new TaskEditingComponent(dataProvider.getList().get(index), null, board);
+                    taskEditingComponent.initialize();
+                    taskEditingComponent.setupValues();
+                    taskDetailsPanel.clear();
+                    taskDetailsPanel.add(taskEditingComponent.getPanel());
+                    taskDetailsPanel.setVisible(true);
+                }
+            }
+        };
         table.addColumn(nameColumn, "Name");
         table.setWidth("100%");
 
@@ -117,6 +140,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                 });
         table.addColumnSortHandler(columnSortHandler);
         table.getColumnSortList().push(nameColumn);
+
 
         initWidget(uiBinder.createAndBindUi(this));
 

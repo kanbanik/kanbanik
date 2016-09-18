@@ -82,11 +82,19 @@ public abstract class AbstractTaskEditingComponent {
         this.name = "Task Details";
         this.board = board;
 
-        clickHandler.addClickHandler(new ShowDialogHandler());
+        if (clickHandler != null) {
+            clickHandler.addClickHandler(new ShowDialogHandler());
+        }
+
     }
 
+    public void initialize() {
+        if (inited) {
+            return;
+        }
 
-    private void initialize() {
+        inited = true;
+
         panel = new FlowPanel();
         taskName = new TextArea();
         ticketId = new Label("");
@@ -220,7 +228,7 @@ public abstract class AbstractTaskEditingComponent {
         });
     }
 
-    protected void setupValues() {
+    public void setupValues() {
         ticketId.setText(getTicketId());
         taskName.setValue(getTaskName());
         description.setHtml(getDescription());
@@ -363,12 +371,7 @@ public abstract class AbstractTaskEditingComponent {
         public void onClick(ClickEvent event) {
             event.stopPropagation();
             event.preventDefault();
-
-            if (!inited) {
-                initialize();
-                inited = true;
-            }
-
+            initialize();
             onClicked();
         }
 
@@ -523,4 +526,7 @@ public abstract class AbstractTaskEditingComponent {
         return listBox;
     }
 
+    public Panel getPanel() {
+        return panel;
+    }
 }

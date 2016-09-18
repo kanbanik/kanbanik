@@ -22,6 +22,7 @@ public class TableTaskCell extends AbstractCell<String> {
     private static Template template;
 
     public TableTaskCell() {
+        super(BrowserEvents.CLICK);
 //        super(BrowserEvents.DRAGSTART, BrowserEvents.DRAGEND, BrowserEvents.DRAGENTER, BrowserEvents.DRAGLEAVE,
 //                BrowserEvents.DRAGOVER, BrowserEvents.DROP, BrowserEvents.DBLCLICK);
 
@@ -39,6 +40,9 @@ public class TableTaskCell extends AbstractCell<String> {
 //    @Override
 //    public void onBrowserEvent(Context context, Element parent, String value, NativeEvent event,
 //                               ValueUpdater<String> valueUpdater) {
+
+
+
 //        String eventType = event.getType();
 //
 //        if (BrowserEvents.DROP.equals(eventType)) {
@@ -54,6 +58,6 @@ public class TableTaskCell extends AbstractCell<String> {
 //        } else if (BrowserEvents.DBLCLICK.equals(eventType)) {
 //
 //        }
-//
+
 //    }
 }

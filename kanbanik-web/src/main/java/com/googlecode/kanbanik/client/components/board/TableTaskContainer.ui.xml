@@ -2,28 +2,44 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
 	<ui:style type="com.googlecode.kanbanik.client.components.board.TableTaskContainer.Style">
-		.contentPanel {
-			overflow-x: scroll;
-			width: 400px;
-		}
+        .contentPanel {
+            overflow-x: auto;
+            width: 600px;
+            padding-right: 10px;
+        }
 
-		.searchBox {
-			width: 100%;
-		}
+        .searchBox {
+            width: 99%;
+        }
 
-		.oddRow {
-			background-color: #d0e6fb;
-		}
+        .oddRow {
+            background-color: #d0e6fb;
+        }
 
-		.evenRow {
-			background-color: #ffffff;
-		}
-	</ui:style>
+        .evenRow {
+            background-color: #ffffff;
+        }
 
-	<g:FlowPanel>
+        .contentWrapper {
+            display: inline-flex;
+        }
+
+        .taskContent {
+            width: 100%;
+        }
+
+        .tableTaskContainerStyle {
+             background-color: #e2e4e6;
+        }
+    </ui:style>
+
+	<g:FlowPanel addStyleNames="{style.tableTaskContainerStyle}">
         <g:PushButton ui:field="optionsButton" text="configure"/>
         <g:TextBox ui:field="searchBox" addStyleNames="{style.searchBox}"/>
-		<g:FlowPanel ui:field="contentPanel" addStyleNames="{style.contentPanel}"/>
+        <g:FlowPanel addStyleNames="{style.contentWrapper}">
+            <g:FlowPanel ui:field="contentPanel" addStyleNames="{style.contentPanel}"/>
+            <g:FlowPanel addStyleNames="{style.taskContent}" ui:field="taskDetailsPanel" visible="false"/>
+        </g:FlowPanel>
 	</g:FlowPanel>
 
 

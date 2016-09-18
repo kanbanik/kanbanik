@@ -163,7 +163,7 @@ public class TaskGui extends Composite implements MessageListener<TaskDto>, Modu
 
 		new ModulesLyfecycleListenerHandler(Modules.BOARDS, this);
 
-		taskEditingComponent = new TaskEditingComponent(this, editButton, boardDto);
+		taskEditingComponent = new TaskEditingComponent(taskDto, editButton, boardDto);
 		new TaskDeletingComponent(this, deleteButton);
 
         wholePanel.addClickHandler(this);
