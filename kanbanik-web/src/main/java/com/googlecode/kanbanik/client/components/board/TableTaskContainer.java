@@ -9,11 +9,13 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
@@ -33,6 +35,15 @@ import java.util.List;
 import java.util.Map;
 
 public class TableTaskContainer extends Composite implements TaskContainer {
+
+    @UiField
+    Style style;
+
+    public interface Style extends CssResource {
+        String oddRow();
+
+        String evenRow();
+    }
 
     @UiField
     FlowPanel contentPanel;
@@ -77,6 +88,13 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         nameColumn.setSortable(true);
         table.addColumn(nameColumn, "Name");
         table.setWidth("100%");
+
+        table.setRowStyles(new RowStyles<Dtos.TaskDto>() {
+            @Override
+            public String getStyleNames(Dtos.TaskDto row, int rowIndex) {
+                return rowIndex % 2 == 0 ? style.evenRow() : style.oddRow();
+            }
+        });
 
         dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);

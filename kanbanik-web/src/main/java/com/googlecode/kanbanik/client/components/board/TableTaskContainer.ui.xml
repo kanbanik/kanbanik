@@ -1,7 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-	<ui:style>
+	<ui:style type="com.googlecode.kanbanik.client.components.board.TableTaskContainer.Style">
 		.contentPanel {
 			overflow-x: scroll;
 			width: 400px;
@@ -9,6 +9,14 @@
 
 		.searchBox {
 			width: 100%;
+		}
+
+		.oddRow {
+			background-color: #d0e6fb;
+		}
+
+		.evenRow {
+			background-color: #ffffff;
 		}
 	</ui:style>
 
