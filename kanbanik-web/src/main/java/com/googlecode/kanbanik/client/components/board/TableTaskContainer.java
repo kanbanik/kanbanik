@@ -152,7 +152,11 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
     @Override
     public List<Dtos.TaskDto> getTasks() {
-        return Collections.unmodifiableList(realList);
+        List<Dtos.TaskDto> res = new ArrayList<>();
+        for (Dtos.TaskDto task : realList) {
+            res.add(task);
+        }
+        return res;
     }
 
     @Override
