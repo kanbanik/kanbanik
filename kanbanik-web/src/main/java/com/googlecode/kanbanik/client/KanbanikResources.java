@@ -35,6 +35,9 @@ public interface KanbanikResources extends ClientBundle {
 	@Source("images/chain.png")
 	ImageResource chainImage();
 
+	@Source("images/switchView.png")
+	ImageResource switchViewImage();
+
 	@Source("images/arrowRight.png")
 	ImageResource rightDropArrowImage();
 	

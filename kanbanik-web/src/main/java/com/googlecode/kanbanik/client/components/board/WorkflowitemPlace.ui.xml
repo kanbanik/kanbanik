@@ -14,6 +14,8 @@
             margin-top: 2px;
             border-top-right-radius: 3px;
             border-top-left-radius: 3px;
+			display: flex;
+			padding-left: 30px;
 		}
 		
 		.contentPanelStyle {
@@ -38,6 +40,12 @@
             font-style: italic;
         }
 
+		.buttonStyle {
+			width: 16px;
+			height: 16px;
+			padding-left: 6px;
+		}
+
 	</ui:style>
 
 	<g:HTMLPanel addStyleNames="{style.mainPanel}">
@@ -46,7 +54,7 @@
 			<tr ui:field="nameWithWipLimit"><td>
 				<g:FlowPanel addStyleNames="{style.headerPanel}">
 					<g:Label ui:field="nameWithWipLimitField" />
-					<g:PushButton ui:field="switchView" visible="false"/>
+					<g:PushButton ui:field="switchView" text="Switch View" title="Switch View" visible="false" addStyleNames="{style.buttonStyle}"/>
 				</g:FlowPanel>
 			</td></tr>
 			<tr style="width: 100%; height: 100%"><td>

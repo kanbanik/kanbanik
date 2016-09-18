@@ -15,9 +15,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.kanbanik.client.KanbanikResources;
 import com.googlecode.kanbanik.client.Modules;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
@@ -106,6 +108,7 @@ public class WorkflowitemPlace extends Composite implements
         }
 
         if (workflowitemDto.getNestedWorkflow() != null && workflowitemDto.getNestedWorkflow().getWorkflowitems().size() == 0) {
+            switchView.getUpFace().setImage(new Image(KanbanikResources.INSTANCE.switchViewImage()));
             switchView.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -139,7 +142,10 @@ public class WorkflowitemPlace extends Composite implements
                 }
             });
 
-            switchView.setText("Switch");
+
+            switchView.removeStyleName("gwt-PushButton");
+            switchView.removeStyleName("gwt-PushButton-up");
+
             switchView.setVisible(true);
         }
 
