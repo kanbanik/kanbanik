@@ -20,12 +20,18 @@
             background-color: #ffffff;
         }
 
+        .selectedRow {
+            background-color: #6699ee;
+        }
+
         .contentWrapper {
             display: inline-flex;
         }
 
         .taskContent {
             width: 100%;
+            border-left: 1px solid black;
+            padding-left: 6px;
         }
 
         .tableTaskContainerStyle {

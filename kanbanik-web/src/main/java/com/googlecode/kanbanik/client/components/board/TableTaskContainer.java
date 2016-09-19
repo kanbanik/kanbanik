@@ -12,7 +12,6 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -20,13 +19,11 @@ import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
@@ -35,7 +32,6 @@ import com.googlecode.kanbanik.client.components.task.TaskEditingComponent;
 import com.googlecode.kanbanik.client.modules.editworkflow.workflow.WipLimitGuard;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +46,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         String oddRow();
 
         String evenRow();
+
+        String selectedRow();
     }
 
     @UiField
@@ -101,7 +99,10 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                 return item == null ? null : item.getId();
             }
         };
-        table = new CellTable<>(keyProvider);
+        table = new CellTable<Dtos.TaskDto>(keyProvider) {
+        };
+
+        table.setKeyboardSelectedRow();
 
         final SingleSelectionModel<Dtos.TaskDto> selectionModel = new SingleSelectionModel<>(keyProvider);
         table.setSelectionModel(selectionModel);
@@ -131,6 +132,10 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         table.setRowStyles(new RowStyles<Dtos.TaskDto>() {
             @Override
             public String getStyleNames(Dtos.TaskDto row, int rowIndex) {
+                if (selectionModel.getSelectedObject() != null &&
+                        selectionModel.getSelectedObject().getId().equals(row.getId())) {
+                    return style.selectedRow();
+                }
                 return rowIndex % 2 == 0 ? style.evenRow() : style.oddRow();
             }
         });
