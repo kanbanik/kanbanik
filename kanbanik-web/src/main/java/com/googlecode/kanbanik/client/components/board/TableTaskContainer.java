@@ -24,6 +24,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.filter.BoardsFilter;
@@ -91,16 +95,27 @@ public class TableTaskContainer extends Composite implements TaskContainer {
             }
         });
 
-        nameColumn.setSortable(true);
-        table = new CellTable<Dtos.TaskDto>() {
+        ProvidesKey<Dtos.TaskDto> keyProvider = new ProvidesKey<Dtos.TaskDto>() {
             @Override
-            protected void setKeyboardSelected(int index, boolean selected, boolean stealFocus) {
-                super.setKeyboardSelected(index, selected, stealFocus);
-                if (getKeyboardSelectedRow() == -1) {
+            public Object getKey(Dtos.TaskDto item) {
+                return item == null ? null : item.getId();
+            }
+        };
+        table = new CellTable<>(keyProvider);
+
+        final SingleSelectionModel<Dtos.TaskDto> selectionModel = new SingleSelectionModel<>(keyProvider);
+        table.setSelectionModel(selectionModel);
+
+        nameColumn.setSortable(true);
+        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Dtos.TaskDto selected = selectionModel.getSelectedObject();
+                if (selected == null) {
                     taskDetailsPanel.clear();
                     taskDetailsPanel.setVisible(false);
-                } else if (selected) {
-                    TaskEditingComponent taskEditingComponent = new TaskEditingComponent(dataProvider.getList().get(index), null, board);
+                } else {
+                    TaskEditingComponent taskEditingComponent = new TaskEditingComponent(selected, null, board);
                     taskEditingComponent.initialize();
                     taskEditingComponent.setupValues();
                     taskDetailsPanel.clear();
@@ -108,7 +123,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                     taskDetailsPanel.setVisible(true);
                 }
             }
-        };
+        });
+
         table.addColumn(nameColumn, "Name");
         table.setWidth("100%");
 

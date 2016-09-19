@@ -31,7 +31,6 @@ public class KanbanikRichTextArea extends FlowPanel {
 
         final DisclosurePanel disclosurePanel = new DisclosurePanel("Editor Toolbar");
         disclosurePanel.add(toolbar);
-        disclosurePanel.setWidth("670px");
 
 	    setStyleName("cw-RichText");
         getElement().getStyle().setProperty("position", "compact");
