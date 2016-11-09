@@ -133,10 +133,13 @@ public class WorkflowitemPlace extends Composite implements
                     contentPanelWrapper.clear();
                     contentPanelWrapper.add(newCurrentContentPanel.asWidget());
 
-                    DropController dropController = prevContentPanel.getDropController();
-                    if (dropController != null) {
-                        WorkflowitemPlace.this.dragController.unregisterDropController(dropController);
-                    }
+                    WorkflowitemPlace.this.dragController.unregisterDropController(
+                            prevContentPanel.getDropController()
+                    );
+
+                    WorkflowitemPlace.this.dragController.registerDropController(
+                            ((TaskContainer) WorkflowitemPlace.this.contentPanel).getDropController()
+                    );
 
                     WorkflowitemPlace.this.contentPanel = newCurrentContentPanel.asWidget();
                 }

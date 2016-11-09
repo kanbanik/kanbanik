@@ -115,9 +115,8 @@ public class BoardGuiBuilder {
         TableTaskContainer tableTaskContainer = new TableTaskContainer(board, currentItem);
         TicketTaskContainer ticketTaskContainer = new TicketTaskContainer(board, currentItem);
 
-//        DropController tableDropController = new TaskMovingDropController(
-//                tableTaskContainer, currentItem, project, board, dragController);
-//        dragController.registerDropController(tableDropController);
+        new TaskMovingDropController(
+                tableTaskContainer, currentItem, project, board, dragController);
 
         DropController ticketDropController = new TaskMovingDropController(
                 ticketTaskContainer, currentItem, project, board, dragController);
@@ -126,12 +125,5 @@ public class BoardGuiBuilder {
         return new TaskContainers(tableTaskContainer, ticketTaskContainer);
     }
 
-    protected Widget createWorkflowitemPlace(
-            PickupDragController dragController,
-            Dtos.WorkflowitemDto currentItem, Dtos.ProjectDto project,
-            Widget childTable, Dtos.BoardDto board) {
-        return new WorkflowitemPlace(currentItem, project, childTable,
-                dragController, board);
-    }
 }
 

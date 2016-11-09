@@ -121,7 +121,22 @@ public class BoardsModule {
 		}, ClickEvent.getType());
 
 		PickupDragController dragController = new PickupDragController(
-				boardsPanelWrapper, false);
+				boardsPanelWrapper, false) {
+            @Override
+            protected void saveSelectedWidgetsLocationAndStyle() {
+//                super.saveSelectedWidgetsLocationAndStyle();
+            }
+
+            @Override
+            protected void restoreSelectedWidgetsLocation() {
+//                super.restoreSelectedWidgetsLocation();
+            }
+
+            @Override
+            protected void restoreSelectedWidgetsStyle() {
+//                super.restoreSelectedWidgetsStyle();
+            }
+        };
 
 		dragController.setBehaviorMultipleSelection(true);
 		dragController.setBehaviorDragStartSensitivity(3);

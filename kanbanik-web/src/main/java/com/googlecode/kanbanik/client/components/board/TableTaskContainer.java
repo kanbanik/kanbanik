@@ -17,8 +17,10 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVisibility;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
@@ -62,6 +64,8 @@ public class TableTaskContainer extends Composite implements TaskContainer {
     @UiField
     FlowPanel taskDetailsPanel;
 
+    private FlexTable flexTable;
+
     // this needs to be here because some of the tasks can be hidden but still present
     private List<Dtos.TaskDto> realList = new ArrayList<>();
 
@@ -99,10 +103,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
                 return item == null ? null : item.getId();
             }
         };
-        table = new CellTable<Dtos.TaskDto>(keyProvider) {
-        };
-
-        table.setKeyboardSelectedRow();
+        table = new CellTable<Dtos.TaskDto>(keyProvider);
 
         final SingleSelectionModel<Dtos.TaskDto> selectionModel = new SingleSelectionModel<>(keyProvider);
         table.setSelectionModel(selectionModel);
@@ -175,7 +176,12 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
 
         contentPanel.add(searchBox);
+
+
+        flexTable = new FlexTable();
+
         contentPanel.add(table);
+        contentPanel.add(flexTable);
 
         optionsButton.addClickHandler(new ConfigureClickHandler());
     }
@@ -247,6 +253,9 @@ public class TableTaskContainer extends Composite implements TaskContainer {
         realList.add(taskDto);
 
         addLabelColumn(taskDto);
+        Label l = new Label(taskDto.getName());
+        dragController.makeDraggable(l);
+        flexTable.setWidget(flexTable.getRowCount(), 0, l);
 
         return new HasVisibility() {
             @Override
@@ -259,6 +268,7 @@ public class TableTaskContainer extends Composite implements TaskContainer {
 
             }
         };
+
     }
 
     private void addLabelColumn(Dtos.TaskDto taskDto) {
