@@ -3,13 +3,20 @@
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
   timeframe contains at least one element, otherwise -1"
-  (if (= (count stream) 0)
-    -1
+  (if (and 
+       (> (count stream) 0 )
+       (contains? (first stream) :timestamp))
     (- (:timestamp (first stream)) 1)
+    -1
   )
 )
 
 (defn reduce-tasks [grouped base-timestamp]
+  "Takes a list of tasks grouped by timestamp and the first timestamp
+  which is used as a base.
+  From each chunk returns only the last task enriched by the :timestamp
+  attribute which contains the time difference between the base timestamp and
+  the last timestamp."
   (defn reduce-chunk [grouped-chunk base-timestamp]
     (let [last-from-chunk (last (val (first grouped-chunk)))]
       (assoc 
@@ -23,7 +30,8 @@
   (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
     ; result is something like:
     ; ({10 [{:id 10, :timestamp 20}]} {20 [{:id 20, :timestamp 30}]}
-    (map (fn [timeframe-chunk] (reduce-chunk (group-by #(:id %) timeframe-chunk) base-timestamp))
+    (map (fn [timeframe-chunk] 
+           (reduce-chunk (group-by #(:id %) timeframe-chunk) base-timestamp))
          vals)
   )
 )
