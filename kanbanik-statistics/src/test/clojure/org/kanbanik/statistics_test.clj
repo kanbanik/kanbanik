@@ -74,4 +74,18 @@
     (is (= nil (apply-function :not-existing [])))
     (is (= nil (apply-function nil [])))
   )
+
+  (testing "generate-report"
+    (let [
+          w1 {:workflowitem-id 1}
+          w2 {:workflowitem-id 2}
+
+          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}
+          r-nested-1 {:function :cnt :filter {:workflowitem-id 1} :children [{:function :cnt :filter {:workflowitem-id 1}}]}
+          ]
+      (is (= [1] (generate-report [r-basic-2] [w1 w2])))
+      (is (= [1 [1]] (generate-report [r-nested-1] [w1 w2])))
+      (is (= [2 [2] 1] (generate-report [r-nested-1 r-basic-2] [w1 w2 w1])))
+      )
+    )
 )
