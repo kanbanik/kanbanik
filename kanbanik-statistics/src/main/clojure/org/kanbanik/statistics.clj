@@ -34,8 +34,6 @@
   )
 
   (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
-    ; result is something like:
-    ; ({10 [{:id 10, :timestamp 20}]} {20 [{:id 20, :timestamp 30}]}
     (map (fn [timeframe-chunk] 
            (reduce-chunk (group-by #(:id %) timeframe-chunk) base-timestamp))
          vals)
@@ -69,7 +67,9 @@ returns the list of tasks which are matched by it.
 Currently supports only the workflowitem-id.
 "
   (filter 
-   (fn [task] (= (:workflowitem-id filter-conditions) (:workflowitem-id task)))
+   (fn [task] (and 
+               (:workflowitem-id filter-conditions)
+               (= (:workflowitem-id filter-conditions) (:workflowitem-id task))))
     tasks)
 )
 

@@ -53,4 +53,18 @@
       (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 0))))
       )
     )
+
+  (testing "apply-filter"
+    (let [
+          w1 {:workflowitem-id 1}
+          w2 {:workflowitem-id 2}
+          w3 {:workflowitem-id 3}
+          w4 {:workflowitem-id 4}
+          ]
+    (is (= 0 (count (apply-filter [] []))))
+    (is (= 1 (count (apply-filter w1 [w2 w1]))))
+    (is (= 0 (count (apply-filter {} [w2 w1]))))
+    (is (= 0 (count (apply-filter {} [{} w1]))))
+    )
+  )
 )
