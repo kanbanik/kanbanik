@@ -11,8 +11,7 @@
     )
 
   (testing "reduce-tasks"
-    (def one-somthing [[1 [{:timestamp 10 :id 1}]]])
-    (let [
+     (let [
           id1t10 {:timestamp 10 :id 1}
           id1t20 {:timestamp 20 :id 1}
           id2t30 {:timestamp 30 :id 2}
@@ -41,4 +40,17 @@
         )
       )
   )
+
+  (testing "group-by-timeframe"
+    (let [
+          id1t10 {:timestamp 10 :id 1}
+          id1t20 {:timestamp 20 :id 1}
+          id2t30 {:timestamp 30 :id 2}
+         ]
+      (is (= 0 (count (group-by-timeframe [] 1))))
+      (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 10))))
+      (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 1))))
+      (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 0))))
+      )
+    )
 )

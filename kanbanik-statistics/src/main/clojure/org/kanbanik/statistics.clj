@@ -54,7 +54,7 @@
       (group-by (fn [item]
                   (Math/ceil (/ 
                                 (- (:timestamp item) base-timestamp) 
-                                timeframe))
+                                (max timeframe 1)))
                   ) 
                 stream)
     )
