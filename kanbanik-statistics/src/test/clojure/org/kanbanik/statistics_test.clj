@@ -67,4 +67,11 @@
     (is (= 0 (count (apply-filter {} [{} w1]))))
     )
   )
+
+  (testing "apply-function" 
+    (is (= 0 (apply-function :cnt [])))
+    (is (= 1 (apply-function :cnt [:x])))
+    (is (= nil (apply-function :not-existing [])))
+    (is (= nil (apply-function nil [])))
+  )
 )
