@@ -17,15 +17,21 @@
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
-  (defn reduce-chunk [grouped-chunk base-timestamp]
-    (let [last-from-chunk (last (val (first grouped-chunk)))]
-      (assoc 
+  (defn reduce-chunk [grouped-chunks base-timestamp]
+; {1 [{:timestamp 10, :id 1} {:timestamp 20, :id 1}], 2 [{:timestamp 30, :id 2}]}
+    
+    (map (fn [grouped-chunk] 
+     (let [last-from-chunk (last (val grouped-chunk))]
+      (assoc
           last-from-chunk
         :timestamp
         (- (:timestamp last-from-chunk) base-timestamp)
         )
       )
+     )
+     grouped-chunks
     )
+  )
 
   (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
     ; result is something like:
