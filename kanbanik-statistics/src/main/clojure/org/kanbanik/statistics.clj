@@ -113,3 +113,10 @@ Example output
   )
 )
 
+(defn run-analisis [descriptor timeframe stream]
+  (map #(generate-report descriptor %)
+       (reduce-tasks
+        (group-by-timeframe stream timeframe) 
+        (first-timestamp stream)))
+)
+

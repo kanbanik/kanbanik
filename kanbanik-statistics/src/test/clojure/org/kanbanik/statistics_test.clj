@@ -88,4 +88,19 @@
       (is (= [2 [2] 1] (generate-report [r-nested-1 r-basic-2] [w1 w2 w1])))
       )
     )
+
+  (testing "integrated-test"
+    (let [
+          id1t10 {:timestamp 10 :id 1 :workflowitem-id 2}
+          id1t20 {:timestamp 20 :id 1 :workflowitem-id 2}
+          id2t30 {:timestamp 30 :id 2 :workflowitem-id 2}
+          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}]
+      (let [full-stream [id1t10 id1t20 id2t30]]
+      
+      (println 
+       (run-analisis r-basic-2 10 full-stream)
+      )
+
+      true
+    )))
 )
