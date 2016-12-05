@@ -3,7 +3,7 @@
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
   timeframe contains at least one element, otherwise -1"
-  (if (and 
+  (if (and
        (> (count stream) 0 )
        (contains? (first stream) :timestamp))
     (- (:timestamp (first stream)) 1)
@@ -34,6 +34,7 @@
   )
 
   (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
+   
     (map (fn [timeframe-chunk] 
            (reduce-chunk (group-by #(:id %) timeframe-chunk) base-timestamp))
          vals)
@@ -82,7 +83,7 @@ Currently supports only the workflowitem-id.
 
 (defn apply-function [function tasks]
   (if (and (not (nil? function)) (function functions)) 
-    ((function functions) tasks)  
+    ((function functions) tasks)
     nil
   )
 )
