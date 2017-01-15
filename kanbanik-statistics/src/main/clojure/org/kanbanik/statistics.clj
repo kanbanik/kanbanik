@@ -104,7 +104,7 @@ Example output
   (loop [res [] desc descriptor]
     (if (= (count desc) 0)
       res
-      (let [filtered-tasks (apply-filter (:filter (first desc)) tasks) function (:function (first desc))]
+      (let [filtered-tasks (apoply-filter (:filter (first desc)) tasks) function (:function (first desc))]
            (if (:children (first desc))
              (recur (conj res (apply-function function filtered-tasks) (generate-report (:children (first desc)) filtered-tasks)) (rest desc))
              (recur (conj res (apply-function function filtered-tasks)) (rest desc))

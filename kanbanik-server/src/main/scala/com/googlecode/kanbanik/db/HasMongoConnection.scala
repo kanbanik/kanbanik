@@ -22,6 +22,7 @@ trait HasMongoConnection extends ResourceManipulation {
     val KanbanikVersion = Value("kanbanikVersion")
     val Users = Value("users")
     val WorkflowitemLocks = Value("workflowitemLocks")
+    val Events = Value("Events")
   }
 
   def coll(connection: MongoConnection, collName: Coll.Value): MongoCollection = {

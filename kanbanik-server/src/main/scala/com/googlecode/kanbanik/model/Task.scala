@@ -40,7 +40,7 @@ case class Task(
         coll(conn, Coll.Boards).findAndModify(MongoDBObject(SimpleField.id.toString -> boardId), null, null, false, update, true, false)
       }
 
-      return Task.asEntity(obj)
+      return publish(EventType.TaskCreated, Task.asEntity(obj))
     })
 
     using(createConnection) { conn =>
@@ -62,7 +62,7 @@ case class Task(
       val idField = Coll.Tasks.toString + "." + SimpleField.id.toString
       val versionField = Coll.Tasks.toString + "." + SimpleField.version.toString
       val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version, idField, versionField), update)
-      convertToEntity(idToUpdate, dbBoard)
+      publish(EventType.TaskChanged, convertToEntity(idToUpdate, dbBoard))
     }
   }
 
@@ -88,7 +88,7 @@ case class Task(
 
       coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString -> boardId), update)
       try {
-        Task.byId(id.get, user)
+        publish(EventType.TaskChanged, Task.byId(id.get, user))
       } catch {
         case e: IllegalArgumentException => {
           return
