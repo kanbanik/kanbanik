@@ -41,6 +41,9 @@
   )
 )
 
+
+
+
 (defn group-by-timeframe [stream timeframe]
   "Gets a vector of task related events sorted by time and groups them according to given time frame.
   Timeframe: in seconds
@@ -88,6 +91,8 @@ Currently supports only the workflowitem-id.
   )
 )
 
+
+
 (defn generate-report [descriptor tasks]
 "
 The tasks are one timeframe output from the reduce-tasks
@@ -104,7 +109,7 @@ Example output
   (loop [res [] desc descriptor]
     (if (= (count desc) 0)
       res
-      (let [filtered-tasks (apoply-filter (:filter (first desc)) tasks) function (:function (first desc))]
+      (let [filtered-tasks (apply-filter (:filter (first desc)) tasks) function (:function (first desc))]
            (if (:children (first desc))
              (recur (conj res (apply-function function filtered-tasks) (generate-report (:children (first desc)) filtered-tasks)) (rest desc))
              (recur (conj res (apply-function function filtered-tasks)) (rest desc))
