@@ -40,7 +40,7 @@ case class Task(
         coll(conn, Coll.Boards).findAndModify(MongoDBObject(SimpleField.id.toString -> boardId), null, null, false, update, true, false)
       }
 
-      return publish(EventType.TaskCreated, Task.asEntity(obj))
+      return Task.asEntity(obj)
     })
 
     using(createConnection) { conn =>
@@ -62,7 +62,7 @@ case class Task(
       val idField = Coll.Tasks.toString + "." + SimpleField.id.toString
       val versionField = Coll.Tasks.toString + "." + SimpleField.version.toString
       val dbBoard = versionedUpdate(Coll.Boards, versionedQuery(idToUpdate, version, idField, versionField), update)
-      publish(EventType.TaskChanged, convertToEntity(idToUpdate, dbBoard))
+      convertToEntity(idToUpdate, dbBoard)
     }
   }
 
@@ -88,7 +88,7 @@ case class Task(
 
       coll(conn, Coll.Boards).update(MongoDBObject(Board.Fields.id.toString -> boardId), update)
       try {
-        publish(EventType.TaskChanged, Task.byId(id.get, user))
+        Task.byId(id.get, user)
       } catch {
         case e: IllegalArgumentException => {
           return
@@ -169,15 +169,10 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   }
 
-  def asDBObject(entity: Task): DBObject = {
+  def asLightDBObject(entity: Task): DBObject = {
     MongoDBObject(
-      Fields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
       Fields.name.toString -> entity.name,
-      Fields.description.toString -> entity.description,
-      Fields.classOfService.toString -> entity.classOfService,
       Fields.ticketId.toString -> entity.ticketId,
-      Fields.version.toString -> entity.version,
-      Fields.order.toString -> entity.order,
       Fields.projectId.toString -> entity.projectId,
       Fields.classOfService.toString -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
       Fields.assignee.toString -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
@@ -186,6 +181,18 @@ object Task extends HasMongoConnection with HasEntityLoader {
       Fields.boardId.toString -> entity.boardId,
       Fields.taskTags.toString -> taskTagsAsEntityList(entity.taskTags)
     )
+  }
+
+  def asDBObject(entity: Task): DBObject = {
+    val ext = MongoDBObject(
+      Fields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
+      Fields.version.toString -> entity.version,
+      Fields.order.toString -> entity.order
+    )
+
+    val builder = MongoDBObject.newBuilder
+
+    (builder ++= asLightDBObject(entity) ++= ext).result()
   }
 
   def asEntity(dbObject: DBObject): Task = {

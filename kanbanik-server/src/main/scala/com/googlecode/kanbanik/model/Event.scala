@@ -46,6 +46,7 @@ object Event extends HasMongoConnection {
 }
 
 object EventType extends Enumeration {
+  val TaskMoved = Value("TaskMoved")
   val TaskChanged = Value("TaskChanged")
   val TaskCreated = Value("TaskCreated")
   val TaskDeleted = Value("TaskDeleted")

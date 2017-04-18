@@ -1,12 +1,13 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.{User, Task, Workflowitem, Board}
+import com.googlecode.kanbanik.db.HasEvents
+import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, TaskDto}
+import com.googlecode.kanbanik.dtos.{ErrorDto, PermissionType, TaskDto}
 
-class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
+class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation with HasEvents {
 
   private lazy val taskBuilder = new TaskBuilder()
 
@@ -27,6 +28,9 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
     val task = taskBuilder.buildEntity(taskDto)
 
     val stored = setOrderIfNeeded(taskDto, task).store()
+
+    publish(EventType.TaskChanged, Task.asLightDBObject(stored))
+
     Left(taskBuilder.buildDto(stored))
   }
 

@@ -12,6 +12,25 @@ case class Payload2(p1: Integer, p3: Boolean)
 
 case class Event(id: ObjectId, payload: String)
 
+
+val base = MongoDBObject(
+  "a" -> "b",
+  "c" -> "d"
+
+)
+
+val builder = MongoDBObject.newBuilder
+
+val ext = MongoDBObject(
+"a" -> "X1",
+"y" -> "X2"
+)
+
+(builder ++= base ++= ext).result()
+
+val mangle = base.put("x", "y")
+mangle
+
 object DB extends HasMongoConnection {
 
   def store(obj: MongoDBObject) {
@@ -23,6 +42,16 @@ object DB extends HasMongoConnection {
 
 
 "$aaaa".replaceAll("\\$", "_")
+
+// task created
+// task deleted
+// task moved
+// task edited
+
+
+// {entity_type, timestamp, entity_id, ...}
+
+
 
 def toS[A <: AnyRef](source: A): String = write(source)
 
@@ -38,7 +67,7 @@ val asMap = record.values.asInstanceOf[Map[String, Any]]
 val y = asMap.asDBObject
 y.get("payload").asInstanceOf[String]
 
-DB.store(y)
+//DB.store(y)
 
 
 
