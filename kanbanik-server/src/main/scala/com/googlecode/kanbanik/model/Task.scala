@@ -104,6 +104,23 @@ case class Task(
 
   def board: Board = Board.byId(boardId, includeTasks = false)
 
+  def asMap(): Map[String, Any] = {
+    Map(
+      Task.Fields.id.toString -> { if (id == null || id.isDefined) new ObjectId else id },
+      Task.Fields.version.toString -> version,
+      Task.Fields.order.toString -> order,
+      Task.Fields.name.toString -> name,
+      Task.Fields.ticketId.toString -> ticketId,
+      Task.Fields.projectId.toString -> projectId,
+      Task.Fields.classOfService.toString -> { if (classOfService.isDefined) classOfService.get.id else None },
+      Task.Fields.assignee.toString -> { if (assignee.isDefined) assignee.get.name else None },
+      Task.Fields.dueDate.toString -> dueData,
+      Task.Fields.workflowitem.toString -> workflowitemId,
+      Task.Fields.boardId.toString -> boardId,
+      Task.Fields.taskTags.toString -> taskTags.getOrElse(List()).map(Task.taskTagAsMap(_))
+    )
+  }
+
 }
 
 object Task extends HasMongoConnection with HasEntityLoader {
@@ -169,30 +186,10 @@ object Task extends HasMongoConnection with HasEntityLoader {
 
   }
 
-  def asLightDBObject(entity: Task): DBObject = {
-    MongoDBObject(
-      Fields.name.toString -> entity.name,
-      Fields.ticketId.toString -> entity.ticketId,
-      Fields.projectId.toString -> entity.projectId,
-      Fields.classOfService.toString -> { if (entity.classOfService.isDefined) entity.classOfService.get.id else None },
-      Fields.assignee.toString -> { if (entity.assignee.isDefined) entity.assignee.get.name else None },
-      Fields.dueDate.toString -> entity.dueData,
-      Fields.workflowitem.toString -> entity.workflowitemId,
-      Fields.boardId.toString -> entity.boardId,
-      Fields.taskTags.toString -> taskTagsAsEntityList(entity.taskTags)
-    )
-  }
-
   def asDBObject(entity: Task): DBObject = {
-    val ext = MongoDBObject(
-      Fields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else entity.id },
-      Fields.version.toString -> entity.version,
-      Fields.order.toString -> entity.order
+    MongoDBObject(
+      entity.asMap().toList
     )
-
-    val builder = MongoDBObject.newBuilder
-
-    (builder ++= asLightDBObject(entity) ++= ext).result()
   }
 
   def asEntity(dbObject: DBObject): Task = {
@@ -272,8 +269,8 @@ object Task extends HasMongoConnection with HasEntityLoader {
     taskTags.getOrElse(List[TaskTag]()).map(taskTagAsEntity)
   }
 
-  def taskTagAsEntity(entity: TaskTag): DBObject = {
-    MongoDBObject(
+  def taskTagAsMap(entity: TaskTag): Map[String, Any] = {
+    Map(
       TaskTagFields.id.toString -> { if (entity.id == null || !entity.id.isDefined) new ObjectId else new ObjectId(entity.id.get) },
       TaskTagFields.name.toString -> entity.name,
       TaskTagFields.description.toString -> entity.description,
@@ -281,6 +278,12 @@ object Task extends HasMongoConnection with HasEntityLoader {
       TaskTagFields.onClickUrl.toString -> entity.onClickUrl,
       TaskTagFields.onClickTarget.toString -> entity.onClickTarget,
       TaskTagFields.colour.toString -> entity.colour
+    )
+  }
+
+  def taskTagAsEntity(entity: TaskTag): DBObject = {
+    MongoDBObject(
+      taskTagAsMap(entity).toList
     )
   }
 

@@ -13,10 +13,22 @@ case class Payload2(p1: Integer, p3: Boolean)
 case class Event(id: ObjectId, payload: String)
 
 
-val base = MongoDBObject(
-  "a" -> "b",
-  "c" -> "d"
 
+
+val m = Map("a" -> "1", "b" -> "3")
+val m2 = Map("a" -> "2", "b" -> "3")
+
+m.map((e: (String, Any)) => if (e._1 == "a") "X" -> e._2 else e)
+
+def diff(oldVal: Map[String, Any], newVal: Map[String, Any]): Map[String, Any] =
+  oldVal.filter((e: (String, Any)) => newVal.get(e._1).getOrElse(None) != e._2)
+
+
+diff(m, m2)
+
+
+val base = MongoDBObject(
+  m.toList
 )
 
 val builder = MongoDBObject.newBuilder

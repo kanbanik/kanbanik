@@ -11,7 +11,7 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation wi
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  override def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(taskDto: TaskDto, user: User): Either[TaskDto, ErrorDto] = {
     if (taskDto.workflowitemId == null) {
       return Right(ErrorDto("At least one workflowitem must exist to create a task!"))
     }
@@ -27,11 +27,13 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation wi
 
     val task = taskBuilder.buildEntity(taskDto)
 
-    val stored = setOrderIfNeeded(taskDto, task).store()
+    val oldTask = Task.byId(task.id.get, user)
 
-    publish(EventType.TaskChanged, Task.asLightDBObject(stored))
+    val storedTask = setOrderIfNeeded(taskDto, task).store()
 
-    Left(taskBuilder.buildDto(stored))
+    publish(EventType.TaskChanged, diff(oldTask, storedTask))
+
+    Left(taskBuilder.buildDto(storedTask))
   }
 
   def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {
