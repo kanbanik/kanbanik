@@ -1,4 +1,5 @@
 
+import com.googlecode.kanbanik.model.DocumentField
 import com.mongodb.casbah.{MongoCollection, MongoConnection, WriteConcern}
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
@@ -12,23 +13,48 @@ case class Payload2(p1: Integer, p3: Boolean)
 
 case class Event(id: ObjectId, payload: String)
 
+object Event extends DocumentField {
+  val entityId = Value("entityId")
+  val timestamp = Value("timestamp")
+}
 
 
-
-val m = Map("a" -> "1", "b" -> "3")
-val m2 = Map("a" -> "2", "b" -> "3")
-
-m.map((e: (String, Any)) => if (e._1 == "a") "X" -> e._2 else e)
+object SomethingElse extends DocumentField {
+  val x1 = Value("x1")
+  val x2 = Value("x2")
+}
 
 def diff(oldVal: Map[String, Any], newVal: Map[String, Any]): Map[String, Any] =
-  oldVal.filter((e: (String, Any)) => newVal.get(e._1).getOrElse(None) != e._2)
+  newVal.filter((e: (String, Any)) =>
+    e._1 != Event.version.toString && // never return version - it has no meaning for statistics
+      (e._1 == Event.id.toString || // always return the ID - needed to group the events of one entity in statistics
+        oldVal.get(e._1).getOrElse(None) != e._2) // but return only the changed fields so the event will be slim
+  )
 
 
-diff(m, m2)
+val mold = Map(
+  SomethingElse.id.toString -> "the id",
+  SomethingElse.version.toString -> "the version",
+  SomethingElse.x1.toString -> "the x 1",
+  SomethingElse.x2.toString -> "the x 2"
+
+)
+
+val mew = Map(
+  SomethingElse.id.toString -> "the id",
+  SomethingElse.version.toString -> "the version + 1",
+  SomethingElse.x1.toString -> "the x 1",
+  SomethingElse.x2.toString -> "the x 2 changed"
+
+)
+
+mew.count((e: (String, String)) => e._1 != Event.id.toString)
+
+diff(mold, mew)
 
 
 val base = MongoDBObject(
-  m.toList
+  mold.toList
 )
 
 val builder = MongoDBObject.newBuilder

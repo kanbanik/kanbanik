@@ -22,9 +22,12 @@ trait HasEvents extends HasMongoConnection {
     val TaskDeleted = Value("TaskDeleted")
   }
 
-  def publish(eventType: EventType.Value, specific: Map[String, Any]) {
-    // todo publish nothing if the specific is empty
-    // todo remove the "version" since it is not needed
+  def publish(eventType: EventType.Value, specific: Map[String, Any], allowEmpty: Boolean = false) {
+    if (!allowEmpty && specific.count((e: (String, Any)) => e._1 != Event.id.toString) == 0) {
+      // do not publish an empty event if the only value is the ID
+      return
+    }
+
     val renamedId = specific.map(
       (e: (String, Any)) => if (e._1 == Event.id.toString) Event.entityId.toString -> e._2 else e
     )
@@ -39,10 +42,17 @@ trait HasEvents extends HasMongoConnection {
     }
   }
 
+  /** Diffs two values and returns the diff usable for the statistics
+    * - always returns the ID
+    * - never returns the version
+    * - returns the changed fields from the newVal
+    */
   def diff(oldVal: Map[String, Any], newVal: Map[String, Any]): Map[String, Any] =
-    // todo always retain id
-    // todo it for some reason returns the old values not the new ones
-    oldVal.filter((e: (String, Any)) => newVal.get(e._1).getOrElse(None) != e._2)
+    newVal.filter((e: (String, Any)) =>
+      e._1 != Event.version.toString && // never return version - it has no meaning for statistics
+        (e._1 == Event.id.toString || // always return the ID - needed to group the events of one entity in statistics
+          oldVal.get(e._1).getOrElse(None) != e._2) // but return only the changed fields so the event will be slim
+    )
 
   def diff(oldVal: MappableEntity, newVal: MappableEntity): Map[String, Any] =
     diff(oldVal.asMap(), newVal.asMap())

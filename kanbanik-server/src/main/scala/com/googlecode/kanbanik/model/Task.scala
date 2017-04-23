@@ -12,10 +12,8 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.BasicDBList
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.db.HasEntityLoader
-import com.mongodb.casbah.commons.conversions.scala._
 import com.mongodb.casbah.Imports._
 import com.googlecode.kanbanik.commons._
-import com.mongodb.casbah.Imports
 
 case class Task(
   id: Option[ObjectId],
