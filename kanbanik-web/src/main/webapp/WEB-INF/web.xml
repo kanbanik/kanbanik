@@ -8,34 +8,34 @@
 
 	<!-- 	MongoDB connection configuration -->
 	<context-param>
-		<param-name>mongoServer</param-name>
+		<param-name>MONGODB_HOST</param-name>
 		<param-value>127.0.0.1</param-value>
 	</context-param>
 	<context-param>
-		<param-name>mongoPort</param-name>
+		<param-name>MONGODB_PORT</param-name>
 		<param-value>27017</param-value>
 	</context-param>
 	<context-param>
-		<param-name>mongoDBName</param-name>
+		<param-name>MONGODB_DATABASE</param-name>
 		<param-value>kanbanikdb</param-value>
 	</context-param>
 	<context-param>
-		<param-name>mongoAuthenticationRequired</param-name>
+		<param-name>MONGODB_AUTHENTICATION_REQUIRED</param-name>
 		<param-value>false</param-value>
 	</context-param>
 	<context-param>
-		<param-name>mongoUser</param-name>
+		<param-name>MONGODB_USER</param-name>
 		<param-value></param-value>
 	</context-param>
 	<context-param>
-		<param-name>mongoPassword</param-name>
+		<param-name>MONGODB_PASSWORD</param-name>
 		<param-value></param-value>
 	</context-param>
     <!-- By default, when the clients sends the accept-encoding header with value gzip, the answer will be gzipped-->
     <!-- Since the default gzip implementation on some JREs may be broken, this switch can turn this ability off -->
     <!-- and make Kanbanik ignore the accept-encoding  header -->
     <context-param>
-        <param-name>enableGzipCommunication</param-name>
+        <param-name>ENABLE_GZIP_COMMUNICATION</param-name>
         <param-value>true</param-value>
     </context-param>
 
@@ -45,7 +45,7 @@
 	<!--"Access-Control-Allow-Headers","origin, access-control-allow-methods, content-type, access-control-allow-origin, access-control-allow-headers"-->
 	<!--"Access-Control-Max-Age", "1800"-->
 	<context-param>
-		<param-name>enableAccessControlHeaders</param-name>
+		<param-name>ENABLE_ACCESS_CONTROL_HEADERS</param-name>
 		<param-value>false</param-value>
 	</context-param>
 

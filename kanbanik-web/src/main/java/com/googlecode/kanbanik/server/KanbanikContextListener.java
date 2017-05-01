@@ -21,15 +21,15 @@ public class KanbanikContextListener implements ServletContextListener {
         SecurityUtils.setSecurityManager(new DefaultSecurityManager(new KanbanikRealm()));
 
 		ServletContext context = event.getServletContext();
-		String server = getParam(context, "mongoServer");
-		String port = getParam(context, "mongoPort");
-		String user = getParam(context, "mongoUser");
-		String password = getParam(context, "mongoPassword");
-		String dbName = getParam(context, "mongoDBName");
-		String authenticationRequired = getParam(context, "mongoAuthenticationRequired");
+		String server = getParam(context, "MONGODB_HOST");
+		String port = getParam(context, "MONGODB_PORT");
+		String user = getParam(context, "MONGODB_USER");
+		String password = getParam(context, "MONGODB_PASSWORD");
+		String dbName = getParam(context, "MONGODB_DATABASE");
+		String authenticationRequired = getParam(context, "MONGODB_AUTHENTICATION_REQUIRED");
 
-		boolean enableGzipCommunication = Boolean.parseBoolean(getParam(context, "enableGzipCommunication"));
-		boolean enableAccessControlHeaders = Boolean.parseBoolean(getParam(context, "enableAccessControlHeaders"));
+		boolean enableGzipCommunication = Boolean.parseBoolean(getParam(context, "ENABLE_GZIP_COMMUNICATION"));
+		boolean enableAccessControlHeaders = Boolean.parseBoolean(getParam(context, "ENABLE_ACCESS_CONTROL_HEADERS"));
         Configuration.init(enableGzipCommunication, enableAccessControlHeaders);
 
 		new KanbanikConnectionManager().initConnectionPool(
