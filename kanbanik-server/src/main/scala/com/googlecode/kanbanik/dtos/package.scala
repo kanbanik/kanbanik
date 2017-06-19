@@ -84,6 +84,8 @@ package object dtos {
 
   case class BoardWithProjectsDto(board: BoardDto, projectsOnBoard: Option[ProjectsDto])
 
+  case class DeleteWorkflowitemDto(workflowitem: WorkflowitemDto, includingTasks: Option[Boolean])
+
   case class WorkflowitemDto(name: String,
                              id: Option[String],
                              wipLimit: Option[Int],

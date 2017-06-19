@@ -3,15 +3,18 @@ package com.googlecode.kanbanik.client.modules.editworkflow.workflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.kanbanik.client.Modules;
+import com.googlecode.kanbanik.client.api.DtoFactory;
 import com.googlecode.kanbanik.client.api.Dtos;
 import com.googlecode.kanbanik.client.api.ResourceClosingCallback;
-import com.googlecode.kanbanik.client.api.ServerCallCallback;
 import com.googlecode.kanbanik.client.api.ServerCaller;
 import com.googlecode.kanbanik.client.components.Closable;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog;
 import com.googlecode.kanbanik.client.components.PanelContainingDialog.PanelContainingDialolgListener;
-import com.googlecode.kanbanik.client.components.WarningPanel;
 import com.googlecode.kanbanik.client.messaging.Message;
 import com.googlecode.kanbanik.client.messaging.MessageBus;
 import com.googlecode.kanbanik.client.messaging.MessageListener;
@@ -26,14 +29,28 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 
 	private PanelContainingDialog yesNoDialog;
 	
-	private WarningPanel warningPanel;
+	private VerticalPanel contentPanel;
 
 	private Dtos.WorkflowitemDto dto;
+
+	private CheckBox recursivelyCheckbox;
 	
 	public WorkflowitemDeletingComponent(Dtos.WorkflowitemDto dto, HasClickHandlers clickHandler) {
-		this.dto = dto;
-		clickHandler.addClickHandler(this);
-		warningPanel = new WarningPanel("Are you sure to delete this workflowitem '" + dto.getName() + "' ?");
+        this.dto = dto;
+        clickHandler.addClickHandler(this);
+        contentPanel = new VerticalPanel();
+        recursivelyCheckbox = new CheckBox();
+
+        HorizontalPanel warningPanel = new HorizontalPanel();
+        warningPanel.add(new Label("Are you sure to delete this workflowitem '" + dto.getName() + "' ?"));
+        warningPanel.setHeight("50px");
+
+        HorizontalPanel recursivelyPanel = new HorizontalPanel();
+        recursivelyPanel.add(new Label("Delete also tasks on this workflowitem?"));
+        recursivelyPanel.add(recursivelyCheckbox);
+
+        contentPanel.add(warningPanel);
+        contentPanel.add(recursivelyPanel);
 
         new ModulesLyfecycleListenerHandler(Modules.CONFIGURE, this);
 		MessageBus.registerListener(WorkflowitemChangedMessage.class, this);
@@ -44,7 +61,7 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 			return;
 		}
 
-		yesNoDialog = new PanelContainingDialog("Are you sure?", warningPanel);
+		yesNoDialog = new PanelContainingDialog("Are you sure?", contentPanel);
 		yesNoDialog.addListener(new YesNoDialogListener());
 		yesNoDialog.center();
 	}
@@ -72,12 +89,12 @@ public class WorkflowitemDeletingComponent implements ClickHandler, Closable, Me
 		}
 
 		public void okClicked(PanelContainingDialog dialog) {
+            Dtos.DeleteWorkflowitemDto deleteWorkflowitemDto = DtoFactory.deleteWorkflowitemDto(dto, recursivelyCheckbox.getValue());
+            deleteWorkflowitemDto.setCommandName(CommandNames.DELETE_WORKFLOWITEM.name);
+            deleteWorkflowitemDto.setSessionId(CurrentUser.getInstance().getSessionId());
 
-            dto.setCommandName(CommandNames.DELETE_WORKFLOWITEM.name);
-            dto.setSessionId(CurrentUser.getInstance().getSessionId());
-
-            ServerCaller.<Dtos.WorkflowitemDto, Dtos.EmptyDto>sendRequest(
-                    dto,
+            ServerCaller.<Dtos.DeleteWorkflowitemDto, Dtos.EmptyDto>sendRequest(
+                    deleteWorkflowitemDto,
                     Dtos.EmptyDto.class,
                     new ResourceClosingCallback<Dtos.EmptyDto>(dialog) {
 

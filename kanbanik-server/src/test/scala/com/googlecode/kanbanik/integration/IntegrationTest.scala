@@ -215,9 +215,9 @@ class IntegrationTest extends FlatSpec with BeforeAndAfter with WorkflowitemTest
     assert(loadBoard().tasks.get.size === 0)
     
     // delete workflowitems
-    val loadedItem1 = loadItem(0)
-    val loadedItem2 = loadItem(1)
-    val loadedItem3 = loadItem(2)
+    val loadedItem1 = DeleteWorkflowitemDto(loadItem(0), Some(false))
+    val loadedItem2 = DeleteWorkflowitemDto(loadItem(1), Some(false))
+    val loadedItem3 = DeleteWorkflowitemDto(loadItem(2), Some(false))
     
     new DeleteWorkflowitemCommand().execute(loadedItem1, User().withAllPermissions())
     new DeleteWorkflowitemCommand().execute(loadedItem2, User().withAllPermissions())

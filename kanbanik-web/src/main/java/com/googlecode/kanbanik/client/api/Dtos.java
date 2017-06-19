@@ -7,7 +7,7 @@ public class Dtos {
     private Dtos() {
     }
 
-    public static interface BaseDto {
+    public interface BaseDto {
         String getCommandName();
         void setCommandName(String commandName);
 
@@ -15,7 +15,7 @@ public class Dtos {
         void setSessionId(String sessionId);
     }
 
-    public static interface LoginDto extends BaseDto {
+    public interface LoginDto extends BaseDto {
         String getUserName();
         void setUserName(String userName);
 
@@ -23,10 +23,10 @@ public class Dtos {
         void setPassword(String password);
     }
 
-    public static interface SessionDto extends BaseDto {
+    public interface SessionDto extends BaseDto {
     }
 
-    public static interface StatusDto {
+    public interface StatusDto {
         Boolean isSuccess();
         void setSuccess(Boolean success);
 
@@ -34,7 +34,7 @@ public class Dtos {
         String getReason();
     }
 
-    public static interface UserDto extends BaseDto {
+    public interface UserDto extends BaseDto {
 
         void setUserName(String userName);
         String getUserName();
@@ -58,7 +58,7 @@ public class Dtos {
         public void setUnlogged(Boolean unlogged);
     }
 
-    public static enum PermissionTypes {
+    public enum PermissionTypes {
 
         ReadUser(5),
         EditUserData(1),
@@ -104,7 +104,7 @@ public class Dtos {
         }
     }
 
-    public static interface PermissionDto {
+    public interface PermissionDto {
         Integer getPermissionType();
         void setPermissionType(Integer  permissionType);
 
@@ -112,7 +112,7 @@ public class Dtos {
         void setArgs(List<String> args);
     }
 
-    public static interface UserManipulationDto extends UserDto, BaseDto {
+    public interface UserManipulationDto extends UserDto, BaseDto {
         String getPassword();
         void setPassword(String password);
 
@@ -120,7 +120,7 @@ public class Dtos {
         void setNewPassword(String newPassword);
     }
 
-    public static interface ClassOfServiceDto extends BaseDto {
+    public interface ClassOfServiceDto extends BaseDto {
         String getId();
         void setId(String id);
 
@@ -137,12 +137,12 @@ public class Dtos {
         void setVersion(int version);
     }
 
-    public static interface ClassOfServicesDto {
+    public interface ClassOfServicesDto {
         List<ClassOfServiceDto> getValues();
         void setValues(List<ClassOfServiceDto> values);
     }
 
-    public static interface TaskTag {
+    public interface TaskTag {
         String getId();
         void setId(String id);
 
@@ -165,7 +165,7 @@ public class Dtos {
         String getColour();
     }
 
-    public static enum TagClickTarget {
+    public enum TagClickTarget {
         NEW_WINDOW(1),
         NONE(-1);
         private int id;
@@ -189,7 +189,7 @@ public class Dtos {
         }
     }
 
-    public static interface ProjectDto extends BaseDto {
+    public interface ProjectDto extends BaseDto {
         String getId();
         void setId(String id);
 
@@ -203,12 +203,12 @@ public class Dtos {
         void setBoardIds(List<String> boardIds);
     }
 
-    public static interface ProjectsDto {
+    public interface ProjectsDto {
         List<ProjectDto> getValues();
         void setValues(List<ProjectDto> values);
     }
 
-    public static interface ProjectWithBoardDto extends BaseDto {
+    public interface ProjectWithBoardDto extends BaseDto {
         void setProject(ProjectDto project);
         ProjectDto getProject();
 
@@ -216,12 +216,12 @@ public class Dtos {
         String getBoardId();
     }
 
-    public static interface ErrorDto {
+    public interface ErrorDto {
         String getErrorMessage();
         void setErrorMessage(String errorMessage);
     }
 
-    public static interface EventDto {
+    public interface EventDto {
         String getSource();
         void setSource(String source);
 
@@ -229,12 +229,12 @@ public class Dtos {
         void setPayload(String payload);
     }
 
-    public static interface UsersDto {
+    public interface UsersDto {
         List<UserDto> getValues();
         void setValues(List<UserDto> values);
     }
 
-    public static interface TaskDto extends BaseDto {
+    public interface TaskDto extends BaseDto {
         String getId();
         void setId(String id);
 
@@ -275,17 +275,17 @@ public class Dtos {
         void setTaskTags(List<TaskTag> taskTags);
     }
 
-    public static interface TasksDto extends BaseDto {
+    public interface TasksDto extends BaseDto {
         List<TaskDto> getValues();
         void setValues(List<TaskDto> values);
     }
 
-    public static interface FiltersDto {
+    public interface FiltersDto {
         List<FilterDto> getValues();
         void setValues(List<FilterDto> values);
     }
 
-    public static interface MoveTaskDto extends BaseDto {
+    public interface MoveTaskDto extends BaseDto {
         TaskDto getTask();
         void setTask(TaskDto task);
 
@@ -296,7 +296,15 @@ public class Dtos {
         void setNextOrder(String nextOrder);
     }
 
-    public static interface WorkflowitemDto extends BaseDto {
+    public interface DeleteWorkflowitemDto extends BaseDto {
+        WorkflowitemDto getWorkflowitem();
+        void setWorkflowitem(WorkflowitemDto workflowitem);
+
+        Boolean getIncludingTasks();
+        void setIncludingTasks(Boolean includingTasks);
+    }
+
+    public interface WorkflowitemDto extends BaseDto {
         String getName();
         void setName(String name);
 
@@ -322,7 +330,7 @@ public class Dtos {
         void setVerticalSize(int verticalSize);
     }
 
-    public static enum ItemType {
+    public enum ItemType {
         HORIZONTAL("H"),
         VERTICAL("V");
 
@@ -349,7 +357,7 @@ public class Dtos {
 
     }
 
-    public static interface WorkflowDto extends BaseDto {
+    public interface WorkflowDto extends BaseDto {
         String getId();
         void setId(String id);
 
@@ -360,7 +368,7 @@ public class Dtos {
         void setBoard(BoardDto board);
     }
 
-    public static interface BoardDto extends BaseDto {
+    public interface BoardDto extends BaseDto {
         void setName(String name);
         String getName();
 
@@ -386,7 +394,7 @@ public class Dtos {
         void setFixedSizeShortDescription(boolean fixedSizeShortDescription);
     }
 
-    public static interface BoardWithProjectsDto extends BaseDto {
+    public interface BoardWithProjectsDto extends BaseDto {
         void setBoard(BoardDto board);
         BoardDto getBoard();
 
@@ -395,12 +403,12 @@ public class Dtos {
 
     }
 
-    public static interface BoardsWithProjectsDto extends BaseDto {
+    public interface BoardsWithProjectsDto extends BaseDto {
         List<BoardWithProjectsDto> getValues();
         void setValues(List<BoardWithProjectsDto> values);
     }
 
-    public static interface FilterDataDto {
+    public interface FilterDataDto {
         void setFullTextFilter(FullTextMatcherDataDto fullTextFilter);
         FullTextMatcherDataDto getFullTextFilter();
 
@@ -426,37 +434,37 @@ public class Dtos {
         Boolean isActive();
     }
 
-    public static interface FilterWithSelected {
+    public interface FilterWithSelected {
         void setSelected(Boolean selected);
         Boolean isSelected();
     }
 
-    public static interface TaskTagWithSelected extends FilterWithSelected {
+    public interface TaskTagWithSelected extends FilterWithSelected {
         void setTaskTag(TaskTag taskTag);
         TaskTag getTaskTag();
     }
 
-    public static interface UserWithSelectedDto extends FilterWithSelected {
+    public interface UserWithSelectedDto extends FilterWithSelected {
         UserDto getUser();
         void setUser(UserDto user);
     }
 
-    public static interface ClassOfServiceWithSelectedDto extends FilterWithSelected {
+    public interface ClassOfServiceWithSelectedDto extends FilterWithSelected {
         ClassOfServiceDto getClassOfService();
         void setClassOfService(ClassOfServiceDto classOfService);
     }
 
-    public static interface BoardWithSelectedDto extends FilterWithSelected {
+    public interface BoardWithSelectedDto extends FilterWithSelected {
         BoardDto getBoard();
         void setBoard(BoardDto board);
     }
 
-    public static interface BoardWithProjectsWithSelectedDto extends FilterWithSelected {
+    public interface BoardWithProjectsWithSelectedDto extends FilterWithSelected {
         BoardWithProjectsDto getBoardWithProjects();
         void setBoardWithProjects(BoardWithProjectsDto boardWithProjects);
     }
 
-    public static interface FullTextMatcherDataDto {
+    public interface FullTextMatcherDataDto {
         void setString(String string);
         String getString();
 
@@ -473,7 +481,7 @@ public class Dtos {
         List<FilteredEntity> getFilteredEntities();
     }
 
-    public static enum FilteredEntity {
+    public enum FilteredEntity {
         SHORT_DESCRIPTION(1),
         LONG_DESCRIPTION(2),
         TICKET_ID(3);
@@ -490,7 +498,7 @@ public class Dtos {
 
     }
 
-    public static interface DateMatcherDataDto {
+    public interface DateMatcherDataDto {
         void setDateFrom(String dateFrom);
         String getDateFrom();
 
@@ -501,7 +509,7 @@ public class Dtos {
         Integer getCondition();
     }
 
-    public static interface GetAllBoardsWithProjectsDto extends BaseDto {
+    public interface GetAllBoardsWithProjectsDto extends BaseDto {
         void setIncludeTasks(Boolean includeTasks);
         Boolean isIncludeTasks();
 
@@ -512,7 +520,7 @@ public class Dtos {
         void setFilters(List<FilterDto> filters);
     }
 
-    public static interface EditWorkflowParams extends BaseDto {
+    public interface EditWorkflowParams extends BaseDto {
         void setCurrent(WorkflowitemDto current);
         WorkflowitemDto getCurrent();
 
@@ -527,7 +535,7 @@ public class Dtos {
 
     }
 
-    public static enum WorkflowVerticalSizing {
+    public enum WorkflowVerticalSizing {
         BALANCED(-1),
         MIN_POSSIBLE(1);
 
@@ -555,11 +563,11 @@ public class Dtos {
         }
     }
 
-    public static interface EmptyDto {
+    public interface EmptyDto {
 
     }
 
-    public static interface FilterDto {
+    public interface FilterDto {
         void setBid(String bid);
         void setBname(String bname);
 

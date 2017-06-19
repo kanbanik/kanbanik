@@ -88,9 +88,18 @@ public class DtoFactory {
 
         AutoBean<Dtos.PermissionDto> permissionDto();
 
+        AutoBean<Dtos.DeleteWorkflowitemDto> deleteWorkflowitemDto();
+
     }
 
     private static final BeanFactory factory = GWT.create(BeanFactory.class);
+
+    public static Dtos.DeleteWorkflowitemDto deleteWorkflowitemDto(Dtos.WorkflowitemDto workflowitemDto, Boolean includingTasks) {
+        Dtos.DeleteWorkflowitemDto dto = factory.deleteWorkflowitemDto().as();
+        dto.setWorkflowitem(workflowitemDto);
+        dto.setIncludingTasks(includingTasks);
+        return dto;
+    }
 
     public static Dtos.LoginDto loginDto(String name, String password) {
         Dtos.LoginDto dto = factory.loginDto().as();

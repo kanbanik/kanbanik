@@ -31,8 +31,6 @@ abstract class Command[T: Manifest, R: Manifest] {
   }
 
   def checkPermissions(param: T, user: User): Option[List[String]] = {
-    // temporarily bypass permission check for all commands
-    // it will stay this way only until the development of this part will be done - never release this way
     None
   }
 
