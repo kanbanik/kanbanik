@@ -1,4 +1,7 @@
-(ns org.kanbanik.statistics)
+(ns org.kanbanik.statistics
+(:gen-class
+    :name org.kanbanik.statistics
+    :methods [#^{:static true} [mysome [int int] int]]))
 
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
@@ -40,8 +43,6 @@
          vals)
   )
 )
-
-
 
 
 (defn group-by-timeframe [stream timeframe]
@@ -91,8 +92,6 @@ Currently supports only the workflowitem-id.
   )
 )
 
-
-
 (defn generate-report [descriptor tasks]
 "
 The tasks are one timeframe output from the reduce-tasks
@@ -125,4 +124,9 @@ Example output
         (group-by-timeframe stream timeframe) 
         (first-timestamp stream)))
 )
+
+(defn -mysome
+  "A Java-callable wrapper around the 'some' function."
+  [n k]
+  (- n k))
 
