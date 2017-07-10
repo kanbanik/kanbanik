@@ -9,7 +9,8 @@ import org.scalatest.FlatSpec
 class StatisticsLearningTest extends FlatSpec {
   "statistics" should "be calleable" in {
 
-    statistics.mysome(1, 2)
+    val x = statistics.mysome()
+    print(x)
 
   }
 }

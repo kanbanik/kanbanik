@@ -1,7 +1,11 @@
 (ns org.kanbanik.statistics
-(:gen-class
+  (:require [monger.core :as mg]
+            [monger.collection :as mc])
+  (:import [com.mongodb MongoOptions ServerAddress])
+
+  (:gen-class
     :name org.kanbanik.statistics
-    :methods [#^{:static true} [mysome [int int] int]]))
+    :methods [#^{:static true} [mysome [] String]]))
 
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
@@ -126,7 +130,14 @@ Example output
 )
 
 (defn -mysome
-  "A Java-callable wrapper around the 'some' function."
-  [n k]
-  (- n k))
+  []
 
+  (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
+      ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
+      conn               (mg/connect sa opts)
+      db   (mg/get-db conn "kanbanikdb")
+      res (mc/find-maps db "users")
+]    
+    (apply str res) 
+)  
+)
