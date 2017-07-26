@@ -7,7 +7,9 @@ import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dtos.{ErrorDto, PermissionType, TaskDto}
 
-class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation with HasEvents {
+class SaveTaskCommand extends Command[TaskDto, TaskDto]
+  with TaskManipulation
+  with HasEvents {
 
   private lazy val taskBuilder = new TaskBuilder()
 
@@ -27,11 +29,19 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation wi
 
     val task = taskBuilder.buildEntity(taskDto)
 
-    val oldTask = Task.byId(task.id.get, user)
+    val oldTask = if (task.id.isDefined) {
+      Some(Task.byId(task.id.get, user))
+    } else {
+      None
+    }
 
     val storedTask = setOrderIfNeeded(taskDto, task).store()
 
-    publish(EventType.TaskChanged, diff(oldTask, storedTask))
+    if (oldTask.isDefined) {
+      publish(EventType.TaskChanged, diff(oldTask.get, storedTask))
+    } else {
+      publish(EventType.TaskCreated, storedTask.asMap())
+    }
 
     Left(taskBuilder.buildDto(storedTask))
   }

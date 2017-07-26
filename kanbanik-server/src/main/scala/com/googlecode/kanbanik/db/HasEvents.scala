@@ -13,6 +13,7 @@ trait HasEvents extends HasMongoConnection {
   object Event extends DocumentField {
     val entityId = Value("entityId")
     val timestamp = Value("timestamp")
+    val eventType = Value("eventType")
   }
 
   object EventType extends Enumeration {
@@ -34,7 +35,8 @@ trait HasEvents extends HasMongoConnection {
 
     val common = Map(
       Event.id.toString -> new ObjectId,
-      Event.timestamp.toString -> System.currentTimeMillis()
+      Event.timestamp.toString -> System.currentTimeMillis(),
+      Event.eventType.toString -> eventType.toString
     )
 
     using(createConnection) { conn =>

@@ -104,7 +104,7 @@ case class Task(
 
   def asMap(): Map[String, Any] = {
     Map(
-      Task.Fields.id.toString -> { if (id == null || id.isDefined) new ObjectId else id },
+      Task.Fields.id.toString -> { if (id == null || !id.isDefined) new ObjectId else id },
       Task.Fields.version.toString -> version,
       Task.Fields.order.toString -> order,
       Task.Fields.name.toString -> name,
