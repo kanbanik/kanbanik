@@ -66,8 +66,8 @@
           ]
     (is (= 0 (count (apply-filter [] []))))
     (is (= 1 (count (apply-filter w1 [w2 w1]))))
-    (is (= 0 (count (apply-filter {} [w2 w1]))))
-    (is (= 0 (count (apply-filter {} [{} w1]))))
+    (is (= 2 (count (apply-filter {} [w2 w1]))))
+    (is (= 2 (count (apply-filter {} [{} w1]))))
     )
   )
 

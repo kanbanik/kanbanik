@@ -15,8 +15,15 @@
       ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
       conn               (mg/connect sa opts)
       db   (mg/get-db conn "kanbanikdb")
-      res (mc/find-maps db "users")
-]    
-    (apply str res) 
+      res (mc/find-maps db "events")
+]   
+    (run-analisis 
+     {:reduce-function :merge 
+      :result-descriptors [{
+                            :filter {:eventType "TaskDeleted"}
+                            :function :pass
+                            }]}
+)
+    (apply str res)
 )  
 )

@@ -1,4 +1,5 @@
-(ns org.kanbanik.statistics)
+(ns org.kanbanik.statistics
+  (:use clojure.data))
 
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
@@ -22,7 +23,7 @@
   [chunk-with-function]
   (last (:chunk chunk-with-function)))
 
-  (defn reduce-tasks [specific-function grouped base-timestamp]
+(defn reduce-tasks [specific-function grouped base-timestamp]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
   From each chunk returns only the last task enriched by the :timestamp
@@ -52,43 +53,42 @@
     )
 
 
-  (defn group-by-timeframe [stream timeframe]
+(defn group-by-timeframe [stream timeframe]
     "Gets a vector of task related events sorted by time and groups them according to given time frame.
   Timeframe: in seconds
   Input: [event1 event2 event3 event4....]
-  Output {timeframe1 [event1 event2...] timeframe2 [event3 event4...]...]}"
-    (if (= (count stream) 0)
-      []
-                                        ; the base time starts one millisecond before the first item from the stream
-      (let [base-timestamp (first-timestamp stream)]
-        (group-by (fn [item]
-                    (Math/ceil (/ 
+  Output {timeframe1 [event1 event2...] timeframe2 [event3 event4...]...]}
+         if the timeframe is nil, the original stream is returned
+"
+    (if (nil? timeframe)
+      {nil stream}
+      (if (= (count stream) 0)
+        []                            
+       ; the base time starts one millisecond before the first item from the stream
+        (let [base-timestamp (first-timestamp stream)]
+          (group-by (fn [item]
+                     (Math/ceil (/ 
                                 (- (:timestamp item) base-timestamp) 
                                 (max timeframe 1)))
                     ) 
                   stream)
         )
-      )
-    )
+      ))
+)
 
 (defn apply-filter [filter-conditions tasks]
 "
 Takes an example of the task which should be matched and 
 returns the list of tasks which are matched by it.
-
-Currently supports only the workflowitem-id.
 "
-  (filter 
-   (fn [task] (and 
-               (:workflowitem-id filter-conditions)
-               (= (:workflowitem-id filter-conditions) (:workflowitem-id task))))
-    tasks)
+  (filter (fn [task] (nil? (first (diff filter-conditions task)))) tasks)
 )
 
 
 "Defines the map of functions which can be used"
 (def functions
-  {:cnt (fn [tasks] (count tasks))}
+  {:cnt (fn [tasks] (count tasks))
+   :pass (fn [tasks] tasks)}
 )
 
 
@@ -127,7 +127,8 @@ Example output
 
 (defn run-analisis [descriptor timeframe stream]
   (map #(generate-report (:result-descriptors descriptor) %)
-       (reduce-tasks (:reduce-function descriptor)
+       (reduce-tasks 
+        (:reduce-function descriptor)
         (group-by-timeframe stream timeframe) 
         (first-timestamp stream)))
 )
