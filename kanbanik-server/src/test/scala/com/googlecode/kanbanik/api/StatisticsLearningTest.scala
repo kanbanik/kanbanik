@@ -13,3 +13,4 @@ class StatisticsLearningTest extends FlatSpec {
 
   }
 }
+

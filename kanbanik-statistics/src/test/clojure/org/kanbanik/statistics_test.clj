@@ -15,9 +15,9 @@
 
   (testing "reduce-tasks"
      (let [
-          id1t10 {:timestamp 10 :id 1}
-          id1t20 {:timestamp 20 :id 1}
-          id2t30 {:timestamp 30 :id 2}
+          id1t10 {:timestamp 10 :entityId 1}
+          id1t20 {:timestamp 20 :entityId 1}
+          id2t30 {:timestamp 30 :entityId 2}
          ]
 ; one chunk, one field in it
       (is (= 9 (:timestamp (first (first (reduce-tasks :last [[1 [id1t10]]] 1))))))
@@ -46,9 +46,9 @@
 
   (testing "group-by-timeframe"
     (let [
-          id1t10 {:timestamp 10 :id 1}
-          id1t20 {:timestamp 20 :id 1}
-          id2t30 {:timestamp 30 :id 2}
+          id1t10 {:timestamp 10 :entityId 1}
+          id1t20 {:timestamp 20 :entityId 1}
+          id2t30 {:timestamp 30 :entityId 2}
          ]
       (is (= 0 (count (group-by-timeframe [] 1))))
       (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 10))))
@@ -94,9 +94,9 @@
 
   (testing "integrated-test"
     (let [
-          id1t10 {:timestamp 10 :id 1 :workflowitem-id 2}
-          id1t20 {:timestamp 20 :id 1 :workflowitem-id 2}
-          id2t30 {:timestamp 30 :id 2 :workflowitem-id 2}
+          id1t10 {:timestamp 10 :entityId 1 :workflowitem-id 2}
+          id1t20 {:timestamp 20 :entityId 1 :workflowitem-id 2}
+          id2t30 {:timestamp 30 :entityId 2 :workflowitem-id 2}
           r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}
           full-descriptor {:reduce-function :last :result-descriptors [r-basic-2]}]
       (let [full-stream [id1t10 id1t20 id2t30]]

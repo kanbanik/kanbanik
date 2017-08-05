@@ -30,7 +30,7 @@
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
     (defn reduce-chunk [specific-function grouped-chunks base-timestamp]
-                                        ; {1 [{:timestamp 10, :id 1} {:timestamp 20, :id 1}], 2 [{:timestamp 30, :id 2}]}
+                                        ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
       
       (map (fn [grouped-chunk] 
              (let [reduced-chunk (reduce-function {:function specific-function :chunk (val grouped-chunk)})]
@@ -47,7 +47,7 @@
     (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
       
       (map (fn [timeframe-chunk] 
-             (reduce-chunk specific-function (group-by #(:id %) timeframe-chunk) base-timestamp))
+             (reduce-chunk specific-function (group-by #(:entityId %) timeframe-chunk) base-timestamp))
            vals)
       )
     )

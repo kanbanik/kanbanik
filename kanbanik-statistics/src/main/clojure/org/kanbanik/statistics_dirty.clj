@@ -16,14 +16,14 @@
       conn               (mg/connect sa opts)
       db   (mg/get-db conn "kanbanikdb")
       res (mc/find-maps db "events")
-]   
-    (run-analisis 
+        ]   
+
+    (apply str (run-analisis 
      {:reduce-function :merge 
       :result-descriptors [{
                             :filter {:eventType "TaskDeleted"}
                             :function :pass
                             }]}
-)
-    (apply str res)
-)  
-)
+     nil
+     res    
+))))
