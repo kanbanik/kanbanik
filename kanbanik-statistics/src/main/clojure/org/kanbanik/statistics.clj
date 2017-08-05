@@ -1,5 +1,6 @@
 (ns org.kanbanik.statistics
-  (:use clojure.data))
+  (:use clojure.data)
+  (:require [clojure.string :as str]))
 
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
@@ -30,7 +31,7 @@
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
     (defn reduce-chunk [specific-function grouped-chunks base-timestamp]
-                                        ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
+    ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
       
       (map (fn [grouped-chunk] 
              (let [reduced-chunk (reduce-function {:function specific-function :chunk (val grouped-chunk)})]
@@ -129,6 +130,6 @@ Example output
   (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
-        (group-by-timeframe stream timeframe) 
+        (group-by-timeframe stream timeframe)
         (first-timestamp stream)))
 )

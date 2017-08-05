@@ -141,4 +141,14 @@ package object dtos {
                      onClickUrl: Option[String],
                      onClickTarget: Option[Int],
                      colour: Option[String])
+
+  case class AnalyzeResultDescriptor(filter: Map[String, String],
+                                     function: String,
+                                    children: Option[AnalyzeResultDescriptor])
+
+  case class AnalyzeDescriptorDto(
+                                   reduceFunction: String,
+                                   resultDescriptors: List[AnalyzeResultDescriptor])
+
+  case class AnalyzeResultDto(result: String)
 }
