@@ -8,8 +8,7 @@ import org.scalatest.FlatSpec
 @RunWith(classOf[JUnitRunner])
 class StatisticsLearningTest extends FlatSpec {
   "statistics" should "be calleable" in {
-
-    val x = statistics.mysome()
+    val x = statistics.mysome(null)
     print(x)
 
   }

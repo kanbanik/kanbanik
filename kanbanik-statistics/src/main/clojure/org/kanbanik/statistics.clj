@@ -1,11 +1,4 @@
-(ns org.kanbanik.statistics
-  (:require [monger.core :as mg]
-            [monger.collection :as mc])
-  (:import [com.mongodb MongoOptions ServerAddress])
-
-  (:gen-class
-    :name org.kanbanik.statistics
-    :methods [#^{:static true} [mysome [] String]]))
+(ns org.kanbanik.statistics)
 
 (defn first-timestamp [stream]
   "Takes a list of task related events and returns the timestamp - 1 for the first, if the
@@ -18,55 +11,65 @@
   )
 )
 
-(defn reduce-tasks [grouped base-timestamp]
-  "Takes a list of tasks grouped by timestamp and the first timestamp
+; a nasty hack just for playing around - will be removed
+(ns-unmap *ns* 'reduce-function)
+
+(defmulti reduce-function (fn [chunk-with-function] (:function chunk-with-function)))
+ (defmethod reduce-function :merge
+  [chunk-with-function]
+  (apply merge (:chunk chunk-with-function)))
+ (defmethod reduce-function :last
+  [chunk-with-function]
+  (last (:chunk chunk-with-function)))
+
+  (defn reduce-tasks [specific-function grouped base-timestamp]
+    "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
-  (defn reduce-chunk [grouped-chunks base-timestamp]
-; {1 [{:timestamp 10, :id 1} {:timestamp 20, :id 1}], 2 [{:timestamp 30, :id 2}]}
-    
-    (map (fn [grouped-chunk] 
-     (let [last-from-chunk (last (val grouped-chunk))]
-      (assoc
-          last-from-chunk
-        :timestamp
-        (- (:timestamp last-from-chunk) base-timestamp)
-        )
+    (defn reduce-chunk [specific-function grouped-chunks base-timestamp]
+                                        ; {1 [{:timestamp 10, :id 1} {:timestamp 20, :id 1}], 2 [{:timestamp 30, :id 2}]}
+      
+      (map (fn [grouped-chunk] 
+             (let [reduced-chunk (reduce-function {:function specific-function :chunk (val grouped-chunk)})]
+               (assoc
+                   reduced-chunk
+                 :timestamp
+                 (- (:timestamp reduced-chunk) base-timestamp)
+                 ))
+             )
+           grouped-chunks
+           )
       )
-     )
-     grouped-chunks
+
+    (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
+      
+      (map (fn [timeframe-chunk] 
+             (reduce-chunk specific-function (group-by #(:id %) timeframe-chunk) base-timestamp))
+           vals)
+      )
     )
-  )
-
-  (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
-   
-    (map (fn [timeframe-chunk] 
-           (reduce-chunk (group-by #(:id %) timeframe-chunk) base-timestamp))
-         vals)
-  )
-)
 
 
-(defn group-by-timeframe [stream timeframe]
-  "Gets a vector of task related events sorted by time and groups them according to given time frame.
+  (defn group-by-timeframe [stream timeframe]
+    "Gets a vector of task related events sorted by time and groups them according to given time frame.
   Timeframe: in seconds
   Input: [event1 event2 event3 event4....]
   Output {timeframe1 [event1 event2...] timeframe2 [event3 event4...]...]}"
-  (if (= (count stream) 0)
-    []
-; the base time starts one millisecond before the first item from the stream
-    (let [base-timestamp (first-timestamp stream)]
-      (group-by (fn [item]
-                  (Math/ceil (/ 
+    (if (= (count stream) 0)
+      []
+                                        ; the base time starts one millisecond before the first item from the stream
+      (let [base-timestamp (first-timestamp stream)]
+        (group-by (fn [item]
+                    (Math/ceil (/ 
                                 (- (:timestamp item) base-timestamp) 
                                 (max timeframe 1)))
-                  ) 
-                stream)
+                    ) 
+                  stream)
+        )
+      )
     )
-  )
-)
 
 (defn apply-filter [filter-conditions tasks]
 "
@@ -96,7 +99,7 @@ Currently supports only the workflowitem-id.
   )
 )
 
-(defn generate-report [descriptor tasks]
+(defn generate-report [descriptors tasks]
 "
 The tasks are one timeframe output from the reduce-tasks
 
@@ -109,7 +112,7 @@ Example input (aka list of tasks)
 Example output
 [1 [1]]
 "
-  (loop [res [] desc descriptor]
+  (loop [res [] desc descriptors]
     (if (= (count desc) 0)
       res
       (let [filtered-tasks (apply-filter (:filter (first desc)) tasks) function (:function (first desc))]
@@ -123,21 +126,8 @@ Example output
 )
 
 (defn run-analisis [descriptor timeframe stream]
-  (map #(generate-report descriptor %)
-       (reduce-tasks
+  (map #(generate-report (:result-descriptors descriptor) %)
+       (reduce-tasks (:reduce-function descriptor)
         (group-by-timeframe stream timeframe) 
         (first-timestamp stream)))
-)
-
-(defn -mysome
-  []
-
-  (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
-      ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
-      conn               (mg/connect sa opts)
-      db   (mg/get-db conn "kanbanikdb")
-      res (mc/find-maps db "users")
-]    
-    (apply str res) 
-)  
 )

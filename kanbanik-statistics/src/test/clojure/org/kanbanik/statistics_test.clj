@@ -2,6 +2,9 @@
   (:use clojure.test)
   (:use org.kanbanik.statistics))
 
+; hack needed to make sure the reduce-function will not be mapped multiple times
+(ns-unmap *ns* 'reduce-function)
+
 (testing "Statistics"
   (testing "first-timestamp"
     (is (= -1 (first-timestamp [])))
@@ -17,18 +20,18 @@
           id2t30 {:timestamp 30 :id 2}
          ]
 ; one chunk, one field in it
-      (is (= 9 (:timestamp (first (first (reduce-tasks [[1 [id1t10]]] 1))))))
+      (is (= 9 (:timestamp (first (first (reduce-tasks :last [[1 [id1t10]]] 1))))))
 ; one chunk, two field with same id in it
-      (is (= 19 (:timestamp (first (first (reduce-tasks [[1 [id1t10 id1t20]]] 1))))))
+      (is (= 19 (:timestamp (first (first (reduce-tasks :last [[1 [id1t10 id1t20]]] 1))))))
 ; one chunk, 3 fields with 2 differend ids in it
-      (let [two-in-chunk (reduce-tasks [[1 [id1t10 id1t20 id2t30]]] 1)]
+      (let [two-in-chunk (reduce-tasks :last [[1 [id1t10 id1t20 id2t30]]] 1)]
         (is (and
              (= 19 (:timestamp (first (first two-in-chunk))))
              (= 29 (:timestamp (second (first two-in-chunk))))
              ))
         )
 ; two chunks and 2 differnet ids in both
-      (let [two-chunks (reduce-tasks [[1 [id1t10 id1t20 id2t30]] [2 [id2t30 id1t20 id1t10]]] 1)]
+      (let [two-chunks (reduce-tasks :last [[1 [id1t10 id1t20 id2t30]] [2 [id2t30 id1t20 id1t10]]] 1)]
         (is (and
 ; test first chunk
              (= 19 (:timestamp (first (first two-chunks))))
@@ -94,9 +97,10 @@
           id1t10 {:timestamp 10 :id 1 :workflowitem-id 2}
           id1t20 {:timestamp 20 :id 1 :workflowitem-id 2}
           id2t30 {:timestamp 30 :id 2 :workflowitem-id 2}
-          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}]
+          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}
+          full-descriptor {:reduce-function :last :result-descriptors [r-basic-2]}]
       (let [full-stream [id1t10 id1t20 id2t30]]
-        (is (= [[1] [1] [1]] (run-analisis [r-basic-2] 10 full-stream)))
-        (is (= [[2]] (run-analisis [r-basic-2] 100 full-stream)))
+        (is (= [[1] [1] [1]] (run-analisis full-descriptor 10 full-stream)))
+        (is (= [[2]] (run-analisis full-descriptor 100 full-stream)))
     )))
 )
