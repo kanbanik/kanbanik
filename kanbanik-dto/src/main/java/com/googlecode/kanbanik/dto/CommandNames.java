@@ -44,11 +44,14 @@ public enum CommandNames {
     EDIT_BOARD("editsBoard"),
     DELETE_BOARD("deleteBoard"),
 
+    // statistics
+    EXECUTE_STATISTICS("executeStatistics")
+
     ;
 
     public String name;
 
-    private CommandNames(String name) {
+    CommandNames(String name) {
         this.name = name;
     }
 }

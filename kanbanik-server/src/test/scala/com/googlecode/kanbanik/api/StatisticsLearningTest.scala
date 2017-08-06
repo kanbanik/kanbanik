@@ -50,10 +50,14 @@ class StatisticsLearningTest extends FlatSpec {
                            ]}
                      """)
     val res = json.extract[AnalyzeDescriptorDto]
-    assert(res.reduceFunction === "merge")
+    assert(res.reduceFunction === ":merge")
 
     val cmd = new ExecuteStatisticsCommand()
-    cmd.toJavaParams(res)
+
+    val x = statistics.execute(cmd.toJDescriptor(res))
+    print(x)
+
+
   }
 
 }

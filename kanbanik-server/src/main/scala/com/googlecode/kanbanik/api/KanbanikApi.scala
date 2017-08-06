@@ -318,7 +318,10 @@ class KanbanikApi extends HttpServlet {
     EDIT_BOARD.name -> (new SaveBoardCommand(), CommandConfiguration(notifyByEvent = true)),
     DELETE_BOARD.name -> (new DeleteBoardCommand(), CommandConfiguration(notifyByEvent = true)),
     EDIT_WORKFLOW.name -> (new EditWorkflowCommand(), CommandConfiguration(notifyByEvent = true)),
-    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false))
+    GET_BOARD.name -> (new GetBoardCommand(), CommandConfiguration(notifyByEvent = false)),
+
+    // statistics
+    EXECUTE_STATISTICS.name -> (new ExecuteStatisticsCommand(), CommandConfiguration(notifyByEvent = false))
 
   )
 
