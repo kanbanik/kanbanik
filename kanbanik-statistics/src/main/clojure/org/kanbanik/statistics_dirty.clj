@@ -7,7 +7,7 @@
 
   (:gen-class
     :name org.kanbanik.statistics
-    :methods [#^{:static true} [execute [java.util.Map] java.lang.String]]))
+    :methods [#^{:static true} [execute [java.util.Map java.lang.Integer] java.lang.String]]))
 
 (defn to-clojure-coll [c]
   (if (instance? java.util.Map c)
@@ -41,23 +41,19 @@
 )
 
 (defn -execute
-  [descriptor]
+  [descriptor timeframe]
 
   (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
       ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
       conn               (mg/connect sa opts)
       db   (mg/get-db conn "kanbanikdb")
-      res (mc/find-maps db "events")
+      event-stream (mc/find-maps db "events")
         ]   
     
     (apply str (run-analisis 
      (keywordify (into {} descriptor))
-     nil
-     res    
+     timeframe
+     event-stream
      ))
 
-;(str :result-descriptors (keywordify my-map))
-
 ))
-
-;:function :pass

@@ -147,8 +147,9 @@ package object dtos {
                                     children: Option[AnalyzeResultDescriptor])
 
   case class AnalyzeDescriptorDto(
-                                   reduceFunction: String,
-                                   resultDescriptors: List[AnalyzeResultDescriptor])
+                                 timeframe: Option[Integer],
+                                 reduceFunction: String,
+                                 resultDescriptors: List[AnalyzeResultDescriptor])
 
   case class AnalyzeResultDto(result: String)
 }

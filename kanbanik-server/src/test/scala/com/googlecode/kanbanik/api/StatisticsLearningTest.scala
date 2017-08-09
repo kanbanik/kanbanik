@@ -23,7 +23,7 @@ class StatisticsLearningTest extends FlatSpec {
 
     fullDescriptor.put(":reduce-function", ":merge")
     filterType.put(":eventType", "TaskDeleted")
-    resultDescriptor.put(":function", ":pass")
+    resultDescriptor.put(":function", ":cnt")
     resultDescriptor.put(":filter", filterType)
     resultDescriptors.add(resultDescriptor)
     fullDescriptor.put(":result-descriptors", resultDescriptors)
@@ -34,31 +34,29 @@ class StatisticsLearningTest extends FlatSpec {
 //      :function :pass
 //    }]}
 
-    val x = statistics.execute(fullDescriptor)
-//    print(x)
-
-  }
-
-  it should "should parse the data properly" in {
-    val json = parse("""
-                           {"reduceFunction": ":merge",
-                             "resultDescriptors": [
-                             {
-                              "function": ":pass",
-                              "filter": {"eventType": "TaskDeleted"}
-                             }
-                           ]}
-                     """)
-    val res = json.extract[AnalyzeDescriptorDto]
-    assert(res.reduceFunction === ":merge")
-
-    val cmd = new ExecuteStatisticsCommand()
-
-    val x = statistics.execute(cmd.toJDescriptor(res))
+    val x = statistics.execute(fullDescriptor, 3600000)
     print(x)
 
-
   }
+//
+//  it should "should parse the data properly" in {
+//    val json = parse("""
+//                           {"reduceFunction": ":merge",
+//                             "resultDescriptors": [
+//                             {
+//                              "function": ":pass",
+//                              "filter": {"eventType": "TaskDeleted"}
+//                             }
+//                           ]}
+//                     """)
+//    val res = json.extract[AnalyzeDescriptorDto]
+//    assert(res.reduceFunction === ":merge")
+//
+//    val cmd = new ExecuteStatisticsCommand()
+//
+//    val x = statistics.execute(cmd.toJDescriptor(res), null)
+//    print(x)
+//  }
 
 }
 

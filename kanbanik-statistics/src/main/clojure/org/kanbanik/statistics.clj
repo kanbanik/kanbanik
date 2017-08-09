@@ -24,13 +24,7 @@
   [chunk-with-function]
   (last (:chunk chunk-with-function)))
 
-(defn reduce-tasks [specific-function grouped base-timestamp]
-    "Takes a list of tasks grouped by timestamp and the first timestamp
-  which is used as a base.
-  From each chunk returns only the last task enriched by the :timestamp
-  attribute which contains the time difference between the base timestamp and
-  the last timestamp."
-    (defn reduce-chunk [specific-function grouped-chunks base-timestamp]
+(defn reduce-chunk [specific-function grouped-chunks base-timestamp]
     ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
       
       (map (fn [grouped-chunk] 
@@ -43,18 +37,23 @@
              )
            grouped-chunks
            )
-      )
+)
 
-    (let [vals (map (fn [[k v]] v) grouped)] ; ignore the timestamps
-      
-      (map (fn [timeframe-chunk] 
-             (reduce-chunk specific-function (group-by #(:entityId %) timeframe-chunk) base-timestamp))
-           vals)
-      )
-    )
+(defn reduce-tasks [specific-function grouped base-timestamp]
+    "Takes a list of tasks grouped by timestamp and the first timestamp
+  which is used as a base.
+  From each chunk returns only the last task enriched by the :timestamp
+  attribute which contains the time difference between the base timestamp and
+  the last timestamp."
+    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)]
+      (loop [res [] prev [] vals vals-without-timestamps]
+          (if (= (count vals) 0)
+            res
+          (let [vals-with-prev-vals (concat prev (first vals))
+                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals) base-timestamp)]
+            (recur (conj res reduced) reduced (rest vals)))))))
 
-
-(defn group-by-timeframe [stream timeframe]
+(defn group-by-timeframe-dense [stream timeframe]
     "Gets a vector of task related events sorted by time and groups them according to given time frame.
   Timeframe: in seconds
   Input: [event1 event2 event3 event4....]
@@ -76,6 +75,24 @@
         )
       ))
 )
+
+(defn group-by-timeframe [stream timeframe]
+"Adds empty placeholder vectors to the dense group so there is a place to forward the events to."
+  (if (= 0 (count stream))
+    {}
+  (let [
+        dense (group-by-timeframe-dense stream timeframe) 
+        k (sort (keys dense)) 
+        new-range (range (first k) (+ (last k) 1))]
+    (into {} (map (fn [i] 
+                    (let [val (get dense i)]
+                      (if (nil? val)
+                        {i []}
+                        {i val}
+                        )
+                      ))
+                    new-range
+                  )))))
 
 (defn apply-filter [filter-conditions tasks]
 "

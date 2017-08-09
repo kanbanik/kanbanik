@@ -10,7 +10,7 @@ import org.kanbanik.statistics
 class ExecuteStatisticsCommand extends Command[AnalyzeDescriptorDto, AnalyzeResultDto] {
 
   override def execute(params: AnalyzeDescriptorDto, user: User): Either[AnalyzeResultDto, ErrorDto] = {
-    val res = statistics.execute(toJDescriptor(params))
+    val res = statistics.execute(toJDescriptor(params), params.timeframe.getOrElse(null))
     Left(AnalyzeResultDto(res))
   }
 
