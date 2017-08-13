@@ -13,6 +13,14 @@
   )
 )
 
+(defn apply-filter [filter-conditions tasks]
+"
+Takes an example of the task which should be matched and 
+returns the list of tasks which are matched by it.
+"
+  (filter (fn [task] (nil? (first (diff filter-conditions task)))) tasks)
+)
+
 ; a nasty hack just for playing around - will be removed
 (ns-unmap *ns* 'reduce-function)
 
@@ -39,7 +47,7 @@
            )
 )
 
-(defn reduce-tasks [specific-function grouped base-timestamp]
+(defn reduce-tasks [specific-function forward-filter grouped base-timestamp]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
   From each chunk returns only the last task enriched by the :timestamp
@@ -49,59 +57,49 @@
       (loop [res [] prev [] vals vals-without-timestamps]
           (if (= (count vals) 0)
             res
-          (let [vals-with-prev-vals (concat prev (first vals))
+          (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
                 reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals) base-timestamp)]
             (recur (conj res reduced) reduced (rest vals)))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
-    "Gets a vector of task related events sorted by time and groups them according to given time frame.
+      "Gets a vector of task related events sorted by time and groups them according to given time frame.
   Timeframe: in seconds
   Input: [event1 event2 event3 event4....]
   Output {timeframe1 [event1 event2...] timeframe2 [event3 event4...]...]}
          if the timeframe is nil, the original stream is returned
 "
-    (if (nil? timeframe)
-      {nil stream}
-      (if (= (count stream) 0)
-        []                            
-       ; the base time starts one millisecond before the first item from the stream
-        (let [base-timestamp (first-timestamp stream)]
-          (group-by (fn [item]
-                     (Math/ceil (/ 
-                                (- (:timestamp item) base-timestamp) 
-                                (max timeframe 1)))
-                    ) 
-                  stream)
-        )
-      ))
-)
+      (if (nil? timeframe)
+        {nil stream}
+        (if (= (count stream) 0)
+          []                            
+                                        ; the base time starts one millisecond before the first item from the stream
+          (let [base-timestamp (first-timestamp stream)]
+            (group-by (fn [item]
+                        (Math/ceil (/ 
+                                    (- (:timestamp item) base-timestamp) 
+                                    (max timeframe 1)))
+                        ) 
+                      stream)
+            )
+          )))
 
 (defn group-by-timeframe [stream timeframe]
-"Adds empty placeholder vectors to the dense group so there is a place to forward the events to."
+  "Adds empty placeholder vectors to the dense group so there is a place to forward the events to."
   (if (= 0 (count stream))
     {}
-  (let [
-        dense (group-by-timeframe-dense stream timeframe) 
-        k (sort (keys dense)) 
-        new-range (range (first k) (+ (last k) 1))]
-    (into {} (map (fn [i] 
-                    (let [val (get dense i)]
-                      (if (nil? val)
-                        {i []}
-                        {i val}
-                        )
-                      ))
+    (let [
+          dense (group-by-timeframe-dense stream timeframe) 
+          k (sort (keys dense)) 
+          new-range (range (first k) (+ (last k) 1))]
+      (into {} (map (fn [i] 
+                      (let [val (get dense i)]
+                        (if (nil? val)
+                          {i []}
+                          {i val}
+                          )
+                        ))
                     new-range
-                  )))))
-
-(defn apply-filter [filter-conditions tasks]
-"
-Takes an example of the task which should be matched and 
-returns the list of tasks which are matched by it.
-"
-  (filter (fn [task] (nil? (first (diff filter-conditions task)))) tasks)
-)
-
+                    )))))
 
 "Defines the map of functions which can be used"
 (def functions
@@ -147,6 +145,8 @@ Example output
   (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
-        (group-by-timeframe stream timeframe)
-        (first-timestamp stream)))
-)
+;        (:forward-filter descriptor)
+        nil
+       (group-by-timeframe stream timeframe)
+       (first-timestamp stream))
+))

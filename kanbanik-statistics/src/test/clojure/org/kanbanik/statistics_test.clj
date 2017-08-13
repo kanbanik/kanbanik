@@ -20,11 +20,11 @@
           id2t30 {:timestamp 30 :entityId 2}
          ]
 ; one chunk, one field in it
-      (is (= 9 (:timestamp (first (first (reduce-tasks :last [[1 [id1t10]]] 1))))))
+      (is (= 9 (:timestamp (first (first (reduce-tasks :last nil [[1 [id1t10]]] 1))))))
 ; one chunk, two field with same id in it
-      (is (= 19 (:timestamp (first (first (reduce-tasks :last [[1 [id1t10 id1t20]]] 1))))))
+      (is (= 19 (:timestamp (first (first (reduce-tasks :last nil [[1 [id1t10 id1t20]]] 1))))))
 ; one chunk, 3 fields with 2 differend ids in it
-      (let [two-in-chunk (reduce-tasks :last [[1 [id1t10 id1t20 id2t30]]] 1)]
+      (let [two-in-chunk (reduce-tasks :last nil [[1 [id1t10 id1t20 id2t30]]] 1)]
         (is (and
              (= 19 (:timestamp (first (first two-in-chunk))))
              (= 29 (:timestamp (second (first two-in-chunk))))
@@ -32,7 +32,7 @@
         )
 
 ; two chunks and 2 differnet ids in both
-      (let [two-chunks (reduce-tasks :last [[1 [id1t10 id1t20 id2t30]] [2 [id2t30 id1t20 id1t10]]] 1)]
+      (let [two-chunks (reduce-tasks :last nil [[1 [id1t10 id1t20 id2t30]] [2 [id2t30 id1t20 id1t10]]] 1)]
         (is (and
 ; test first chunk
              (= 19 (:timestamp (first (first two-chunks))))
@@ -42,7 +42,19 @@
              (= 9 (:timestamp (first (second two-chunks))))
              ))
         )
-      )
+
+; test if the filter filters something out
+      (let [two-chunks (reduce-tasks :last {:entityId 1} [[1 [id1t10 id1t20 id2t30]] [2 [id2t30 id1t20 id1t10]]] 1)]
+        (is (and
+; test first chunk
+             (= 19 (:timestamp (first (first two-chunks))))
+             (= 29 (:timestamp (second (first two-chunks))))
+; test second chunk
+             (= 29 (:timestamp (second (second two-chunks))))
+             (= 9 (:timestamp (first (second two-chunks))))
+             ))
+        
+      ))
   )
 
   (testing "group-by-timeframe"
