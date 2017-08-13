@@ -32,22 +32,15 @@ returns the list of tasks which are matched by it.
   [chunk-with-function]
   (last (:chunk chunk-with-function)))
 
-(defn reduce-chunk [specific-function grouped-chunks base-timestamp]
+(defn reduce-chunk [specific-function grouped-chunks]
     ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
-      
-      (map (fn [grouped-chunk] 
-             (let [reduced-chunk (reduce-function {:function specific-function :chunk (val grouped-chunk)})]
-               (assoc
-                   reduced-chunk
-                 :timestamp
-                 (- (:timestamp reduced-chunk) base-timestamp)
-                 ))
-             )
-           grouped-chunks
-           )
-)
+  (map 
+   (fn [grouped-chunk] (reduce-function {:function specific-function :chunk (val grouped-chunk)}))
+   grouped-chunks))
 
-(defn reduce-tasks [specific-function forward-filter grouped base-timestamp]
+
+; todo the forwarded taks need to have the base timestamp added back to them
+(defn reduce-tasks [specific-function forward-filter grouped]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
   From each chunk returns only the last task enriched by the :timestamp
@@ -58,7 +51,7 @@ returns the list of tasks which are matched by it.
           (if (= (count vals) 0)
             res
           (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals) base-timestamp)]
+                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
             (recur (conj res reduced) reduced (rest vals)))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
@@ -72,7 +65,7 @@ returns the list of tasks which are matched by it.
         {nil stream}
         (if (= (count stream) 0)
           []                            
-                                        ; the base time starts one millisecond before the first item from the stream
+          ; the base time starts one millisecond before the first item from the stream
           (let [base-timestamp (first-timestamp stream)]
             (group-by (fn [item]
                         (Math/ceil (/ 
@@ -145,8 +138,5 @@ Example output
   (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
-;        (:forward-filter descriptor)
-        nil
-       (group-by-timeframe stream timeframe)
-       (first-timestamp stream))
-))
+        (:forward-filter descriptor)
+       (group-by-timeframe stream timeframe))))
