@@ -13,13 +13,24 @@
   )
 )
 
-(defn apply-filter [filter-conditions tasks]
+(defn apply-filter [filters tasks]
 "
-Takes an example of the task which should be matched and 
-returns the list of tasks which are matched by it.
+Takes a conditions object and returns the list of tasks which satisfy it.
+The conditions object has the following structure:
+{
+:operator and/or/not
+:examples [{:operator not :example {example1}} {:example {example 2}}]
+}
 "
-  (filter (fn [task] (nil? (first (diff filter-conditions task)))) tasks)
-)
+  (if (empty? filters)
+    tasks
+    (if (:example filters)
+      (filter (fn [task]
+       (let [differs? (nil? (first (diff (:example filters) task)))
+             not? (= (:operator filters) :not)]
+         (if not? (not differs?) differs?)
+         )) tasks)
+      tasks)))
 
 ; a nasty hack just for playing around - will be removed
 (ns-unmap *ns* 'reduce-function)

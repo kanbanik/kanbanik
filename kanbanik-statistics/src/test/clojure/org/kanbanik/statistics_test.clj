@@ -46,7 +46,7 @@
         )
 
 ; test if the filter filters something out
-      (let [two-chunks (reduce-tasks :last {:entityId 1} [[1 [id1t10 id3t10 id1t20 id2t30]] [2 [id2t40]]])]
+      (let [two-chunks (reduce-tasks :last {:example {:entityId 1}} [[1 [id1t10 id3t10 id1t20 id2t30]] [2 [id2t40]]])]
         (is (and
 ; test first chunk
              (= 20 (:timestamp (first (first two-chunks))))
@@ -81,10 +81,12 @@
               w3 {:workflowitem-id 3}
               w4 {:workflowitem-id 4}
               ]
-          (is (= 0 (count (apply-filter [] []))))
-          (is (= 1 (count (apply-filter w1 [w2 w1]))))
-          (is (= 2 (count (apply-filter {} [w2 w1]))))
+          (is (= 0 (count (apply-filter {:examples []} []))))
+          (is (= 1 (count (apply-filter {:example w1} [w2 w1]))))
+          (is (= 2 (count (apply-filter {:example {}} [w2 w1]))))
+          (is (= 2 (count (apply-filter {:example {}} [{} w1]))))
           (is (= 2 (count (apply-filter {} [{} w1]))))
+          (is (= 2 (count (apply-filter {:operator :not :example w4} [w2 w1]))))
           )
         ))
 
@@ -100,8 +102,8 @@
           w1 {:workflowitem-id 1}
           w2 {:workflowitem-id 2}
 
-          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}
-          r-nested-1 {:function :cnt :filter {:workflowitem-id 1} :children [{:function :cnt :filter {:workflowitem-id 1}}]}
+          r-basic-2 {:function :cnt :filter {:example {:workflowitem-id 2}}}
+          r-nested-1 {:function :cnt :filter {:example {:workflowitem-id 1}} :children [{:function :cnt :filter {:example {:workflowitem-id 1}}}]}
           ]
       (is (= [1] (generate-report [r-basic-2] [w1 w2])))
       (is (= [1 [1]] (generate-report [r-nested-1] [w1 w2])))
@@ -114,7 +116,7 @@
           id1t10 {:timestamp 10 :entityId 1 :workflowitem-id 2}
           id1t20 {:timestamp 20 :entityId 1 :workflowitem-id 2}
           id2t30 {:timestamp 30 :entityId 2 :workflowitem-id 2}
-          r-basic-2 {:function :cnt :filter {:workflowitem-id 2}}
+          r-basic-2 {:function :cnt :filter {:example {:workflowitem-id 2}}}
           full-descriptor {:reduce-function :last :result-descriptors [r-basic-2]}]
       (let [full-stream [id1t10 id1t20 id2t30]]
         (is (= [[1] [1] [2]] (run-analisis full-descriptor 10 full-stream)))
