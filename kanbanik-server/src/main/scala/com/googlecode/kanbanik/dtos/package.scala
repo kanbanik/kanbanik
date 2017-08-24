@@ -142,13 +142,18 @@ package object dtos {
                      onClickTarget: Option[Int],
                      colour: Option[String])
 
-  case class AnalyzeResultDescriptor(filter: Map[String, String],
+  case class AnalyzeFilter(operator: Option[String],
+                           examples: Option[List[AnalyzeFilter]],
+                           example: Option[Map[String, String]])
+
+  case class AnalyzeResultDescriptor(filter: AnalyzeFilter,
                                      function: String,
                                     children: Option[AnalyzeResultDescriptor])
 
   case class AnalyzeDescriptorDto(
                                  timeframe: Option[Integer],
                                  reduceFunction: String,
+                                 forwardFilter: Option[AnalyzeFilter],
                                  resultDescriptors: List[AnalyzeResultDescriptor])
 
   case class AnalyzeResultDto(result: String)

@@ -19,6 +19,9 @@ class ExecuteStatisticsCommand extends Command[AnalyzeDescriptorDto, AnalyzeResu
 
     result.put(":reduce-function", data.reduceFunction)
     result.put(":result-descriptors", toJResultDescriptors(data.resultDescriptors))
+    if (data.forwardFilter.isDefined) {
+      result.put(":forward-filter", toJFilter(data.forwardFilter.get))
+    }
 
     result
   }
@@ -29,11 +32,7 @@ class ExecuteStatisticsCommand extends Command[AnalyzeDescriptorDto, AnalyzeResu
     for (descriptor <- descriptors) {
       val jdescriptor = new java.util.HashMap[String, Object]()
       jdescriptor.put(":function", descriptor.function)
-      val jfilter = new java.util.HashMap[String, Object]()
-
-      for ((k, v) <- descriptor.filter) {
-        jfilter.put(":" + k, v)
-      }
+      val jfilter: util.HashMap[String, Object] = toJFilter(descriptor.filter)
 
       jdescriptor.put(":filter", jfilter)
       jres.add(jdescriptor)
@@ -41,4 +40,17 @@ class ExecuteStatisticsCommand extends Command[AnalyzeDescriptorDto, AnalyzeResu
     jres
   }
 
+  // this for now supports no nesting and no and/or operators
+  private def toJFilter(filter: AnalyzeFilter) = {
+    val jfilter = new java.util.HashMap[String, Object]()
+    if (filter.operator.isDefined) {
+      jfilter.put(":operator", filter.operator.get)
+    }
+
+    for ((k, v) <- filter.example.get) {
+      jfilter.put(":" + k, v)
+    }
+
+    jfilter
+  }
 }
