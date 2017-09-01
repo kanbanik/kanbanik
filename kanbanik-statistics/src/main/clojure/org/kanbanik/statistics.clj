@@ -75,7 +75,7 @@ The conditions object has the following structure:
       (if (nil? timeframe)
         {nil stream}
         (if (= (count stream) 0)
-          []                            
+          []
           ; the base time starts one millisecond before the first item from the stream
           (let [base-timestamp (first-timestamp stream)]
             (group-by (fn [item]
@@ -91,11 +91,12 @@ The conditions object has the following structure:
   "Adds empty placeholder vectors to the dense group so there is a place to forward the events to."
   (if (= 0 (count stream))
     {}
-    (let [
-          dense (group-by-timeframe-dense stream timeframe) 
-          k (sort (keys dense)) 
-          new-range (range (first k) (+ (last k) 1))]
-      (into {} (map (fn [i] 
+    (let [dense (group-by-timeframe-dense stream timeframe)]
+      (if (nil? timeframe)
+        dense
+        (let [k (sort (keys dense))
+              new-range (range (first k) (+ (last k) 1))]
+          (into {} (map (fn [i]
                       (let [val (get dense i)]
                         (if (nil? val)
                           {i []}
@@ -103,7 +104,7 @@ The conditions object has the following structure:
                           )
                         ))
                     new-range
-                    )))))
+                    )))))))
 
 "Defines the map of functions which can be used"
 (def functions
@@ -150,4 +151,4 @@ Example output
        (reduce-tasks 
         (:reduce-function descriptor)
         (:forward-filter descriptor)
-       (group-by-timeframe stream timeframe))))
+        (group-by-timeframe stream timeframe))))

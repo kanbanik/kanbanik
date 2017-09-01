@@ -15,48 +15,49 @@ class StatisticsLearningTest extends FlatSpec {
   implicit val formats = DefaultFormats
 
   "statistics" should "be possible to call it" in {
-
-    val fullDescriptor = new util.HashMap[String, Object]()
-    val resultDescriptor = new util.HashMap[String, Object]()
-    val filterType = new util.HashMap[String, Object]()
-    val resultDescriptors = new util.ArrayList[Object]()
-
-    fullDescriptor.put(":reduce-function", ":merge")
-    filterType.put(":eventType", "TaskDeleted")
-    resultDescriptor.put(":function", ":cnt")
-    resultDescriptor.put(":filter", filterType)
-    resultDescriptors.add(resultDescriptor)
-    fullDescriptor.put(":result-descriptors", resultDescriptors)
+    true
+//    val fullDescriptor = new util.HashMap[String, Object]()
+//    val resultDescriptor = new util.HashMap[String, Object]()
+//    val filterType = new util.HashMap[String, Object]()
+//    val resultDescriptors = new util.ArrayList[Object]()
 //
-//    {:reduce-function :merge
-//      :result-descriptors [{
-//      :filter {:eventType "TaskDeleted"}
-//      :function :pass
-//    }]}
-
-    val x = statistics.execute(fullDescriptor, 3600000)
-    print(x)
+//    fullDescriptor.put(":reduce-function", ":merge")
+//    filterType.put(":eventType", "TaskDeleted")
+//    resultDescriptor.put(":function", ":cnt")
+//    resultDescriptor.put(":filter", filterType)
+//    resultDescriptors.add(resultDescriptor)
+//    fullDescriptor.put(":result-descriptors", resultDescriptors)
+////
+////    {:reduce-function :merge
+////      :result-descriptors [{
+////      :filter {:eventType "TaskDeleted"}
+////      :function :pass
+////    }]}
+//
+//    val x = statistics.execute(fullDescriptor, 3600000)
+//    print(x)
 
   }
-//
-//  it should "should parse the data properly" in {
-//    val json = parse("""
-//                           {"reduceFunction": ":merge",
-//                             "resultDescriptors": [
-//                             {
-//                              "function": ":pass",
-//                              "filter": {"eventType": "TaskDeleted"}
-//                             }
-//                           ]}
-//                     """)
-//    val res = json.extract[AnalyzeDescriptorDto]
-//    assert(res.reduceFunction === ":merge")
-//
-//    val cmd = new ExecuteStatisticsCommand()
-//
-//    val x = statistics.execute(cmd.toJDescriptor(res), null)
-//    print(x)
-//  }
+
+  it should "should parse the data properly" in {
+    val json = parse("""
+                           {"reduceFunction": ":merge",
+                            "timeframe": 100,
+                             "resultDescriptors": [
+                             {
+                              "function": ":pass",
+                              "filter": {"example": {"eventType": "TaskDeleted"}}
+                             }
+                           ]}
+                     """)
+    val res = json.extract[AnalyzeDescriptorDto]
+    assert(res.reduceFunction === ":merge")
+
+    val cmd = new ExecuteStatisticsCommand()
+
+    val x = statistics.execute(cmd.toJDescriptor(res), 100)
+    print(x)
+  }
 
 }
 

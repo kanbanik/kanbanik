@@ -1,8 +1,10 @@
 (ns org.kanbanik.statistics-dirty
   (:use org.kanbanik.statistics)
   (:require [clojure.string :as str])
+  (:refer-clojure :exclude [sort find])
   (:require [monger.core :as mg]
-            [monger.collection :as mc])
+            [monger.collection :as mc]
+            [monger.query :refer :all])
   (:import [com.mongodb MongoOptions ServerAddress])
 
   (:gen-class
@@ -40,20 +42,26 @@
            ))))))
 )
 
-(defn -execute
-  [descriptor timeframe]
+(defn -execute [descriptor timeframe]
+
+;  (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
+;        ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
+;        conn               (mg/connect sa opts)
+;        db   (mg/get-db conn "kanbanikdb")
+;        event-stream (mc/find-maps db "events")
+;        ]
+
 
   (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
-      ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
-      conn               (mg/connect sa opts)
-      db   (mg/get-db conn "kanbanikdb")
-      event-stream (mc/find-maps db "events")
-        ]   
-    
+        ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
+        conn               (mg/connect sa opts)
+        db   (mg/get-db conn "kanbanikdb")
+        event-stream (with-collection db "events"
+                       (find {})
+                       (sort (array-map :timestamp 1))
+)]
     (apply str (run-analisis 
-     (keywordify (into {} descriptor))
-     timeframe
-     event-stream
-     ))
-
-))
+                (keywordify (into {} descriptor))
+                timeframe
+                event-stream
+                ))))

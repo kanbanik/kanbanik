@@ -66,6 +66,10 @@
           id1t20 {:timestamp 20 :entityId 1}
           id2t30 {:timestamp 30 :entityId 2}
           id2t80 {:timestamp 80 :entityId 2}
+          id1tl1 {:timestamp 1501918219733 :entityId 1}
+          id2tl2 {:timestamp 1501918222287 :entityId 2}
+          id3tl3 {:timestamp 1501918225608 :entityId 3}
+          id4tl4 {:timestamp 1501918229303 :entityId 4}
          ]
       (is (= 0 (count (group-by-timeframe [] 1))))
       (is (= 3 (count (group-by-timeframe [id1t10 id1t20 id2t30] 10))))
@@ -73,6 +77,7 @@
       (is (= 21 (count (group-by-timeframe [id1t10 id1t20 id2t30] 0))))
       (is (= 1 (count (group-by-timeframe [id1t10 id1t20 id2t30] 100))))
       (is (= 8 (count (group-by-timeframe [id1t10 id1t20 id2t30 id2t80] 10))))
+      (is (= 96 (count (group-by-timeframe [id1tl1 id2tl2 id3tl3 id4tl4] 100))))
 
       (testing "apply-filter"
         (let [
