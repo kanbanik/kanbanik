@@ -11,6 +11,16 @@
     :name org.kanbanik.statistics
     :methods [#^{:static true} [execute [java.util.Map java.lang.Integer] java.lang.String]]))
 
+(defn update-map [m f] 
+  (reduce-kv (fn [m k v] 
+    (assoc m k (f v))) {} m))
+
+(defn objectid-to-str [v]
+  (if (instance? org.bson.types.ObjectId v)
+    (str v)
+    v)
+)
+
 (defn to-clojure-coll [c]
   (if (instance? java.util.Map c)
     (into {} c)
@@ -58,10 +68,12 @@
         db   (mg/get-db conn "kanbanikdb")
         event-stream (with-collection db "events"
                        (find {})
-                       (sort (array-map :timestamp 1))
-)]
+                       (sort (array-map :timestamp 1)))
+        clean-event-stream (map #(update-map % objectid-to-str) event-stream)
+        ]
+    (spit "/tmp/clean" (apply str clean-event-stream))
     (apply str (run-analisis 
                 (keywordify (into {} descriptor))
                 timeframe
-                event-stream
+                clean-event-stream
                 ))))

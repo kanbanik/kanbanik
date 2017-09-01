@@ -57,12 +57,16 @@ The conditions object has the following structure:
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
-    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)]
+    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)
+          x (spit "/tmp/rt1" "1")
+          ]
       (loop [res [] prev [] vals vals-without-timestamps]
           (if (= (count vals) 0)
             res
           (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
+                y (spit "/tmp/rt2" (apply str vals-with-prev-vals))
+                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))
+                z (spit "/tmp/r3" "3")]
             (recur (conj res reduced) reduced (rest vals)))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
