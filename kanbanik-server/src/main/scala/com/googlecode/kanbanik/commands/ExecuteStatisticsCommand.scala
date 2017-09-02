@@ -47,9 +47,13 @@ class ExecuteStatisticsCommand extends Command[AnalyzeDescriptorDto, AnalyzeResu
       jfilter.put(":operator", filter.operator.get)
     }
 
+    val jexample = new java.util.HashMap[String, Object]()
+
     for ((k, v) <- filter.example.get) {
-      jfilter.put(":" + k, v)
+      jexample.put(":" + k, v)
     }
+
+    jfilter.put(":example", jexample)
 
     jfilter
   }

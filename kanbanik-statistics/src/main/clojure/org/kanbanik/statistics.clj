@@ -22,6 +22,7 @@ The conditions object has the following structure:
 :examples [{:operator not :example {example1}} {:example {example 2}}]
 }
 "
+(spit "/tmp/fil" (str filters) :append true)
   (if (empty? filters)
     tasks
     (if (:example filters)
@@ -57,16 +58,12 @@ The conditions object has the following structure:
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
-    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)
-          x (spit "/tmp/rt1" "1")
-          ]
+    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)]
       (loop [res [] prev [] vals vals-without-timestamps]
           (if (= (count vals) 0)
             res
-          (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                y (spit "/tmp/rt2" (apply str vals-with-prev-vals))
-                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))
-                z (spit "/tmp/r3" "3")]
+            (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
+                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
             (recur (conj res reduced) reduced (rest vals)))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
@@ -83,10 +80,10 @@ The conditions object has the following structure:
           ; the base time starts one millisecond before the first item from the stream
           (let [base-timestamp (first-timestamp stream)]
             (group-by (fn [item]
-                        (Math/ceil (/ 
+                        (Math/ceil (/
                                     (- (:timestamp item) base-timestamp) 
                                     (max timeframe 1)))
-                        ) 
+                        )
                       stream)
             )
           )))
@@ -151,8 +148,11 @@ Example output
 )
 
 (defn run-analisis [descriptor timeframe stream]
+  (spit "/tmp/dense" (apply str (group-by-timeframe-dense stream timeframe)))
+  (spit "/tmp/densenot" (apply str (group-by-timeframe stream timeframe)))
+
   (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
         (:forward-filter descriptor)
-        (group-by-timeframe stream timeframe))))
+        (group-by-timeframe  stream timeframe))))

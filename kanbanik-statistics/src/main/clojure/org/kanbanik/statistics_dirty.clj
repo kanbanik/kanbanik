@@ -53,15 +53,7 @@
 )
 
 (defn -execute [descriptor timeframe]
-
-;  (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
-;        ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
-;        conn               (mg/connect sa opts)
-;        db   (mg/get-db conn "kanbanikdb")
-;        event-stream (mc/find-maps db "events")
-;        ]
-
-
+(spit "/tmp/desc" (apply str descriptor))
   (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
         ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
         conn               (mg/connect sa opts)
@@ -71,7 +63,6 @@
                        (sort (array-map :timestamp 1)))
         clean-event-stream (map #(update-map % objectid-to-str) event-stream)
         ]
-    (spit "/tmp/clean" (apply str clean-event-stream))
     (apply str (run-analisis 
                 (keywordify (into {} descriptor))
                 timeframe

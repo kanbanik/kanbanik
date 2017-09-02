@@ -45,7 +45,6 @@ class StatisticsLearningTest extends FlatSpec {
                             "timeframe": 100,
                              "resultDescriptors": [
                              {
-                              "function": ":pass",
                               "filter": {"example": {"eventType": "TaskDeleted"}}
                              }
                            ]}
@@ -55,7 +54,7 @@ class StatisticsLearningTest extends FlatSpec {
 
     val cmd = new ExecuteStatisticsCommand()
 
-    val x = statistics.execute(cmd.toJDescriptor(res), 100)
+    val x = statistics.execute(cmd.toJDescriptor(res), 600000)
     print(x)
   }
 
