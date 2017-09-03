@@ -54,7 +54,6 @@
 )
 
 (defn -execute [descriptor timeframe]
-(spit "/tmp/desc" (apply str descriptor))
   (let [^MongoOptions opts (mg/mongo-options {:threads-allowed-to-block-for-connection-multiplier 300})
         ^ServerAddress sa  (mg/server-address "127.0.0.1" 27017)
         conn               (mg/connect sa opts)

@@ -145,9 +145,6 @@ Example output
 )
 
 (defn run-analisis [descriptor timeframe stream]
-  (spit "/tmp/dense" (apply str (group-by-timeframe-dense stream timeframe)))
-  (spit "/tmp/densenot" (apply str (group-by-timeframe stream timeframe)))
-
   (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
