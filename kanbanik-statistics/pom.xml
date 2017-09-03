@@ -34,8 +34,13 @@
             <artifactId>monger</artifactId>
             <version>3.1.0</version>
         </dependency>
-    </dependencies>
 
+	<dependency>
+	    <groupId>org.clojure</groupId>
+	    <artifactId>data.json</artifactId>
+            <version>0.2.6</version>
+            </dependency>
+       </dependencies>
     <build>
         <sourceDirectory>src/main/clojure</sourceDirectory>
         <testSourceDirectory>src/test/clojure</testSourceDirectory>

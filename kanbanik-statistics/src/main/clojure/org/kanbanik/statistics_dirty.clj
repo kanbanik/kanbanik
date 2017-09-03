@@ -1,5 +1,6 @@
 (ns org.kanbanik.statistics-dirty
   (:use org.kanbanik.statistics)
+  (:require [clojure.data.json :as json])
   (:require [clojure.string :as str])
   (:refer-clojure :exclude [sort find])
   (:require [monger.core :as mg]
@@ -63,7 +64,7 @@
                        (sort (array-map :timestamp 1)))
         clean-event-stream (map #(update-map % objectid-to-str) event-stream)
         ]
-    (apply str (run-analisis 
+    (json/write-str (run-analisis 
                 (keywordify (into {} descriptor))
                 timeframe
                 clean-event-stream
