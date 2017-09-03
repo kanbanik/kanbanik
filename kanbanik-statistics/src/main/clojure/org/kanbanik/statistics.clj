@@ -22,7 +22,6 @@ The conditions object has the following structure:
 :examples [{:operator not :example {example1}} {:example {example 2}}]
 }
 "
-(spit "/tmp/fil" (str filters) :append true)
   (if (empty? filters)
     tasks
     (if (:example filters)
@@ -51,20 +50,18 @@ The conditions object has the following structure:
    grouped-chunks))
 
 
-; todo the forwarded taks need to have the base timestamp added back to them
 (defn reduce-tasks [specific-function forward-filter grouped]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
-    (let [vals-without-timestamps (map (fn [[k v]] v) grouped)]
-      (loop [res [] prev [] vals vals-without-timestamps]
+      (loop [res [] prev [] vals grouped]
           (if (= (count vals) 0)
             res
             (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
                 reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
-            (recur (conj res reduced) reduced (rest vals)))))))
+            (recur (conj res reduced) reduced (rest vals))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
       "Gets a vector of task related events sorted by time and groups them according to given time frame.
@@ -91,17 +88,17 @@ The conditions object has the following structure:
 (defn group-by-timeframe [stream timeframe]
   "Adds empty placeholder vectors to the dense group so there is a place to forward the events to."
   (if (= 0 (count stream))
-    {}
+    []
     (let [dense (group-by-timeframe-dense stream timeframe)]
       (if (nil? timeframe)
-        dense
+        (map (fn [[k v]] v) dense) ; remove the timestamp part
         (let [k (sort (keys dense))
               new-range (range (first k) (+ (last k) 1))]
-          (into {} (map (fn [i]
+          (into [] (map (fn [i]
                       (let [val (get dense i)]
                         (if (nil? val)
-                          {i []}
-                          {i val}
+                          []
+                          val
                           )
                         ))
                     new-range
