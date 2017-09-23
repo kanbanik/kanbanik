@@ -1,16 +1,19 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.{User, Task, Workflowitem, Board}
+import com.googlecode.kanbanik.db.HasEvents
+import com.googlecode.kanbanik.model._
 import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
-import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, TaskDto}
+import com.googlecode.kanbanik.dtos.{ErrorDto, PermissionType, TaskDto}
 
-class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
+class SaveTaskCommand extends Command[TaskDto, TaskDto]
+  with TaskManipulation
+  with HasEvents {
 
   private lazy val taskBuilder = new TaskBuilder()
 
-  override def execute(taskDto: TaskDto): Either[TaskDto, ErrorDto] = {
+  override def execute(taskDto: TaskDto, user: User): Either[TaskDto, ErrorDto] = {
     if (taskDto.workflowitemId == null) {
       return Right(ErrorDto("At least one workflowitem must exist to create a task!"))
     }
@@ -26,8 +29,21 @@ class SaveTaskCommand extends Command[TaskDto, TaskDto] with TaskManipulation {
 
     val task = taskBuilder.buildEntity(taskDto)
 
-    val stored = setOrderIfNeeded(taskDto, task).store()
-    Left(taskBuilder.buildDto(stored))
+    val oldTask = if (task.id.isDefined) {
+      Some(Task.byId(task.id.get, user))
+    } else {
+      None
+    }
+
+    val storedTask = setOrderIfNeeded(taskDto, task).store()
+
+    if (oldTask.isDefined) {
+      publish(EventType.TaskChanged, diff(oldTask.get, storedTask))
+    } else {
+      publish(EventType.TaskCreated, storedTask.asMap())
+    }
+
+    Left(taskBuilder.buildDto(storedTask))
   }
 
   def setOrderIfNeeded(taskDto: TaskDto, task: Task) = {

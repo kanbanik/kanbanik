@@ -3,12 +3,12 @@ package com.googlecode.kanbanik.commands
 import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.builders.TaskBuilder
-import com.googlecode.kanbanik.model.{User, Workflowitem}
+import com.googlecode.kanbanik.model.{Task, User, Workflowitem}
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.db.HasEntityLoader
-import com.googlecode.kanbanik.dtos.{PermissionType, ErrorDto, TaskDto, MoveTaskDto}
+import com.googlecode.kanbanik.db.{HasEntityLoader, HasEvents}
+import com.googlecode.kanbanik.dtos.{ErrorDto, MoveTaskDto, PermissionType, TaskDto}
 
-class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulation with HasEntityLoader {
+class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulation with HasEntityLoader with HasEvents {
 
   private lazy val taskBuilder = new TaskBuilder()
 
@@ -45,6 +45,13 @@ class MoveTaskCommand extends Command[MoveTaskDto, TaskDto] with TaskManipulatio
 
       toStore.copy(id = None, boardId = newTask.boardId).store
     }
+
+    publish(EventType.TaskMoved, Map(
+      Task.Fields.id.toString -> resTask.id,
+      Task.Fields.projectId.toString -> resTask.projectId,
+      Task.Fields.boardId.toString -> resTask.boardId,
+      Task.Fields.workflowitem.toString -> resTask.workflowitemId
+    ))
 
     Left(taskBuilder.buildDto(resTask))
   }

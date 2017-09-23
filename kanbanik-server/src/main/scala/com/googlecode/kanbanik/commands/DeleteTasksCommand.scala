@@ -1,14 +1,17 @@
 package com.googlecode.kanbanik.commands
 
 import com.googlecode.kanbanik.builders.TaskBuilder
+import com.googlecode.kanbanik.db.HasEvents
 import com.googlecode.kanbanik.exceptions.MidAirCollisionException
 import com.googlecode.kanbanik.messages.ServerMessages
-import com.googlecode.kanbanik.model.{User, Workflowitem, Board}
+import com.googlecode.kanbanik.model.{Board, Task, User, Workflowitem}
 import com.googlecode.kanbanik.security._
 import org.bson.types.ObjectId
 import com.googlecode.kanbanik.dtos._
 
-class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulation {
+class DeleteTasksCommand extends Command[TasksDto, TasksDto]
+  with TaskManipulation
+  with HasEvents {
 
   private lazy val taskBuilder = new TaskBuilder()
 
@@ -42,6 +45,7 @@ class DeleteTasksCommand extends Command[TasksDto, TasksDto] with TaskManipulati
       
     try {
     	task.delete(boardId, user)
+      publish(EventType.TaskDeleted, Map(Task.Fields.id.toString -> task.id), true)
     } catch {
       case e: MidAirCollisionException =>
         	Right(ErrorDto(ServerMessages.midAirCollisionException))

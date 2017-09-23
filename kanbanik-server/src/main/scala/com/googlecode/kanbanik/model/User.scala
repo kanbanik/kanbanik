@@ -3,7 +3,6 @@ package com.googlecode.kanbanik.model
 import com.googlecode.kanbanik.db.{HasMidAirCollisionDetection, HasMongoConnection}
 import com.googlecode.kanbanik.commons._
 import com.googlecode.kanbanik.dtos.PermissionType
-import com.googlecode.kanbanik.model.Permission
 import com.googlecode.kanbanik.security._
 import com.mongodb.{BasicDBList, DBObject}
 import com.mongodb.casbah.Imports.$set

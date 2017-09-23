@@ -1,6 +1,5 @@
 package com.googlecode.kanbanik
 
-import com.googlecode.kanbanik.commands.{Command, CreateUserCommand}
 import com.googlecode.kanbanik.model.{User, Permission}
 import com.googlecode.kanbanik.dtos.PermissionType
 import com.mongodb.casbah.commons.MongoDBObject

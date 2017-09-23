@@ -76,4 +76,14 @@ class SerializationLearningTest extends FlatSpec {
     assert(res.toString === "Ig&nac")
   }
 
+  it should "work with completely arbitrary data" in {
+    case class Arbitrary(x: Map[String, String])
+    val json = parse("""
+         {"x": {"a": "b"}}
+         """)
+    val res = json.\("x").extract[Map[String, String]]
+    print("a")
+
+  }
+
 }
