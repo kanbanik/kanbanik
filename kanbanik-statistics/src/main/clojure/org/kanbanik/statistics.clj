@@ -43,6 +43,59 @@ The conditions object has the following structure:
   [chunk-with-function]
   (last (:chunk chunk-with-function)))
 
+; TODO optimize - store only the needed part in the meta
+(defn progressive-count [chunk-with-function]
+"
+Example data
+{
+   :meta {entityId chunk-specific-things}
+   :data 
+     {
+       {
+         :projectId (:projectId chunk)
+         :boardId (:boardId chunk)
+         :workflowitem (:workflowitem chunk)
+       } [1 2 3 2]
+     }
+  }
+"
+
+ (defn conj-to-data [prev new-val]
+   (if (empty? prev)
+     [(Math/max 0 new-val)] ; for adding it is 1, for deleting it is 0
+     (conj prev (+ (last prev) new-val))))
+
+  (let [
+        chunk (:chunk chunk-with-function) 
+        prev (:prev chunk-with-function)
+        place-id {
+         :projectId (:projectId chunk)
+         :boardId (:boardId chunk)
+         :workflowitem (:workflowitem chunk)
+       }]
+    
+    (if (= "TaskCreated" (:eventType chunk))
+      (assoc-in
+       (assoc-in prev [:meta (:entityId chunk)] chunk)
+       [:data place-id] (conj-to-data (get (:data prev) place-id) 1))
+      (if (and (= "TaskDeleted" (:eventType chunk)) (get-in prev [:meta (:entityId chunk)]))
+        (assoc-in
+         (assoc-in prev [:meta (:entityId chunk)] chunk)
+         [:data place-id] (conj-to-data (get (:data prev) place-id) -1))
+        (if (= "TaskMoved" (:eventType chunk))
+          (let [
+                prev-place-id (assoc-in place-id [:workflowitem] (get-in prev [:meta (:entityId chunk) :workflowitem]))
+                common-assoc (assoc-in
+                  (assoc-in
+                    prev [:meta (:entityId chunk)] chunk)
+                    [:data place-id] (conj-to-data (get (:data prev) place-id) 1))
+                prev-data (get (:data prev) prev-place-id)]
+            (if prev-data
+              (assoc-in common-assoc [:data prev-place-id] (conj-to-data prev-data -1))
+              common-assoc))
+          ; if none of the processed events, ignore and return the previous state
+          prev)))))
+
 (defn reduce-chunk [specific-function grouped-chunks]
     ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
   (map 
