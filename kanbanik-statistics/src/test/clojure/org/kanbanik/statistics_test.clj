@@ -22,7 +22,7 @@
           i1p1b1w1D {:eventType "TaskDeleted" :projectId 1 :boardId 1 :workflowitem 1 :entityId 1}
           i3p1b1w2D {:eventType "TaskDeleted" :projectId 1 :boardId 1 :workflowitem 2 :entityId 3}]
       
-      (let [first-call (progressive-count {:function nil :chunk i1p1b1w1C :prev {}})]
+      (let [first-call (progressive-count {:function nil :chunk i1p1b1w1C :prev nil})]
         (is (= {1 i1p1b1w1C} (:meta first-call)))
         (is (= [1] (get (:data first-call) {:projectId 1 :boardId 1 :workflowitem 1})))
         (let [second-call (progressive-count {:function nil :chunk i2p1b1w1C :prev first-call})]
@@ -56,6 +56,7 @@
           id3t10 {:timestamp 10 :entityId 3}
          ]
 ; one chunk, one field in it
+
       (is (= 10 (:timestamp (first (first (reduce-tasks :last nil [[id1t10]]))))))
 ; one chunk, two field with same id in it
       (is (= 20 (:timestamp (first (first (reduce-tasks :last nil [[id1t10 id1t20]]))))))

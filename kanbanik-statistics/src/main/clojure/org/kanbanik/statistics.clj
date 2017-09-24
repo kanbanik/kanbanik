@@ -97,11 +97,13 @@ Example data
           prev)))))
 
 (defn reduce-chunk [specific-function grouped-chunks]
-    ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
-  (map 
-   (fn [grouped-chunk] (reduce-function {:function specific-function :chunk (val grouped-chunk)}))
-   grouped-chunks))
-
+  ; {time1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], time2 [{:timestamp 30, :entityId 2}]}
+  (loop [data grouped-chunks res []]
+    (if (empty? data)
+      res
+      (recur
+        (rest data)
+        (conj res (reduce-function {:function specific-function :chunk (val (first data)) :prev res}))))))
 
 (defn reduce-tasks [specific-function forward-filter grouped]
     "Takes a list of tasks grouped by timestamp and the first timestamp
