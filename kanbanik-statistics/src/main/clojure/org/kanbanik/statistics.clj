@@ -32,16 +32,28 @@ The conditions object has the following structure:
          )) tasks)
       tasks)))
 
+(defn reduce-chunk [specific-function grouped-chunks]
+  (loop [data grouped-chunks res []]
+    (if (empty? data)
+      res
+      (recur
+        (rest data)
+        (conj res (specific-function {:chunk (val (first data)) :prev res}))))))
+
 ; a nasty hack just for playing around - will be removed
 (ns-unmap *ns* 'reduce-function)
 
 (defmulti reduce-function (fn [chunk-with-function] (:function chunk-with-function)))
  (defmethod reduce-function :merge
   [chunk-with-function]
-  (apply merge (:chunk chunk-with-function)))
+
+  (reduce-chunk (fn [c] apply merge (:chunk c)) 
+                (group-by #(:entityId %) chunk-with-function)))
+
  (defmethod reduce-function :last
   [chunk-with-function]
-  (last (:chunk chunk-with-function)))
+  (reduce-chunk (fn [c] (last (:chunk c)))
+                (group-by #(:entityId %) (:chunk chunk-with-function))))
 
 ; TODO optimize - store only the needed part in the meta
 (defn progressive-count [chunk-with-function]
@@ -96,15 +108,6 @@ Example data
           ; if none of the processed events, ignore and return the previous state
           prev)))))
 
-(defn reduce-chunk [specific-function grouped-chunks]
-  ; {time1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], time2 [{:timestamp 30, :entityId 2}]}
-  (loop [data grouped-chunks res []]
-    (if (empty? data)
-      res
-      (recur
-        (rest data)
-        (conj res (reduce-function {:function specific-function :chunk (val (first data)) :prev res}))))))
-
 (defn reduce-tasks [specific-function forward-filter grouped]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
@@ -115,7 +118,7 @@ Example data
           (if (= (count vals) 0)
             res
             (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
+                  reduced (reduce-function {:function specific-function :chunk vals-with-prev-vals})]
             (recur (conj res reduced) reduced (rest vals))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
