@@ -32,18 +32,45 @@ The conditions object has the following structure:
          )) tasks)
       tasks)))
 
+(defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
+  (loop [data grouped-chunks res default-res]
+    (if (empty? data)
+      res
+      (recur
+        (rest data)
+        (joiner res (specific-function {:chunk (extractor (first data)) :prev res}))))))
+
 ; a nasty hack just for playing around - will be removed
 (ns-unmap *ns* 'reduce-function)
 
 (defmulti reduce-function (fn [chunk-with-function] (:function chunk-with-function)))
  (defmethod reduce-function :merge
   [chunk-with-function]
-  (apply merge (:chunk chunk-with-function)))
+
+  (reduce-chunk (fn [c] (apply merge (:chunk c)))
+                (group-by #(:entityId %) chunk-with-function)
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
+
  (defmethod reduce-function :last
   [chunk-with-function]
-  (last (:chunk chunk-with-function)))
+  (reduce-chunk (fn [c] (last (:chunk c)))
+                (group-by #(:entityId %) (:chunk chunk-with-function))
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
+
+ (defmethod reduce-function :progressive-count
+   [chunk-with-function]
+   (reduce-chunk (fn [c] (progressive-count c))
+                 (:chunk chunk-with-function)
+                 (fn [x] x)
+                 (fn [res new-res] new-res)
+                 nil))
 
 ; TODO optimize - store only the needed part in the meta
+; TODO make the :data's ID configurable to allow grouping by whatever the user wants
 (defn progressive-count [chunk-with-function]
 "
 Example data
@@ -60,12 +87,13 @@ Example data
   }
 "
 
+
  (defn conj-to-data [prev new-val]
    (if (empty? prev)
      [(Math/max 0 new-val)] ; for adding it is 1, for deleting it is 0
      (conj prev (+ (last prev) new-val))))
 
-  (let [
+ (let [
         chunk (:chunk chunk-with-function) 
         prev (:prev chunk-with-function)
         place-id {
@@ -73,7 +101,7 @@ Example data
          :boardId (:boardId chunk)
          :workflowitem (:workflowitem chunk)
        }]
-    
+
     (if (= "TaskCreated" (:eventType chunk))
       (assoc-in
        (assoc-in prev [:meta (:entityId chunk)] chunk)
@@ -96,13 +124,6 @@ Example data
           ; if none of the processed events, ignore and return the previous state
           prev)))))
 
-(defn reduce-chunk [specific-function grouped-chunks]
-    ; {1 [{:timestamp 10, :entityId 1} {:timestamp 20, :entityId 1}], 2 [{:timestamp 30, :entityId 2}]}
-  (map 
-   (fn [grouped-chunk] (reduce-function {:function specific-function :chunk (val grouped-chunk)}))
-   grouped-chunks))
-
-
 (defn reduce-tasks [specific-function forward-filter grouped]
     "Takes a list of tasks grouped by timestamp and the first timestamp
   which is used as a base.
@@ -113,7 +134,7 @@ Example data
           (if (= (count vals) 0)
             res
             (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                reduced (reduce-chunk specific-function (group-by #(:entityId %) vals-with-prev-vals))]
+                  reduced (reduce-function {:function specific-function :chunk vals-with-prev-vals})]
             (recur (conj res reduced) reduced (rest vals))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
