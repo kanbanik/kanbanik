@@ -32,13 +32,13 @@ The conditions object has the following structure:
          )) tasks)
       tasks)))
 
-(defn reduce-chunk [specific-function grouped-chunks]
-  (loop [data grouped-chunks res []]
+(defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
+  (loop [data grouped-chunks res default-res]
     (if (empty? data)
       res
       (recur
         (rest data)
-        (conj res (specific-function {:chunk (val (first data)) :prev res}))))))
+        (joiner res (specific-function {:chunk (extractor (first data)) :prev res}))))))
 
 ; a nasty hack just for playing around - will be removed
 (ns-unmap *ns* 'reduce-function)
@@ -47,15 +47,30 @@ The conditions object has the following structure:
  (defmethod reduce-function :merge
   [chunk-with-function]
 
-  (reduce-chunk (fn [c] apply merge (:chunk c)) 
-                (group-by #(:entityId %) chunk-with-function)))
+  (reduce-chunk (fn [c] (apply merge (:chunk c)))
+                (group-by #(:entityId %) chunk-with-function)
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
 
  (defmethod reduce-function :last
   [chunk-with-function]
   (reduce-chunk (fn [c] (last (:chunk c)))
-                (group-by #(:entityId %) (:chunk chunk-with-function))))
+                (group-by #(:entityId %) (:chunk chunk-with-function))
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
+
+ (defmethod reduce-function :progressive-count
+   [chunk-with-function]
+   (reduce-chunk (fn [c] (progressive-count c))
+                 (:chunk chunk-with-function)
+                 (fn [x] x)
+                 (fn [res new-res] new-res)
+                 nil))
 
 ; TODO optimize - store only the needed part in the meta
+; TODO make the :data's ID configurable to allow grouping by whatever the user wants
 (defn progressive-count [chunk-with-function]
 "
 Example data
@@ -72,12 +87,13 @@ Example data
   }
 "
 
+
  (defn conj-to-data [prev new-val]
    (if (empty? prev)
      [(Math/max 0 new-val)] ; for adding it is 1, for deleting it is 0
      (conj prev (+ (last prev) new-val))))
 
-  (let [
+ (let [
         chunk (:chunk chunk-with-function) 
         prev (:prev chunk-with-function)
         place-id {
@@ -85,7 +101,7 @@ Example data
          :boardId (:boardId chunk)
          :workflowitem (:workflowitem chunk)
        }]
-    
+
     (if (= "TaskCreated" (:eventType chunk))
       (assoc-in
        (assoc-in prev [:meta (:entityId chunk)] chunk)
