@@ -100,8 +100,6 @@
            i2p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 2}
            res (first (reduce-tasks :progressive-count nil [[i1p1b1w1C i2p1b1w1C]]))]
        (is (= [1 2] (get (:data res) {:projectId 1 :boardId 1 :workflowitem 1}))))
-
-;{:meta {1 {:eventType "TaskCreated", :projectId 1, :boardId 1, :workflowitem 1, :entityId 1}, 2 {:eventType "TaskCreated", :projectId 1, :boardId 1, :workflowitem 1, :entityId 2}}, :data {{:projectId 1, :boardId 1, :workflowitem 1} [1 2]}}
   )
 
   (testing "group-by-timeframe"
