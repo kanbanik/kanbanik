@@ -44,11 +44,15 @@ and returns
      }
 }
 "
-(defn apply-progressive-count-filter [tasks]
-  tasks
+(defn apply-progressive-count-filter [prev]
+  (defn clean-data [data] (into {}  (map (fn [[k v]] {k [(last v)]}) data)))
+
+  (if (contains? prev :data)
+    {:meta (:meta prev) :data (clean-data (:data prev))}
+    prev)
 )
 
-(defn apply-example-based-filter [filters tasks]
+ (defn apply-example-based-filter [filters tasks]
   (if (empty? filters)
     tasks
     
@@ -64,7 +68,7 @@ and returns
     (apply-progressive-count-filter tasks)
     (apply-example-based-filter filters tasks)))
 
-(defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
+ (defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
   (loop [data grouped-chunks res default-res]
     (if (empty? data)
       res
@@ -102,7 +106,6 @@ Example data
          :boardId (:boardId chunk)
          :workflowitem (:workflowitem chunk)
        }]
-
     (if (= "TaskCreated" (:eventType chunk))
       (assoc-in
        (assoc-in prev [:meta (:entityId chunk)] chunk)
