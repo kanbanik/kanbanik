@@ -98,10 +98,17 @@
      (let [
            i1p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 1}
            i2p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 2}
-           res (first (reduce-tasks :progressive-count nil [[i1p1b1w1C i2p1b1w1C]]))]
-       (is (= [1 2] (get (:data res) {:projectId 1 :boardId 1 :workflowitem 1}))))
+           first-call (reduce-tasks :progressive-count nil [[i1p1b1w1C i2p1b1w1C]])]
 
-;{:meta {1 {:eventType "TaskCreated", :projectId 1, :boardId 1, :workflowitem 1, :entityId 1}, 2 {:eventType "TaskCreated", :projectId 1, :boardId 1, :workflowitem 1, :entityId 2}}, :data {{:projectId 1, :boardId 1, :workflowitem 1} [1 2]}}
+       (is (= [1 2] (get (:data (first first-call)) {:projectId 1 :boardId 1 :workflowitem 1})))
+       (let [
+           i3p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 3}
+           i4p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 4}
+           i5p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 5}
+           second-call (reduce-tasks :progressive-count {:operator "progressive-count-forward-filter"} [[i1p1b1w1C i2p1b1w1C] [i3p1b1w1C] [i4p1b1w2C] [i5p1b1w2C]])]
+         (is (= [1 2] (get (:data (first second-call)) {:projectId 1 :boardId 1 :workflowitem 1})))
+         (is (= [2 3] (get (:data (second second-call)) {:projectId 1 :boardId 1 :workflowitem 1})))
+))
   )
 
   (testing "group-by-timeframe"

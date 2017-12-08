@@ -16,14 +16,46 @@
 (defn apply-filter [filters tasks]
 "
 Takes a conditions object and returns the list of tasks which satisfy it.
-The conditions object has the following structure:
+The conditions object has the following structure for the generic filter:
 {
 :operator and/or/not
 :examples [{:operator not :example {example1}} {:example {example 2}}]
 }
+
+It can also contain specific filters for specific situations.
+For progressive count it needs a specific forward filter:
+{
+:operator progressive-count-forward-filter
+}
+This takes the results like:
+{
+   :meta ...
+   :data 
+     {
+      ... [1 2 3 2]
+     }
+}
+and returns 
+{
+   :meta ...
+   :data 
+     {
+      ... [2]
+     }
+}
 "
+(defn apply-progressive-count-filter [prev]
+  (defn clean-data [data] (into {}  (map (fn [[k v]] {k [(last v)]}) data)))
+
+  (if (contains? prev :data)
+    {:meta (:meta prev) :data (clean-data (:data prev))}
+    prev)
+)
+
+ (defn apply-example-based-filter [filters tasks]
   (if (empty? filters)
     tasks
+    
     (if (:example filters)
       (filter (fn [task]
        (let [differs? (nil? (first (diff (:example filters) task)))
@@ -32,42 +64,17 @@ The conditions object has the following structure:
          )) tasks)
       tasks)))
 
-(defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
+  (if (= (:operator filters) "progressive-count-forward-filter")
+    (apply-progressive-count-filter tasks)
+    (apply-example-based-filter filters tasks)))
+
+ (defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
   (loop [data grouped-chunks res default-res]
     (if (empty? data)
       res
       (recur
         (rest data)
         (joiner res (specific-function {:chunk (extractor (first data)) :prev res}))))))
-
-; a nasty hack just for playing around - will be removed
-(ns-unmap *ns* 'reduce-function)
-
-(defmulti reduce-function (fn [chunk-with-function] (:function chunk-with-function)))
- (defmethod reduce-function :merge
-  [chunk-with-function]
-
-  (reduce-chunk (fn [c] (apply merge (:chunk c)))
-                (group-by #(:entityId %) chunk-with-function)
-                #(val %)
-                (fn [res new-res] (conj res new-res))
-                []))
-
- (defmethod reduce-function :last
-  [chunk-with-function]
-  (reduce-chunk (fn [c] (last (:chunk c)))
-                (group-by #(:entityId %) (:chunk chunk-with-function))
-                #(val %)
-                (fn [res new-res] (conj res new-res))
-                []))
-
- (defmethod reduce-function :progressive-count
-   [chunk-with-function]
-   (reduce-chunk (fn [c] (progressive-count c))
-                 (:chunk chunk-with-function)
-                 (fn [x] x)
-                 (fn [res new-res] new-res)
-                 nil))
 
 ; TODO optimize - store only the needed part in the meta
 ; TODO make the :data's ID configurable to allow grouping by whatever the user wants
@@ -86,8 +93,6 @@ Example data
      }
   }
 "
-
-
  (defn conj-to-data [prev new-val]
    (if (empty? prev)
      [(Math/max 0 new-val)] ; for adding it is 1, for deleting it is 0
@@ -101,7 +106,6 @@ Example data
          :boardId (:boardId chunk)
          :workflowitem (:workflowitem chunk)
        }]
-
     (if (= "TaskCreated" (:eventType chunk))
       (assoc-in
        (assoc-in prev [:meta (:entityId chunk)] chunk)
@@ -124,9 +128,45 @@ Example data
           ; if none of the processed events, ignore and return the previous state
           prev)))))
 
+; a nasty hack just for playing around - will be removed
+(ns-unmap *ns* 'reduce-function)
+
+(defn concat-prev-to-chunk [chunk-with-function] 
+  (assoc chunk-with-function :chunk (concat (:prev chunk-with-function) (:chunk chunk-with-function))))
+
+(defmulti reduce-function (fn [chunk-with-function] (:function chunk-with-function)))
+ (defmethod reduce-function :merge
+  [chunk-with-function]
+  (reduce-chunk (fn [c] (apply merge (:chunk c)))
+                (group-by #(:entityId %) (:chunk (concat-prev-to-chunk chunk-with-function)))
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
+
+ (defmethod reduce-function :last
+  [chunk-with-function]
+  (reduce-chunk (fn [c] (last (:chunk c)))
+                (group-by #(:entityId %) (:chunk (concat-prev-to-chunk chunk-with-function)))
+                #(val %)
+                (fn [res new-res] (conj res new-res))
+                []))
+
+ (defmethod reduce-function :progressive-count
+   [chunk-with-function]
+   (let [prev 
+         (if (empty? (:prev chunk-with-function))
+           nil
+           (:prev chunk-with-function))]
+
+     (reduce-chunk (fn [c] (progressive-count c))
+                 (:chunk chunk-with-function)
+                 (fn [x] x)
+                 (fn [res new-res] new-res)
+                 prev)))
+
+   
 (defn reduce-tasks [specific-function forward-filter grouped]
-    "Takes a list of tasks grouped by timestamp and the first timestamp
-  which is used as a base.
+    "Takes a list of tasks grouped by timestamp.
   From each chunk returns only the last task enriched by the :timestamp
   attribute which contains the time difference between the base timestamp and
   the last timestamp."
@@ -134,7 +174,7 @@ Example data
           (if (= (count vals) 0)
             res
             (let [vals-with-prev-vals (concat (apply-filter forward-filter prev) (first vals))
-                  reduced (reduce-function {:function specific-function :chunk vals-with-prev-vals})]
+                  reduced (reduce-function {:function specific-function :chunk (first vals) :prev (apply-filter forward-filter prev)})]
             (recur (conj res reduced) reduced (rest vals))))))
 
 (defn group-by-timeframe-dense [stream timeframe]
