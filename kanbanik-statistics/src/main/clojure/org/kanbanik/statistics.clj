@@ -64,9 +64,18 @@ and returns
          )) tasks)
       tasks)))
 
+ (defn apply-progressive-count-example-filter [filters tasks]
+   (if (contains? tasks :data)
+     (let [keys (map (fn [[k v]] k) (:data tasks))
+           filtered-key (first (apply-example-based-filter filters keys))]
+     (get (:data tasks) filtered-key []))
+     []))
+
   (if (= (:operator filters) "progressive-count-forward-filter")
     (apply-progressive-count-filter tasks)
-    (apply-example-based-filter filters tasks)))
+    (if (= (:operator filters) "progressive-count-example-based-filter")
+      (apply-progressive-count-example-filter filters tasks)
+      (apply-example-based-filter filters tasks))))
 
  (defn reduce-chunk [specific-function grouped-chunks extractor joiner default-res]
   (loop [data grouped-chunks res default-res]
@@ -221,9 +230,9 @@ Example data
 "Defines the map of functions which can be used"
 (def functions
   {:cnt (fn [tasks] (count tasks))
-   :pass (fn [tasks] tasks)}
+   :pass (fn [tasks] tasks)
+   :avg (fn [tasks] (if (empty? tasks) -1 (float (/ (apply + tasks) (count tasks)))))}
 )
-
 
 (defn apply-function [function tasks]
   (if (and (not (nil? function)) (function functions)) 
@@ -263,4 +272,4 @@ Example output
        (reduce-tasks 
         (:reduce-function descriptor)
         (:forward-filter descriptor)
-        (group-by-timeframe  stream timeframe))))
+        (group-by-timeframe stream timeframe))))

@@ -179,4 +179,23 @@
         (is (= [[2]] (run-analisis full-descriptor 100 full-stream)))
     )))
 
+  (testing "integrated-test-progressive"
+    (let [i1p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 1 :timestamp 10}
+          i2p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 2 :timestamp 10}
+          i3p1b1w1C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 1 :entityId 3 :timestamp 21}
+          i4p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 4 :timestamp 22}
+          i5p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 5 :timestamp 31}
+          full-descriptor {
+                           :reduce-function :progressive-count 
+                           :forward-filter {:operator "progressive-count-forward-filter"}
+                           :result-descriptors [
+                                                {:function :avg :filter {:operator "progressive-count-example-based-filter" :example {:workflowitem 1}}}
+                                                {:function :avg :filter {:operator "progressive-count-example-based-filter" :example {:workflowitem 2}}}
+                                                ]
+                           }
+          stream [i1p1b1w1C i2p1b1w1C i3p1b1w1C i4p1b1w2C i5p1b1w2C]
+          res (run-analisis full-descriptor 10 stream)
+          ]
+              (is (= [[1.5 -1][2.5 1.0][3.0 1.5]] res))
+      ))
 )
