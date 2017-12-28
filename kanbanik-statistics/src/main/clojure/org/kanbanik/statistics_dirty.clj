@@ -64,7 +64,8 @@
         clean-event-stream (map #(update-map % objectid-to-str) event-stream)
         ]
     (json/write-str (run-analisis 
-                (keywordify (into {} descriptor))
-                timeframe
-                clean-event-stream
-                ))))
+                     (keywordify (into {} descriptor))
+                     timeframe
+                     clean-event-stream
+                     ))))
+

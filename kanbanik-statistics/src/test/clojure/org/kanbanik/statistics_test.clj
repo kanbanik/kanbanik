@@ -186,7 +186,7 @@
           i4p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 4 :timestamp 22}
           i5p1b1w2C {:eventType "TaskCreated" :projectId 1 :boardId 1 :workflowitem 2 :entityId 5 :timestamp 31}
           full-descriptor {
-                           :reduce-function :progressive-count 
+                           :reduce-function :progressive-count
                            :forward-filter {:operator "progressive-count-forward-filter"}
                            :result-descriptors [
                                                 {:function :avg :filter {:operator "progressive-count-example-based-filter" :example {:workflowitem 1}}}
