@@ -1,8 +1,8 @@
 package com.googlecode.kanbanik.db
+
 import com.googlecode.kanbanik.model.manipulation.ResourceManipulation
-import com.mongodb.casbah.MongoConnection
-import com.mongodb.casbah.WriteConcern
-import com.mongodb.casbah.MongoCollection
+import com.mongodb.ServerAddress
+import com.mongodb.casbah.{MongoClient, MongoCollection, MongoCredential, WriteConcern}
 
 trait HasMongoConnection extends ResourceManipulation {
 
@@ -25,11 +25,11 @@ trait HasMongoConnection extends ResourceManipulation {
     val Events = Value("events")
   }
 
-  def coll(connection: MongoConnection, collName: Coll.Value): MongoCollection = {
+  def coll(connection: MongoClient, collName: Coll.Value): MongoCollection = {
     connection(HasMongoConnection.dbName)(collName.toString)
   }
   
-  def coll(connection: MongoConnection, collName: String): MongoCollection = {
+  def coll(connection: MongoClient, collName: String): MongoCollection = {
     connection(HasMongoConnection.dbName)(collName)
   }
 
@@ -37,12 +37,14 @@ trait HasMongoConnection extends ResourceManipulation {
 
 object HasMongoConnection {
 
-  var connection: MongoConnection = null
+  var connection: MongoClient = null
   def initConnection() {
     if (connection == null) {
-      connection = MongoConnection(server, port)
-      if (authenticationRequired) {
-    	  connection(dbName).authenticate(user, password)
+      connection = if (authenticationRequired) {
+        val credential = MongoCredential.createCredential(user, dbName, password.toCharArray)
+        MongoClient(new ServerAddress(server, port), List(credential))
+      } else {
+        MongoClient(server, port)
       }
       connection.writeConcern = WriteConcern.Safe
     }
