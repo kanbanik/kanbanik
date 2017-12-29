@@ -24,7 +24,7 @@
 		<scala.base-version>2.11</scala.base-version>
 		<scala.version>${scala.base-version}.4</scala.version>
 		<scalatest.version>2.2.1</scalatest.version>
-		<casbah.version>2.7.4</casbah.version>
+		<casbah.version>3.1.1</casbah.version>
 		<shapeless.version>2.0.0</shapeless.version>
 		<shiro.version>1.2.3</shiro.version>
 		<lift-json.version>3.0-M2</lift-json.version>
