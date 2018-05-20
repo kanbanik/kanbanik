@@ -268,8 +268,9 @@ Example output
 )
 
 (defn run-analisis [descriptor timeframe stream]
-  (map #(generate-report (:result-descriptors descriptor) %)
+  (concat [(first-timestamp stream)] ; return the first timestamp of the stream so the client can figure out when did which chunk happen
+    (map #(generate-report (:result-descriptors descriptor) %)
        (reduce-tasks 
         (:reduce-function descriptor)
         (:forward-filter descriptor)
-        (group-by-timeframe stream timeframe))))
+        (group-by-timeframe stream timeframe)))))
